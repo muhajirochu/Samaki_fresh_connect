@@ -89,7 +89,7 @@ flutter:
   
   assets:
     - assets/images/
-    - assets/images/logo/
+    - assets/images/logo/logo.png
     - assets/images/illustrations/
     - assets/images/icons/
     - assets/translations/

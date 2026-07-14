@@ -10,6 +10,7 @@ import '../../providers/auth_provider.dart';
 import '../../models/enums/user_role.dart';
 import '../../models/user_model.dart';
 import '../../utils/logger.dart';
+import '../../widgets/common/app_logo.dart';
 
 // ── Demo account definitions ──────────────────────────────────────────────────
 class DemoAccount {
@@ -238,10 +239,10 @@ class _HeroHeader extends StatelessWidget {
                         ),
                       ],
                     ),
-                    child: const Icon(
-                      Icons.water_drop_rounded,
-                      color: AppColors.primaryBlue,
-                      size: 28,
+                    padding: const EdgeInsets.all(6),
+                    child: const AppLogo(
+                      size: 36,
+                      borderRadius: 8,
                     ),
                   ),
                   const SizedBox(width: 12),

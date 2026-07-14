@@ -12,6 +12,7 @@ import '../../providers/auth_provider.dart';
 import '../../services/cloudinary_service.dart';
 import '../../utils/error_handler.dart';
 import '../../utils/logger.dart';
+import '../../widgets/common/app_logo.dart';
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Data constants
@@ -694,6 +695,27 @@ class _Header extends StatelessWidget {
             onPressed: onBack,
           ),
           const SizedBox(width: 4),
+          Container(
+            width: 36,
+            height: 36,
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(10),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withValues(alpha: 0.15),
+                  blurRadius: 8,
+                  offset: const Offset(0, 2),
+                ),
+              ],
+            ),
+            padding: const EdgeInsets.all(4),
+            child: const AppLogo(
+              size: 28,
+              borderRadius: 6,
+            ),
+          ),
+          const SizedBox(width: 10),
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [

@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import '../../constants/app_colors.dart';
 import '../../providers/auth_provider.dart';
+import '../../widgets/common/app_logo.dart';
 
 class SplashScreen extends ConsumerStatefulWidget {
   const SplashScreen({super.key});
@@ -193,10 +193,10 @@ class _SplashScreenState extends ConsumerState<SplashScreen>
                             ),
                           ],
                         ),
-                        child: const Icon(
-                          Icons.water_drop_rounded,
-                          size: 64,
-                          color: AppColors.primaryBlue,
+                        padding: const EdgeInsets.all(12),
+                        child: const AppLogo(
+                          size: 96,
+                          borderRadius: 20,
                         ),
                       ),
                     ),
