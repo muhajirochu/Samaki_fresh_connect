@@ -48,3 +48,11 @@ app.*.map.json
 /android/app/debug
 /android/app/profile
 /android/app/release
+
+# Firebase platform configs contain project IDs and API keys — keep them local.
+/android/app/google-services.json
+/ios/Runner/GoogleService-Info.plist
+/macos/Runner/GoogleService-Info.plist
+/firebase-debug.log
+/firebase-debug.*.log
+/.firebase/
