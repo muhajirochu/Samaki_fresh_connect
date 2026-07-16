@@ -195,6 +195,45 @@ class FishListingService {
     });
   }
 
+  /// Stream every listing in the system (admin moderation view).
+  /// Includes sold, expired and inactive listings so the admin can
+  /// review the full marketplace catalogue. Capped with `LIMIT` so
+  /// the admin screen stays responsive even on a large collection.
+  Stream<List<FishListingModel>> streamAllListings() {
+    if (!_isAvailable) return Stream.value([]);
+    try {
+      return _firestore
+          .collection(_collection)
+          .orderBy('createdAt', descending: true)
+          .limit(_maxActiveListings)
+          .snapshots()
+          .map((snap) => snap.docs
+              .map((d) => FishListingModel.fromJson(d.data()))
+              .toList(growable: false));
+    } catch (e) {
+      AppLogger.error('Error streaming all listings: $e');
+      return Stream.value(<FishListingModel>[]);
+    }
+  }
+
+  /// Stream the count of currently-active listings — used by the
+  /// admin dashboard's "Active Listings" stat tile. Listens on the
+  /// `status == 'active'` query so the count flips live as listings
+  /// are marked sold / expired.
+  Stream<int> streamActiveListingsCount() {
+    if (!_isAvailable) return Stream.value(0);
+    try {
+      return _firestore
+          .collection(_collection)
+          .where('status', isEqualTo: 'active')
+          .snapshots()
+          .map((snap) => snap.docs.length);
+    } catch (e) {
+      AppLogger.error('Error streaming active listings count: $e');
+      return Stream.value(0);
+    }
+  }
+
 
 
   /// Fetch a single listing by ID

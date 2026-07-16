@@ -5,6 +5,7 @@ import '../../config/theme_extensions.dart';
 import '../../constants/app_colors.dart';
 import '../../constants/app_sizes.dart';
 import '../../l10n/app_localizations.dart';
+import '../../providers/admin_provider.dart';
 import '../../providers/auth_provider.dart';
 import '../../widgets/common/common_widgets.dart';
 import '../../widgets/common/top_app_bar.dart';
@@ -49,30 +50,10 @@ class AdminDashboardScreen extends ConsumerWidget {
                   crossAxisSpacing: AppSizes.paddingMD,
                   childAspectRatio: 1.15,
                   children: [
-                    _StatCard(
-                      title: l10n.totalUsers,
-                      value: '42',
-                      icon: Icons.people_alt_rounded,
-                      color: AppColors.primaryBlue,
-                    ),
-                    _StatCard(
-                      title: l10n.activeListings,
-                      value: '18',
-                      icon: Icons.storefront_rounded,
-                      color: AppColors.secondaryTeal,
-                    ),
-                    _StatCard(
-                      title: l10n.ordersToday,
-                      value: '7',
-                      icon: Icons.receipt_long_rounded,
-                      color: AppColors.accentOrange,
-                    ),
-                    _StatCard(
-                      title: l10n.platformRevenue,
-                      value: 'TZS 45K',
-                      icon: Icons.account_balance_rounded,
-                      color: AppColors.successGreen,
-                    ),
+                    _TotalUsersCard(),
+                    _ActiveListingsCard(),
+                    _OrdersTodayCard(),
+                    _PlatformRevenueCard(),
                   ],
                 ),
               ),
@@ -96,9 +77,9 @@ class AdminDashboardScreen extends ConsumerWidget {
                       const SizedBox(height: AppSizes.paddingLG),
                       _ActionTile(
                         icon: Icons.people_outline_rounded,
-                        title: l10n.manageDalalis,
-                        subtitle: l10n.manageDalalisSubtitle,
-                        onTap: () => context.push('/admin/manage-dalalis'),
+                        title: l10n.manageStreetSellers,
+                        subtitle: l10n.manageStreetSellersSubtitle,
+                        onTap: () => context.push('/admin/sellers'),
                         color: AppColors.primaryBlue,
                       ),
                       const SizedBox(height: AppSizes.paddingMD),
@@ -106,15 +87,15 @@ class AdminDashboardScreen extends ConsumerWidget {
                         icon: Icons.list_alt_rounded,
                         title: l10n.allListings,
                         subtitle: l10n.allListingsSubtitle,
-                        onTap: () => context.push('/listings'),
+                        onTap: () => context.push('/admin/listings'),
                         color: AppColors.secondaryTeal,
                       ),
                       const SizedBox(height: AppSizes.paddingMD),
                       _ActionTile(
                         icon: Icons.payments_outlined,
-                        title: l10n.transactions,
-                        subtitle: l10n.transactionsSubtitle,
-                        onTap: () {},
+                        title: l10n.transactionsTitle,
+                        subtitle: l10n.transactionsScreenSubtitle,
+                        onTap: () => context.push('/admin/transactions'),
                         color: AppColors.successGreen,
                       ),
                       const SizedBox(height: AppSizes.paddingXXL),
@@ -127,6 +108,88 @@ class AdminDashboardScreen extends ConsumerWidget {
         },
       ),
     );
+  }
+}
+
+// ── Live stat cards ─────────────────────────────────────────────────────
+//
+// Each card reads from a dedicated Riverpod stream so the value
+// updates in real time as data lands in Firestore.
+
+class _TotalUsersCard extends ConsumerWidget {
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = AppLocalizations.of(context);
+    final countsAsync = ref.watch(adminUserCountsProvider);
+    final total = countsAsync.maybeWhen(
+      data: (counts) {
+        final b = counts['buyer'] ?? 0;
+        final s = counts['streetSeller'] ?? 0;
+        final a = counts['admin'] ?? 0;
+        return b + s + a;
+      },
+      orElse: () => 0,
+    );
+    return _StatCard(
+      title: l10n.totalUsers,
+      value: total.toString(),
+      icon: Icons.people_alt_rounded,
+      color: AppColors.primaryBlue,
+    );
+  }
+}
+
+class _ActiveListingsCard extends ConsumerWidget {
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = AppLocalizations.of(context);
+    final countAsync = ref.watch(adminActiveListingsCountProvider);
+    final count = countAsync.valueOrNull ?? 0;
+    return _StatCard(
+      title: l10n.activeListings,
+      value: count.toString(),
+      icon: Icons.storefront_rounded,
+      color: AppColors.secondaryTeal,
+    );
+  }
+}
+
+class _OrdersTodayCard extends ConsumerWidget {
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = AppLocalizations.of(context);
+    final countAsync = ref.watch(adminTodaysOrdersProvider);
+    final count = countAsync.valueOrNull?.length ?? 0;
+    return _StatCard(
+      title: l10n.ordersToday,
+      value: count.toString(),
+      icon: Icons.receipt_long_rounded,
+      color: AppColors.infoBlue,
+    );
+  }
+}
+
+class _PlatformRevenueCard extends ConsumerWidget {
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = AppLocalizations.of(context);
+    final revenueAsync = ref.watch(adminPlatformRevenueProvider);
+    final revenue = revenueAsync.valueOrNull ?? 0.0;
+    return _StatCard(
+      title: l10n.platformRevenue,
+      value: _formatRevenue(revenue),
+      icon: Icons.account_balance_rounded,
+      color: AppColors.successGreen,
+    );
+  }
+
+  String _formatRevenue(double amount) {
+    if (amount == 0) return 'TZS 0';
+    if (amount >= 1000) {
+      final k = amount / 1000;
+      return 'TZS ${k.toStringAsFixed(k >= 100 ? 0 : 1)}K';
+    }
+    return 'TZS ${amount.toStringAsFixed(0)}';
   }
 }
 

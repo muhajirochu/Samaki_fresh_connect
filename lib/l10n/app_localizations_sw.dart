@@ -1013,4 +1013,94 @@ class AppLocalizationsSw extends AppLocalizations {
   String hello(String name) {
     return 'Habari, $name!';
   }
+
+  @override
+  String get manageStreetSellers => 'Simamia Wauzaji wa Barabarani';
+
+  @override
+  String get manageStreetSellersSubtitle =>
+      'Kubali, kagua au zuia wauzaji kwenye jukwaa';
+
+  @override
+  String get noStreetSellers =>
+      'Bado hakuna wauzaji wa barabarani waliosajiliwa';
+
+  @override
+  String get noStreetSellersSubtitle =>
+      'Wauzaji wanaposajili, wataonekana hapa kwa ukaguzi.';
+
+  @override
+  String get viewProfile => 'Ona wasifu';
+
+  @override
+  String get blockUser => 'Zuia';
+
+  @override
+  String get unblockUser => 'Ondolea kuzuia';
+
+  @override
+  String get userBlocked => 'Mtumiaji amezuiwa';
+
+  @override
+  String get userUnblocked => 'Kuzuia kumeondolewa';
+
+  @override
+  String get confirmBlockUser =>
+      'Zuia muuzaji huyu? Hataweza kuingia hadi uondoe kizuizi.';
+
+  @override
+  String get adminAllListingsSubtitle => 'Kagua zabuni zote kwenye soko';
+
+  @override
+  String get noListingsFound => 'Hakuna zabuni zilizopatikana';
+
+  @override
+  String get noListingsFoundSubtitle =>
+      'Wanunuzi au wauzaji wanapounda zabuni, zitaonekana hapa.';
+
+  @override
+  String get deleteListingConfirmationAdmin =>
+      'Futa kabisa zabuni hii? Hii haiwezi kubatilishwa.';
+
+  @override
+  String get listingDeleted => 'Zabuni imefutwa';
+
+  @override
+  String get transactionsTitle => 'Miamala';
+
+  @override
+  String get transactionsScreenSubtitle =>
+      'Maagizo yote yaliyowekwa kwenye jukwaa';
+
+  @override
+  String get noTransactions => 'Bado hakuna miamala';
+
+  @override
+  String get noTransactionsSubtitle =>
+      'Wanunuzi wanapoagiza, yataonekana hapa.';
+
+  @override
+  String revenueLabel(String amount) {
+    return 'TZS $amount';
+  }
+
+  @override
+  String get revenueZero => 'TZS 0';
+
+  @override
+  String kFormatter(String value) {
+    return '${value}K';
+  }
+
+  @override
+  String ordersCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Maagizo $count',
+      one: 'Agizo 1',
+      zero: 'Hakuna maagizo',
+    );
+    return '$_temp0';
+  }
 }

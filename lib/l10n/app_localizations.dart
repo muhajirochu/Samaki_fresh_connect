@@ -1957,6 +1957,144 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Hello, {name}!'**
   String hello(String name);
+
+  /// No description provided for @manageStreetSellers.
+  ///
+  /// In en, this message translates to:
+  /// **'Manage Street Sellers'**
+  String get manageStreetSellers;
+
+  /// No description provided for @manageStreetSellersSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Approve, review or block sellers on the platform'**
+  String get manageStreetSellersSubtitle;
+
+  /// No description provided for @noStreetSellers.
+  ///
+  /// In en, this message translates to:
+  /// **'No street sellers registered yet'**
+  String get noStreetSellers;
+
+  /// No description provided for @noStreetSellersSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'When sellers register, they\'ll appear here for review.'**
+  String get noStreetSellersSubtitle;
+
+  /// No description provided for @viewProfile.
+  ///
+  /// In en, this message translates to:
+  /// **'View profile'**
+  String get viewProfile;
+
+  /// No description provided for @blockUser.
+  ///
+  /// In en, this message translates to:
+  /// **'Block'**
+  String get blockUser;
+
+  /// No description provided for @unblockUser.
+  ///
+  /// In en, this message translates to:
+  /// **'Unblock'**
+  String get unblockUser;
+
+  /// No description provided for @userBlocked.
+  ///
+  /// In en, this message translates to:
+  /// **'User blocked'**
+  String get userBlocked;
+
+  /// No description provided for @userUnblocked.
+  ///
+  /// In en, this message translates to:
+  /// **'User unblocked'**
+  String get userUnblocked;
+
+  /// No description provided for @confirmBlockUser.
+  ///
+  /// In en, this message translates to:
+  /// **'Block this seller? They will not be able to sign in until you unblock them.'**
+  String get confirmBlockUser;
+
+  /// No description provided for @adminAllListingsSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Review every listing across the marketplace'**
+  String get adminAllListingsSubtitle;
+
+  /// No description provided for @noListingsFound.
+  ///
+  /// In en, this message translates to:
+  /// **'No listings found'**
+  String get noListingsFound;
+
+  /// No description provided for @noListingsFoundSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'When buyers or sellers create listings, they\'ll appear here.'**
+  String get noListingsFoundSubtitle;
+
+  /// No description provided for @deleteListingConfirmationAdmin.
+  ///
+  /// In en, this message translates to:
+  /// **'Permanently delete this listing? This cannot be undone.'**
+  String get deleteListingConfirmationAdmin;
+
+  /// No description provided for @listingDeleted.
+  ///
+  /// In en, this message translates to:
+  /// **'Listing deleted'**
+  String get listingDeleted;
+
+  /// No description provided for @transactionsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Transactions'**
+  String get transactionsTitle;
+
+  /// No description provided for @transactionsScreenSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'All orders placed on the platform'**
+  String get transactionsScreenSubtitle;
+
+  /// No description provided for @noTransactions.
+  ///
+  /// In en, this message translates to:
+  /// **'No transactions yet'**
+  String get noTransactions;
+
+  /// No description provided for @noTransactionsSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'When buyers place orders, they\'ll appear here.'**
+  String get noTransactionsSubtitle;
+
+  /// No description provided for @revenueLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'TZS {amount}'**
+  String revenueLabel(String amount);
+
+  /// No description provided for @revenueZero.
+  ///
+  /// In en, this message translates to:
+  /// **'TZS 0'**
+  String get revenueZero;
+
+  /// No description provided for @kFormatter.
+  ///
+  /// In en, this message translates to:
+  /// **'{value}K'**
+  String kFormatter(String value);
+
+  /// No description provided for @ordersCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =0{No orders} =1{1 order} other{{count} orders}}'**
+  String ordersCount(int count);
 }
 
 class _AppLocalizationsDelegate

@@ -1015,4 +1015,93 @@ class AppLocalizationsEn extends AppLocalizations {
   String hello(String name) {
     return 'Hello, $name!';
   }
+
+  @override
+  String get manageStreetSellers => 'Manage Street Sellers';
+
+  @override
+  String get manageStreetSellersSubtitle =>
+      'Approve, review or block sellers on the platform';
+
+  @override
+  String get noStreetSellers => 'No street sellers registered yet';
+
+  @override
+  String get noStreetSellersSubtitle =>
+      'When sellers register, they\'ll appear here for review.';
+
+  @override
+  String get viewProfile => 'View profile';
+
+  @override
+  String get blockUser => 'Block';
+
+  @override
+  String get unblockUser => 'Unblock';
+
+  @override
+  String get userBlocked => 'User blocked';
+
+  @override
+  String get userUnblocked => 'User unblocked';
+
+  @override
+  String get confirmBlockUser =>
+      'Block this seller? They will not be able to sign in until you unblock them.';
+
+  @override
+  String get adminAllListingsSubtitle =>
+      'Review every listing across the marketplace';
+
+  @override
+  String get noListingsFound => 'No listings found';
+
+  @override
+  String get noListingsFoundSubtitle =>
+      'When buyers or sellers create listings, they\'ll appear here.';
+
+  @override
+  String get deleteListingConfirmationAdmin =>
+      'Permanently delete this listing? This cannot be undone.';
+
+  @override
+  String get listingDeleted => 'Listing deleted';
+
+  @override
+  String get transactionsTitle => 'Transactions';
+
+  @override
+  String get transactionsScreenSubtitle => 'All orders placed on the platform';
+
+  @override
+  String get noTransactions => 'No transactions yet';
+
+  @override
+  String get noTransactionsSubtitle =>
+      'When buyers place orders, they\'ll appear here.';
+
+  @override
+  String revenueLabel(String amount) {
+    return 'TZS $amount';
+  }
+
+  @override
+  String get revenueZero => 'TZS 0';
+
+  @override
+  String kFormatter(String value) {
+    return '${value}K';
+  }
+
+  @override
+  String ordersCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count orders',
+      one: '1 order',
+      zero: 'No orders',
+    );
+    return '$_temp0';
+  }
 }

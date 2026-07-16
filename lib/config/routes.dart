@@ -14,6 +14,9 @@ import '../screens/buyer/buyer_requests_screen.dart';
 import '../screens/buyer/buyer_wishlist_screen.dart';
 import '../screens/street_seller/street_seller_dashboard_screen.dart';
 import '../screens/admin/admin_dashboard_screen.dart';
+import '../screens/admin/manage_sellers_screen.dart';
+import '../screens/admin/admin_all_listings_screen.dart';
+import '../screens/admin/admin_transactions_screen.dart';
 import '../screens/common/fish_listings_screen.dart';
 import '../screens/fisherman/create_listing_screen.dart';
 import '../screens/common/fish_listing_detail_screen.dart';
@@ -152,6 +155,20 @@ final appRouter = GoRouter(
     GoRoute(
       path: '/dashboard/admin',
       builder: (context, state) => const AdminDashboardScreen(),
+    ),
+
+    // ── Admin management screens ────────────────────────────────────
+    GoRoute(
+      path: '/admin/sellers',
+      builder: (context, state) => const ManageSellersScreen(),
+    ),
+    GoRoute(
+      path: '/admin/listings',
+      builder: (context, state) => const AdminAllListingsScreen(),
+    ),
+    GoRoute(
+      path: '/admin/transactions',
+      builder: (context, state) => const AdminTransactionsScreen(),
     ),
 
     // ── Fish Listings ─────────────────────────────────────────────────────────

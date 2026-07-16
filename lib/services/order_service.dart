@@ -106,4 +106,50 @@ class OrderService {
       'completedAt': FieldValue.serverTimestamp(),
     });
   }
+
+  /// Stream every order in the system — used by the admin dashboard
+  /// and the Transactions screen. Backed by Firestore snapshots so
+  /// totals stay current as new orders arrive. Sorted newest first
+  /// so the admin always sees the most recent activity at the top.
+  Stream<List<OrderModel>> streamAllOrders() {
+    if (!_isAvailable) return Stream.value(<OrderModel>[]);
+    try {
+      return _firestore
+          .collection(_collection)
+          .orderBy('createdAt', descending: true)
+          .snapshots()
+          .map((snap) => snap.docs
+              .map((d) => OrderModel.fromJson(d.data()))
+              .toList(growable: false));
+    } catch (e) {
+      AppLogger.error('Error streaming all orders: $e');
+      return Stream.value(<OrderModel>[]);
+    }
+  }
+
+  /// Stream orders created today — used by the admin dashboard's
+  /// "Orders Today" stat tile. A query against `createdAt` with a
+  /// start bound equal to today's midnight (local) lets Firestore
+  /// serve the count from the day-bucket index.
+  Stream<List<OrderModel>> streamTodaysOrders() {
+    if (!_isAvailable) return Stream.value(<OrderModel>[]);
+    try {
+      final midnight = DateTime(
+        DateTime.now().year,
+        DateTime.now().month,
+        DateTime.now().day,
+      );
+      return _firestore
+          .collection(_collection)
+          .where('createdAt', isGreaterThanOrEqualTo: midnight)
+          .orderBy('createdAt', descending: true)
+          .snapshots()
+          .map((snap) => snap.docs
+              .map((d) => OrderModel.fromJson(d.data()))
+              .toList(growable: false));
+    } catch (e) {
+      AppLogger.error("Error streaming today's orders: $e");
+      return Stream.value(<OrderModel>[]);
+    }
+  }
 }

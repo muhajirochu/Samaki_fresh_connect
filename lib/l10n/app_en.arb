@@ -442,5 +442,43 @@
         "placeholders": {
             "name": {"type": "String"}
         }
+    },
+    "manageStreetSellers": "Manage Street Sellers",
+    "manageStreetSellersSubtitle": "Approve, review or block sellers on the platform",
+    "noStreetSellers": "No street sellers registered yet",
+    "noStreetSellersSubtitle": "When sellers register, they'll appear here for review.",
+    "viewProfile": "View profile",
+    "blockUser": "Block",
+    "unblockUser": "Unblock",
+    "userBlocked": "User blocked",
+    "userUnblocked": "User unblocked",
+    "confirmBlockUser": "Block this seller? They will not be able to sign in until you unblock them.",
+    "adminAllListingsSubtitle": "Review every listing across the marketplace",
+    "noListingsFound": "No listings found",
+    "noListingsFoundSubtitle": "When buyers or sellers create listings, they'll appear here.",
+    "deleteListingConfirmationAdmin": "Permanently delete this listing? This cannot be undone.",
+    "listingDeleted": "Listing deleted",
+    "transactionsTitle": "Transactions",
+    "transactionsScreenSubtitle": "All orders placed on the platform",
+    "noTransactions": "No transactions yet",
+    "noTransactionsSubtitle": "When buyers place orders, they'll appear here.",
+    "revenueLabel": "TZS {amount}",
+    "@revenueLabel": {
+        "placeholders": {
+            "amount": {"type": "String"}
+        }
+    },
+    "revenueZero": "TZS 0",
+    "kFormatter": "{value}K",
+    "@kFormatter": {
+        "placeholders": {
+            "value": {"type": "String"}
+        }
+    },
+    "ordersCount": "{count, plural, =0{No orders} =1{1 order} other{{count} orders}}",
+    "@ordersCount": {
+        "placeholders": {
+            "count": {"type": "int"}
+        }
     }
 }

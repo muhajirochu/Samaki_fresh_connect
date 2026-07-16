@@ -446,5 +446,43 @@
         "placeholders": {
             "name": {"type": "String"}
         }
+    },
+    "manageStreetSellers": "Simamia Wauzaji wa Barabarani",
+    "manageStreetSellersSubtitle": "Kubali, kagua au zuia wauzaji kwenye jukwaa",
+    "noStreetSellers": "Bado hakuna wauzaji wa barabarani waliosajiliwa",
+    "noStreetSellersSubtitle": "Wauzaji wanaposajili, wataonekana hapa kwa ukaguzi.",
+    "viewProfile": "Ona wasifu",
+    "blockUser": "Zuia",
+    "unblockUser": "Ondolea kuzuia",
+    "userBlocked": "Mtumiaji amezuiwa",
+    "userUnblocked": "Kuzuia kumeondolewa",
+    "confirmBlockUser": "Zuia muuzaji huyu? Hataweza kuingia hadi uondoe kizuizi.",
+    "adminAllListingsSubtitle": "Kagua zabuni zote kwenye soko",
+    "noListingsFound": "Hakuna zabuni zilizopatikana",
+    "noListingsFoundSubtitle": "Wanunuzi au wauzaji wanapounda zabuni, zitaonekana hapa.",
+    "deleteListingConfirmationAdmin": "Futa kabisa zabuni hii? Hii haiwezi kubatilishwa.",
+    "listingDeleted": "Zabuni imefutwa",
+    "transactionsTitle": "Miamala",
+    "transactionsScreenSubtitle": "Maagizo yote yaliyowekwa kwenye jukwaa",
+    "noTransactions": "Bado hakuna miamala",
+    "noTransactionsSubtitle": "Wanunuzi wanapoagiza, yataonekana hapa.",
+    "revenueLabel": "TZS {amount}",
+    "@revenueLabel": {
+        "placeholders": {
+            "amount": {"type": "String"}
+        }
+    },
+    "revenueZero": "TZS 0",
+    "kFormatter": "{value}K",
+    "@kFormatter": {
+        "placeholders": {
+            "value": {"type": "String"}
+        }
+    },
+    "ordersCount": "{count, plural, =0{Hakuna maagizo} =1{Agizo 1} other{Maagizo {count}}}",
+    "@ordersCount": {
+        "placeholders": {
+            "count": {"type": "int"}
+        }
     }
 }
