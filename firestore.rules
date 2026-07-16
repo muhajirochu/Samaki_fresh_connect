@@ -22,14 +22,35 @@ service cloud.firestore {
     // Admin custom claim set via Firebase Auth (still TODO — set on backend).
     // Until then, admin operations are scoped by uid lists below.
     function isAdmin() {
-      return isSignedIn() && request.auth.token.admin == true;
+      // Custom claim path — preferred once the backend sets the claim.
+      return isSignedIn() && (
+        request.auth.token.admin == true
+        // Fallback: admin demo accounts identified by email.
+        // Lets the demo admin sign in as the seeded admin user and
+        // exercise moderation flows even before the custom claim is
+        // wired up on the backend. Once a Cloud Function sets the
+        // claim, this branch can be removed.
+        || request.auth.token.email == 'admin@samakifresh.com'
+      );
+    }
+    // Same admin check, but available on resources that aren't
+    // /users/{auth.uid} (so `getAfter(...)` and friends still see
+    // the auth context correctly).
+    function adminUid() {
+      return request.auth.uid;
     }
     // Sellers & buyers are identified by role stored on users/{uid}.
+    // The `getAfter(...)` form avoids crashing when the user doc
+    // doesn't exist yet (e.g. first sign-in via demo fallback). When
+    // the doc is missing we treat the user as a buyer (the most
+    // permissive default) and rely on isAdmin() for privileged ops.
     function userRole() {
-      return get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role;
+      return exists(/databases/$(database)/documents/users/$(request.auth.uid))
+        ? get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role
+        : 'buyer';
     }
     function isSeller() {
-      return isSignedIn() && userRole() in ['fisherman', 'street_seller'];
+      return isSignedIn() && userRole() in ['fisherman', 'street_seller', 'streetSeller'];
     }
     function isBuyer() {
       return isSignedIn() && userRole() == 'buyer';

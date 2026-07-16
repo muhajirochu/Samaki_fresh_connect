@@ -199,6 +199,10 @@ class FishListingService {
   /// Includes sold, expired and inactive listings so the admin can
   /// review the full marketplace catalogue. Capped with `LIMIT` so
   /// the admin screen stays responsive even on a large collection.
+  ///
+  /// Uses the document id as the listingId fallback so legacy
+  /// documents without a denormalised `listingId` field still get
+  /// a valid id (required for the admin delete action).
   Stream<List<FishListingModel>> streamAllListings() {
     if (!_isAvailable) return Stream.value([]);
     try {
@@ -207,9 +211,18 @@ class FishListingService {
           .orderBy('createdAt', descending: true)
           .limit(_maxActiveListings)
           .snapshots()
-          .map((snap) => snap.docs
-              .map((d) => FishListingModel.fromJson(d.data()))
-              .toList(growable: false));
+          .map((snap) {
+        final list = snap.docs.map((d) {
+          final raw = d.data();
+          // Fall back to the document id when `listingId` is missing
+          // (legacy documents that predate the rename).
+          if ((raw['listingId'] as String?)?.isEmpty ?? true) {
+            raw['listingId'] = d.id;
+          }
+          return FishListingModel.fromJson(raw);
+        }).toList(growable: false);
+        return list;
+      });
     } catch (e) {
       AppLogger.error('Error streaming all listings: $e');
       return Stream.value(<FishListingModel>[]);

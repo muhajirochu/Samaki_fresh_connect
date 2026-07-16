@@ -24,6 +24,7 @@ mixin _$UserModel {
   String get email => throw _privateConstructorUsedError;
   String get fullName => throw _privateConstructorUsedError;
   String get phoneNumber => throw _privateConstructorUsedError;
+  @UserRoleConverter()
   UserRole get role => throw _privateConstructorUsedError;
   String? get profilePictureUrl => throw _privateConstructorUsedError;
   Map<String, dynamic>? get location => throw _privateConstructorUsedError;
@@ -67,7 +68,7 @@ abstract class $UserModelCopyWith<$Res> {
       String email,
       String fullName,
       String phoneNumber,
-      UserRole role,
+      @UserRoleConverter() UserRole role,
       String? profilePictureUrl,
       Map<String, dynamic>? location,
       bool isActive,
@@ -231,7 +232,7 @@ abstract class _$$UserModelImplCopyWith<$Res>
       String email,
       String fullName,
       String phoneNumber,
-      UserRole role,
+      @UserRoleConverter() UserRole role,
       String? profilePictureUrl,
       Map<String, dynamic>? location,
       bool isActive,
@@ -388,7 +389,7 @@ class _$UserModelImpl implements _UserModel {
       required this.email,
       required this.fullName,
       required this.phoneNumber,
-      required this.role,
+      @UserRoleConverter() required this.role,
       this.profilePictureUrl,
       final Map<String, dynamic>? location,
       required this.isActive,
@@ -420,6 +421,7 @@ class _$UserModelImpl implements _UserModel {
   @override
   final String phoneNumber;
   @override
+  @UserRoleConverter()
   final UserRole role;
   @override
   final String? profilePictureUrl;
@@ -576,7 +578,7 @@ abstract class _UserModel implements UserModel {
           required final String email,
           required final String fullName,
           required final String phoneNumber,
-          required final UserRole role,
+          @UserRoleConverter() required final UserRole role,
           final String? profilePictureUrl,
           final Map<String, dynamic>? location,
           required final bool isActive,
@@ -608,6 +610,7 @@ abstract class _UserModel implements UserModel {
   @override
   String get phoneNumber;
   @override
+  @UserRoleConverter()
   UserRole get role;
   @override
   String? get profilePictureUrl;

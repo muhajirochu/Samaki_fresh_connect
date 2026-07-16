@@ -12,7 +12,7 @@ _$UserModelImpl _$$UserModelImplFromJson(Map<String, dynamic> json) =>
       email: json['email'] as String,
       fullName: json['fullName'] as String,
       phoneNumber: json['phoneNumber'] as String,
-      role: $enumDecode(_$UserRoleEnumMap, json['role']),
+      role: const UserRoleConverter().fromJson(json['role']),
       profilePictureUrl: json['profilePictureUrl'] as String?,
       location: json['location'] as Map<String, dynamic>?,
       isActive: json['isActive'] as bool,
@@ -39,7 +39,7 @@ Map<String, dynamic> _$$UserModelImplToJson(_$UserModelImpl instance) =>
       'email': instance.email,
       'fullName': instance.fullName,
       'phoneNumber': instance.phoneNumber,
-      'role': _$UserRoleEnumMap[instance.role]!,
+      'role': const UserRoleConverter().toJson(instance.role),
       'profilePictureUrl': instance.profilePictureUrl,
       'location': instance.location,
       'isActive': instance.isActive,
@@ -59,9 +59,3 @@ Map<String, dynamic> _$$UserModelImplToJson(_$UserModelImpl instance) =>
       'createdAt': const TimestampConverter().toJson(instance.createdAt),
       'updatedAt': const TimestampConverter().toJson(instance.updatedAt),
     };
-
-const _$UserRoleEnumMap = {
-  UserRole.streetSeller: 'streetSeller',
-  UserRole.buyer: 'buyer',
-  UserRole.admin: 'admin',
-};

@@ -1,5 +1,6 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
 import '../utils/timestamp_converter.dart';
+import '../utils/user_role_converter.dart';
 import 'enums/user_role.dart';
 
 part 'user_model.freezed.dart';
@@ -12,7 +13,7 @@ class UserModel with _$UserModel {
     required String email,
     required String fullName,
     required String phoneNumber,
-    required UserRole role,
+    @UserRoleConverter() required UserRole role,
     String? profilePictureUrl,
     Map<String, dynamic>? location,
     required bool isActive,

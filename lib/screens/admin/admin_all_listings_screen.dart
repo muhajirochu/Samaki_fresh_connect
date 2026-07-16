@@ -13,6 +13,7 @@ import '../../l10n/app_localizations.dart';
 import '../../models/enums/fish_type.dart';
 import '../../models/fish_listing_model.dart';
 import '../../providers/admin_provider.dart';
+import '../../utils/logger.dart';
 
 class AdminAllListingsScreen extends ConsumerWidget {
   const AdminAllListingsScreen({super.key});
@@ -119,9 +120,22 @@ class _ListingRow extends ConsumerWidget {
       ),
     );
     if (ok != true) return;
+    if (listing.listingId.isEmpty) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(l10n.errorGeneric('Missing listing id')),
+            backgroundColor: AppColors.errorRed,
+            behavior: SnackBarBehavior.floating,
+          ),
+        );
+      }
+      return;
+    }
     final service = ref.read(adminListingServiceProvider);
     try {
       await service.deleteListing(listing.listingId);
+      AppLogger.info('Admin deleted listing ${listing.listingId}');
       ref.invalidate(adminAllListingsProvider);
       ref.invalidate(adminActiveListingsCountProvider);
       if (context.mounted) {
