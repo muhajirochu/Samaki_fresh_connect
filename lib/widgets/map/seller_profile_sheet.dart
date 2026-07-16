@@ -9,15 +9,23 @@
 //   - Phone number (with copy-to-clipboard),
 //   - Trust signals: rating, total ratings, total orders,
 //   - Action row: "Send fish request".
+//
+// Theme: the sheet surface, the avatar ring, the location card, and the
+// trust tiles all read colours from `Theme.of(context).colorScheme` and
+// `BackgroundStyle.of(context)` so the sheet renders correctly in both
+// Light and Dark. The status pills (success green / grey) keep their
+// semantic colours — those are not backgrounds, they are accent dots.
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 
+import '../../config/theme_extensions.dart';
 import '../../constants/app_colors.dart';
 import '../../constants/app_sizes.dart';
 import '../../features/map/utils/gps_helper.dart';
 import '../../models/street_seller_model.dart';
+import '../common/premium_components.dart';
 
 /// Modal sheet showing a seller's full profile. Open via the static
 /// [SellerProfileSheet.show] helper from anywhere that has a
@@ -61,6 +69,7 @@ class SellerProfileSheet extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final tokens = BackgroundStyle.of(context);
     final distanceKm = (buyerLatitude != null && buyerLongitude != null)
         ? seller.distanceKmFrom(buyerLatitude!, buyerLongitude!)
         : null;
@@ -72,10 +81,13 @@ class SellerProfileSheet extends StatelessWidget {
       expand: true,
       builder: (context, scrollController) {
         return Container(
-          decoration: const BoxDecoration(
-            color: AppColors.white,
-            borderRadius: BorderRadius.vertical(
+          decoration: BoxDecoration(
+            color: tokens.surface,
+            borderRadius: const BorderRadius.vertical(
               top: Radius.circular(AppSizes.radiusXL),
+            ),
+            border: Border(
+              top: BorderSide(color: tokens.border, width: 0.6),
             ),
           ),
           child: Column(
@@ -117,6 +129,7 @@ class SellerProfileSheet extends StatelessWidget {
 class _DragHandle extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
+    final tokens = BackgroundStyle.of(context);
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: AppSizes.paddingSM),
       child: Center(
@@ -124,7 +137,7 @@ class _DragHandle extends StatelessWidget {
           width: 40,
           height: 4,
           decoration: BoxDecoration(
-            color: AppColors.gray300,
+            color: tokens.border,
             borderRadius: BorderRadius.circular(2),
           ),
         ),
@@ -140,9 +153,13 @@ class _ProfileHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final tokens = BackgroundStyle.of(context);
+    final cs = Theme.of(context).colorScheme;
     return Stack(
       children: [
-        // Cover banner tinted by online status.
+        // Cover banner tinted by online status — uses deep-navy hero
+        // gradient (brand surface, acceptable per spec) for offline
+        // sellers, and a green→blue live tint for online ones.
         Container(
           height: 80,
           decoration: BoxDecoration(
@@ -151,15 +168,16 @@ class _ProfileHeader extends StatelessWidget {
               end: Alignment.bottomRight,
               colors: seller.isOnline
                   ? [
-                      AppColors.successGreen.withValues(alpha: 0.18),
-                      AppColors.primaryBlue.withValues(alpha: 0.10),
+                      AppColors.successGreen.withValues(alpha: 0.22),
+                      AppColors.primaryBlue.withValues(alpha: 0.18),
                     ]
                   : [
-                      AppColors.gray200,
-                      AppColors.gray100,
+                      AppColors.darkNavy900,
+                      cs.surfaceContainerHighest,
                     ],
             ),
             borderRadius: BorderRadius.circular(AppSizes.radiusLG),
+            border: Border.all(color: tokens.border, width: 0.6),
           ),
         ),
         // Avatar + identity row.
@@ -256,6 +274,7 @@ class _SellerAvatar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final url = seller.profilePictureUrl;
+    final tokens = BackgroundStyle.of(context);
     return Container(
       width: size,
       height: size,
@@ -263,12 +282,12 @@ class _SellerAvatar extends StatelessWidget {
         color: _tintFor(seller.sellerId).withValues(alpha: 0.18),
         shape: BoxShape.circle,
         border: Border.all(
-          color: AppColors.white,
+          color: tokens.surface,
           width: 3,
         ),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.10),
+            color: Colors.black.withValues(alpha: 0.18),
             blurRadius: 8,
             offset: const Offset(0, 2),
           ),
@@ -325,6 +344,7 @@ class _OnlineStatusPill extends StatelessWidget {
             const Duration(minutes: 5);
 
     final theme = Theme.of(context);
+    final cs = theme.colorScheme;
     if (isFresh) {
       return Container(
         padding: const EdgeInsets.symmetric(
@@ -362,7 +382,9 @@ class _OnlineStatusPill extends StatelessWidget {
     if (lastFix == null && !seller.isOnline) {
       return Text(
         'Street seller · Zanzibar',
-        style: theme.textTheme.bodySmall?.copyWith(color: AppColors.gray600),
+        style: theme.textTheme.bodySmall?.copyWith(
+          color: cs.onSurface.withValues(alpha: 0.65),
+        ),
       );
     }
 
@@ -372,7 +394,7 @@ class _OnlineStatusPill extends StatelessWidget {
         vertical: 2,
       ),
       decoration: BoxDecoration(
-        color: AppColors.gray100,
+        color: cs.surfaceContainerHighest,
         borderRadius: BorderRadius.circular(AppSizes.radiusSM),
       ),
       child: Row(
@@ -392,7 +414,7 @@ class _OnlineStatusPill extends StatelessWidget {
                 ? 'Offline'
                 : 'Last seen ${GpsHelper.formatRelativeTime(lastFix)}',
             style: theme.textTheme.bodySmall?.copyWith(
-              color: AppColors.gray600,
+              color: cs.onSurface.withValues(alpha: 0.65),
               fontWeight: FontWeight.w600,
             ),
           ),
@@ -471,6 +493,7 @@ class _ContactTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
     return Material(
       color: color.withValues(alpha: 0.08),
       borderRadius: BorderRadius.circular(AppSizes.radiusLG),
@@ -515,10 +538,10 @@ class _ContactTile extends StatelessWidget {
                   ],
                 ),
               ),
-              const Icon(
+              Icon(
                 Icons.chevron_right_rounded,
                 size: 18,
-                color: AppColors.gray500,
+                color: cs.onSurface.withValues(alpha: 0.55),
               ),
             ],
           ),
@@ -537,13 +560,9 @@ class _LocationCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    return Container(
+    final cs = theme.colorScheme;
+    return PremiumCard(
       padding: const EdgeInsets.all(AppSizes.paddingMD),
-      decoration: BoxDecoration(
-        color: AppColors.gray100,
-        borderRadius: BorderRadius.circular(AppSizes.radiusLG),
-        border: Border.all(color: AppColors.gray200),
-      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -558,7 +577,7 @@ class _LocationCard extends StatelessWidget {
               Text(
                 'LOCATION',
                 style: theme.textTheme.labelSmall?.copyWith(
-                  color: AppColors.gray600,
+                  color: cs.onSurface.withValues(alpha: 0.65),
                   fontWeight: FontWeight.w700,
                   letterSpacing: 1.0,
                 ),
@@ -629,18 +648,20 @@ class _LocationRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final cs = theme.colorScheme;
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 4),
       child: Row(
         children: [
-          Icon(icon, size: 16, color: AppColors.gray500),
+          Icon(icon,
+              size: 16, color: cs.onSurface.withValues(alpha: 0.55)),
           const SizedBox(width: 8),
           SizedBox(
             width: 80,
             child: Text(
               label,
               style: theme.textTheme.bodySmall?.copyWith(
-                color: AppColors.gray600,
+                color: cs.onSurface.withValues(alpha: 0.65),
               ),
             ),
           ),
@@ -730,6 +751,7 @@ class _TrustTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final cs = theme.colorScheme;
     return Container(
       padding: const EdgeInsets.all(AppSizes.paddingSM),
       decoration: BoxDecoration(
@@ -745,7 +767,7 @@ class _TrustTile extends StatelessWidget {
           Text(
             label.toUpperCase(),
             style: theme.textTheme.labelSmall?.copyWith(
-              color: AppColors.gray600,
+              color: cs.onSurface.withValues(alpha: 0.65),
               fontWeight: FontWeight.w700,
               fontSize: 9,
               letterSpacing: 0.5,
@@ -764,7 +786,7 @@ class _TrustTile extends StatelessWidget {
           Text(
             subtitle,
             style: theme.textTheme.labelSmall?.copyWith(
-              color: AppColors.gray600,
+              color: cs.onSurface.withValues(alpha: 0.65),
             ),
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
@@ -785,18 +807,10 @@ class _ActionRow extends StatelessWidget {
     final canRequest = onSendRequest != null;
     return SizedBox(
       width: double.infinity,
-      height: AppSizes.buttonHeight,
-      child: FilledButton.icon(
+      child: GradientButton(
+        label: 'Tuma Ombi la Samaki',
         onPressed: canRequest ? onSendRequest : null,
-        icon: const Icon(Icons.send_rounded, size: 18),
-        label: const Text('Tuma Ombi la Samaki'),
-        style: FilledButton.styleFrom(
-          backgroundColor: AppColors.primaryBlue,
-          disabledBackgroundColor: AppColors.gray300,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(AppSizes.radiusLG),
-          ),
-        ),
+        prefixIcon: Icons.send_rounded,
       ),
     );
   }

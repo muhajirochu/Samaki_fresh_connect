@@ -96,31 +96,35 @@ class _EditListingScreenState extends ConsumerState<EditListingScreen> {
   @override
   Widget build(BuildContext context) {
     final detailAsync = ref.watch(listingDetailProvider(widget.listingId));
+    final cs = Theme.of(context).colorScheme;
+    final tt = Theme.of(context).textTheme;
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF5F7FA),
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       appBar: AppBar(
         title: const Text('Edit Listing',
             style: TextStyle(fontWeight: FontWeight.w600)),
-        backgroundColor: AppColors.primaryBlue,
-        foregroundColor: Colors.white,
+        backgroundColor: cs.primary,
+        foregroundColor: cs.onPrimary,
         elevation: 0,
         actions: [
           if (_current != null)
             TextButton.icon(
               onPressed: _saving ? null : _save,
               icon: _saving
-                  ? const SizedBox(
+                  ? SizedBox(
                       width: 16,
                       height: 16,
                       child: CircularProgressIndicator(
-                          strokeWidth: 2, color: Colors.white),
+                          strokeWidth: 2,
+                          valueColor: AlwaysStoppedAnimation<Color>(
+                              cs.onPrimary)),
                     )
-                  : const Icon(Icons.check_rounded, color: Colors.white),
-              label: const Text(
+                  : Icon(Icons.check_rounded, color: cs.onPrimary),
+              label: Text(
                 'Save',
                 style: TextStyle(
-                    color: Colors.white, fontWeight: FontWeight.w600),
+                    color: cs.onPrimary, fontWeight: FontWeight.w600),
               ),
             ),
         ],
@@ -171,17 +175,28 @@ class _EditListingScreenState extends ConsumerState<EditListingScreen> {
                             Expanded(
                               child: Text(
                                 'This listing is ${listing.status} and can\'t be edited.',
-                                style: const TextStyle(
-                                    color: AppColors.gray800),
+                                style: TextStyle(
+                                    color: cs.onSurface
+                                        .withValues(alpha: 0.85)),
                               ),
                             ),
                           ],
                         ),
                       ),
-                    const _Label('Fish type'),
+                    Padding(
+                      padding: const EdgeInsets.only(bottom: AppSizes.paddingXS),
+                      child: Text(
+                        'Fish type',
+                        style: tt.labelMedium?.copyWith(
+                          color: cs.onSurface.withValues(alpha: 0.80),
+                          fontWeight: FontWeight.w600,
+                          letterSpacing: 0.1,
+                        ),
+                      ),
+                    ),
                     TextFormField(
                       controller: _fishTypeCtrl,
-                      decoration: _inputDeco('e.g. Tuna'),
+                      decoration: _inputDeco(context, 'e.g. Tuna'),
                       validator: (v) => (v == null || v.trim().isEmpty)
                           ? 'Required'
                           : null,
@@ -193,7 +208,19 @@ class _EditListingScreenState extends ConsumerState<EditListingScreen> {
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              const _Label('Quantity (kg)'),
+                              Padding(
+                                padding: const EdgeInsets.only(
+                                    bottom: AppSizes.paddingXS),
+                                child: Text(
+                                  'Quantity (kg)',
+                                  style: tt.labelMedium?.copyWith(
+                                    color:
+                                        cs.onSurface.withValues(alpha: 0.80),
+                                    fontWeight: FontWeight.w600,
+                                    letterSpacing: 0.1,
+                                  ),
+                                ),
+                              ),
                               TextFormField(
                                 controller: _quantityCtrl,
                                 keyboardType:
@@ -203,7 +230,7 @@ class _EditListingScreenState extends ConsumerState<EditListingScreen> {
                                   FilteringTextInputFormatter.allow(
                                       RegExp(r'^\d*\.?\d*')),
                                 ],
-                                decoration: _inputDeco('0.0'),
+                                decoration: _inputDeco(context, '0.0'),
                                 validator: (v) {
                                   final n = double.tryParse(v?.trim() ?? '');
                                   if (n == null || n <= 0) {
@@ -220,7 +247,19 @@ class _EditListingScreenState extends ConsumerState<EditListingScreen> {
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              const _Label('Price / kg (TZS)'),
+                              Padding(
+                                padding: const EdgeInsets.only(
+                                    bottom: AppSizes.paddingXS),
+                                child: Text(
+                                  'Price / kg (TZS)',
+                                  style: tt.labelMedium?.copyWith(
+                                    color:
+                                        cs.onSurface.withValues(alpha: 0.80),
+                                    fontWeight: FontWeight.w600,
+                                    letterSpacing: 0.1,
+                                  ),
+                                ),
+                              ),
                               TextFormField(
                                 controller: _priceCtrl,
                                 keyboardType:
@@ -230,7 +269,7 @@ class _EditListingScreenState extends ConsumerState<EditListingScreen> {
                                   FilteringTextInputFormatter.allow(
                                       RegExp(r'^\d*\.?\d*')),
                                 ],
-                                decoration: _inputDeco('0'),
+                                decoration: _inputDeco(context, '0'),
                                 validator: (v) {
                                   final n = double.tryParse(v?.trim() ?? '');
                                   if (n == null || n <= 0) {
@@ -253,12 +292,21 @@ class _EditListingScreenState extends ConsumerState<EditListingScreen> {
                       ),
                     ],
                     const SizedBox(height: AppSizes.paddingMD),
-                    const _Label('Description'),
+                    Padding(
+                      padding: const EdgeInsets.only(bottom: AppSizes.paddingXS),
+                      child: Text(
+                        'Description',
+                        style: tt.labelMedium?.copyWith(
+                          color: cs.onSurface.withValues(alpha: 0.80),
+                          fontWeight: FontWeight.w600,
+                          letterSpacing: 0.1,
+                        ),
+                      ),
+                    ),
                     TextFormField(
                       controller: _descCtrl,
                       maxLines: 3,
-                      decoration:
-                          _inputDeco('Optional notes for buyers'),
+                      decoration: _inputDeco(context, 'Optional notes for buyers'),
                     ),
                     const SizedBox(height: AppSizes.paddingXL),
                     SizedBox(
@@ -268,16 +316,19 @@ class _EditListingScreenState extends ConsumerState<EditListingScreen> {
                         onPressed:
                             (_saving || blocked) ? null : _save,
                         icon: _saving
-                            ? const SizedBox(
+                            ? SizedBox(
                                 width: 18,
                                 height: 18,
                                 child: CircularProgressIndicator(
-                                    strokeWidth: 2, color: Colors.white),
+                                    strokeWidth: 2,
+                                    valueColor: AlwaysStoppedAnimation<Color>(
+                                        cs.onPrimary)),
                               )
                             : const Icon(Icons.save_rounded),
                         label: Text(_saving ? 'Saving...' : 'Save changes'),
                         style: FilledButton.styleFrom(
-                          backgroundColor: AppColors.primaryBlue,
+                          backgroundColor: cs.primary,
+                          foregroundColor: cs.onPrimary,
                           shape: RoundedRectangleBorder(
                             borderRadius:
                                 BorderRadius.circular(AppSizes.radiusLG),
@@ -295,40 +346,27 @@ class _EditListingScreenState extends ConsumerState<EditListingScreen> {
     );
   }
 
-  InputDecoration _inputDeco(String hint) => InputDecoration(
-        hintText: hint,
-        filled: true,
-        fillColor: Colors.white,
-        border: const OutlineInputBorder(
-          borderRadius: BorderRadius.all(Radius.circular(AppSizes.radiusMD)),
-          borderSide: BorderSide(color: AppColors.gray200),
-        ),
-        focusedBorder: const OutlineInputBorder(
-          borderRadius: BorderRadius.all(Radius.circular(AppSizes.radiusMD)),
-          borderSide:
-              BorderSide(color: AppColors.primaryBlue, width: 1.5),
-        ),
-        contentPadding: const EdgeInsets.symmetric(
-          horizontal: AppSizes.paddingMD,
-          vertical: AppSizes.paddingSM,
-        ),
-      );
-}
-
-class _Label extends StatelessWidget {
-  final String text;
-  const _Label(this.text);
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: AppSizes.paddingXS),
-      child: Text(
-        text,
-        style: const TextStyle(
-          fontWeight: FontWeight.w600,
-          color: AppColors.gray700,
-          fontSize: 13,
-        ),
+  InputDecoration _inputDeco(BuildContext context, String hint) {
+    final cs = Theme.of(context).colorScheme;
+    return InputDecoration(
+      hintText: hint,
+      filled: true,
+      fillColor: cs.surfaceContainerHighest,
+      border: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(AppSizes.radiusMD),
+        borderSide: BorderSide(color: cs.outline.withValues(alpha: 0.3)),
+      ),
+      enabledBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(AppSizes.radiusMD),
+        borderSide: BorderSide(color: cs.outline.withValues(alpha: 0.3)),
+      ),
+      focusedBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(AppSizes.radiusMD),
+        borderSide: BorderSide(color: cs.primary, width: 1.5),
+      ),
+      contentPadding: const EdgeInsets.symmetric(
+        horizontal: AppSizes.paddingMD,
+        vertical: AppSizes.paddingSM,
       ),
     );
   }
@@ -342,12 +380,13 @@ class _TotalPreview extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final total = quantity * price;
+    final cs = Theme.of(context).colorScheme;
     return Padding(
       padding: const EdgeInsets.only(left: AppSizes.paddingXS),
       child: Text(
         'Total: ${Formatters.formatCurrency(total)}',
-        style: const TextStyle(
-          color: AppColors.primaryBlue,
+        style: TextStyle(
+          color: cs.primary,
           fontWeight: FontWeight.w700,
           fontSize: 13,
         ),

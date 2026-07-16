@@ -1,14 +1,30 @@
+// Street seller dashboard — premium version.
+//
+// Layout (top → bottom):
+//   1. Greeting header with brand gradient (Modern Blue → Elegant Green)
+//   2. Stats row: Active Listings + Total Stock
+//   3. Quick actions grid: Buy Stock, My Orders, Sell Stock, My Listings
+//
+// Branding matches the buyer dashboard — Modern Blue primary and
+// Elegant Green accent. The orange theme was removed so the whole app
+// reads as one product family.
+
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:go_router/go_router.dart';
+
 import '../../constants/app_colors.dart';
 import '../../constants/app_sizes.dart';
+import '../../config/theme_extensions.dart';
+import '../../l10n/app_localizations.dart';
 import '../../providers/auth_provider.dart';
 import '../../providers/listing_provider.dart';
 import '../../providers/seller_location_provider.dart';
 import '../../services/seller_location_tracker.dart';
 import '../../services/seller_mirror_service.dart';
 import '../../utils/formatters.dart';
+import '../../widgets/common/premium_components.dart';
+import '../../widgets/common/top_app_bar.dart';
 
 class StreetSellerDashboardScreen extends ConsumerWidget {
   const StreetSellerDashboardScreen({super.key});
@@ -18,6 +34,8 @@ class StreetSellerDashboardScreen extends ConsumerWidget {
     // Ensures `streetSellers/{uid}` mirror exists on first paint after
     // sign-in. The provider itself is fire-and-forget; it never throws.
     ref.watch(sellerMirrorBootstrapProvider);
+
+    final l10n = AppLocalizations.of(context);
 
     final userAsync = ref.watch(currentUserStreamProvider);
     final listingsAsync = userAsync.maybeWhen(
@@ -33,115 +51,57 @@ class StreetSellerDashboardScreen extends ConsumerWidget {
         .fold<double>(0, (acc, l) => acc + l.quantityKg);
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF5F7FA),
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+      // The new global TopAppBar carries the profile, notifications
+      // and theme toggle so seller + buyer share the same chrome.
+      appBar: const TopAppBar(),
       body: userAsync.when(
         loading: () => const Center(child: CircularProgressIndicator()),
-        error: (error, stack) => Center(child: Text('Error: $error')),
+        error: (error, stack) =>
+            Center(child: Text(l10n.loadingError(error.toString()))),
         data: (user) {
-          if (user == null) return const Center(child: Text('Not logged in'));
+          if (user == null) {
+            return Center(child: Text(l10n.notLoggedIn));
+          }
 
           return CustomScrollView(
             slivers: [
-              // ── Gradient AppBar ──────────────────────────────────────────
-              SliverAppBar(
-                expandedHeight: 160,
-                floating: false,
-                pinned: true,
-                stretch: true,
-                backgroundColor: const Color(0xFFBF360C),
-                flexibleSpace: FlexibleSpaceBar(
-                  background: Container(
-                    decoration: const BoxDecoration(
-                      gradient: LinearGradient(
-                        begin: Alignment.topLeft,
-                        end: Alignment.bottomRight,
-                        colors: [
-                          Color(0xFFBF360C),
-                          Color(0xFFE65100),
-                          Color(0xFFFF8A50),
-                        ],
-                      ),
-                    ),
-                    child: SafeArea(
-                      child: Padding(
-                        padding: const EdgeInsets.fromLTRB(20, 12, 20, 0),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            const SizedBox(height: 40),
-                            Row(
-                              children: [
-                                const Icon(Icons.storefront_rounded,
-                                    color: Colors.white, size: 28),
-                                const SizedBox(width: 10),
-                                Text(
-                                  'Hi, ${user.fullName.split(' ').first}! 🛒',
-                                  style: const TextStyle(
-                                    color: Colors.white,
-                                    fontSize: 24,
-                                    fontWeight: FontWeight.w700,
-                                    letterSpacing: -0.3,
-                                  ),
-                                ),
-                              ],
-                            ),
-                            const SizedBox(height: 4),
-                            Text(
-                              'Your street selling hub',
-                              style: TextStyle(
-                                color: Colors.white.withValues(alpha: 0.85),
-                                fontSize: 14,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                  ),
+              // ── Brand gradient greeting header ───────────────────────────
+              SliverToBoxAdapter(
+                child: _SellerGreetingHeader(
+                  greeting: l10n.habari(user.fullName.split(' ').first),
+                  subtitle: l10n.yourStreetSellingHub,
+                  onlineToggle: _OnlineToggleButton(),
                 ),
-                actions: [
-                  _OnlineToggleButton(),
-                  IconButton(
-                    icon: const Icon(Icons.notifications_rounded),
-                    color: Colors.white,
-                    onPressed: () {},
-                  ),
-                  IconButton(
-                    icon: const Icon(Icons.account_circle_rounded),
-                    color: Colors.white,
-                    onPressed: () => context.push('/profile'),
-                  ),
-                ],
               ),
 
               // ── Stats Row ────────────────────────────────────────────────
               SliverToBoxAdapter(
                 child: Padding(
-                  padding: const EdgeInsets.fromLTRB(AppSizes.paddingLG,
-                      AppSizes.paddingLG, AppSizes.paddingLG, 0),
+                  padding: const EdgeInsets.fromLTRB(
+                    AppSizes.paddingLG,
+                    AppSizes.paddingLG,
+                    AppSizes.paddingLG,
+                    0,
+                  ),
                   child: Row(
                     children: [
                       Expanded(
                         child: _StatCard(
-                          title: 'Active Listings',
-                          value: '${activeListings.where((l) => l.status == 'active').length}',
+                          title: l10n.activeListings,
+                          value:
+                              '${activeListings.where((l) => l.status == 'active').length}',
                           icon: Icons.inventory_2_rounded,
-                          color: const Color(0xFFE65100),
-                          gradient: const LinearGradient(
-                            colors: [Color(0xFFFFF3E0), Color(0xFFFFE0B2)],
-                          ),
+                          accent: AppColors.primaryBlue,
                         ),
                       ),
                       const SizedBox(width: AppSizes.paddingMD),
                       Expanded(
                         child: _StatCard(
-                          title: 'Total Stock',
+                          title: l10n.totalStock,
                           value: Formatters.formatQuantity(totalStockKg),
                           icon: Icons.scale_rounded,
-                          color: AppColors.successGreen,
-                          gradient: const LinearGradient(
-                            colors: [Color(0xFFE8F5E9), Color(0xFFC8E6C9)],
-                          ),
+                          accent: AppColors.accentGreen,
                         ),
                       ),
                     ],
@@ -153,24 +113,24 @@ class StreetSellerDashboardScreen extends ConsumerWidget {
               SliverToBoxAdapter(
                 child: Padding(
                   padding: const EdgeInsets.fromLTRB(
-                      AppSizes.paddingLG,
-                      AppSizes.paddingXL,
-                      AppSizes.paddingLG,
-                      AppSizes.paddingSM),
-                  child: Text(
-                    'Quick Actions',
-                    style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                          fontWeight: FontWeight.w700,
-                          letterSpacing: -0.3,
-                        ),
+                    AppSizes.paddingLG,
+                    AppSizes.paddingXL,
+                    AppSizes.paddingLG,
+                    AppSizes.paddingSM,
+                  ),
+                  child: SectionHeader(
+                    title: l10n.quickActions,
+                    leadingIcon: Icons.bolt_rounded,
                   ),
                 ),
               ),
               SliverPadding(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: AppSizes.paddingLG),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: AppSizes.paddingLG,
+                ),
                 sliver: SliverGrid(
-                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                  gridDelegate:
+                      const SliverGridDelegateWithFixedCrossAxisCount(
                     crossAxisCount: 2,
                     crossAxisSpacing: AppSizes.paddingMD,
                     mainAxisSpacing: AppSizes.paddingMD,
@@ -178,38 +138,38 @@ class StreetSellerDashboardScreen extends ConsumerWidget {
                   ),
                   delegate: SliverChildListDelegate([
                     _ActionCard(
-                      title: 'Buy Stock',
-                      subtitle: 'Browse marketplace',
+                      title: l10n.buyStock,
+                      subtitle: l10n.buyStockSubtitle,
                       icon: Icons.shopping_cart_rounded,
-                      color: AppColors.primaryBlue,
+                      accent: AppColors.primaryBlue,
                       onTap: () => context.push('/listings'),
                     ),
                     _ActionCard(
-                      title: 'My Orders',
-                      subtitle: 'Track purchases',
+                      title: l10n.myOrders,
+                      subtitle: l10n.myOrdersSubtitle,
                       icon: Icons.receipt_long_rounded,
-                      color: AppColors.infoBlue,
+                      accent: AppColors.infoBlue,
                       onTap: () => context.push('/orders'),
                     ),
                     _ActionCard(
-                      title: 'Sell Stock',
-                      subtitle: 'Post a listing',
+                      title: l10n.sellStock,
+                      subtitle: l10n.sellStockSubtitle,
                       icon: Icons.add_business_rounded,
-                      color: AppColors.secondaryTeal,
+                      accent: AppColors.accentGreen,
                       onTap: () => context.push('/listings/create'),
                     ),
                     _ActionCard(
-                      title: 'My Listings',
-                      subtitle: 'Manage your stock',
+                      title: l10n.myListings,
+                      subtitle: l10n.myListingsSubtitle,
                       icon: Icons.format_list_bulleted_rounded,
-                      color: AppColors.accentOrange,
+                      accent: AppColors.primaryBlue,
                       onTap: () => context.push('/listings/mine'),
                     ),
                   ]),
                 ),
               ),
               const SliverToBoxAdapter(
-                child: SizedBox(height: AppSizes.paddingXXL),
+                child: SizedBox(height: AppSizes.paddingXXL + 48),
               ),
             ],
           );
@@ -217,40 +177,55 @@ class StreetSellerDashboardScreen extends ConsumerWidget {
       ),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () => context.push('/listings/create'),
-        backgroundColor: const Color(0xFFE65100),
-        foregroundColor: AppColors.white,
+        backgroundColor: AppColors.primaryBlue,
+        foregroundColor: Theme.of(context).colorScheme.onPrimary,
         elevation: 4,
         icon: const Icon(Icons.add_rounded),
-        label: const Text('Sell Stock',
-            style: TextStyle(fontWeight: FontWeight.w600)),
+        label: Text(l10n.sellStock,
+            style: const TextStyle(fontWeight: FontWeight.w600)),
       ),
     );
   }
 }
 
+/// Stat card — themed surface with accent-coloured icon and a soft
+/// ring of the accent colour around the edge so it matches the
+/// `PremiumCard` look used elsewhere.
 class _StatCard extends StatelessWidget {
   final String title;
   final String value;
   final IconData icon;
-  final Color color;
-  final LinearGradient gradient;
+  final Color accent;
 
   const _StatCard({
     required this.title,
     required this.value,
     required this.icon,
-    required this.color,
-    required this.gradient,
+    required this.accent,
   });
 
   @override
   Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    final tt = Theme.of(context).textTheme;
     return Container(
       padding: const EdgeInsets.all(AppSizes.paddingMD),
       decoration: BoxDecoration(
-        gradient: gradient,
+        color: cs.surface,
         borderRadius: BorderRadius.circular(AppSizes.radiusLG),
-        border: Border.all(color: color.withValues(alpha: 0.15)),
+        border: Border.all(
+          color: Theme.of(context).brightness == Brightness.dark
+              ? accent.withValues(alpha: 0.45)
+              : accent.withValues(alpha: 0.30),
+          width: 0.8,
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: cs.shadow.withValues(alpha: 0.06),
+            blurRadius: 14,
+            offset: const Offset(0, 6),
+          ),
+        ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -258,26 +233,26 @@ class _StatCard extends StatelessWidget {
           Container(
             padding: const EdgeInsets.all(8),
             decoration: BoxDecoration(
-              color: color.withValues(alpha: 0.15),
+              color: accent.withValues(alpha: 0.12),
               borderRadius: BorderRadius.circular(10),
             ),
-            child: Icon(icon, color: color, size: 22),
+            child: Icon(icon, color: accent, size: 22),
           ),
           const SizedBox(height: AppSizes.paddingSM),
           Text(
             value,
-            style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                  fontWeight: FontWeight.w800,
-                  color: color,
-                ),
+            style: tt.titleLarge?.copyWith(
+              fontWeight: FontWeight.w800,
+              color: cs.onSurface,
+            ),
           ),
           const SizedBox(height: 2),
           Text(
             title,
-            style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                  color: AppColors.gray600,
-                  fontWeight: FontWeight.w500,
-                ),
+            style: tt.bodySmall?.copyWith(
+              color: cs.onSurface.withValues(alpha: 0.65),
+              fontWeight: FontWeight.w500,
+            ),
           ),
         ],
       ),
@@ -285,25 +260,29 @@ class _StatCard extends StatelessWidget {
   }
 }
 
+/// Action card — matches `_StatCard`'s surface treatment but with a
+/// centred icon and label so it reads as a tappable target.
 class _ActionCard extends StatelessWidget {
   final String title;
   final String subtitle;
   final IconData icon;
-  final Color color;
+  final Color accent;
   final VoidCallback onTap;
 
   const _ActionCard({
     required this.title,
     required this.subtitle,
     required this.icon,
-    required this.color,
+    required this.accent,
     required this.onTap,
   });
 
   @override
   Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    final tt = Theme.of(context).textTheme;
     return Material(
-      color: AppColors.white,
+      color: cs.surface,
       borderRadius: BorderRadius.circular(AppSizes.radiusLG),
       elevation: 0,
       child: InkWell(
@@ -313,7 +292,18 @@ class _ActionCard extends StatelessWidget {
           padding: const EdgeInsets.all(AppSizes.paddingMD),
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(AppSizes.radiusLG),
-            border: Border.all(color: AppColors.gray200),
+            border: Border.all(
+              color: Theme.of(context).brightness == Brightness.dark
+                  ? accent.withValues(alpha: 0.40)
+                  : cs.outline.withValues(alpha: 0.30),
+            ),
+            boxShadow: [
+              BoxShadow(
+                color: cs.shadow.withValues(alpha: 0.06),
+                blurRadius: 12,
+                offset: const Offset(0, 4),
+              ),
+            ],
           ),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
@@ -321,26 +311,26 @@ class _ActionCard extends StatelessWidget {
               Container(
                 padding: const EdgeInsets.all(AppSizes.paddingSM),
                 decoration: BoxDecoration(
-                  color: color.withValues(alpha: 0.1),
+                  color: accent.withValues(alpha: 0.12),
                   borderRadius: BorderRadius.circular(14),
                 ),
-                child: Icon(icon, color: color, size: 30),
+                child: Icon(icon, color: accent, size: 30),
               ),
               const SizedBox(height: AppSizes.paddingSM),
               Text(
                 title,
-                style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                      fontWeight: FontWeight.w700,
-                    ),
+                style: tt.titleSmall?.copyWith(
+                  fontWeight: FontWeight.w700,
+                ),
                 textAlign: TextAlign.center,
               ),
               const SizedBox(height: 2),
               Text(
                 subtitle,
-                style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                      color: AppColors.gray500,
-                      fontSize: 11,
-                    ),
+                style: tt.bodySmall?.copyWith(
+                  color: cs.onSurface.withValues(alpha: 0.60),
+                  fontSize: 11,
+                ),
                 textAlign: TextAlign.center,
               ),
             ],
@@ -353,7 +343,8 @@ class _ActionCard extends StatelessWidget {
 
 /// Pulsing "Go online / Go offline" pill button. Stays in the dashboard
 /// app bar so the seller can flip their live status without entering a
-/// dedicated screen.
+/// dedicated screen. Uses `Elegant Green` for online (matches buyer
+/// dashboard semantic colour) and white-tint for offline.
 class _OnlineToggleButton extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -364,16 +355,20 @@ class _OnlineToggleButton extends ConsumerWidget {
 
     final (label, icon) = switch (status) {
       SellerTrackerStatus.online => (
-        'Online', Icons.radio_button_checked_rounded
+        AppLocalizations.of(context).online,
+        Icons.radio_button_checked_rounded
       ),
       SellerTrackerStatus.waitingForPermission => (
-        'Starting…', Icons.hourglass_top_rounded
+        AppLocalizations.of(context).starting,
+        Icons.hourglass_top_rounded
       ),
       SellerTrackerStatus.error => (
-        tracker.errorMessage ?? 'Offline', Icons.error_outline_rounded
+        tracker.errorMessage ?? AppLocalizations.of(context).offline,
+        Icons.error_outline_rounded
       ),
       SellerTrackerStatus.idle => (
-        'Offline', Icons.radio_button_unchecked_rounded
+        AppLocalizations.of(context).offline,
+        Icons.radio_button_unchecked_rounded
       ),
     };
 
@@ -381,7 +376,7 @@ class _OnlineToggleButton extends ConsumerWidget {
       padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 8),
       child: Material(
         color: isOnline
-            ? AppColors.successGreen
+            ? AppColors.accentGreen
             : Colors.white.withValues(alpha: 0.18),
         borderRadius: BorderRadius.circular(20),
         child: InkWell(
@@ -393,9 +388,10 @@ class _OnlineToggleButton extends ConsumerWidget {
                   final actions = ref.read(sellerOnlineActionsProvider);
                   if (isOnline) {
                     await actions.goOffline();
+                    final l10n = AppLocalizations.of(context);
                     messenger.showSnackBar(
-                      const SnackBar(
-                        content: Text('You are now offline'),
+                      SnackBar(
+                        content: Text(l10n.youAreNowOffline),
                         behavior: SnackBarBehavior.floating,
                       ),
                     );
@@ -413,12 +409,11 @@ class _OnlineToggleButton extends ConsumerWidget {
                         ),
                       );
                     } else if (context.mounted) {
+                      final l10n = AppLocalizations.of(context);
                       messenger.showSnackBar(
-                        const SnackBar(
-                          content: Text(
-                            'You are now online · sharing location',
-                          ),
-                          backgroundColor: AppColors.successGreen,
+                        SnackBar(
+                          content: Text(l10n.youAreNowOnline),
+                          backgroundColor: AppColors.accentGreen,
                           behavior: SnackBarBehavior.floating,
                         ),
                       );
@@ -501,6 +496,132 @@ class _PulsingDotState extends State<_PulsingDot>
           ),
         );
       },
+    );
+  }
+}
+
+/// Brand gradient greeting header for the street seller dashboard.
+///
+/// Mirrors the buyer dashboard's hero header treatment — Modern Blue
+/// → Elegant Green gradient, decorative radial glow blobs, white
+/// typography — so buyer and seller share the same visual identity.
+///
+/// Slots an [onlineToggle] action into the top-right of the gradient
+/// (replaces the old SliverAppBar actions slot) so the live-status
+/// pill stays one tap away without duplicating the global TopAppBar.
+class _SellerGreetingHeader extends StatelessWidget {
+  final String greeting;
+  final String subtitle;
+  final Widget onlineToggle;
+
+  const _SellerGreetingHeader({
+    required this.greeting,
+    required this.subtitle,
+    required this.onlineToggle,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      decoration: BoxDecoration(
+        gradient: AppGradients.of(context).brand,
+        borderRadius: const BorderRadius.only(
+          bottomLeft: Radius.circular(AppSizes.radiusXL),
+          bottomRight: Radius.circular(AppSizes.radiusXL),
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: Theme.of(context)
+                .colorScheme
+                .primary
+                .withValues(alpha: 0.20),
+            blurRadius: 18,
+            offset: const Offset(0, 8),
+          ),
+        ],
+      ),
+      child: Stack(
+        children: [
+          // Decorative glow blob top-right
+          Positioned(
+            top: -40,
+            right: -40,
+            child: Container(
+              width: 160,
+              height: 160,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                gradient: RadialGradient(
+                  colors: [
+                    Colors.white.withValues(alpha: 0.18),
+                    Colors.white.withValues(alpha: 0),
+                  ],
+                ),
+              ),
+            ),
+          ),
+          // Decorative glow blob bottom-left
+          Positioned(
+            bottom: -50,
+            left: -30,
+            child: Container(
+              width: 140,
+              height: 140,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                gradient: RadialGradient(
+                  colors: [
+                    Colors.white.withValues(alpha: 0.10),
+                    Colors.white.withValues(alpha: 0),
+                  ],
+                ),
+              ),
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.fromLTRB(
+              AppSizes.paddingLG,
+              AppSizes.paddingMD,
+              AppSizes.paddingLG,
+              AppSizes.paddingLG,
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Top row: greeting + online toggle
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Icon(Icons.storefront_rounded,
+                        color: Colors.white, size: 28),
+                    const SizedBox(width: 10),
+                    Expanded(
+                      child: Text(
+                        greeting,
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 24,
+                          fontWeight: FontWeight.w700,
+                          letterSpacing: -0.3,
+                        ),
+                      ),
+                    ),
+                    onlineToggle,
+                  ],
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  subtitle,
+                  style: TextStyle(
+                    color: Colors.white.withValues(alpha: 0.85),
+                    fontSize: 14,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
     );
   }
 }

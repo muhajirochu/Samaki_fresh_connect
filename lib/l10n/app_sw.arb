@@ -1,0 +1,450 @@
+{
+    "@@locale": "sw",
+
+    "appTitle": "Samaki Fresh Connect",
+    "welcome": "Karibu",
+    "login": "Ingia",
+    "signup": "Jisajili",
+    "logout": "Toka",
+    "email": "Barua pepe",
+    "password": "Neno la siri",
+    "confirmPassword": "Thibitisha neno la siri",
+    "phoneNumber": "Nambari ya simu",
+    "fullName": "Jina kamili",
+    "forgotPassword": "Umesahau neno la siri?",
+    "rememberMe": "Nikumbuke",
+    "orContinueWith": "Au endelea na",
+    "alreadyHaveAccount": "Una akaunti tayari?",
+    "dontHaveAccount": "Huna akaunti?",
+
+    "submit": "Wasilisha",
+    "save": "Hifadhi",
+    "cancel": "Ghairi",
+    "delete": "Futa",
+    "edit": "Hariri",
+    "retry": "Jaribu tena",
+    "back": "Rudi",
+    "close": "Funga",
+    "confirm": "Thibitisha",
+    "yes": "Ndiyo",
+    "no": "Hapana",
+    "ok": "Sawa",
+
+    "settings": "Mipango",
+    "appearance": "Muonekano",
+    "language": "Lugha",
+    "chooseLanguage": "Chagua Lugha",
+    "chooseLanguageSubtitle": "Badilisha lugha ya programu nzima.",
+    "selectLanguage": "Chagua Lugha",
+    "english": "English",
+    "kiswahili": "Kiswahili",
+
+    "home": "Mwanzo",
+    "marketplace": "Soko",
+    "myListings": "Zabuni zangu",
+    "profile": "Wasifu",
+    "wishlist": "Orodha ya matumaini",
+    "notifications": "Arifa",
+    "searchFish": "Tafuta samaki",
+    "searchHint": "k.m. tuna, mackerel, fillet…",
+    "startTypingToSearch": "Anza kuandika kutafuta",
+    "noSellersHave": "Hakuna muuzaji wa \"{query}\" kwa sasa",
+    "@noSellersHave": {
+        "placeholders": {
+            "query": {"type": "String"}
+        }
+    },
+    "noSellersHaveSubtitle": "Hakuna muuzaji anayebeba samaki wa aina hii kwa sasa. Jaribu jina lingine.",
+
+    "loading": "Inapakia…",
+    "loadingError": "Hitilafu: {error}",
+    "@loadingError": {
+        "placeholders": {
+            "error": {"type": "String"}
+        }
+    },
+    "searchFailed": "Utafutaji umeshindwa",
+    "notLoggedIn": "Hujaingia",
+
+    "fishType": "Aina ya samaki",
+    "quantity": "Kiasi (kg)",
+    "price": "Bei kwa kilo",
+    "description": "Maelezo",
+    "requiredField": "Inahitajika",
+    "enterValidNumber": "Weka nambari sahihi",
+    "quantityMustBePositive": "Kiasi lazima kiwe zaidi ya 0",
+    "priceMustBePositive": "Bei lazima iwe zaidi ya 0",
+    "phoneInvalid": "Weka muundo wa Tanzania: +255XXXXXXXXX",
+    "passwordsDoNotMatch": "Maneno ya siri hayafanani",
+    "emailInvalid": "Weka anwani sahihi ya barua pepe",
+    "passwordTooShort": "Neno la siri lazima liwe angalau herufi 6",
+
+    "postListing": "Tuma Zabuni",
+    "sellStock": "Uza Samaki",
+    "buyStock": "Nunua Samaki",
+    "myOrders": "Maagizo Yangu",
+    "myOrdersSubtitle": "Fuatilia manunuzi",
+    "sellStockSubtitle": "Tuma zabuni",
+    "myListingsSubtitle": "Simamia samaki wako",
+    "buyStockSubtitle": "Vinjari soko",
+
+    "fishAvailableNearby": "Samaki Waliopo Karibu",
+    "activeListings": "Zabuni Hai",
+    "totalStock": "Jumla ya Samaki",
+    "nearestSeller": "Muuzaji wa Karibu",
+    "activeRequests": "Maombi Hai",
+    "online": "Mtandaoni",
+    "offline": "Nje ya Mtandao",
+    "starting": "Inaanza…",
+    "youAreNowOnline": "Upo mtandaoni · unashiriki eneo",
+    "youAreNowOffline": "Umetoka mtandaoni",
+
+    "photosUpTo5": "Picha (hadi 5)",
+    "addPhoto": "Ongeza Picha",
+    "gallery": "Mkusanyiko",
+    "camera": "Kamera",
+    "shopLocation": "Eneo la Duka",
+    "setShopLocation": "Weka eneo la duka",
+    "shopLocationSet": "Eneo la duka limewekwa",
+    "shopLocationRequired": "Inahitajika ili wanunuzi waweze kukupata",
+    "readingGps": "Inasoma ishara ya GPS...",
+    "shopLocationSetTo": "Eneo la duka limewekwa {label}",
+    "@shopLocationSetTo": {
+        "placeholders": {
+            "label": {"type": "String"}
+        }
+    },
+
+    "imageUploadFailed": "Imeshindwa kusoma picha: {error}",
+    "@imageUploadFailed": {
+        "placeholders": {
+            "error": {"type": "String"}
+        }
+    },
+    "cameraImageFailed": "Imeshindwa kusoma picha kutoka kamerasi: {error}",
+    "@cameraImageFailed": {
+        "placeholders": {
+            "error": {"type": "String"}
+        }
+    },
+
+    "listingCreatedSuccessfully": "Zabuni imeundwa kwa mafanikio! 🐟",
+    "errorGeneric": "Hitilafu: {error}",
+    "@errorGeneric": {
+        "placeholders": {
+            "error": {"type": "String"}
+        }
+    },
+
+    "habari": "Habari, {name}! 🛒",
+    "@habari": {
+        "placeholders": {
+            "name": {"type": "String"}
+        }
+    },
+    "yourStreetSellingHub": "Kituo chako cha kuuza barabarani",
+    "quickActions": "Vitendo vya Haraka",
+
+    "noImage": "Hakuna Picha",
+    "expiresIn": "Inaisha baada ya {duration}",
+    "@expiresIn": {
+        "placeholders": {
+            "duration": {"type": "String"}
+        }
+    },
+    "active": "HAI",
+    "sold": "IMEUZWA",
+    "expired": "IMEPITA",
+
+    "myProfile": "Wasifu Wangu",
+    "editProfile": "Hariri wasifu",
+    "accountInformation": "Maelezo ya Akaunti",
+    "signOut": "Toka",
+    "signOutConfirmation": "Una uhakika unataka kutoka?",
+    "noImageBroken": "Picha haikuweza kupakuliwa",
+
+    "sendFishRequest": "Tuma ombi la samaki",
+    "sendRequest": "Tuma Ombi",
+    "callSeller": "Piga simu",
+    "smsSeller": "Tuma Ujumbe",
+    "viewDetails": "Ona Maelezo",
+    "sellersNearby": "{count, plural, =0{Hakuna wauzaji} =1{Muuzaji 1} other{Wauzaji {count}}} karibu",
+    "@sellersNearby": {
+        "placeholders": {
+            "count": {"type": "int"}
+        }
+    },
+    "live": "Moja kwa moja",
+    "onlineLiveLocation": "Mtandaoni · eneo la moja kwa moja",
+
+    "account": "Akaunti",
+    "search": "Tafuta",
+
+    "demoAccounts": "Akaunti za Onyesho",
+    "tryOutApp": "Jaribu programu mara moja kwa kutumia akaunti ya onyesho.",
+
+    "myLocation": "Eneo Langu",
+    "useGps": "Tumia GPS",
+    "useSavedLocation": "Tumia eneo lililohifadhiwa",
+    "distanceAway": "{distance} km mbali",
+    "@distanceAway": {
+        "placeholders": {
+            "distance": {"type": "String"}
+        }
+    },
+
+    "verificationRequired": "Uthibitisho wa akaunti unahitajika",
+    "verificationMessage": "Tafadhali angalia barua pepe yako na uthibitishe akaunti yako kabla ya kuendelea.",
+    "verifyNow": "Thibitisha Sasa",
+
+    "noNotificationsYet": "Bado hakuna arifa",
+    "noNotificationsSubtitle": "Tutakujulisha kitu kitakachotokea.",
+
+    "noWishlistItems": "Orodha yako ya matumaini ni tupu",
+    "noWishlistSubtitle": "Gusa moyo kwenye zabuni yoyote ya samaki kuihifadhi hapa.",
+
+    "noActiveRequests": "Hakuna maombi hai ya samaki",
+    "noActiveRequestsSubtitle": "Utapoweka ombi la samaki, litaonekana hapa.",
+
+    "noListings": "Bado hakuna zabuni",
+    "noListingsSubtitle": "Gusa kitufe cha + kuongeza zabuni yako ya kwanza.",
+
+    "noOrders": "Bado hakuna maagizo",
+    "noOrdersSubtitle": "Utakaponunua au kuuza samaki, maagizo yataonekana hapa.",
+
+    "offlineState": "Muuzaji huyu kwa sasa yuko nje ya mtandao",
+    "kmAway": "{km} km mbali",
+    "@kmAway": {
+        "placeholders": {
+            "km": {"type": "String"}
+        }
+    },
+
+    "selectLanguageTitle": "Chagua Lugha",
+    "selectLanguageDescription": "Programu nzima itabadilika mara moja. Chaguo lako linawekwa kwenye kifaa hiki.",
+    "languageSaved": "Lugha imehifadhiwa",
+
+    "settingsSaved": "Mipango imehifadhiwa",
+    "changeFailed": "Imeshindwa kubadilisha {setting}: {error}",
+    "@changeFailed": {
+        "placeholders": {
+            "setting": {"type": "String"},
+            "error": {"type": "String"}
+        }
+    },
+
+    "commonError": "Kitu kilienda vibaya",
+    "tryAgain": "Jaribu tena",
+
+    "personalInformation": "Maelezo ya Kibinafsi",
+    "editListing": "Hariri Zabuni",
+    "logoutConfirmationMessage": "Utarudishwa kwenye skrini ya kuingia.",
+    "km": "km",
+    "reorder": "Agiza tena",
+    "leaveReview": "Toa tathmini",
+    "shareListing": "Shiriki zabuni",
+    "reportListing": "Ripoti zabuni",
+    "deleteListingConfirmation": "Futa zabuni hii? Hii haiwezi kubatilishwa.",
+    "markAsSold": "Weka alama ya kuuza",
+    "soldConfirmation": "Weka alama ya kuuza kwenye zabuni hii?",
+    "filter": "Chuja",
+    "sortBy": "Panga kwa",
+    "newestFirst": "Mpya kwanza",
+    "priceLowToHigh": "Bei: Chini hadi juu",
+    "priceHighToLow": "Bei: Juu hadi chini",
+    "apply": "Tumia",
+    "clearAll": "Futa yote",
+    "results": "Matokeo",
+    "noResults": "Hakuna matokeo",
+    "selectLocation": "Chagua eneo",
+    "useMyLocation": "Tumia eneo langu",
+    "savedLocations": "Maeneo yaliyohifadhiwa",
+    "loadingLocation": "Inapakia eneo lako...",
+    "couldNotGetLocation": "Imeshindwa kupata eneo lako",
+    "permissionDenied": "Ruhusa ya eneo imekataliwa",
+    "openSettings": "Fungua Mipango",
+    "loadingMore": "Inapakia zaidi...",
+    "seeAll": "Ona zote",
+    "viewMore": "Ona zaidi",
+    "filterByType": "Chuja kwa aina ya samaki",
+    "distanceFromYou": "{distance} km kutoka kwako",
+    "@distanceFromYou": {
+        "placeholders": {
+            "distance": {"type": "Object"}
+        }
+    },
+    "selectRadius": "Chagua eneo la utafutaji",
+    "showingNearest": "Inaonyesha wauzaji wa karibu tu",
+    "languagePreference": "Lugha unayopendelea",
+    "themePreference": "Muonekano unaoupendelea",
+    "changed": "Imebadilishwa",
+    "featureComingSoon": "Inakuja hivi karibuni",
+    "noDataYet": "Hakuna data bado",
+    "refresh": "Onyesha upya",
+    "pullToRefresh": "Vuta chini kuonyesha upya",
+    "verifyAccount": "Thibitisha akaunti yako",
+    "resendEmail": "Tuma tena barua ya uthibitisho",
+    "verificationEmailSent": "Barua ya uthibitisho imetumwa",
+    "tapToUse": "Gusa kutumia",
+    "selectImage": "Chagua picha",
+    "fromCamera": "Kutoka kamerasi",
+    "fromGallery": "Kutoka kwenye mkusanyiko",
+    "changePhoto": "Badilisha picha",
+    "reviewInformation": "Kagua maelezo yako",
+    "totalListings": "Zabuni zote",
+    "totalOrders": "Maagizo yote",
+    "accountInfo": "Maelezo ya akaunti",
+    "phone": "Simu",
+    "street": "Mtaa",
+    "region": "Mkoa",
+    "market": "Soko",
+    "buyersAvailable": "Wanunuzi waliopo",
+    "sellersNearbyCount": "{count, plural, =0{Hakuna wauzaji karibu} =1{Muuzaji 1 karibu} other{Wauzaji {count} karibu}}",
+    "@sellersNearbyCount": {
+        "placeholders": {
+            "count": {"type": "int"}
+        }
+    },
+    "receiving": "Inapokea",
+    "ready": "Tayari",
+    "inTransit": "Njiani",
+    "delivered": "Imefika",
+    "cancelled": "Imeghairiwa",
+    "pending": "Inasubiri",
+    "completed": "Imekamilika",
+    "buyer": "Mnunuzi",
+    "seller": "Muuzaji",
+    "quantityKg": "Kiasi",
+    "perKg": "/ kg",
+    "noReviews": "Hakuna tathmini bado",
+    "seeAllReviews": "Ona tathmini zote",
+    "verified": "Imethibitishwa",
+    "notVerified": "Haijathibitishwa",
+    "ratings": "Alama",
+    "reviews": "Tathmini",
+    "orderDetails": "Maelezo ya Agizo",
+    "deliveryAddress": "Anwani ya uwasilishaji",
+    "deliveryTime": "Wakati wa uwasilishaji",
+    "yourOrders": "Maagizo yako",
+    "buyerType": "Aina ya mnunuzi",
+    "transport": "Usafirishaji",
+    "individualHousehold": "Mtu binafsi/Kaya",
+    "restaurant": "Mgahawa",
+    "hotel": "Hoteli",
+    "retail": "Duka",
+    "morning": "Asubuhi",
+    "afternoon": "Mchana",
+    "evening": "Jioni",
+    "anytime": "Wakati wowote",
+    "fullAddress": "Anwani kamili",
+    "city": "Jiji",
+    "country": "Nchi",
+    "profilePhoto": "Picha ya wasifu",
+    "equipmentPhoto": "Picha ya vifaa",
+    "selectPhotos": "Chagua hadi picha 5",
+    "tapToAdd": "Gusa kuongeza",
+    "enterAddress": "Weka anwani",
+    "enterCity": "Weka jiji",
+    "enterRegion": "Weka mkoa",
+    "addListing": "Ongeza zabuni",
+    "deleteListing": "Futa zabuni",
+    "markSold": "Weka alama ya kuuza",
+    "shareLocation": "Shiriki eneo",
+    "goOnline": "Nenda mtandaoni",
+    "goOffline": "Toka mtandaoni",
+    "startingLocation": "Inaanza eneo...",
+    "shareLocationToggle": "Shiriki eneo lako",
+    "shareLocationSubtitle": "Wanunuzi wakaona kwenye ramani",
+    "onlineStatus": "Hali ya mtandao",
+    "onlineNow": "Uko mtandaoni",
+    "offlineNow": "Uko nje ya mtandao",
+    "sellerProfile": "Wasifu wa muuzaji",
+    "activeListingsCount": "Hai: {count}",
+    "ratingValue": "Alama {rating}",
+    "lastSeenMinutesAgo": "Alionekana dakika {minutes} zilizopita",
+    "lastSeenHoursAgo": "Alionekana masaa {hours} yaliyopita",
+    "lastSeenDaysAgo": "Alionekana siku {days} zilizopita",
+    "justNow": "Sasa hivi",
+    "call": "Piga simu",
+    "message": "Ujumbe",
+    "directions": "Maelekezo",
+    "send": "Tuma",
+    "messageSeller": "Tuma ujumbe kwa muuzaji",
+    "typeMessage": "Andika ujumbe",
+    "onlineDot": "Mtandaoni",
+    "verifiedBadge": "Imethibitishwa",
+    "you": "Wewe",
+    "buyerName": "Jina la mnunuzi",
+    "sellerName": "Jina la muuzaji",
+    "orders": "Maagizo",
+    "filters": "Vichujio",
+    "allTypes": "Aina zote",
+    "noOrdersYetTitle": "Bado hakuna maagizo",
+    "loadingOrders": "Inapakia maagizo...",
+    "orderId": "Agizo #{id}",
+    "@orderId": {
+        "placeholders": {
+            "id": {"type": "String"}
+        }
+    },
+    "markAsCompleted": "Weka alama ya kukamilika",
+    "cancelOrderConfirmation": "Ghairi agizi hili?",
+    "acceptOrder": "Kubali agizo",
+    "confirmOrder": "Thibitisha agizo",
+    "rejectOrder": "Kataa agizo",
+    "trackOrder": "Fuatilia agizo",
+    "orderItems": "Vitu vya agizo",
+    "delivery": "Uwasilishaji",
+    "quantityShortKg": "{qty} kg",
+    "@quantityShortKg": {
+        "placeholders": {
+            "qty": {"type": "String"}
+        }
+    },
+    "totalKg": "{qty} kg jumla",
+    "@totalKg": {
+        "placeholders": {
+            "qty": {"type": "String"}
+        }
+    },
+    "buyerOrderedItems": "{buyer} aliagiza {qty} kg",
+    "@buyerOrderedItems": {
+        "placeholders": {
+            "buyer": {"type": "String"},
+            "qty": {"type": "String"}
+        }
+    },
+    "pricePerKg": "TZS {price}/kg",
+    "@pricePerKg": {
+        "placeholders": {
+            "price": {"type": "String"}
+        }
+    },
+    "priceRange": "TZS {min} – {max} / kg",
+    "@priceRange": {
+        "placeholders": {
+            "min": {"type": "String"},
+            "max": {"type": "String"}
+        }
+    },
+    "setMyLocation": "Weka eneo langu",
+    "switchToLightTheme": "Badilisha kwenye mwanga",
+    "switchToDarkTheme": "Badilisha kwenye giza",
+    "platformOverview": "Muhtasari wa Jukwaa & Usimamizi",
+    "totalUsers": "Watumiaji Wote",
+    "ordersToday": "Maagizo ya Leo",
+    "platformRevenue": "Mapato ya Jukwaa",
+    "management": "Usimamizi",
+    "manageDalalis": "Simamia Dalalis",
+    "manageDalalisSubtitle": "Sajili, kubali au zuia mabrokeri",
+    "allListings": "Zabuni Zote",
+    "allListingsSubtitle": "Kagua na simamia soko",
+    "transactions": "Miamala",
+    "transactionsSubtitle": "Ona historia ya malipo",
+    "hello": "Habari, {name}!",
+    "@hello": {
+        "placeholders": {
+            "name": {"type": "String"}
+        }
+    }
+}

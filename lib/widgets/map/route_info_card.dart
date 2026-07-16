@@ -1,14 +1,21 @@
 // Bottom card showing the active route's distance + ETA. Slides up when
 // a seller is selected; dismissed via the close button.
+//
+// Theme: card surface reads from `Theme.of(context).colorScheme.surface`
+// and `BackgroundStyle.of(context).surface`. The metric tiles keep their
+// semantic accent colours (blue/teal) — those are foreground accents,
+// not page backgrounds.
 
 import 'package:flutter/material.dart';
 
+import '../../config/theme_extensions.dart';
 import '../../constants/app_colors.dart';
 import '../../constants/app_sizes.dart';
 import '../../features/map/utils/gps_helper.dart';
 import '../../models/map_filter_model.dart';
 import '../../models/street_seller_model.dart';
 import '../../services/routing_service.dart';
+import '../common/premium_components.dart';
 
 class RouteInfoCard extends StatelessWidget {
   final SellerWithFish seller;
@@ -26,8 +33,10 @@ class RouteInfoCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    final tokens = BackgroundStyle.of(context);
     return Material(
-      color: AppColors.white,
+      color: tokens.surface,
       elevation: 8,
       borderRadius: const BorderRadius.vertical(
         top: Radius.circular(AppSizes.radiusXL),
@@ -51,7 +60,7 @@ class RouteInfoCard extends StatelessWidget {
                   width: 40,
                   height: 4,
                   decoration: BoxDecoration(
-                    color: AppColors.gray300,
+                    color: tokens.border,
                     borderRadius: BorderRadius.circular(2),
                   ),
                 ),
@@ -92,7 +101,9 @@ class RouteInfoCard extends StatelessWidget {
                           style: Theme.of(context)
                               .textTheme
                               .bodySmall
-                              ?.copyWith(color: AppColors.gray600),
+                              ?.copyWith(
+                                color: cs.onSurface.withValues(alpha: 0.65),
+                              ),
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                         ),
@@ -102,7 +113,7 @@ class RouteInfoCard extends StatelessWidget {
                   IconButton(
                     onPressed: onClose,
                     icon: const Icon(Icons.close_rounded),
-                    color: AppColors.gray500,
+                    color: cs.onSurface.withValues(alpha: 0.55),
                     tooltip: 'Funga',
                   ),
                 ],
@@ -144,7 +155,7 @@ class RouteInfoCard extends StatelessWidget {
               Container(
                 padding: const EdgeInsets.all(AppSizes.paddingSM),
                 decoration: BoxDecoration(
-                  color: AppColors.gray100,
+                  color: cs.surfaceContainerHighest,
                   borderRadius: BorderRadius.circular(AppSizes.radiusMD),
                 ),
                 child: Row(
@@ -156,7 +167,7 @@ class RouteInfoCard extends StatelessWidget {
                       child: Text(
                         _fishSummary(seller),
                         style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                              color: AppColors.gray700,
+                              color: cs.onSurface.withValues(alpha: 0.75),
                             ),
                         maxLines: 2,
                         overflow: TextOverflow.ellipsis,
@@ -169,17 +180,10 @@ class RouteInfoCard extends StatelessWidget {
                 const SizedBox(height: AppSizes.paddingMD),
                 SizedBox(
                   width: double.infinity,
-                  height: AppSizes.buttonHeight,
-                  child: FilledButton.icon(
+                  child: GradientButton(
+                    label: 'Tuma Ombi',
                     onPressed: onSendRequest,
-                    icon: const Icon(Icons.send_rounded, size: 18),
-                    label: const Text('Tuma Ombi'),
-                    style: FilledButton.styleFrom(
-                      backgroundColor: AppColors.primaryBlue,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(AppSizes.radiusLG),
-                      ),
-                    ),
+                    prefixIcon: Icons.send_rounded,
                   ),
                 ),
               ],
@@ -224,6 +228,7 @@ class _MetricTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
     return Container(
       padding: const EdgeInsets.symmetric(
         horizontal: AppSizes.paddingSM,
@@ -244,7 +249,7 @@ class _MetricTile extends StatelessWidget {
               children: [
                 Text(label,
                     style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                          color: AppColors.gray600,
+                          color: cs.onSurface.withValues(alpha: 0.65),
                           fontWeight: FontWeight.w500,
                         )),
                 Text(value,
@@ -313,6 +318,7 @@ class _LiveStatusPill extends StatelessWidget {
             const Duration(minutes: 5);
 
     final theme = Theme.of(context);
+    final cs = theme.colorScheme;
     if (isFresh) {
       return Container(
         padding: const EdgeInsets.symmetric(
@@ -364,7 +370,7 @@ class _LiveStatusPill extends StatelessWidget {
         vertical: AppSizes.paddingXS,
       ),
       decoration: BoxDecoration(
-        color: AppColors.gray100,
+        color: cs.surfaceContainerHighest,
         borderRadius: BorderRadius.circular(AppSizes.radiusSM),
       ),
       child: Row(
@@ -384,7 +390,7 @@ class _LiveStatusPill extends StatelessWidget {
                 ? 'Offline'
                 : 'Last seen ${GpsHelper.formatRelativeTime(lastFix)}',
             style: theme.textTheme.bodySmall?.copyWith(
-              color: AppColors.gray600,
+              color: cs.onSurface.withValues(alpha: 0.65),
               fontWeight: FontWeight.w600,
             ),
           ),

@@ -13,6 +13,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
+import '../../config/theme_extensions.dart';
 import '../../constants/app_colors.dart';
 import '../../constants/app_sizes.dart';
 import '../../models/fish_item_model.dart';
@@ -28,6 +29,8 @@ class BrowseFishSection extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final entries = ref.watch(nearbyFishListProvider);
+    final tokens = BackgroundStyle.of(context);
+    final cs = Theme.of(context).colorScheme;
 
     if (entries.isEmpty) {
       return Padding(
@@ -38,19 +41,24 @@ class BrowseFishSection extends ConsumerWidget {
         child: Container(
           height: 140,
           decoration: BoxDecoration(
-            color: AppColors.gray100,
+            color: tokens.surfaceAlt,
             borderRadius: BorderRadius.circular(AppSizes.radiusLG),
           ),
-          child: const Center(
+          child: Center(
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Icon(Icons.phishing_rounded,
-                    color: AppColors.gray400, size: 32),
-                SizedBox(height: 6),
+                Icon(
+                  Icons.phishing_rounded,
+                  color: cs.onSurface.withValues(alpha: 0.45),
+                  size: 32,
+                ),
+                const SizedBox(height: 6),
                 Text(
                   'Hakuna samaki karibu nawe kwa sasa',
-                  style: TextStyle(color: AppColors.gray500),
+                  style: TextStyle(
+                    color: cs.onSurface.withValues(alpha: 0.55),
+                  ),
                 ),
               ],
             ),
@@ -91,20 +99,27 @@ class BrowseFishCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    final tokens = BackgroundStyle.of(context);
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     final fish = entry.item;
     return GestureDetector(
       onTap: onTap,
       child: Container(
         width: 170,
         decoration: BoxDecoration(
-          color: AppColors.white,
+          color: cs.surface,
           borderRadius: BorderRadius.circular(AppSizes.radiusLG),
-          border: Border.all(color: AppColors.gray200),
+          border: Border.all(color: tokens.border, width: 0.6),
+          // Subtle themed shadow — mirrors PremiumCard but kept inline
+          // so the card can keep its custom `boxShadow` offset/size.
           boxShadow: [
             BoxShadow(
-              color: AppColors.black.withValues(alpha: 0.04),
-              blurRadius: 8,
-              offset: const Offset(0, 2),
+              color: isDark
+                  ? Colors.black.withValues(alpha: 0.30)
+                  : Colors.black.withValues(alpha: 0.06),
+              blurRadius: 14,
+              offset: const Offset(0, 6),
             ),
           ],
         ),
@@ -122,10 +137,12 @@ class BrowseFishCard extends StatelessWidget {
                       ? CachedNetworkImage(
                           imageUrl: fish.imageUrls.first,
                           fit: BoxFit.cover,
-                          placeholder: (_, __) => _imagePlaceholder(),
-                          errorWidget: (_, __, ___) => _imagePlaceholder(),
+                          placeholder: (_, __) =>
+                              _imagePlaceholder(context),
+                          errorWidget: (_, __, ___) =>
+                              _imagePlaceholder(context),
                         )
-                      : _imagePlaceholder(),
+                      : _imagePlaceholder(context),
                 ),
                 if (entry.distanceKm != null)
                   Positioned(
@@ -169,8 +186,11 @@ class BrowseFishCard extends StatelessWidget {
                   const SizedBox(height: 4),
                   Row(
                     children: [
-                      const Icon(Icons.storefront_rounded,
-                          size: 12, color: AppColors.gray500),
+                      Icon(
+                        Icons.storefront_rounded,
+                        size: 12,
+                        color: cs.onSurface.withValues(alpha: 0.55),
+                      ),
                       const SizedBox(width: 3),
                       Expanded(
                         child: Text(
@@ -178,7 +198,9 @@ class BrowseFishCard extends StatelessWidget {
                           style: Theme.of(context)
                               .textTheme
                               .bodySmall
-                              ?.copyWith(color: AppColors.gray600),
+                              ?.copyWith(
+                                color: cs.onSurface.withValues(alpha: 0.65),
+                              ),
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                         ),
@@ -194,18 +216,28 @@ class BrowseFishCard extends StatelessWidget {
     );
   }
 
-  Widget _imagePlaceholder() {
+  Widget _imagePlaceholder(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    final tokens = BackgroundStyle.of(context);
+    // `_imagePlaceholder` is only called from inside `build`, so the
+    // build context passed here is always valid.
     return Container(
-      color: AppColors.gray100,
-      child: const Column(
+      color: tokens.surfaceAlt,
+      child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(Icons.set_meal_rounded,
-              size: 28, color: AppColors.gray400),
-          SizedBox(height: 2),
+          Icon(
+            Icons.set_meal_rounded,
+            size: 28,
+            color: cs.onSurface.withValues(alpha: 0.45),
+          ),
+          const SizedBox(height: 2),
           Text(
             'No image',
-            style: TextStyle(color: AppColors.gray400, fontSize: 10),
+            style: TextStyle(
+              color: cs.onSurface.withValues(alpha: 0.45),
+              fontSize: 10,
+            ),
           ),
         ],
       ),
@@ -222,25 +254,31 @@ class _DistanceChip extends StatelessWidget {
     final formatted = km < 1.0
         ? '${(km * 1000).round()} m'
         : '${km.toStringAsFixed(1)} km';
+    // Dark scrim behind white-on-dark foreground — this is intentional:
+    // the chip floats over arbitrary photos, so a constant translucent
+    // dark wash gives legible foreground on any image.
     return Container(
       padding: const EdgeInsets.symmetric(
         horizontal: 6,
         vertical: 3,
       ),
       decoration: BoxDecoration(
-        color: AppColors.black.withValues(alpha: 0.6),
+        color: Colors.black.withValues(alpha: 0.60),
         borderRadius: BorderRadius.circular(AppSizes.radiusSM),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          const Icon(Icons.place_rounded,
-              color: AppColors.white, size: 11),
+          const Icon(
+            Icons.place_rounded,
+            color: Colors.white,
+            size: 11,
+          ),
           const SizedBox(width: 2),
           Text(
             formatted,
             style: const TextStyle(
-              color: AppColors.white,
+              color: Colors.white,
               fontSize: 10,
               fontWeight: FontWeight.w600,
             ),

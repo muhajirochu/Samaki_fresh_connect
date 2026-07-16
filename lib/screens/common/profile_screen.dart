@@ -1,11 +1,27 @@
+// Profile screen — premium version.
+//
+// Layout:
+//   1. Hero header with avatar + name + role chip (gradient bg)
+//   2. Quick actions grid
+//   3. Account info card
+//   4. Appearance card
+//   5. Logout button
+//
+// Reads all colours from `Theme.of(context)` / `AppGradients.of(context)`
+// so it renders correctly in both light and dark themes.
+
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:go_router/go_router.dart';
+
+import '../../config/theme_extensions.dart';
 import '../../constants/app_colors.dart';
 import '../../constants/app_sizes.dart';
 import '../../models/enums/user_role.dart';
 import '../../providers/auth_provider.dart';
 import '../../widgets/common/common_widgets.dart';
+import '../../widgets/common/premium_components.dart';
+import '../../l10n/app_localizations.dart';
 import '../../widgets/settings/theme_switcher_tile.dart';
 
 class ProfileScreen extends ConsumerWidget {
@@ -13,60 +29,90 @@ class ProfileScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = AppLocalizations.of(context);
     final userAsync = ref.watch(currentUserStreamProvider);
+    final cs = Theme.of(context).colorScheme;
+    final gradients = AppGradients.of(context);
+    final tt = Theme.of(context).textTheme;
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF5F7FA),
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       appBar: AppBar(
-        title: const Text('My Profile',
-            style: TextStyle(fontWeight: FontWeight.w600)),
-        backgroundColor: Colors.white,
-        foregroundColor: AppColors.textPrimary,
+        title: Text(l10n.myProfile, style: tt.titleLarge),
+        backgroundColor: cs.surface,
+        foregroundColor: cs.onSurface,
         elevation: 0,
         actions: [
           IconButton(
-            icon: const Icon(Icons.edit_rounded, color: AppColors.primaryBlue),
+            icon: Icon(Icons.edit_rounded, color: cs.primary),
+            tooltip: l10n.editProfile,
             onPressed: () => context.push('/profile/edit'),
           ),
         ],
       ),
       body: userAsync.when(
         loading: () => const LoadingIndicator(),
-        error: (e, _) => Center(child: Text('Error: $e')),
+        error: (e, _) => Center(child: Text(l10n.loadingError(e.toString()))),
         data: (user) {
-          if (user == null) return const Center(child: Text('Not logged in'));
+          if (user == null) {
+            return Center(child: Text(l10n.notLoggedIn));
+          }
 
           return SingleChildScrollView(
+            padding: const EdgeInsets.only(bottom: AppSizes.paddingXXL),
             child: Column(
               children: [
-                // ── Header Section ───────────────────────────────────────────
+                // ── Hero header ────────────────────────────────────────────────
                 Container(
                   width: double.infinity,
-                  color: Colors.white,
-                  padding:
-                      const EdgeInsets.symmetric(vertical: AppSizes.paddingXXL),
+                  decoration: BoxDecoration(
+                    gradient: gradients.brand,
+                    borderRadius: const BorderRadius.only(
+                      bottomLeft: Radius.circular(AppSizes.radiusXL),
+                      bottomRight: Radius.circular(AppSizes.radiusXL),
+                    ),
+                    boxShadow: [
+                      BoxShadow(
+                        color: cs.primary.withValues(alpha: 0.20),
+                        blurRadius: 18,
+                        offset: const Offset(0, 8),
+                      ),
+                    ],
+                  ),
+                  padding: const EdgeInsets.symmetric(
+                    vertical: AppSizes.paddingXXL,
+                    horizontal: AppSizes.paddingLG,
+                  ),
                   child: Column(
                     children: [
                       Hero(
                         tag: 'profile_avatar',
                         child: Container(
+                          padding: const EdgeInsets.all(4),
                           decoration: BoxDecoration(
                             shape: BoxShape.circle,
                             border: Border.all(
-                                color: AppColors.primaryBlue
-                                    .withValues(alpha: 0.2),
-                                width: 4),
+                              color: Colors.white.withValues(alpha: 0.55),
+                              width: 4,
+                            ),
                           ),
                           child: CircleAvatar(
                             radius: 56,
                             backgroundColor:
-                                AppColors.primaryBlue.withValues(alpha: 0.1),
+                                Colors.white.withValues(alpha: 0.18),
                             backgroundImage: user.profilePictureUrl != null
                                 ? NetworkImage(user.profilePictureUrl!)
                                 : null,
                             child: user.profilePictureUrl == null
-                                ? const Icon(Icons.person_rounded,
-                                    size: 56, color: AppColors.primaryBlue)
+                                ? Text(
+                                    _initialsFor(user.fullName),
+                                    style: const TextStyle(
+                                      fontSize: 32,
+                                      fontWeight: FontWeight.w800,
+                                      color: Colors.white,
+                                      letterSpacing: -1.0,
+                                    ),
+                                  )
                                 : null,
                           ),
                         ),
@@ -74,85 +120,131 @@ class ProfileScreen extends ConsumerWidget {
                       const SizedBox(height: AppSizes.paddingLG),
                       Text(
                         user.fullName,
-                        style:
-                            Theme.of(context).textTheme.headlineSmall?.copyWith(
-                                  fontWeight: FontWeight.w800,
-                                  letterSpacing: -0.5,
-                                ),
+                        style: tt.headlineSmall?.copyWith(
+                          color: Colors.white,
+                          fontWeight: FontWeight.w800,
+                          letterSpacing: -0.5,
+                        ),
                       ),
-                      const SizedBox(height: 8),
+                      const SizedBox(height: AppSizes.paddingSM),
                       Container(
                         padding: const EdgeInsets.symmetric(
-                            horizontal: 16, vertical: 6),
-                        decoration: BoxDecoration(
-                          color:
-                              AppColors.secondaryTeal.withValues(alpha: 0.15),
-                          borderRadius: BorderRadius.circular(20),
+                          horizontal: AppSizes.paddingMD,
+                          vertical: 6,
                         ),
-                        child: Text(
-                          user.role.displayName,
-                          style: const TextStyle(
-                            color: AppColors.secondaryTeal,
-                            fontWeight: FontWeight.w700,
-                            letterSpacing: 0.5,
+                        decoration: BoxDecoration(
+                          color: Colors.white.withValues(alpha: 0.20),
+                          borderRadius: BorderRadius.circular(999),
+                          border: Border.all(
+                            color: Colors.white.withValues(alpha: 0.30),
                           ),
                         ),
-                      ),
-                    ],
-                  ),
-                ),
-
-                const SizedBox(height: AppSizes.paddingLG),
-
-                // ── Appearance Section ───────────────────────────────────────
-                // Theme switcher (White / Cream / Dark) — sits above the
-                // account info so the user can quickly switch look and
-                // feel without scrolling to the very bottom.
-                Padding(
-                  padding: const EdgeInsets.symmetric(
-                      horizontal: AppSizes.paddingLG),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        'Appearance',
-                        style:
-                            Theme.of(context).textTheme.titleMedium?.copyWith(
-                                  fontWeight: FontWeight.w700,
-                                  color: AppColors.gray600,
-                                ),
-                      ),
-                      const SizedBox(height: AppSizes.paddingMD),
-                      const ThemeSwitcherTile(),
-                    ],
-                  ),
-                ),
-
-                const SizedBox(height: AppSizes.paddingLG),
-
-                // ── Info Section ─────────────────────────────────────────────
-                Padding(
-                  padding: const EdgeInsets.symmetric(
-                      horizontal: AppSizes.paddingLG),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        'Account Information',
-                        style:
-                            Theme.of(context).textTheme.titleMedium?.copyWith(
-                                  fontWeight: FontWeight.w700,
-                                  color: AppColors.gray600,
-                                ),
-                      ),
-                      const SizedBox(height: AppSizes.paddingMD),
-                      Container(
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius:
-                              BorderRadius.circular(AppSizes.radiusLG),
-                          border: Border.all(color: AppColors.gray200),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Container(
+                              width: 6,
+                              height: 6,
+                              decoration: const BoxDecoration(
+                                color: Colors.white,
+                                shape: BoxShape.circle,
+                              ),
+                            ),
+                            const SizedBox(width: 8),
+                            Text(
+                              user.role.displayName,
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontWeight: FontWeight.w700,
+                                letterSpacing: 0.6,
+                                fontSize: 12,
+                              ),
+                            ),
+                          ],
                         ),
+                      ),
+                    ],
+                  ),
+                ),
+
+                const SizedBox(height: AppSizes.paddingLG),
+
+                // ── Quick actions grid ────────────────────────────────────────
+                Padding(
+                  padding: const EdgeInsets.symmetric(
+                      horizontal: AppSizes.paddingLG),
+                  child: Column(
+                    children: [
+                      Row(
+                        children: [
+                          Expanded(
+                            child: _QuickAction(
+                              icon: Icons.shopping_bag_rounded,
+                              label: l10n.myOrders,
+                              color: cs.primary,
+                              onTap: () => context.push('/orders'),
+                            ),
+                          ),
+                          const SizedBox(width: AppSizes.paddingSM),
+                          Expanded(
+                            child: _QuickAction(
+                              icon: Icons.favorite_rounded,
+                              label: l10n.wishlist,
+                              color: AppColors.secondaryTeal,
+                              onTap: () => context.push('/buyer/wishlist'),
+                            ),
+                          ),
+                          const SizedBox(width: AppSizes.paddingSM),
+                          Expanded(
+                            child: _QuickAction(
+                              icon: Icons.notifications_rounded,
+                              label: l10n.notifications,
+                              color: AppColors.accentOrange,
+                              onTap: () => context.push('/buyer/notifications'),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+
+                const SizedBox(height: AppSizes.paddingLG),
+
+                // ── Appearance Section ─────────────────────────────────────────
+                const Padding(
+                  padding: EdgeInsets.symmetric(
+                      horizontal: AppSizes.paddingLG),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      SectionHeader(
+                        title: 'Appearance',
+                        subtitle: 'Switch between Light and Dark',
+                        leadingIcon: Icons.palette_rounded,
+                      ),
+                      SizedBox(height: AppSizes.paddingMD),
+                      ThemeSwitcherTile(),
+                    ],
+                  ),
+                ),
+
+                const SizedBox(height: AppSizes.paddingLG),
+
+                // ── Account info ──────────────────────────────────────────────
+                Padding(
+                  padding: const EdgeInsets.symmetric(
+                      horizontal: AppSizes.paddingLG),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const SectionHeader(
+                        title: 'Account Information',
+                        leadingIcon: Icons.person_rounded,
+                      ),
+                      const SizedBox(height: AppSizes.paddingMD),
+                      PremiumCard(
+                        padding: EdgeInsets.zero,
                         child: Column(
                           children: [
                             _ProfileInfoTile(
@@ -180,24 +272,8 @@ class ProfileScreen extends ConsumerWidget {
                           ],
                         ),
                       ),
-
-                      const SizedBox(height: 40),
-
-                      // Logout Button
-                      CustomButton(
-                        label: 'Log Out',
-                        prefixIcon: Icons.logout_rounded,
-                        style: FilledButton.styleFrom(
-                          backgroundColor: Colors.white,
-                          foregroundColor: AppColors.errorRed,
-                          elevation: 0,
-                          side: const BorderSide(color: AppColors.errorRed),
-                          padding: const EdgeInsets.symmetric(vertical: 16),
-                          shape: RoundedRectangleBorder(
-                            borderRadius:
-                                BorderRadius.circular(AppSizes.radiusLG),
-                          ),
-                        ),
+                      const SizedBox(height: AppSizes.paddingXXL),
+                      OutlinedButton.icon(
                         onPressed: () async {
                           mockUser = null;
                           ref.invalidate(authStateProvider);
@@ -207,8 +283,32 @@ class ProfileScreen extends ConsumerWidget {
                           await ref.read(authServiceProvider).signOut();
                           if (context.mounted) context.go('/login');
                         },
+                        icon: const Icon(Icons.logout_rounded, size: 18),
+                        label: Text(l10n.logout),
+                        style: OutlinedButton.styleFrom(
+                          foregroundColor: AppColors.errorRed,
+                          side: BorderSide(
+                              color: AppColors.errorRed.withValues(alpha: 0.5)),
+                          minimumSize: const Size.fromHeight(52),
+                          shape: RoundedRectangleBorder(
+                            borderRadius:
+                                BorderRadius.circular(AppSizes.radiusLG),
+                          ),
+                          textStyle: const TextStyle(
+                            fontWeight: FontWeight.w700,
+                            fontSize: AppSizes.fontMD,
+                          ),
+                        ),
                       ),
-                      const SizedBox(height: AppSizes.paddingXXL),
+                      const SizedBox(height: AppSizes.paddingXL),
+                      Center(
+                        child: Text(
+                          'Samaki Fresh Connect v1.0',
+                          style: tt.labelSmall?.copyWith(
+                            color: cs.onSurface.withValues(alpha: 0.40),
+                          ),
+                        ),
+                      ),
                     ],
                   ),
                 ),
@@ -216,6 +316,67 @@ class ProfileScreen extends ConsumerWidget {
             ),
           );
         },
+      ),
+    );
+  }
+
+  String _initialsFor(String name) {
+    final parts = name.trim().split(RegExp(r'\s+'));
+    if (parts.isEmpty || parts.first.isEmpty) return '?';
+    if (parts.length == 1) return parts.first.substring(0, 1).toUpperCase();
+    return (parts.first.substring(0, 1) + parts.last.substring(0, 1))
+        .toUpperCase();
+  }
+}
+
+class _QuickAction extends StatelessWidget {
+  final IconData icon;
+  final String label;
+  final Color color;
+  final VoidCallback onTap;
+
+  const _QuickAction({
+    required this.icon,
+    required this.label,
+    required this.color,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(AppSizes.radiusLG),
+        child: Container(
+          padding: const EdgeInsets.symmetric(
+            vertical: AppSizes.paddingMD,
+          ),
+          decoration: BoxDecoration(
+            color: color.withValues(alpha: 0.10),
+            borderRadius: BorderRadius.circular(AppSizes.radiusLG),
+            border: Border.all(color: color.withValues(alpha: 0.18)),
+          ),
+          child: Column(
+            children: [
+              Icon(icon, color: color, size: 22),
+              const SizedBox(height: 6),
+              Text(
+                label,
+                style: TextStyle(
+                  color: color,
+                  fontSize: 11,
+                  fontWeight: FontWeight.w700,
+                  letterSpacing: 0.2,
+                ),
+                textAlign: TextAlign.center,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }
@@ -231,11 +392,14 @@ class _ProfileInfoTile extends StatelessWidget {
     required this.icon,
     required this.title,
     required this.subtitle,
-    required this.showDivider,
+    this.showDivider = false,
   });
 
   @override
   Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    final bg = BackgroundStyle.of(context);
+    final tt = Theme.of(context).textTheme;
     return Column(
       children: [
         Padding(
@@ -243,12 +407,13 @@ class _ProfileInfoTile extends StatelessWidget {
           child: Row(
             children: [
               Container(
-                padding: const EdgeInsets.all(10),
+                width: 44,
+                height: 44,
                 decoration: BoxDecoration(
-                  color: AppColors.primaryBlue.withValues(alpha: 0.08),
+                  color: cs.primary.withValues(alpha: 0.10),
                   shape: BoxShape.circle,
                 ),
-                child: Icon(icon, color: AppColors.primaryBlue, size: 22),
+                child: Icon(icon, color: cs.primary, size: 22),
               ),
               const SizedBox(width: AppSizes.paddingLG),
               Expanded(
@@ -257,18 +422,21 @@ class _ProfileInfoTile extends StatelessWidget {
                   children: [
                     Text(
                       title,
-                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                            color: AppColors.gray500,
-                            fontWeight: FontWeight.w600,
-                          ),
+                      style: tt.bodySmall?.copyWith(
+                        color: cs.onSurface.withValues(alpha: 0.60),
+                        fontWeight: FontWeight.w600,
+                        letterSpacing: 0.3,
+                      ),
                     ),
                     const SizedBox(height: 2),
                     Text(
                       subtitle,
-                      style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                            fontWeight: FontWeight.w600,
-                            color: AppColors.textPrimary,
-                          ),
+                      style: tt.bodyLarge?.copyWith(
+                        fontWeight: FontWeight.w600,
+                        color: cs.onSurface,
+                      ),
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
                     ),
                   ],
                 ),
@@ -277,8 +445,12 @@ class _ProfileInfoTile extends StatelessWidget {
           ),
         ),
         if (showDivider)
-          const Divider(
-              height: 1, indent: 70, endIndent: 20, color: AppColors.gray200),
+          Divider(
+            height: 1,
+            indent: 70,
+            endIndent: 20,
+            color: bg.border,
+          ),
       ],
     );
   }

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../config/theme_extensions.dart';
 import '../../constants/app_colors.dart';
 import '../../constants/app_sizes.dart';
 import '../../models/enums/order_status.dart';
@@ -18,6 +19,7 @@ class OrderTimeline extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
     // Define the generic happy path
     final steps = [
       OrderStatus.placed,
@@ -28,12 +30,12 @@ class OrderTimeline extends StatelessWidget {
     ];
 
     if (currentStatus == OrderStatus.cancelled) {
-      return const Padding(
-        padding: EdgeInsets.all(AppSizes.paddingMD),
+      return Padding(
+        padding: const EdgeInsets.all(AppSizes.paddingMD),
         child: Text(
           'Order was Cancelled',
           style: TextStyle(
-            color: AppColors.errorRed,
+            color: cs.error,
             fontWeight: FontWeight.bold,
           ),
         ),
@@ -96,6 +98,12 @@ class _TimelineNode extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    final tokens = BackgroundStyle.of(context);
+    // Pending dot / line colour tracks the theme's muted surface so the
+    // "not yet reached" parts of the timeline still look intentional in
+    // dark mode rather than gray-on-navy.
+    final pendingColor = tokens.border;
     return IntrinsicHeight(
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -109,13 +117,13 @@ class _TimelineNode extends StatelessWidget {
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
                   color:
-                      isCompleted ? AppColors.primaryBlue : AppColors.gray200,
+                      isCompleted ? AppColors.primaryBlue : pendingColor,
                   border: isCurrent
                       ? Border.all(color: AppColors.secondaryTeal, width: 3)
                       : null,
                 ),
                 child: isCompleted
-                    ? const Icon(Icons.check, size: 14, color: AppColors.white)
+                    ? const Icon(Icons.check, size: 14, color: Colors.white)
                     : null,
               ),
               if (!isLast)
@@ -123,7 +131,7 @@ class _TimelineNode extends StatelessWidget {
                   child: Container(
                     width: 2,
                     color:
-                        isCompleted ? AppColors.primaryBlue : AppColors.gray200,
+                        isCompleted ? AppColors.primaryBlue : pendingColor,
                   ),
                 ),
             ],
@@ -140,8 +148,8 @@ class _TimelineNode extends StatelessWidget {
                     title,
                     style: Theme.of(context).textTheme.titleSmall?.copyWith(
                           color: isCompleted
-                              ? AppColors.gray900
-                              : AppColors.gray500,
+                              ? cs.onSurface
+                              : cs.onSurface.withValues(alpha: 0.55),
                           fontWeight:
                               isCurrent ? FontWeight.bold : FontWeight.w500,
                         ),
@@ -151,7 +159,7 @@ class _TimelineNode extends StatelessWidget {
                     Text(
                       subtitle!,
                       style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                            color: AppColors.gray500,
+                            color: cs.onSurface.withValues(alpha: 0.60),
                           ),
                     ),
                   ],

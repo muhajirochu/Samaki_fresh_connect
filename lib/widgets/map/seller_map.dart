@@ -9,6 +9,13 @@
 // Otherwise the marker is grey. The marker colour is in addition to
 // the existing selected → accent-orange highlight, so a selected
 // online seller renders as a green-with-orange-ring pin.
+//
+// Theme notes: the OSM raster tiles look identical in both themes —
+// that's expected (they're third-party imagery, not theme-aware). The
+// marker pins are deliberately small, foreground-on-coloured graphics
+// so their saturated brand colours (blue / green / amber) and the
+// white inner disc stay constant across themes; only the drop-shadow
+// opacity tracks the current theme for visual cohesion.
 
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
@@ -174,13 +181,14 @@ class _BuyerMarker extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Container(
       decoration: BoxDecoration(
         color: Colors.white,
         shape: BoxShape.circle,
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.18),
+            color: Colors.black.withValues(alpha: isDark ? 0.40 : 0.18),
             blurRadius: 6,
             offset: const Offset(0, 2),
           ),
@@ -218,6 +226,7 @@ class _SellerMarker extends StatelessWidget {
     final baseColor = isOnline ? AppColors.successGreen : AppColors.gray500;
     final ringColor = isSelected ? AppColors.accentOrange : baseColor;
     final dotSize = isSelected ? 38.0 : 32.0;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return GestureDetector(
       behavior: HitTestBehavior.opaque,
       onTap: onTap,
@@ -246,7 +255,7 @@ class _SellerMarker extends StatelessWidget {
                   shape: BoxShape.circle,
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.black.withValues(alpha: 0.22),
+                      color: Colors.black.withValues(alpha: isDark ? 0.50 : 0.22),
                       blurRadius: 6,
                       offset: const Offset(0, 2),
                     ),

@@ -1,9 +1,11 @@
-import 'package:flutter/material.dart';
+import 'package:flutter/material.dart' hide FormField;
 import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
+import '../../config/theme_extensions.dart';
 import '../../constants/app_colors.dart';
+import '../../l10n/app_localizations.dart';
 import '../../utils/validators.dart';
 import '../../utils/error_handler.dart';
 import '../../providers/auth_provider.dart';
@@ -11,6 +13,7 @@ import '../../models/enums/user_role.dart';
 import '../../models/user_model.dart';
 import '../../utils/logger.dart';
 import '../../widgets/common/app_logo.dart';
+import '../../widgets/common/premium_components.dart';
 
 // ── Demo account definitions ──────────────────────────────────────────────────
 class DemoAccount {
@@ -31,15 +34,10 @@ class DemoAccount {
   });
 }
 
+// Demo accounts shown on the login screen as quick-fill buttons.
+// Street seller demo accounts were intentionally removed — real
+// sellers must register themselves through the registration flow.
 const List<DemoAccount> demoAccounts = [
-  DemoAccount(
-    email: 'streetseller@samakifresh.com',
-    password: 'password123',
-    role: UserRole.streetSeller,
-    name: 'Asha Street Seller',
-    icon: Icons.storefront_rounded,
-    color: Color(0xFFE65100),
-  ),
   DemoAccount(
     email: 'buyer@samakifresh.com',
     password: 'password123',
@@ -55,101 +53,6 @@ const List<DemoAccount> demoAccounts = [
     name: 'Admin User',
     icon: Icons.admin_panel_settings_rounded,
     color: Color(0xFFC62828),
-  ),
-
-  // ── Demo seller accounts ─────────────────────────────────────────────────
-  // Each of these maps 1:1 with a seller-mirror doc under
-  // `streetSellers/demo-<id>` so when the seller signs in and goes
-  // online, the buyer sees a green marker with their name on the map.
-  DemoAccount(
-    email: 'fatma@samakifresh.com',
-    password: 'password123',
-    role: UserRole.streetSeller,
-    name: 'Fatma Tuna Specialist',
-    icon: Icons.store_rounded,
-    color: Color(0xFFD32F2F),
-  ),
-  DemoAccount(
-    email: 'babu@samakifresh.com',
-    password: 'password123',
-    role: UserRole.streetSeller,
-    name: 'Babu Tilapia',
-    icon: Icons.store_rounded,
-    color: Color(0xFFE65100),
-  ),
-  DemoAccount(
-    email: 'sara@samakifresh.com',
-    password: 'password123',
-    role: UserRole.streetSeller,
-    name: 'Sara Mixed Fish',
-    icon: Icons.store_rounded,
-    color: Color(0xFFFFC107),
-  ),
-  DemoAccount(
-    email: 'kwame@samakifresh.com',
-    password: 'password123',
-    role: UserRole.streetSeller,
-    name: 'Kwame Market Stall',
-    icon: Icons.store_rounded,
-    color: Color(0xFF388E3C),
-  ),
-  DemoAccount(
-    email: 'mama@samakifresh.com',
-    password: 'password123',
-    role: UserRole.streetSeller,
-    name: 'Mama Zainab',
-    icon: Icons.store_rounded,
-    color: Color(0xFF1976D2),
-  ),
-
-  // ── Outer-island sellers (further from Stone Town) ────────────────────────
-  DemoAccount(
-    email: 'hassan@samakifresh.com',
-    password: 'password123',
-    role: UserRole.streetSeller,
-    name: 'Hassan Nungwi Catch',
-    icon: Icons.store_rounded,
-    color: Color(0xFF0288D1),
-  ),
-  DemoAccount(
-    email: 'salma@samakifresh.com',
-    password: 'password123',
-    role: UserRole.streetSeller,
-    name: 'Salma Kendwa Seafood',
-    icon: Icons.store_rounded,
-    color: Color(0xFF0097A7),
-  ),
-  DemoAccount(
-    email: 'yusuf@samakifresh.com',
-    password: 'password123',
-    role: UserRole.streetSeller,
-    name: 'Yusuf Paje Surfside',
-    icon: Icons.store_rounded,
-    color: Color(0xFF7B1FA2),
-  ),
-  DemoAccount(
-    email: 'rehema@samakifresh.com',
-    password: 'password123',
-    role: UserRole.streetSeller,
-    name: 'Mama Rehema Jambiani',
-    icon: Icons.store_rounded,
-    color: Color(0xFFC2185B),
-  ),
-  DemoAccount(
-    email: 'juma@samakifresh.com',
-    password: 'password123',
-    role: UserRole.streetSeller,
-    name: 'Juma Makunduchi Deep',
-    icon: Icons.store_rounded,
-    color: Color(0xFF512DA8),
-  ),
-  DemoAccount(
-    email: 'asha-pwani@samakifresh.com',
-    password: 'password123',
-    role: UserRole.streetSeller,
-    name: 'Asha Pwani Mchangani',
-    icon: Icons.store_rounded,
-    color: Color(0xFF00695C),
   ),
 ];
 
@@ -178,15 +81,18 @@ class LoginScreen extends HookConsumerWidget {
       ),
     );
 
-    return const Scaffold(
-      backgroundColor: Color(0xFFF8FAFF),
+    final tokens = BackgroundStyle.of(context);
+    final gradients = AppGradients.of(context);
+
+    return Scaffold(
+      backgroundColor: tokens.background,
       body: Column(
         children: [
           // ── Hero header ────────────────────────────────────────────────────
-          _HeroHeader(),
+          _HeroHeader(gradient: gradients.hero),
 
           // ── Form body ───────────────────────────────────────────────────────
-          Expanded(
+          const Expanded(
             child: _SignInTab(),
           ),
         ],
@@ -197,24 +103,30 @@ class LoginScreen extends HookConsumerWidget {
 
 // ── Hero header with gradient + segment control ──────────────────────────────
 class _HeroHeader extends StatelessWidget {
-  const _HeroHeader();
+  final LinearGradient gradient;
+  const _HeroHeader({required this.gradient});
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     final statusBarH = MediaQuery.of(context).padding.top;
+    final cs = Theme.of(context).colorScheme;
+    final tt = Theme.of(context).textTheme;
 
     return Container(
-      decoration: const BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [Color(0xFF003D6B), Color(0xFF0066B4), Color(0xFF00A896)],
-          stops: [0.0, 0.55, 1.0],
-        ),
-        borderRadius: BorderRadius.only(
+      decoration: BoxDecoration(
+        gradient: gradient,
+        borderRadius: const BorderRadius.only(
           bottomLeft: Radius.circular(32),
           bottomRight: Radius.circular(32),
         ),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.18),
+            blurRadius: 18,
+            offset: const Offset(0, 8),
+          ),
+        ],
       ),
       child: Padding(
         padding: EdgeInsets.only(top: statusBarH + 16, bottom: 0),
@@ -225,44 +137,26 @@ class _HeroHeader extends StatelessWidget {
               padding: const EdgeInsets.symmetric(horizontal: 24),
               child: Row(
                 children: [
-                  Container(
-                    width: 48,
-                    height: 48,
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(14),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black.withValues(alpha: 0.15),
-                          blurRadius: 12,
-                          offset: const Offset(0, 4),
-                        ),
-                      ],
-                    ),
-                    padding: const EdgeInsets.all(6),
-                    child: const AppLogo(
-                      size: 36,
-                      borderRadius: 8,
-                    ),
+                  const AppLogo(
+                    size: 48,
+                    withGlow: true,
                   ),
                   const SizedBox(width: 12),
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Text(
+                      Text(
                         'SamakiFresh',
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 20,
+                        style: tt.titleLarge?.copyWith(
+                          color: AppColors.white,
                           fontWeight: FontWeight.w800,
                           letterSpacing: -0.3,
                         ),
                       ),
                       Text(
-                        'Connect',
-                        style: TextStyle(
-                          color: Colors.white.withValues(alpha: 0.75),
-                          fontSize: 12,
+                        'CONNECT',
+                        style: tt.bodySmall?.copyWith(
+                          color: AppColors.white.withValues(alpha: 0.75),
                           fontWeight: FontWeight.w300,
                           letterSpacing: 3,
                         ),
@@ -281,11 +175,10 @@ class _HeroHeader extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text(
-                      'Welcome back 👋',
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 26,
+                    Text(
+                      'Welcome back',
+                      style: tt.headlineSmall?.copyWith(
+                        color: AppColors.white,
                         fontWeight: FontWeight.w700,
                         letterSpacing: -0.5,
                       ),
@@ -293,9 +186,8 @@ class _HeroHeader extends StatelessWidget {
                     const SizedBox(height: 4),
                     Text(
                       'Sign in to continue to your dashboard',
-                      style: TextStyle(
-                        color: Colors.white.withValues(alpha: 0.8),
-                        fontSize: 14,
+                      style: tt.bodyMedium?.copyWith(
+                        color: AppColors.white.withValues(alpha: 0.80),
                       ),
                     ),
                   ],
@@ -308,7 +200,7 @@ class _HeroHeader extends StatelessWidget {
               margin: const EdgeInsets.symmetric(horizontal: 24),
               padding: const EdgeInsets.all(4),
               decoration: BoxDecoration(
-                color: Colors.white.withValues(alpha: 0.15),
+                color: AppColors.white.withValues(alpha: 0.15),
                 borderRadius: BorderRadius.circular(14),
               ),
               child: Row(
@@ -317,21 +209,21 @@ class _HeroHeader extends StatelessWidget {
                     child: Container(
                       padding: const EdgeInsets.symmetric(vertical: 10),
                       decoration: BoxDecoration(
-                        color: Colors.white,
+                        color: AppColors.white,
                         borderRadius: BorderRadius.circular(10),
                         boxShadow: [
                           BoxShadow(
-                            color: Colors.black.withValues(alpha: 0.1),
+                            color: Colors.black.withValues(alpha: 0.10),
                             blurRadius: 8,
                             offset: const Offset(0, 2),
                           ),
                         ],
                       ),
                       alignment: Alignment.center,
-                      child: const Text(
-                        'Sign In',
+                      child: Text(
+                        l10n.login,
                         style: TextStyle(
-                          color: AppColors.primaryBlue,
+                          color: cs.primary,
                           fontWeight: FontWeight.w700,
                           fontSize: 15,
                         ),
@@ -345,10 +237,10 @@ class _HeroHeader extends StatelessWidget {
                       child: Container(
                         padding: const EdgeInsets.symmetric(vertical: 10),
                         alignment: Alignment.center,
-                        child: const Text(
-                          'Sign Up',
-                          style: TextStyle(
-                            color: Colors.white,
+                        child: Text(
+                          l10n.signup,
+                          style: const TextStyle(
+                            color: AppColors.white,
                             fontWeight: FontWeight.w500,
                             fontSize: 15,
                           ),
@@ -373,6 +265,7 @@ class _SignInTab extends HookConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = AppLocalizations.of(context);
     final formKey = useMemoized(() => GlobalKey<FormState>());
     final emailCtrl = useTextEditingController();
     final passwordCtrl = useTextEditingController();
@@ -471,34 +364,35 @@ class _SignInTab extends HookConsumerWidget {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             // Email
-            const _FieldLabel(
+            const _PremiumInputLabel(
                 label: 'Email address', icon: Icons.email_rounded),
             const SizedBox(height: 8),
             TextFormField(
               controller: emailCtrl,
               keyboardType: TextInputType.emailAddress,
               textInputAction: TextInputAction.next,
-              decoration: _inputDec(hint: 'you@example.com'),
+              decoration: themedInputDec(context, hint: 'you@example.com'),
               validator: Validators.validateEmail,
             ),
             const SizedBox(height: 20),
 
             // Password
-            const _FieldLabel(label: 'Password', icon: Icons.lock_rounded),
+            const _PremiumInputLabel(
+                label: 'Password', icon: Icons.lock_rounded),
             const SizedBox(height: 8),
             TextFormField(
               controller: passwordCtrl,
               obscureText: obscure.value,
               textInputAction: TextInputAction.done,
               onFieldSubmitted: (_) => handleLogin(),
-              decoration: _inputDec(
+              decoration: themedInputDec(
+                context,
                 hint: '••••••••',
                 suffix: IconButton(
                   icon: Icon(
                     obscure.value
                         ? Icons.visibility_off_rounded
                         : Icons.visibility_rounded,
-                    color: AppColors.gray500,
                     size: 20,
                   ),
                   onPressed: () => obscure.value = !obscure.value,
@@ -512,10 +406,6 @@ class _SignInTab extends HookConsumerWidget {
               alignment: Alignment.centerRight,
               child: TextButton(
                 onPressed: isLoading.value ? null : handleForgotPassword,
-                style: TextButton.styleFrom(
-                  foregroundColor: AppColors.primaryBlue,
-                  padding: const EdgeInsets.symmetric(vertical: 4),
-                ),
                 child: const Text('Forgot password?',
                     style: TextStyle(fontSize: 13)),
               ),
@@ -523,27 +413,11 @@ class _SignInTab extends HookConsumerWidget {
             const SizedBox(height: 8),
 
             // Sign in button
-            FilledButton(
+            GradientButton(
+              label: l10n.login,
+              prefixIcon: Icons.login_rounded,
               onPressed: isLoading.value ? null : handleLogin,
-              style: FilledButton.styleFrom(
-                minimumSize: const Size(double.infinity, 52),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(14),
-                ),
-                backgroundColor: AppColors.primaryBlue,
-              ),
-              child: isLoading.value
-                  ? const SizedBox(
-                      height: 22,
-                      width: 22,
-                      child: CircularProgressIndicator(
-                          strokeWidth: 2.5,
-                          valueColor:
-                              AlwaysStoppedAnimation<Color>(Colors.white)),
-                    )
-                  : const Text('Sign In',
-                      style:
-                          TextStyle(fontSize: 16, fontWeight: FontWeight.w700)),
+              isLoading: isLoading.value,
             ),
             const SizedBox(height: 28),
 
@@ -564,6 +438,9 @@ class _DemoSection extends HookConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final expanded = useState(false);
+    final cs = Theme.of(context).colorScheme;
+    final tokens = BackgroundStyle.of(context);
+    final tt = Theme.of(context).textTheme;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -574,40 +451,34 @@ class _DemoSection extends HookConsumerWidget {
           child: Container(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
             decoration: BoxDecoration(
-              color: Colors.white,
+              color: tokens.surface,
               borderRadius: BorderRadius.circular(14),
-              border: Border.all(color: AppColors.gray200),
+              border: Border.all(color: tokens.border),
             ),
             child: Row(
               children: [
                 Container(
                   padding: const EdgeInsets.all(8),
                   decoration: BoxDecoration(
-                    color: AppColors.primaryBlue.withValues(alpha: 0.08),
+                    color: cs.primary.withValues(alpha: 0.08),
                     borderRadius: BorderRadius.circular(8),
                   ),
-                  child: const Icon(Icons.bolt_rounded,
-                      color: AppColors.primaryBlue, size: 18),
+                  child: Icon(Icons.bolt_rounded, color: cs.primary, size: 18),
                 ),
                 const SizedBox(width: 12),
-                const Expanded(
+                Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
                         'Quick Demo Access',
-                        style: TextStyle(
+                        style: tt.titleSmall?.copyWith(
                           fontWeight: FontWeight.w700,
-                          fontSize: 14,
-                          color: AppColors.gray900,
                         ),
                       ),
                       Text(
                         'Tap a role to auto-login instantly',
-                        style: TextStyle(
-                          fontSize: 12,
-                          color: AppColors.gray500,
-                        ),
+                        style: tt.bodySmall,
                       ),
                     ],
                   ),
@@ -615,8 +486,8 @@ class _DemoSection extends HookConsumerWidget {
                 AnimatedRotation(
                   turns: expanded.value ? 0.5 : 0.0,
                   duration: const Duration(milliseconds: 200),
-                  child: const Icon(Icons.expand_more_rounded,
-                      color: AppColors.gray500),
+                  child: Icon(Icons.expand_more_rounded,
+                      color: cs.onSurface.withValues(alpha: 0.55)),
                 ),
               ],
             ),
@@ -654,6 +525,9 @@ class _DemoCard extends HookConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final tokens = BackgroundStyle.of(context);
+    final tt = Theme.of(context).textTheme;
+
     Future<void> handleTap() async {
       if (isLoading) return;
 
@@ -682,7 +556,7 @@ class _DemoCard extends HookConsumerWidget {
     return Padding(
       padding: const EdgeInsets.only(bottom: 8),
       child: Material(
-        color: Colors.white,
+        color: tokens.surface,
         borderRadius: BorderRadius.circular(12),
         child: InkWell(
           onTap: handleTap,
@@ -711,18 +585,13 @@ class _DemoCard extends HookConsumerWidget {
                     children: [
                       Text(
                         demo.role.displayName,
-                        style: const TextStyle(
+                        style: tt.titleSmall?.copyWith(
                           fontWeight: FontWeight.w700,
-                          fontSize: 14,
-                          color: AppColors.gray900,
                         ),
                       ),
                       Text(
                         demo.name,
-                        style: const TextStyle(
-                          fontSize: 12,
-                          color: AppColors.gray500,
-                        ),
+                        style: tt.bodySmall,
                       ),
                     ],
                   ),
@@ -738,25 +607,41 @@ class _DemoCard extends HookConsumerWidget {
   }
 }
 
-// ── Shared helpers ────────────────────────────────────────────────────────────
-class _FieldLabel extends StatelessWidget {
+// ── Snack helper ──────────────────────────────────────────────────────────────
+void _showSnack(BuildContext context, String message, {bool isError = false}) {
+  final cs = Theme.of(context).colorScheme;
+  ScaffoldMessenger.of(context).showSnackBar(
+    SnackBar(
+      content: Text(message),
+      backgroundColor: isError ? cs.error : cs.secondary,
+      behavior: SnackBarBehavior.floating,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      margin: const EdgeInsets.all(16),
+    ),
+  );
+}
+
+// ── Field label + theme-aware input decoration ────────────────────────────────
+class _PremiumInputLabel extends StatelessWidget {
   final String label;
   final IconData icon;
 
-  const _FieldLabel({required this.label, required this.icon});
+  const _PremiumInputLabel({required this.label, required this.icon});
 
   @override
   Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    final tt = Theme.of(context).textTheme;
+
     return Row(
       children: [
-        Icon(icon, size: 16, color: AppColors.gray600),
+        Icon(icon, size: 16, color: cs.onSurface.withValues(alpha: 0.65)),
         const SizedBox(width: 6),
         Text(
           label,
-          style: const TextStyle(
-            fontSize: 13,
+          style: tt.labelMedium?.copyWith(
             fontWeight: FontWeight.w600,
-            color: AppColors.gray700,
+            color: cs.onSurface.withValues(alpha: 0.80),
           ),
         ),
       ],
@@ -764,45 +649,42 @@ class _FieldLabel extends StatelessWidget {
   }
 }
 
-InputDecoration _inputDec({required String hint, Widget? suffix}) {
+/// Builds a theme-aware [InputDecoration] from the current theme.
+InputDecoration themedInputDec(
+  BuildContext context, {
+  required String hint,
+  Widget? suffix,
+}) {
+  final cs = Theme.of(context).colorScheme;
+  final tt = Theme.of(context).textTheme;
+
   return InputDecoration(
     hintText: hint,
     filled: true,
-    fillColor: Colors.white,
-    hintStyle: const TextStyle(color: AppColors.gray400, fontSize: 15),
+    fillColor: cs.surfaceContainerHighest,
+    hintStyle: tt.bodyMedium
+        ?.copyWith(color: cs.onSurface.withValues(alpha: 0.40), fontSize: 15),
     contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
     suffixIcon: suffix,
     border: OutlineInputBorder(
       borderRadius: BorderRadius.circular(12),
-      borderSide: const BorderSide(color: AppColors.gray200),
+      borderSide: BorderSide(color: cs.outline.withValues(alpha: 0.4)),
     ),
     enabledBorder: OutlineInputBorder(
       borderRadius: BorderRadius.circular(12),
-      borderSide: const BorderSide(color: AppColors.gray200),
+      borderSide: BorderSide(color: cs.outline.withValues(alpha: 0.4)),
     ),
     focusedBorder: OutlineInputBorder(
       borderRadius: BorderRadius.circular(12),
-      borderSide: const BorderSide(color: AppColors.primaryBlue, width: 2),
+      borderSide: BorderSide(color: cs.primary, width: 1.6),
     ),
     errorBorder: OutlineInputBorder(
       borderRadius: BorderRadius.circular(12),
-      borderSide: const BorderSide(color: AppColors.errorRed),
+      borderSide: BorderSide(color: cs.error),
     ),
     focusedErrorBorder: OutlineInputBorder(
       borderRadius: BorderRadius.circular(12),
-      borderSide: const BorderSide(color: AppColors.errorRed, width: 2),
-    ),
-  );
-}
-
-void _showSnack(BuildContext context, String message, {bool isError = false}) {
-  ScaffoldMessenger.of(context).showSnackBar(
-    SnackBar(
-      content: Text(message),
-      backgroundColor: isError ? AppColors.errorRed : AppColors.successGreen,
-      behavior: SnackBarBehavior.floating,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      margin: const EdgeInsets.all(16),
+      borderSide: BorderSide(color: cs.error, width: 1.6),
     ),
   );
 }

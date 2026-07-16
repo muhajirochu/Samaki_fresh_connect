@@ -9,6 +9,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
+import '../../config/theme_extensions.dart';
 import '../../constants/app_colors.dart';
 import '../../constants/app_sizes.dart';
 import '../../models/enums/fish_type.dart';
@@ -24,16 +25,19 @@ class PopularFishSection extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final popular = ref.watch(popularNearbyFishProvider);
+    final cs = Theme.of(context).colorScheme;
 
     if (popular.isEmpty) {
-      return const Padding(
-        padding: EdgeInsets.symmetric(
+      return Padding(
+        padding: const EdgeInsets.symmetric(
           horizontal: AppSizes.paddingLG,
           vertical: AppSizes.paddingMD,
         ),
         child: Text(
           'Mapendekezo yatapatikana hapa baada ya wauzaji kuchapisha samaki wengi.',
-          style: TextStyle(color: AppColors.gray500),
+          style: TextStyle(
+            color: cs.onSurface.withValues(alpha: 0.55),
+          ),
         ),
       );
     }
@@ -96,19 +100,26 @@ class _PopularTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    final tokens = BackgroundStyle.of(context);
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return GestureDetector(
       onTap: onTap,
       child: Container(
         width: 260,
         decoration: BoxDecoration(
-          color: AppColors.white,
+          color: cs.surface,
           borderRadius: BorderRadius.circular(AppSizes.radiusLG),
-          border: Border.all(color: AppColors.gray200),
+          border: Border.all(color: tokens.border, width: 0.6),
+          // Themed shadow — slightly softer than browse card so the
+          // tile reads as a lower-elevation row element.
           boxShadow: [
             BoxShadow(
-              color: AppColors.black.withValues(alpha: 0.04),
-              blurRadius: 6,
-              offset: const Offset(0, 2),
+              color: isDark
+                  ? Colors.black.withValues(alpha: 0.28)
+                  : Colors.black.withValues(alpha: 0.05),
+              blurRadius: 12,
+              offset: const Offset(0, 5),
             ),
           ],
         ),
@@ -126,11 +137,10 @@ class _PopularTile extends StatelessWidget {
                       ? CachedNetworkImage(
                           imageUrl: imageUrl!,
                           fit: BoxFit.cover,
-                          placeholder: (_, __) => Container(
-                              color: AppColors.gray100),
-                          errorWidget: (_, __, ___) => _imgFallback(),
+                          placeholder: (_, __) => _imgFallback(context),
+                          errorWidget: (_, __, ___) => _imgFallback(context),
                         )
-                      : _imgFallback(),
+                      : _imgFallback(context),
                 ),
               ),
               const SizedBox(width: AppSizes.paddingSM),
@@ -165,8 +175,11 @@ class _PopularTile extends StatelessWidget {
                           child: Row(
                             mainAxisSize: MainAxisSize.min,
                             children: [
-                              const Icon(Icons.local_fire_department_rounded,
-                                  color: AppColors.accentOrange, size: 12),
+                              const Icon(
+                                Icons.local_fire_department_rounded,
+                                color: AppColors.accentOrange,
+                                size: 12,
+                              ),
                               const SizedBox(width: 2),
                               Text(
                                 '$listingCount listings',
@@ -205,11 +218,15 @@ class _PopularTile extends StatelessWidget {
     );
   }
 
-  Widget _imgFallback() {
+  Widget _imgFallback(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
     return Container(
-      color: AppColors.gray100,
-      child: const Icon(Icons.set_meal_rounded,
-          color: AppColors.gray400, size: 28),
+      color: BackgroundStyle.of(context).surfaceAlt,
+      child: Icon(
+        Icons.set_meal_rounded,
+        color: cs.onSurface.withValues(alpha: 0.45),
+        size: 28,
+      ),
     );
   }
 }

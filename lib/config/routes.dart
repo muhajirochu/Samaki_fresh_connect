@@ -23,6 +23,7 @@ import '../screens/common/my_orders_screen.dart';
 import '../screens/common/order_detail_screen.dart';
 import '../screens/common/profile_screen.dart';
 import '../screens/common/edit_profile_screen.dart';
+import '../screens/common/settings_screen.dart';
 import '../features/map/screens/map_screen.dart';
 
 // GoRouter requires a listenable to re-evaluate redirect on auth change.
@@ -41,6 +42,23 @@ final appRouter = GoRouter(
 
     // If not logged in and trying to access protected route → login
     if (!isLoggedIn && !isAuthRoute) return '/login';
+
+    // If logged in and trying to access auth route → redirect to appropriate dashboard
+    if (isLoggedIn && isAuthRoute) {
+       final userModel = mockUser ?? _container.read(currentUserStreamProvider).valueOrNull;
+       
+       if (userModel != null) {
+          switch (userModel.role.name) {
+            case 'streetSeller': return '/dashboard/street_seller';
+            case 'admin': return '/dashboard/admin';
+            default: return '/dashboard/buyer';
+          }
+       }
+       // If the user hasn't fully loaded, we stay on the splash screen
+       if (state.matchedLocation == '/splash') return null;
+       return '/dashboard/buyer'; // Fallback if data hasn't loaded yet
+    }
+
     return null;
   },
   errorBuilder: (context, state) {
@@ -185,6 +203,12 @@ final appRouter = GoRouter(
     GoRoute(
       path: '/profile/edit',
       builder: (context, state) => const EditProfileScreen(),
+    ),
+
+    // ── Settings (theme switcher etc.) ───────────────────────────────────────
+    GoRoute(
+      path: '/settings',
+      builder: (context, state) => const SettingsScreen(),
     ),
   ],
 );

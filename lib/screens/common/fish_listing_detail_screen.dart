@@ -14,6 +14,7 @@ import '../../providers/auth_provider.dart';
 import '../../providers/listing_provider.dart';
 import '../../providers/order_provider.dart';
 import '../../widgets/common/common_widgets.dart';
+import '../../widgets/common/premium_components.dart';
 import '../../utils/formatters.dart';
 
 class FishListingDetailScreen extends HookConsumerWidget {
@@ -25,9 +26,10 @@ class FishListingDetailScreen extends HookConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final listingAsync = ref.watch(listingDetailProvider(listingId));
     final currentUser = ref.watch(currentUserStreamProvider).valueOrNull;
+    final cs = Theme.of(context).colorScheme;
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF5F7FA),
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       extendBodyBehindAppBar: true,
       appBar: AppBar(
         title: const Text('Listing Details',
@@ -79,14 +81,15 @@ class FishListingDetailScreen extends HookConsumerWidget {
                       height: 320,
                       width: double.infinity,
                       decoration: BoxDecoration(
-                        color: AppColors.primaryBlue.withValues(alpha: 0.1),
+                        color: cs.primary.withValues(alpha: 0.10),
                       ),
                       child: listing.imageUrls.isNotEmpty
                           ? Image.network(listing.imageUrls.first,
                               fit: BoxFit.cover)
-                          : const Center(
+                          : Center(
                               child: Icon(Icons.set_meal_rounded,
-                                  size: 80, color: AppColors.gray400),
+                                  size: 80,
+                                  color: cs.onSurface.withValues(alpha: 0.45)),
                             ),
                     ),
                     // Gradient overlay for better text visibility
@@ -133,7 +136,7 @@ class FishListingDetailScreen extends HookConsumerWidget {
                             decoration: BoxDecoration(
                               color: listing.status == 'active'
                                   ? AppColors.successGreen
-                                  : AppColors.gray600,
+                                  : cs.onSurface.withValues(alpha: 0.55),
                               borderRadius: BorderRadius.circular(20),
                             ),
                             child: Text(
@@ -156,31 +159,18 @@ class FishListingDetailScreen extends HookConsumerWidget {
                 Transform.translate(
                   offset: const Offset(0, -10),
                   child: Container(
-                    decoration: const BoxDecoration(
-                      color: Color(0xFFF5F7FA),
+                    decoration: BoxDecoration(
+                      color: Theme.of(context).scaffoldBackgroundColor,
                       borderRadius:
-                          BorderRadius.vertical(top: Radius.circular(24)),
+                          const BorderRadius.vertical(top: Radius.circular(24)),
                     ),
                     padding: const EdgeInsets.all(AppSizes.paddingLG),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         // Pricing Grid
-                        Container(
+                        PremiumCard(
                           padding: const EdgeInsets.all(AppSizes.paddingLG),
-                          decoration: BoxDecoration(
-                            color: Colors.white,
-                            borderRadius:
-                                BorderRadius.circular(AppSizes.radiusLG),
-                            border: Border.all(color: AppColors.gray200),
-                            boxShadow: [
-                              BoxShadow(
-                                color: Colors.black.withValues(alpha: 0.02),
-                                blurRadius: 10,
-                                offset: const Offset(0, 4),
-                              ),
-                            ],
-                          ),
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.spaceAround,
                             children: [
@@ -193,7 +183,7 @@ class FishListingDetailScreen extends HookConsumerWidget {
                               Container(
                                   width: 1,
                                   height: 40,
-                                  color: AppColors.gray200),
+                                  color: cs.outline.withValues(alpha: 0.30)),
                               _StatColumn(
                                 icon: Icons.sell_rounded,
                                 label: 'Price/kg',
@@ -203,13 +193,13 @@ class FishListingDetailScreen extends HookConsumerWidget {
                               Container(
                                   width: 1,
                                   height: 40,
-                                  color: AppColors.gray200),
+                                  color: cs.outline.withValues(alpha: 0.30)),
                               _StatColumn(
                                 icon: Icons.payments_rounded,
                                 label: 'Total',
                                 value: Formatters.formatCurrency(
                                     listing.totalPrice),
-                                valueColor: AppColors.primaryBlue,
+                                valueColor: cs.primary,
                               ),
                             ],
                           ),
@@ -232,7 +222,7 @@ class FishListingDetailScreen extends HookConsumerWidget {
                               : listing.description!,
                           style:
                               Theme.of(context).textTheme.bodyMedium?.copyWith(
-                                    color: AppColors.gray600,
+                                    color: cs.onSurface.withValues(alpha: 0.65),
                                     height: 1.5,
                                   ),
                         ),
@@ -270,14 +260,16 @@ class _StatColumn extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
     return Column(
       children: [
-        Icon(icon, size: 20, color: AppColors.gray500),
+        Icon(icon,
+            size: 20, color: cs.onSurface.withValues(alpha: 0.55)),
         const SizedBox(height: 4),
         Text(
           label,
           style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                color: AppColors.gray500,
+                color: cs.onSurface.withValues(alpha: 0.55),
                 fontWeight: FontWeight.w500,
               ),
         ),
@@ -286,7 +278,7 @@ class _StatColumn extends StatelessWidget {
           value,
           style: Theme.of(context).textTheme.titleMedium?.copyWith(
                 fontWeight: FontWeight.w800,
-                color: valueColor ?? AppColors.textPrimary,
+                color: valueColor ?? cs.onSurface,
               ),
         ),
       ],
@@ -303,6 +295,7 @@ class _BuyButton extends HookConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final isLoading = useState(false);
+    final cs = Theme.of(context).colorScheme;
 
     Future<void> placeOrder() async {
       if (currentUser == null) return;
@@ -368,7 +361,7 @@ class _BuyButton extends HookConsumerWidget {
       decoration: BoxDecoration(
         boxShadow: [
           BoxShadow(
-            color: AppColors.primaryBlue.withValues(alpha: 0.3),
+            color: cs.primary.withValues(alpha: 0.30),
             blurRadius: 16,
             offset: const Offset(0, 8),
           ),

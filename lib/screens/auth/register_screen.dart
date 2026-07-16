@@ -1,10 +1,12 @@
 import 'dart:io';
-import 'package:flutter/material.dart';
+import 'package:flutter/material.dart' hide FormField;
+import 'package:flutter/widgets.dart' as fw show FormField;
 import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:image_picker/image_picker.dart';
+import '../../config/theme_extensions.dart';
 import '../../constants/app_colors.dart';
 import '../../models/enums/user_role.dart';
 import '../../models/user_model.dart';
@@ -13,11 +15,11 @@ import '../../services/cloudinary_service.dart';
 import '../../utils/error_handler.dart';
 import '../../utils/logger.dart';
 import '../../widgets/common/app_logo.dart';
+import '../../widgets/common/premium_components.dart';
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Data constants
 // ─────────────────────────────────────────────────────────────────────────────
-
 
 const _buyerTypes = ['Individual/Household', 'Restaurant', 'Hotel', 'Retail'];
 const _deliveryTimes = ['Morning', 'Afternoon', 'Evening', 'Anytime'];
@@ -73,7 +75,12 @@ class RegisterScreen extends HookConsumerWidget {
     final authService = ref.watch(authServiceProvider);
     final userService = ref.watch(userServiceProvider);
     final cloudinary = CloudinaryService();
-    final picker = useMemoized(() => ImagePicker());
+    // ImagePicker is lightweight and stateless — construct it directly
+    // rather than memoising. A useMemoized closure can become stale and
+    // return the same instance if the picker invokes late callbacks
+    // while the widget rebuilts, which historically caused "selected
+    // photo doesn't render" bugs.
+    final picker = ImagePicker();
 
     // ─────────────────────────────────────────────────────────────────────────
     // Helpers
@@ -185,7 +192,7 @@ class RegisterScreen extends HookConsumerWidget {
 
         AppLogger.info('Registration complete for: ${user.uid}');
         if (context.mounted) {
-          _snack(context, 'Welcome to SamakiFresh! 🎉');
+          _snack(context, 'Welcome to SamakiFresh!');
           context.go(_routeForRole(role));
         }
       } catch (e) {
@@ -206,12 +213,15 @@ class RegisterScreen extends HookConsumerWidget {
       statusBarIconBrightness: Brightness.light,
     ));
 
+    final tokens = BackgroundStyle.of(context);
+    final gradients = AppGradients.of(context);
+
     return Scaffold(
-      backgroundColor: const Color(0xFFF8FAFF),
+      backgroundColor: tokens.background,
       body: Column(
         children: [
           // ── Header ──────────────────────────────────────────────────────────
-          _Header(onBack: () => context.go('/login')),
+          _Header(onBack: () => context.go('/login'), gradient: gradients.hero),
 
           // ── Form ────────────────────────────────────────────────────────────
           Expanded(
@@ -244,7 +254,7 @@ class RegisterScreen extends HookConsumerWidget {
                     controller: nameCtrl,
                     textCapitalization: TextCapitalization.words,
                     textInputAction: TextInputAction.next,
-                    decoration: _dec('e.g. Juma Hassan'),
+                    decoration: themedInputDec(context, hint: 'e.g. Juma Hassan'),
                     validator: (v) {
                       if (v == null || v.trim().isEmpty) {
                         return 'Full name is required';
@@ -262,7 +272,7 @@ class RegisterScreen extends HookConsumerWidget {
                     controller: emailCtrl,
                     keyboardType: TextInputType.emailAddress,
                     textInputAction: TextInputAction.next,
-                    decoration: _dec('you@example.com'),
+                    decoration: themedInputDec(context, hint: 'you@example.com'),
                     validator: (v) {
                       if (v == null || v.isEmpty) return 'Email is required';
                       if (!RegExp(r'^[^@]+@[^@]+\.[^@]+').hasMatch(v)) {
@@ -281,7 +291,7 @@ class RegisterScreen extends HookConsumerWidget {
                     inputFormatters: [
                       FilteringTextInputFormatter.allow(RegExp(r'[0-9+]')),
                     ],
-                    decoration: _dec('+255712345678'),
+                    decoration: themedInputDec(context, hint: '+255712345678'),
                     validator: validatePhone,
                   ),
                   const SizedBox(height: 16),
@@ -293,8 +303,9 @@ class RegisterScreen extends HookConsumerWidget {
                     controller: passwordCtrl,
                     obscureText: obscurePassword.value,
                     textInputAction: TextInputAction.next,
-                    decoration: _dec(
-                      '••••••••',
+                    decoration: themedInputDec(
+                      context,
+                      hint: '••••••••',
                       suffix: _EyeButton(
                         obscure: obscurePassword.value,
                         onTap: () =>
@@ -314,8 +325,9 @@ class RegisterScreen extends HookConsumerWidget {
                     controller: confirmCtrl,
                     obscureText: obscureConfirm.value,
                     textInputAction: TextInputAction.done,
-                    decoration: _dec(
-                      '••••••••',
+                    decoration: themedInputDec(
+                      context,
+                      hint: '••••••••',
                       suffix: _EyeButton(
                         obscure: obscureConfirm.value,
                         onTap: () =>
@@ -338,12 +350,10 @@ class RegisterScreen extends HookConsumerWidget {
                   const _SectionHeader(
                       label: 'Your Role', icon: Icons.badge_rounded),
                   const SizedBox(height: 4),
-                  const Text(
-                    'Select how you participate in SamakiFresh',
-                    style: TextStyle(fontSize: 12, color: AppColors.gray500),
-                  ),
+                  const _FieldHint(
+                      text: 'Select how you participate in SamakiFresh'),
                   const SizedBox(height: 14),
-                  FormField<UserRole>(
+                  fw.FormField<UserRole>(
                     initialValue: selectedRole.value,
                     validator: (v) =>
                         v == null ? 'Please select your role' : null,
@@ -363,8 +373,9 @@ class RegisterScreen extends HookConsumerWidget {
                               padding: const EdgeInsets.only(left: 4, top: 6),
                               child: Text(
                                 state.errorText ?? '',
-                                style: const TextStyle(
-                                    color: AppColors.errorRed, fontSize: 12),
+                                style: TextStyle(
+                                    color: Theme.of(context).colorScheme.error,
+                                    fontSize: 12),
                               ),
                             ),
                         ],
@@ -395,7 +406,7 @@ class RegisterScreen extends HookConsumerWidget {
 
                   // ── Terms & Conditions ────────────────────────────────────
                   const SizedBox(height: 8),
-                  FormField<bool>(
+                  fw.FormField<bool>(
                     initialValue: termsAccepted.value,
                     validator: (v) => v == true
                         ? null
@@ -416,8 +427,9 @@ class RegisterScreen extends HookConsumerWidget {
                               padding: const EdgeInsets.only(left: 12, top: 6),
                               child: Text(
                                 state.errorText ?? '',
-                                style: const TextStyle(
-                                    color: AppColors.errorRed, fontSize: 12),
+                                style: TextStyle(
+                                    color: Theme.of(context).colorScheme.error,
+                                    fontSize: 12),
                               ),
                             ),
                         ],
@@ -427,45 +439,33 @@ class RegisterScreen extends HookConsumerWidget {
                   const SizedBox(height: 28),
 
                   // ── Submit ────────────────────────────────────────────────
-                  FilledButton(
+                  GradientButton(
+                    label: 'Create Account',
+                    prefixIcon: Icons.person_add_rounded,
                     onPressed: isLoading.value ? null : handleRegister,
-                    style: FilledButton.styleFrom(
-                      backgroundColor: AppColors.primaryBlue,
-                      minimumSize: const Size(double.infinity, 52),
-                      shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(14)),
-                    ),
-                    child: isLoading.value
-                        ? const SizedBox(
-                            width: 22,
-                            height: 22,
-                            child: CircularProgressIndicator(
-                              strokeWidth: 2.5,
-                              valueColor:
-                                  AlwaysStoppedAnimation<Color>(Colors.white),
-                            ),
-                          )
-                        : const Text(
-                            'Create Account',
-                            style: TextStyle(
-                                fontSize: 16, fontWeight: FontWeight.w700),
-                          ),
+                    isLoading: isLoading.value,
                   ),
                   const SizedBox(height: 16),
                   Center(
                     child: TextButton(
                       onPressed: () => context.go('/login'),
                       child: RichText(
-                        text: const TextSpan(
+                        text: TextSpan(
                           text: 'Already have an account? ',
-                          style:
-                              TextStyle(color: AppColors.gray600, fontSize: 14),
+                          style: TextStyle(
+                            color: Theme.of(context)
+                                .colorScheme
+                                .onSurface
+                                .withValues(alpha: 0.70),
+                            fontSize: 14,
+                          ),
                           children: [
                             TextSpan(
                               text: 'Sign In',
                               style: TextStyle(
-                                  color: AppColors.primaryBlue,
-                                  fontWeight: FontWeight.w700),
+                                color: Theme.of(context).colorScheme.primary,
+                                fontWeight: FontWeight.w700,
+                              ),
                             ),
                           ],
                         ),
@@ -617,7 +617,8 @@ class _BuyerFields extends HookWidget {
           textCapitalization: TextCapitalization.sentences,
           maxLines: 2,
           minLines: 2,
-          decoration: _dec('e.g. Darajani, Stone Town, Zanzibar'),
+          decoration: themedInputDec(context,
+              hint: 'e.g. Darajani, Stone Town, Zanzibar'),
           validator: (v) => (v == null || v.trim().isEmpty)
               ? 'Delivery address is required'
               : null,
@@ -650,7 +651,8 @@ class _BuyerFields extends HookWidget {
                 controller: businessNameCtrl,
                 textCapitalization: TextCapitalization.words,
                 textInputAction: TextInputAction.done,
-                decoration: _dec('e.g. Zanzibar Spice Hotel'),
+                decoration:
+                    themedInputDec(context, hint: 'e.g. Zanzibar Spice Hotel'),
               ),
             ],
           ),
@@ -668,70 +670,58 @@ class _BuyerFields extends HookWidget {
 /// Gradient header with back button
 class _Header extends StatelessWidget {
   final VoidCallback onBack;
-  const _Header({required this.onBack});
+  final LinearGradient gradient;
+  const _Header({required this.onBack, required this.gradient});
 
   @override
   Widget build(BuildContext context) {
     final top = MediaQuery.of(context).padding.top;
+    final tt = Theme.of(context).textTheme;
     return Container(
-      decoration: const BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [Color(0xFF003D6B), Color(0xFF0066B4), Color(0xFF00A896)],
-          stops: [0.0, 0.55, 1.0],
-        ),
-        borderRadius: BorderRadius.only(
+      decoration: BoxDecoration(
+        gradient: gradient,
+        borderRadius: const BorderRadius.only(
           bottomLeft: Radius.circular(28),
           bottomRight: Radius.circular(28),
         ),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.18),
+            blurRadius: 18,
+            offset: const Offset(0, 8),
+          ),
+        ],
       ),
       padding: EdgeInsets.only(top: top + 12, left: 8, right: 20, bottom: 20),
       child: Row(
         children: [
           IconButton(
             icon: const Icon(Icons.arrow_back_ios_new_rounded,
-                color: Colors.white, size: 20),
+                color: AppColors.white, size: 20),
             onPressed: onBack,
           ),
           const SizedBox(width: 4),
-          Container(
-            width: 36,
-            height: 36,
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(10),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withValues(alpha: 0.15),
-                  blurRadius: 8,
-                  offset: const Offset(0, 2),
-                ),
-              ],
-            ),
-            padding: const EdgeInsets.all(4),
-            child: const AppLogo(
-              size: 28,
-              borderRadius: 6,
-            ),
+          const AppLogo(
+            size: 40,
+            withGlow: true,
           ),
           const SizedBox(width: 10),
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Text(
+              Text(
                 'Create Account',
-                style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 22,
+                style: tt.titleLarge?.copyWith(
+                  color: AppColors.white,
                   fontWeight: FontWeight.w800,
                   letterSpacing: -0.3,
                 ),
               ),
               Text(
-                'Join Zanzibar\'s fish supply network',
-                style: TextStyle(
-                    color: Colors.white.withValues(alpha: 0.75), fontSize: 13),
+                "Join Zanzibar's fish supply network",
+                style: tt.bodySmall?.copyWith(
+                  color: AppColors.white.withValues(alpha: 0.75),
+                ),
               ),
             ],
           ),
@@ -757,7 +747,9 @@ class _SectionHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final c = color ?? AppColors.primaryBlue;
+    final cs = Theme.of(context).colorScheme;
+    final tt = Theme.of(context).textTheme;
+    final c = color ?? cs.primary;
     return Row(
       children: [
         Container(
@@ -771,10 +763,9 @@ class _SectionHeader extends StatelessWidget {
         const SizedBox(width: 10),
         Text(
           label,
-          style: const TextStyle(
-            fontSize: 15,
+          style: tt.titleSmall?.copyWith(
             fontWeight: FontWeight.w700,
-            color: AppColors.gray900,
+            fontSize: 15,
           ),
         ),
         if (optional) ...[
@@ -782,11 +773,15 @@ class _SectionHeader extends StatelessWidget {
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
             decoration: BoxDecoration(
-              color: AppColors.gray200,
+              color: cs.surfaceContainerHighest,
               borderRadius: BorderRadius.circular(4),
             ),
-            child: const Text('optional',
-                style: TextStyle(fontSize: 10, color: AppColors.gray600)),
+            child: Text(
+              'optional',
+              style: tt.labelSmall?.copyWith(
+                color: cs.onSurface.withValues(alpha: 0.65),
+              ),
+            ),
           ),
         ],
       ],
@@ -802,22 +797,31 @@ class _FieldLabel extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return RichText(
-      text: TextSpan(
-        text: text,
-        style: const TextStyle(
-            fontSize: 13,
-            fontWeight: FontWeight.w600,
-            color: AppColors.gray700),
-        children: optional
-            ? [
-                const TextSpan(
-                  text: '  (optional)',
-                  style: TextStyle(
-                      fontWeight: FontWeight.w400, color: AppColors.gray500),
-                ),
-              ]
-            : null,
+    final cs = Theme.of(context).colorScheme;
+    final tt = Theme.of(context).textTheme;
+    return Text(
+      text,
+      style: tt.labelMedium?.copyWith(
+        fontWeight: FontWeight.w600,
+        color: cs.onSurface.withValues(alpha: 0.80),
+      ),
+    );
+  }
+}
+
+/// Field hint text (small subtitle)
+class _FieldHint extends StatelessWidget {
+  final String text;
+  const _FieldHint({required this.text});
+
+  @override
+  Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    return Text(
+      text,
+      style: TextStyle(
+        fontSize: 12,
+        color: cs.onSurface.withValues(alpha: 0.60),
       ),
     );
   }
@@ -842,6 +846,7 @@ class _RoleSelector extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
     return Row(
       children: _roles.map((r) {
         final (role, label, icon, color) = r;
@@ -860,10 +865,12 @@ class _RoleSelector extends StatelessWidget {
                   duration: const Duration(milliseconds: 200),
                   padding: const EdgeInsets.symmetric(vertical: 14),
                   decoration: BoxDecoration(
-                    color: isSelected ? color : Colors.white,
+                    color: isSelected
+                        ? color
+                        : cs.surfaceContainerHighest,
                     borderRadius: BorderRadius.circular(14),
                     border: Border.all(
-                      color: isSelected ? color : AppColors.gray200,
+                      color: isSelected ? color : cs.outline.withValues(alpha: 0.4),
                       width: isSelected ? 2 : 1,
                     ),
                     boxShadow: isSelected
@@ -874,20 +881,23 @@ class _RoleSelector extends StatelessWidget {
                               offset: const Offset(0, 4),
                             )
                           ]
-                        : [],
+                        : null,
                   ),
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       Icon(icon,
-                          color: isSelected ? Colors.white : color, size: 28),
+                          color: isSelected ? AppColors.white : color,
+                          size: 28),
                       const SizedBox(height: 6),
                       Text(
                         label,
                         style: TextStyle(
                           fontSize: 12,
                           fontWeight: FontWeight.w700,
-                          color: isSelected ? Colors.white : AppColors.gray800,
+                          color: isSelected
+                              ? AppColors.white
+                              : cs.onSurface.withValues(alpha: 0.85),
                         ),
                         textAlign: TextAlign.center,
                       ),
@@ -911,27 +921,43 @@ class _ProfilePhotoPicker extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
     return Center(
       child: GestureDetector(
         onTap: onTap,
         child: Stack(
           children: [
+            // The image is rendered with `Image.file` (not `Container +
+            // DecorationImage + FileImage`) so that re-selecting a photo
+            // always triggers a fresh decode instead of reusing the
+            // ImageProvider's cache.
             Container(
               width: 96,
               height: 96,
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
-                color: AppColors.gray100,
-                border: Border.all(color: AppColors.primaryBlue, width: 2),
-                image: file != null
-                    ? DecorationImage(
-                        image: FileImage(file!), fit: BoxFit.cover)
-                    : null,
+                color: cs.surfaceContainerHighest,
+                border: Border.all(color: cs.primary, width: 2),
               ),
               child: file == null
-                  ? const Icon(Icons.person_rounded,
-                      size: 44, color: AppColors.gray400)
-                  : null,
+                  ? Icon(Icons.person_rounded,
+                      size: 44,
+                      color: cs.onSurface.withValues(alpha: 0.35))
+                  : ClipOval(
+                      child: Image.file(
+                        file!,
+                        fit: BoxFit.cover,
+                        width: 96,
+                        height: 96,
+                        cacheWidth: 240,
+                        cacheHeight: 240,
+                        errorBuilder: (_, __, ___) => Icon(
+                          Icons.person_rounded,
+                          size: 44,
+                          color: cs.onSurface.withValues(alpha: 0.35),
+                        ),
+                      ),
+                    ),
             ),
             Positioned(
               right: 0,
@@ -940,12 +966,13 @@ class _ProfilePhotoPicker extends StatelessWidget {
                 width: 30,
                 height: 30,
                 decoration: BoxDecoration(
-                  color: AppColors.primaryBlue,
+                  color: cs.primary,
                   shape: BoxShape.circle,
-                  border: Border.all(color: Colors.white, width: 2),
+                  border: Border.all(
+                      color: cs.surface, width: 2),
                 ),
                 child: const Icon(Icons.camera_alt_rounded,
-                    color: Colors.white, size: 16),
+                    color: AppColors.white, size: 16),
               ),
             ),
           ],
@@ -965,40 +992,62 @@ class _SmallPhotoPicker extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
     return GestureDetector(
       onTap: onTap,
       child: Container(
         height: 80,
         decoration: BoxDecoration(
-          color: file != null ? null : AppColors.gray100,
+          color: file != null ? null : cs.surfaceContainerHighest,
           borderRadius: BorderRadius.circular(12),
           border: Border.all(
-            color: AppColors.primaryBlue.withValues(alpha: 0.4),
+            color: cs.primary.withValues(alpha: 0.4),
           ),
-          image: file != null
-              ? DecorationImage(image: FileImage(file!), fit: BoxFit.cover)
-              : null,
         ),
+        // Image.file is used instead of Container+DecorationImage+FileImage
+        // so re-selecting a photo always forces a fresh decode (the
+        // DecorationImage variant kept showing the previous bytes).
         child: file == null
             ? Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  const Icon(Icons.add_a_photo_rounded,
-                      color: AppColors.primaryBlue, size: 22),
+                  Icon(Icons.add_a_photo_rounded,
+                      color: cs.primary, size: 22),
                   const SizedBox(width: 8),
-                  Text(label,
-                      style: const TextStyle(
-                          color: AppColors.primaryBlue,
-                          fontWeight: FontWeight.w500)),
+                  Text(
+                    label,
+                    style: TextStyle(
+                      color: cs.primary,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
                 ],
               )
-            : null,
+            : ClipRRect(
+                borderRadius: BorderRadius.circular(12),
+                child: Image.file(
+                  file!,
+                  fit: BoxFit.cover,
+                  width: double.infinity,
+                  height: 80,
+                  cacheWidth: 240,
+                  cacheHeight: 240,
+                  errorBuilder: (_, __, ___) => Container(
+                    color: cs.surfaceContainerHighest,
+                    alignment: Alignment.center,
+                    child: Icon(
+                      Icons.broken_image_rounded,
+                      color: cs.onSurface.withValues(alpha: 0.40),
+                    ),
+                  ),
+                ),
+              ),
       ),
     );
   }
 }
 
-/// Transport type picker (Bicycle / Mkokoteni / Both)
+/// Transport type picker (Bicycle / Mkokotoni / Both)
 class _TransportPicker extends HookWidget {
   final ValueNotifier<String?> valueNotifier;
   final String? Function(String?)? validator;
@@ -1012,8 +1061,10 @@ class _TransportPicker extends HookWidget {
 
   @override
   Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
     final value = useValueListenable(valueNotifier);
-    return FormField<String>(
+    const accentColor = Color(0xFFE65100);
+    return fw.FormField<String>(
       initialValue: valueNotifier.value,
       validator: validator,
       builder: (state) {
@@ -1038,15 +1089,15 @@ class _TransportPicker extends HookWidget {
                         horizontal: 16, vertical: 14),
                     decoration: BoxDecoration(
                       color: selected
-                          ? const Color(0xFFE65100).withValues(alpha: 0.08)
+                          ? accentColor.withValues(alpha: 0.08)
                           : Colors.transparent,
                       borderRadius: BorderRadius.circular(12),
                       border: Border.all(
                         color: selected
-                            ? const Color(0xFFE65100)
+                            ? accentColor
                             : (hasError
-                                ? AppColors.errorRed
-                                : AppColors.gray200),
+                                ? cs.error
+                                : cs.outline.withValues(alpha: 0.4)),
                         width: selected ? 2 : 1,
                       ),
                     ),
@@ -1057,10 +1108,10 @@ class _TransportPicker extends HookWidget {
                               ? Icons.radio_button_checked_rounded
                               : Icons.radio_button_unchecked_rounded,
                           color: selected
-                              ? const Color(0xFFE65100)
+                              ? accentColor
                               : (hasError
-                                  ? AppColors.errorRed
-                                  : AppColors.gray400),
+                                  ? cs.error
+                                  : cs.onSurface.withValues(alpha: 0.45)),
                           size: 20,
                         ),
                         const SizedBox(width: 12),
@@ -1070,8 +1121,8 @@ class _TransportPicker extends HookWidget {
                             fontWeight: FontWeight.w600,
                             fontSize: 14,
                             color: selected
-                                ? const Color(0xFFE65100)
-                                : AppColors.gray800,
+                                ? accentColor
+                                : cs.onSurface.withValues(alpha: 0.85),
                           ),
                         ),
                       ],
@@ -1085,8 +1136,7 @@ class _TransportPicker extends HookWidget {
                 padding: const EdgeInsets.only(left: 12, top: 6),
                 child: Text(
                   state.errorText ?? '',
-                  style:
-                      const TextStyle(color: AppColors.errorRed, fontSize: 12),
+                  style: TextStyle(color: cs.error, fontSize: 12),
                 ),
               ),
           ],
@@ -1104,17 +1154,18 @@ class _TermsCheckbox extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
     return GestureDetector(
       onTap: () => onChanged(!value),
       child: Container(
         padding: const EdgeInsets.all(14),
         decoration: BoxDecoration(
           color: value
-              ? AppColors.primaryBlue.withValues(alpha: 0.05)
-              : Colors.white,
+              ? cs.primary.withValues(alpha: 0.05)
+              : cs.surfaceContainerHighest,
           borderRadius: BorderRadius.circular(12),
           border: Border.all(
-            color: value ? AppColors.primaryBlue : AppColors.gray200,
+            color: value ? cs.primary : cs.outline.withValues(alpha: 0.4),
             width: value ? 1.5 : 1,
           ),
         ),
@@ -1124,7 +1175,7 @@ class _TermsCheckbox extends StatelessWidget {
             Checkbox(
               value: value,
               onChanged: onChanged,
-              activeColor: AppColors.primaryBlue,
+              activeColor: cs.primary,
               shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(4)),
               materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
@@ -1133,27 +1184,32 @@ class _TermsCheckbox extends StatelessWidget {
             const SizedBox(width: 8),
             Expanded(
               child: RichText(
-                text: const TextSpan(
+                text: TextSpan(
                   text: 'I agree to the ',
                   style: TextStyle(
-                      color: AppColors.gray700, fontSize: 14, height: 1.4),
+                    color: cs.onSurface.withValues(alpha: 0.75),
+                    fontSize: 14,
+                    height: 1.4,
+                  ),
                   children: [
                     TextSpan(
                       text: 'Terms & Conditions',
                       style: TextStyle(
-                          color: AppColors.primaryBlue,
-                          fontWeight: FontWeight.w700,
-                          decoration: TextDecoration.underline),
+                        color: cs.primary,
+                        fontWeight: FontWeight.w700,
+                        decoration: TextDecoration.underline,
+                      ),
                     ),
-                    TextSpan(text: ' and '),
+                    const TextSpan(text: ' and '),
                     TextSpan(
                       text: 'Privacy Policy',
                       style: TextStyle(
-                          color: AppColors.primaryBlue,
-                          fontWeight: FontWeight.w700,
-                          decoration: TextDecoration.underline),
+                        color: cs.primary,
+                        fontWeight: FontWeight.w700,
+                        decoration: TextDecoration.underline,
+                      ),
                     ),
-                    TextSpan(text: ' of SamakiFresh Connect.'),
+                    const TextSpan(text: ' of SamakiFresh Connect.'),
                   ],
                 ),
               ),
@@ -1185,12 +1241,14 @@ class _AppDropdown<T> extends HookWidget {
 
   @override
   Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
     return DropdownButtonFormField<T>(
       initialValue: value,
       isExpanded: true,
-      decoration: _dec(hint).copyWith(hintText: null),
+      decoration: themedInputDec(context, hint: hint).copyWith(hintText: null),
       hint: Text(hint,
-          style: const TextStyle(color: AppColors.gray400, fontSize: 15)),
+          style: TextStyle(
+              color: cs.onSurface.withValues(alpha: 0.40), fontSize: 15)),
       items: items
           .map((item) => DropdownMenuItem<T>(
                 value: item,
@@ -1200,8 +1258,8 @@ class _AppDropdown<T> extends HookWidget {
           .toList(),
       onChanged: onChanged,
       validator: validator,
-      icon: const Icon(Icons.keyboard_arrow_down_rounded,
-          color: AppColors.gray500),
+      icon: Icon(Icons.keyboard_arrow_down_rounded,
+          color: cs.onSurface.withValues(alpha: 0.55)),
     );
   }
 }
@@ -1214,10 +1272,11 @@ class _EyeButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
     return IconButton(
       icon: Icon(
         obscure ? Icons.visibility_off_rounded : Icons.visibility_rounded,
-        color: AppColors.gray500,
+        color: cs.onSurface.withValues(alpha: 0.55),
         size: 20,
       ),
       onPressed: onTap,
@@ -1232,15 +1291,14 @@ class _PhotoSourceSheet extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final tt = Theme.of(context).textTheme;
     return SafeArea(
       child: Padding(
         padding: const EdgeInsets.all(20),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Text(title,
-                style:
-                    const TextStyle(fontSize: 16, fontWeight: FontWeight.w700)),
+            Text(title, style: tt.titleMedium),
             const SizedBox(height: 20),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -1274,6 +1332,7 @@ class _SourceTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
     return GestureDetector(
       onTap: onTap,
       child: Column(
@@ -1283,10 +1342,10 @@ class _SourceTile extends StatelessWidget {
             width: 60,
             height: 60,
             decoration: BoxDecoration(
-              color: AppColors.primaryBlue.withValues(alpha: 0.1),
+              color: cs.primary.withValues(alpha: 0.1),
               shape: BoxShape.circle,
             ),
-            child: Icon(icon, color: AppColors.primaryBlue, size: 28),
+            child: Icon(icon, color: cs.primary, size: 28),
           ),
           const SizedBox(height: 8),
           Text(label,
@@ -1299,35 +1358,43 @@ class _SourceTile extends StatelessWidget {
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// Shared InputDecoration factory (no prefix icons — cleaner look)
+// Theme-aware InputDecoration factory (matches `themedInputDec` in login)
 // ─────────────────────────────────────────────────────────────────────────────
-InputDecoration _dec(String hint, {Widget? suffix}) {
+InputDecoration themedInputDec(
+  BuildContext context, {
+  required String hint,
+  Widget? suffix,
+}) {
+  final cs = Theme.of(context).colorScheme;
+  final tt = Theme.of(context).textTheme;
+
   return InputDecoration(
     hintText: hint,
     filled: true,
-    fillColor: Colors.white,
-    hintStyle: const TextStyle(color: AppColors.gray400, fontSize: 15),
+    fillColor: cs.surfaceContainerHighest,
+    hintStyle: tt.bodyMedium
+        ?.copyWith(color: cs.onSurface.withValues(alpha: 0.40), fontSize: 15),
     contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
     suffixIcon: suffix,
     border: OutlineInputBorder(
       borderRadius: BorderRadius.circular(12),
-      borderSide: const BorderSide(color: AppColors.gray200),
+      borderSide: BorderSide(color: cs.outline.withValues(alpha: 0.4)),
     ),
     enabledBorder: OutlineInputBorder(
       borderRadius: BorderRadius.circular(12),
-      borderSide: const BorderSide(color: AppColors.gray200),
+      borderSide: BorderSide(color: cs.outline.withValues(alpha: 0.4)),
     ),
     focusedBorder: OutlineInputBorder(
       borderRadius: BorderRadius.circular(12),
-      borderSide: const BorderSide(color: AppColors.primaryBlue, width: 2),
+      borderSide: BorderSide(color: cs.primary, width: 1.6),
     ),
     errorBorder: OutlineInputBorder(
       borderRadius: BorderRadius.circular(12),
-      borderSide: const BorderSide(color: AppColors.errorRed),
+      borderSide: BorderSide(color: cs.error),
     ),
     focusedErrorBorder: OutlineInputBorder(
       borderRadius: BorderRadius.circular(12),
-      borderSide: const BorderSide(color: AppColors.errorRed, width: 2),
+      borderSide: BorderSide(color: cs.error, width: 1.6),
     ),
   );
 }
@@ -1336,9 +1403,10 @@ InputDecoration _dec(String hint, {Widget? suffix}) {
 // Snackbar helper
 // ─────────────────────────────────────────────────────────────────────────────
 void _snack(BuildContext context, String msg, {bool isError = false}) {
+  final cs = Theme.of(context).colorScheme;
   ScaffoldMessenger.of(context).showSnackBar(SnackBar(
     content: Text(msg),
-    backgroundColor: isError ? AppColors.errorRed : AppColors.successGreen,
+    backgroundColor: isError ? cs.error : cs.secondary,
     behavior: SnackBarBehavior.floating,
     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
     margin: const EdgeInsets.all(16),

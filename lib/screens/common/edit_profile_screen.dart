@@ -13,6 +13,7 @@ class EditProfileScreen extends HookConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final user = ref.watch(currentUserStreamProvider).valueOrNull;
+    final cs = Theme.of(context).colorScheme;
 
     final formKey = useMemoized(() => GlobalKey<FormState>());
     final nameController = useTextEditingController(text: user?.fullName);
@@ -81,12 +82,12 @@ class EditProfileScreen extends HookConsumerWidget {
     }
 
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       appBar: AppBar(
         title: const Text('Edit Profile',
             style: TextStyle(fontWeight: FontWeight.w600)),
-        backgroundColor: Colors.white,
-        foregroundColor: AppColors.textPrimary,
+        backgroundColor: cs.surface,
+        foregroundColor: cs.onSurface,
         elevation: 0,
         centerTitle: true,
       ),
@@ -106,13 +107,13 @@ class EditProfileScreen extends HookConsumerWidget {
                       child: CircleAvatar(
                         radius: 50,
                         backgroundColor:
-                            AppColors.primaryBlue.withValues(alpha: 0.1),
+                            cs.primary.withValues(alpha: 0.10),
                         backgroundImage: user.profilePictureUrl != null
                             ? NetworkImage(user.profilePictureUrl!)
                             : null,
                         child: user.profilePictureUrl == null
-                            ? const Icon(Icons.person_rounded,
-                                size: 50, color: AppColors.primaryBlue)
+                            ? Icon(Icons.person_rounded,
+                                size: 50, color: cs.primary)
                             : null,
                       ),
                     ),
@@ -121,12 +122,12 @@ class EditProfileScreen extends HookConsumerWidget {
                       right: 0,
                       child: Container(
                         padding: const EdgeInsets.all(4),
-                        decoration: const BoxDecoration(
-                          color: AppColors.primaryBlue,
+                        decoration: BoxDecoration(
+                          color: cs.primary,
                           shape: BoxShape.circle,
                         ),
-                        child: const Icon(Icons.camera_alt_rounded,
-                            color: Colors.white, size: 20),
+                        child: Icon(Icons.camera_alt_rounded,
+                            color: cs.onPrimary, size: 20),
                       ),
                     ),
                   ],

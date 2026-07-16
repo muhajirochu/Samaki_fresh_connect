@@ -1,127 +1,177 @@
+// Centralised palette for the Samaki Fresh Connect app.
+//
+// The app supports exactly two themes — Light and Dark — defined by
+// [AppColorTokens.light] and [AppColorTokens.dark]. Both share the same
+// semantic keys so widgets can switch between themes without any code
+// change; they only need to read tokens via
+// `Theme.of(context).colorScheme`, `Theme.of(context).extension<BackgroundStyle>()`
+// or `AppColorTokens.of(...)`.
+//
+// All other raw colour values live below as static constants for
+// backwards compatibility with existing widgets. New code should
+// prefer the token indirection so it works in both themes.
+
 import 'package:flutter/material.dart';
 
 class AppColors {
-  // Primary Colors
-  static const Color primaryBlue = Color(0xFF0066B4);
-  static const Color primaryBlueDark = Color(0xFF004A8A);
-  static const Color primaryBlueLight = Color(0xFF3399E8);
+  // ── Brand: Light theme ─────────────────────────────────────────────────────
+  // Modern Blue primary, Elegant Green accent — clean and premium.
+  static const Color primaryBlue = Color(0xFF2563EB);          // Modern Blue
+  static const Color primaryBlueDark = Color(0xFF1D4ED8);
+  static const Color primaryBlueLight = Color(0xFF60A5FA);
+  static const Color accentGreen = Color(0xFF16A34A);          // Elegant Green
+  static const Color accentGreenDark = Color(0xFF15803D);
+  static const Color accentGreenLight = Color(0xFF4ADE80);
 
-  // Secondary Colors
-  static const Color secondaryTeal = Color(0xFF00A896);
-  static const Color secondaryTealDark = Color(0xFF007B6B);
-  static const Color secondaryTealLight = Color(0xFF33C9B3);
+  // ── Brand: Dark theme ──────────────────────────────────────────────────────
+  // Bright Blue primary, Teal Green accent — deep-navy enterprise feel.
+  static const Color primaryBrightBlue = Color(0xFF3B82F6);    // Bright Blue
+  static const Color primaryBrightBlueLight = Color(0xFF60A5FA);
+  static const Color accentTealGreen = Color(0xFF14B8A6);      // Teal Green
+  static const Color accentTealGreenLight = Color(0xFF2DD4BF);
 
-  // Accent Colors
-  static const Color accentOrange = Color(0xFFFF7F50);
-  static const Color accentOrangeDark = Color(0xFFE65C2B);
-  static const Color accentOrangeLight = Color(0xFFFFAA7A);
+  // ── Dark-mode neutrals (Deep Navy + Blue-Gray) ─────────────────────────────
+  // Deliberately not pure black — the deepest surface is a deep navy
+  // and cards sit one step lighter as a blue-gray.
+  static const Color darkNavy900 = Color(0xFF0B1220);          // Main background
+  static const Color darkNavy800 = Color(0xFF111A2E);          // Surface / card
+  static const Color darkBlueGray700 = Color(0xFF1B2640);      // Card / container
+  static const Color darkBlueGray600 = Color(0xFF243152);      // Elevated
+  static const Color darkBlueGray500 = Color(0xFF3B4663);
+  static const Color darkBorder = Color(0xFF243152);
 
-  // Semantic Colors
-  static const Color successGreen = Color(0xFF2E8B57);
-  static const Color warningAmber = Color(0xFFFFC107);
-  static const Color errorRed = Color(0xFFE74C3C);
-  static const Color infoBlue = Color(0xFF3498DB);
+  // ── Light-mode neutrals ────────────────────────────────────────────────────
+  static const Color lightBg = Color(0xFFFFFFFF);
+  static const Color lightSurface = Color(0xFFFFFFFF);
+  static const Color lightCard = Color(0xFFF5F7FB);            // Light gray cards
+  static const Color lightBorder = Color(0xFFE5E7EB);
+  static const Color lightDivider = Color(0xFFEEF1F6);
 
-  // Neutral Colors
+  // ── Semantic colours (work in both themes) ─────────────────────────────────
+  static const Color success = Color(0xFF22C55E);
+  static const Color warning = Color(0xFFF59E0B);
+  static const Color errorRed = Color(0xFFEF4444);
+  static const Color info = Color(0xFF3B82F6);
+
+  // ── Backwards-compatible aliases ──────────────────────────────────────────
+  // Older widgets still reference these names. The values map to the
+  // new premium palette so they still look correct.
+  static const Color successGreen = Color(0xFF16A34A);     // light accent green
+  static const Color infoBlue = Color(0xFF2563EB);         // modern blue
+  static const Color secondaryTeal = Color(0xFF14B8A6);    // teal
+  static const Color accentOrange = Color(0xFFF59E0B);     // amber
+  static const Color warningAmber = Color(0xFFF59E0B);     // amber alias
+  static const Color textPrimary = Color(0xFF0F172A);      // light text primary
+  static const Color textSecondary = Color(0xFF475569);    // light text secondary
+
+  // ── Text ───────────────────────────────────────────────────────────────────
   static const Color white = Color(0xFFFFFFFF);
   static const Color black = Color(0xFF000000);
 
-  // Cream palette — a warm, off-white surface that resembles paper /
-  // parchment. Used by the cream theme as the scaffold background and
-  // card surface so the app reads as soft and easy on the eyes.
-  static const Color cream50 = Color(0xFFFBF7F0);
-  static const Color cream100 = Color(0xFFF6EFE0);
-  static const Color cream200 = Color(0xFFEFE5CE);
-  static const Color cream300 = Color(0xFFE5D7B5);
-  static const Color creamShadow = Color(0xFFD4BC83);
-  static const Color creamTextPrimary = Color(0xFF3B2A14);
-  static const Color creamTextSecondary = Color(0xFF6B5430);
+  static const Color textPrimaryLight = Color(0xFF0F172A);     // dark text
+  static const Color textSecondaryLight = Color(0xFF475569);
+  static const Color textHintLight = Color(0xFF94A3B8);
 
-  // Dark-mode neutrals. Slightly warmer than pure #212121 to feel
-  // more "coastal" than sterile.
-  static const Color dark900 = Color(0xFF0F172A);
-  static const Color dark800 = Color(0xFF1E293B);
-  static const Color dark700 = Color(0xFF334155);
-  static const Color dark600 = Color(0xFF475569);
-  static const Color dark500 = Color(0xFF64748B);
-  static const Color dark400 = Color(0xFF94A3B8);
-  static const Color dark300 = Color(0xFFCBD5E1);
-  static const Color dark200 = Color(0xFFE2E8F0);
-  static const Color dark100 = Color(0xFFF1F5F9);
+  static const Color textPrimaryDark = Color(0xFFFFFFFF);      // white text
+  static const Color textSecondaryDark = Color(0xFFCBD5E1);
+  static const Color textHintDark = Color(0xFF94A3B8);
 
-  // Text Colors
-  static const Color textPrimary = Color(0xFF1E293B);
-  static const Color textSecondary = Color(0xFF475569);
-  static const Color gray50 = Color(0xFFFAFAFA);
-  static const Color gray100 = Color(0xFFF5F5F5);
-  static const Color gray200 = Color(0xFFEEEEEE);
-  static const Color gray300 = Color(0xFFE0E0E0);
-  static const Color gray400 = Color(0xFFBDBDBD);
-  static const Color gray500 = Color(0xFF9E9E9E);
-  static const Color gray600 = Color(0xFF757575);
-  static const Color gray700 = Color(0xFF616161);
-  static const Color gray800 = Color(0xFF424242);
-  static const Color gray900 = Color(0xFF212121);
+  // Grayscale ramp (kept for backwards compatibility with any legacy
+  // widget that still references grayXXX — prefer tokens instead).
+  static const Color gray50 = Color(0xFFF8FAFC);
+  static const Color gray100 = Color(0xFFF1F5F9);
+  static const Color gray200 = Color(0xFFE2E8F0);
+  static const Color gray300 = Color(0xFFCBD5E1);
+  static const Color gray400 = Color(0xFF94A3B8);
+  static const Color gray500 = Color(0xFF64748B);
+  static const Color gray600 = Color(0xFF475569);
+  static const Color gray700 = Color(0xFF334155);
+  static const Color gray800 = Color(0xFF1E293B);
+  static const Color gray900 = Color(0xFF0F172A);
 
-  // Status Colors
-  static const Color pending = Color(0xFFFFC107);
-  static const Color active = Color(0xFF4CAF50);
-  static const Color inactive = Color(0xFF9E9E9E);
-  static const Color completed = Color(0xFF2E8B57);
-  static const Color cancelled = Color(0xFFE74C3C);
+  // Status (legacy)
+  static const Color pending = Color(0xFFF59E0B);
+  static const Color active = Color(0xFF22C55E);
+  static const Color inactive = Color(0xFF94A3B8);
+  static const Color completed = Color(0xFF16A34A);
+  static const Color cancelled = Color(0xFFEF4444);
 
-  // Gradient
-  static const LinearGradient primaryGradient = LinearGradient(
+  // ── Gradients (read through theme tokens when possible) ────────────────────
+  // Light: Modern Blue → Elegant Green (premium feel).
+  static const LinearGradient lightGradient = LinearGradient(
     begin: Alignment.topLeft,
     end: Alignment.bottomRight,
-    colors: [primaryBlue, secondaryTeal],
+    colors: [primaryBlue, accentGreen],
   );
 
+  // Dark: Bright Blue → Teal Green over deep navy.
+  static const LinearGradient darkGradient = LinearGradient(
+    begin: Alignment.topLeft,
+    end: Alignment.bottomRight,
+    colors: [primaryBrightBlue, accentTealGreen],
+  );
+
+  // Deep navy hero gradient used on splash/login and brand surfaces.
+  static const LinearGradient deepNavyGradient = LinearGradient(
+    begin: Alignment.topLeft,
+    end: Alignment.bottomRight,
+    colors: [Color(0xFF0B1220), Color(0xFF1D4ED8)],
+  );
+
+  // Backwards-compatible alias used by some widgets.
+  static const LinearGradient primaryGradient = lightGradient;
   static const LinearGradient accentGradient = LinearGradient(
     begin: Alignment.topLeft,
     end: Alignment.bottomRight,
-    colors: [accentOrange, primaryBlue],
+    colors: [accentGreen, primaryBlue],
   );
 }
 
-/// The three theming modes the user can pick from. Persisted in
-/// SharedPreferences (under [kThemeModePrefKey]) so the choice
+/// The two theming modes the user can pick from. Persisted in
+/// SharedPreferences (under [AppThemeMode.prefKey]) so the choice
 /// survives app restarts and account switches.
 enum AppThemeMode {
-  /// Classic white surfaces — ideal for daylight, strong contrast.
+  /// Light theme — Modern Blue primary, Elegant Green accent.
   light,
 
-  /// Warm cream tones — soft on the eyes, premium/paper feel.
-  cream,
-
-  /// Dark navy + slate — easy on the eyes in low light.
+  /// Dark theme — Deep Navy background, Bright Blue primary, Teal
+  /// Green accent. No pure black.
   dark;
 
-  /// Pretty-printed label.
+  /// Pretty-printed label shown in the Settings switcher.
   String get label => switch (this) {
-        AppThemeMode.light => 'White',
-        AppThemeMode.cream => 'Cream',
+        AppThemeMode.light => 'Light',
         AppThemeMode.dark => 'Dark',
       };
 
-  /// Short subtitle shown beneath the label in the switcher.
+  /// Subtitle shown under the label in the switcher.
   String get subtitle => switch (this) {
-        AppThemeMode.light => 'Pure white, maximum contrast',
-        AppThemeMode.cream => 'Warm, soft on the eyes',
-        AppThemeMode.dark => 'Dark slate, low light friendly',
+        AppThemeMode.light => 'Clean white, Modern Blue & Elegant Green',
+        AppThemeMode.dark => 'Deep Navy & Teal, easy on the eyes',
       };
 
   /// Storage key for SharedPreferences. The value is the
-  /// [AppThemeMode.name] (e.g. `"cream"`).
-  static const String prefKey = 'app.themeMode.v1';
+  /// [AppThemeMode.name] (e.g. `"dark"`).
+  static const String prefKey = 'app.themeMode.v2';
+
+  /// Resolve from the persisted string. Falls back to [light] when
+  /// the stored value is missing or comes from an older enum version
+  /// (e.g. `cream`).
+  static AppThemeMode fromName(String? raw) {
+    if (raw == null) return AppThemeMode.light;
+    for (final mode in AppThemeMode.values) {
+      if (mode.name == raw) return mode;
+    }
+    // Legacy values from previous app versions (e.g. "cream") map to
+    // the closest modern equivalent.
+    return AppThemeMode.light;
+  }
 }
 
-/// A flat, immutable snapshot of every color token a widget might
+/// A flat, immutable snapshot of every colour token a widget might
 /// read from the active theme. Use this when a widget cannot rely on
 /// `Theme.of(context)` (e.g. `BitmapDescriptor` markers, `Canvas`
-/// drawing, custom shape painters). The [AppThemeController]
-/// produces one of these for the active mode and exposes it via the
-/// `themeTokensProvider` Riverpod provider.
+/// drawing, custom shape painters).
 class AppColorTokens {
   final Brightness brightness;
   final Color background;
@@ -131,12 +181,13 @@ class AppColorTokens {
   final Color textPrimary;
   final Color textSecondary;
   final Color textHint;
+  final Color primary;
   final Color accent;
-  final Color accentMuted;
   final Color success;
   final Color warning;
   final Color error;
   final Color shadow;
+  final LinearGradient brandGradient;
 
   const AppColorTokens({
     required this.brightness,
@@ -147,73 +198,57 @@ class AppColorTokens {
     required this.textPrimary,
     required this.textSecondary,
     required this.textHint,
+    required this.primary,
     required this.accent,
-    required this.accentMuted,
     required this.success,
     required this.warning,
     required this.error,
     required this.shadow,
+    required this.brandGradient,
   });
 
-  /// Light tokens. Pure-white surfaces, navy text.
+  /// Light tokens — Modern Blue primary, Elegant Green accent.
   static const AppColorTokens light = AppColorTokens(
     brightness: Brightness.light,
     background: Color(0xFFFFFFFF),
     surface: Color(0xFFFFFFFF),
-    surfaceAlt: Color(0xFFF5F5F5),
-    border: Color(0xFFEEEEEE),
-    textPrimary: Color(0xFF1E293B),
+    surfaceAlt: Color(0xFFF5F7FB),
+    border: Color(0xFFE5E7EB),
+    textPrimary: Color(0xFF0F172A),
     textSecondary: Color(0xFF475569),
-    textHint: Color(0xFF9E9E9E),
-    accent: Color(0xFF0066B4),
-    accentMuted: Color(0xFF3399E8),
-    success: Color(0xFF2E8B57),
-    warning: Color(0xFFFFC107),
-    error: Color(0xFFE74C3C),
-    shadow: Color(0xFF000000),
+    textHint: Color(0xFF94A3B8),
+    primary: Color(0xFF2563EB),          // Modern Blue
+    accent: Color(0xFF16A34A),           // Elegant Green
+    success: Color(0xFF16A34A),
+    warning: Color(0xFFF59E0B),
+    error: Color(0xFFEF4444),
+    shadow: Color(0x14000000),           // 8% black
+    brandGradient: AppColors.lightGradient,
   );
 
-  /// Cream tokens. Warm off-white surfaces, deep brown text — like
-  /// reading a paper almanac.
-  static const AppColorTokens cream = AppColorTokens(
-    brightness: Brightness.light,
-    background: Color(0xFFFBF7F0),
-    surface: Color(0xFFFFF8E8),
-    surfaceAlt: Color(0xFFF6EFE0),
-    border: Color(0xFFE5D7B5),
-    textPrimary: Color(0xFF3B2A14),
-    textSecondary: Color(0xFF6B5430),
-    textHint: Color(0xFF9C8554),
-    accent: Color(0xFFB45309),
-    accentMuted: Color(0xFFD4BC83),
-    success: Color(0xFF2E8B57),
-    warning: Color(0xFFB45309),
-    error: Color(0xFFB91C1C),
-    shadow: Color(0xFFD4BC83),
-  );
-
-  /// Dark tokens. Navy / slate surfaces, soft off-white text.
+  /// Dark tokens — Deep Navy background, Bright Blue primary, Teal
+  /// Green accent. No pure black.
   static const AppColorTokens dark = AppColorTokens(
     brightness: Brightness.dark,
-    background: Color(0xFF0F172A),
-    surface: Color(0xFF1E293B),
-    surfaceAlt: Color(0xFF334155),
-    border: Color(0xFF334155),
-    textPrimary: Color(0xFFF1F5F9),
+    background: Color(0xFF0B1220),       // Deep Navy Blue
+    surface: Color(0xFF1B2640),          // Blue-Gray surface
+    surfaceAlt: Color(0xFF243152),       // Blue-Gray elevated
+    border: Color(0xFF243152),
+    textPrimary: Color(0xFFFFFFFF),
     textSecondary: Color(0xFFCBD5E1),
     textHint: Color(0xFF94A3B8),
-    accent: Color(0xFF3399E8),
-    accentMuted: Color(0xFF1D4ED8),
+    primary: Color(0xFF3B82F6),          // Bright Blue
+    accent: Color(0xFF14B8A6),           // Teal Green
     success: Color(0xFF22C55E),
     warning: Color(0xFFFBBF24),
     error: Color(0xFFF87171),
-    shadow: Color(0xFF000000),
+    shadow: Color(0x33000000),           // 20% black
+    brandGradient: AppColors.darkGradient,
   );
 
   /// Lookup by mode.
   static AppColorTokens of(AppThemeMode mode) => switch (mode) {
         AppThemeMode.light => light,
-        AppThemeMode.cream => cream,
         AppThemeMode.dark => dark,
       };
 }

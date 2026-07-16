@@ -14,6 +14,7 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import '../../constants/app_colors.dart';
 import '../../constants/app_sizes.dart';
 import '../../providers/buyer_provider.dart';
+import '../common/premium_components.dart';
 
 class DashboardSummaryHeader extends ConsumerWidget {
   const DashboardSummaryHeader({super.key});
@@ -131,71 +132,65 @@ class _SummaryTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Material(
-      color: AppColors.white,
-      borderRadius: BorderRadius.circular(AppSizes.radiusLG),
-      elevation: 0,
-      child: InkWell(
-        onTap: onTap,
-        borderRadius: BorderRadius.circular(AppSizes.radiusLG),
-        child: Container(
-          padding: const EdgeInsets.symmetric(
-            horizontal: AppSizes.paddingSM,
-            vertical: AppSizes.paddingMD,
+    final cs = Theme.of(context).colorScheme;
+    final tt = Theme.of(context).textTheme;
+
+    // PremiumCard supplies the themed surface, soft shadow, and the
+    // InkWell ripple. Its `accent` tints the ripple to match the tile.
+    return PremiumCard(
+      accent: accent,
+      onTap: onTap,
+      padding: const EdgeInsets.symmetric(
+        horizontal: AppSizes.paddingSM,
+        vertical: AppSizes.paddingMD,
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Container(
+            padding: const EdgeInsets.all(6),
+            decoration: BoxDecoration(
+              color: accent.withValues(alpha: 0.12),
+              borderRadius: BorderRadius.circular(AppSizes.radiusSM),
+            ),
+            child: Icon(icon, color: accent, size: 18),
           ),
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(AppSizes.radiusLG),
-            border: Border.all(color: AppColors.gray200),
+          const SizedBox(height: AppSizes.paddingSM),
+          Text(
+            value,
+            style: tt.titleLarge?.copyWith(
+              fontWeight: FontWeight.w800,
+              color: cs.onSurface,
+              letterSpacing: -0.5,
+            ),
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
           ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Container(
-                padding: const EdgeInsets.all(6),
-                decoration: BoxDecoration(
-                  color: accent.withValues(alpha: 0.12),
-                  borderRadius: BorderRadius.circular(AppSizes.radiusSM),
-                ),
-                child: Icon(icon, color: accent, size: 18),
-              ),
-              const SizedBox(height: AppSizes.paddingSM),
-              Text(
-                value,
-                style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                      fontWeight: FontWeight.w800,
-                      color: AppColors.textPrimary,
-                      letterSpacing: -0.5,
-                    ),
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-              ),
-              const SizedBox(height: 2),
-              Text(
-                label,
-                style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                      color: AppColors.gray600,
-                      fontWeight: FontWeight.w500,
-                      height: 1.15,
-                    ),
-                maxLines: 2,
-                overflow: TextOverflow.ellipsis,
-              ),
-              if (subtitle != null) ...[
-                const SizedBox(height: 2),
-                Text(
-                  subtitle!,
-                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                        color: accent,
-                        fontWeight: FontWeight.w600,
-                        fontSize: 11,
-                      ),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                ),
-              ],
-            ],
+          const SizedBox(height: 2),
+          Text(
+            label,
+            style: tt.bodySmall?.copyWith(
+              color: cs.onSurface.withValues(alpha: 0.65),
+              fontWeight: FontWeight.w500,
+              height: 1.15,
+            ),
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
           ),
-        ),
+          if (subtitle != null) ...[
+            const SizedBox(height: 2),
+            Text(
+              subtitle!,
+              style: tt.bodySmall?.copyWith(
+                color: accent,
+                fontWeight: FontWeight.w600,
+                fontSize: 11,
+              ),
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+            ),
+          ],
+        ],
       ),
     );
   }

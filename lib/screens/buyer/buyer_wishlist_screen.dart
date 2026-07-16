@@ -18,12 +18,14 @@ class BuyerWishlistScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final wishlistAsync = ref.watch(wishlistProvider);
+    final cs = Theme.of(context).colorScheme;
+
     return Scaffold(
-      backgroundColor: AppColors.gray100,
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       appBar: AppBar(
         title: const Text('Orodha ya Matakwa'),
-        backgroundColor: AppColors.primaryBlue,
-        foregroundColor: AppColors.white,
+        backgroundColor: cs.primary,
+        foregroundColor: cs.onPrimary,
         elevation: 0,
       ),
       body: wishlistAsync.when(
@@ -40,28 +42,32 @@ class BuyerWishlistScreen extends ConsumerWidget {
                     Container(
                       padding: const EdgeInsets.all(AppSizes.paddingLG),
                       decoration: BoxDecoration(
-                        color: AppColors.gray100,
+                        color: cs.surfaceContainerHighest,
                         shape: BoxShape.circle,
-                        border:
-                            Border.all(color: AppColors.gray200, width: 1.5),
+                        border: Border.all(
+                            color: cs.outline.withValues(alpha: 0.4),
+                            width: 1.5),
                       ),
-                      child: const Icon(Icons.favorite_border_rounded,
-                          size: 56, color: AppColors.gray400),
+                      child: Icon(Icons.favorite_border_rounded,
+                          size: 56,
+                          color: cs.onSurface.withValues(alpha: 0.45)),
                     ),
                     const SizedBox(height: AppSizes.paddingMD),
                     Text(
                       'Orodha yako ni tupu',
                       style: Theme.of(context).textTheme.titleMedium?.copyWith(
                             fontWeight: FontWeight.w700,
-                            color: AppColors.gray700,
+                            color: cs.onSurface,
                           ),
                     ),
                     const SizedBox(height: AppSizes.paddingSM),
-                    const Text(
+                    Text(
                       'Ukiongeza samaki unayotafuta, tutakuarifu mara '
                       'itakapopatikana karibu nawe.',
                       textAlign: TextAlign.center,
-                      style: TextStyle(color: AppColors.gray600, height: 1.4),
+                      style: TextStyle(
+                          color: cs.onSurface.withValues(alpha: 0.65),
+                          height: 1.4),
                     ),
                   ],
                 ),
@@ -71,9 +77,9 @@ class BuyerWishlistScreen extends ConsumerWidget {
           return ListView.separated(
             padding: const EdgeInsets.symmetric(vertical: AppSizes.paddingSM),
             itemCount: list.length,
-            separatorBuilder: (_, __) => const Divider(
+            separatorBuilder: (_, __) => Divider(
               height: 1,
-              color: AppColors.gray100,
+              color: cs.outline.withValues(alpha: 0.15),
               indent: AppSizes.paddingMD,
               endIndent: AppSizes.paddingMD,
             ),
@@ -107,8 +113,9 @@ class _WishlistTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
     return Material(
-      color: AppColors.white,
+      color: cs.surface,
       child: ListTile(
         onTap: onTap,
         leading: Container(
@@ -123,13 +130,17 @@ class _WishlistTile extends StatelessWidget {
         ),
         title: Text(
           entry.fishType.displayName,
-          style: const TextStyle(fontWeight: FontWeight.w700),
+          style: TextStyle(
+              fontWeight: FontWeight.w700, color: cs.onSurface),
         ),
         subtitle: Text(
           entry.maxPricePerKg == null
               ? 'Arifu utakapopata'
               : 'Hadi ${entry.maxPricePerKg!.toStringAsFixed(0)} TZS/kg',
-          style: const TextStyle(color: AppColors.gray600, fontSize: 12),
+          style: TextStyle(
+            color: cs.onSurface.withValues(alpha: 0.65),
+            fontSize: 12,
+          ),
         ),
         trailing: IconButton(
           icon: const Icon(Icons.delete_outline_rounded,

@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
-import 'package:easy_localization/easy_localization.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'config/themes.dart';
 import 'config/routes.dart';
 import 'constants/app_colors.dart';
+import 'l10n/app_localizations.dart';
+import 'providers/locale_provider.dart';
 import 'providers/theme_provider.dart';
 import 'services/storage_service.dart';
 import 'services/notification_service.dart';
@@ -25,11 +27,18 @@ void main() async {
     AppLogger.info('Local storage initialized');
 
     // Read the persisted theme choice before the first build so the
-    // app launches in the right colour scheme — no flash of white
-    // when the user picked cream.
+    // app launches in the right colour scheme — no flash of the
+    // wrong theme on cold start.
     AppLogger.info('Bootstrapping theme mode...');
     await bootstrapThemeNotifier();
     AppLogger.info('Theme mode bootstrapped');
+
+    // Read the persisted language choice before the first build so
+    // the very first frame already renders in the right locale —
+    // no flash of English on launch for Kiswahili users.
+    AppLogger.info('Bootstrapping locale...');
+    bootstrapLocale();
+    AppLogger.info('Locale bootstrapped');
 
     // Initialize Firebase only if not already initialized (prevents duplicate-app error on hot-restart)
     if (Firebase.apps.isEmpty) {
@@ -61,21 +70,12 @@ void main() async {
     await notificationService.init();
     AppLogger.info('Notification service initialized');
 
-    // Initialize localization
-    await EasyLocalization.ensureInitialized();
-    AppLogger.info('Localization initialized');
-
     runApp(
-      EasyLocalization(
-        supportedLocales: const [Locale('en'), Locale('sw')],
-        path: 'assets/translations',
-        fallbackLocale: const Locale('en'),
-        child: ProviderScope(
-          overrides: [
-            notificationServiceProvider.overrideWithValue(notificationService),
-          ],
-          child: const MyApp(),
-        ),
+      ProviderScope(
+        overrides: [
+          notificationServiceProvider.overrideWithValue(notificationService),
+        ],
+        child: const SamakiFreshApp(),
       ),
     );
   } catch (e) {
@@ -84,27 +84,60 @@ void main() async {
   }
 }
 
-class MyApp extends ConsumerWidget {
-  const MyApp({super.key});
+class SamakiFreshApp extends ConsumerWidget {
+  const SamakiFreshApp({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     // Riverpod's [themeModeProvider] re-emits on every theme change.
     final mode = ref.watch(themeModeProvider);
+    // The singleton [LocaleNotifier] is observed via
+    // [Localizations.override] below so the framework rebuilds the
+    // whole tree the moment the user picks a new language.
+    final localeNotifier = ref.watch(localeControllerProvider);
+
     return MaterialApp.router(
-      title: 'Fresh Connect',
-      theme: AppThemes.forMode(mode),
-      // Use the same theme for dark mode — Flutter picks the right
-      // brightness automatically from the theme's [ColorScheme].
-      darkTheme: AppThemes.forMode(
-          mode == AppThemeMode.dark ? AppThemeMode.dark : AppThemeMode.dark),
+      title: 'Samaki Fresh Connect',
+      debugShowCheckedModeBanner: false,
+      theme: buildThemeForMode(AppThemeMode.light),
+      darkTheme: buildThemeForMode(AppThemeMode.dark),
       themeMode: switch (mode) {
-        AppThemeMode.dark => ThemeMode.dark,
         AppThemeMode.light => ThemeMode.light,
-        AppThemeMode.cream => ThemeMode.light,
+        AppThemeMode.dark => ThemeMode.dark,
+      },
+      // Localizations wiring — flutter_localizations drives the
+      // generated AppLocalizations class. The `Locale? override`
+      // callback re-reads the notifier on every build, so flipping
+      // the language triggers an instant re-translation without
+      // restarting the app.
+      localizationsDelegates: const [
+        AppLocalizations.delegate,
+        GlobalMaterialLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+        GlobalCupertinoLocalizations.delegate,
+      ],
+      supportedLocales: kSupportedLocales,
+      locale: localeNotifier.locale,
+      localeResolutionCallback: (deviceLocale, supported) {
+        if (deviceLocale == null) return localeNotifier.locale;
+        for (final locale in supported) {
+          if (locale.languageCode == deviceLocale.languageCode) return locale;
+        }
+        return localeNotifier.locale;
       },
       routerConfig: appRouter,
-      debugShowCheckedModeBanner: false,
+      builder: (context, child) {
+        // AnimatedTheme lerps colour schemes across rebuilds.
+        return Theme(
+          data: Theme.of(context),
+          child: AnimatedTheme(
+            data: Theme.of(context),
+            duration: const Duration(milliseconds: 320),
+            curve: Curves.easeOutCubic,
+            child: child ?? const SizedBox.shrink(),
+          ),
+        );
+      },
     );
   }
 }

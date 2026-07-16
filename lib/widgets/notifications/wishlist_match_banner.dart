@@ -13,6 +13,13 @@ class WishlistMatchBanner extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    // The snackbar background is intentionally a brand success-green
+    // (not a theme surface token) — it must read as a notification
+    // regardless of theme, and the foreground text is a fixed white
+    // for contrast on the green swatch.
+    const successBackground = AppColors.successGreen;
+    const foreground = Colors.white;
+
     // Watching the stream causes the widget to rebuild on every event;
     // the post-frame callback surfaces the banner once per change.
     ref.listen<AsyncValue<WishlistMatch?>>(
@@ -26,8 +33,9 @@ class WishlistMatchBanner extends ConsumerWidget {
             SnackBar(
               content: Text(
                 '🐟 ${match.item.displayName} sasa inapatikana karibu nawe!',
+                style: const TextStyle(color: foreground),
               ),
-              backgroundColor: AppColors.successGreen,
+              backgroundColor: successBackground,
               behavior: SnackBarBehavior.floating,
               duration: const Duration(seconds: 4),
             ),

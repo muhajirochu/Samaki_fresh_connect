@@ -19,21 +19,23 @@ class BuyerNotificationsScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final notifsAsync = ref.watch(notificationsProvider);
+    final cs = Theme.of(context).colorScheme;
+
     return Scaffold(
-      backgroundColor: AppColors.gray100,
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       appBar: AppBar(
         title: const Text('Arifa'),
-        backgroundColor: AppColors.primaryBlue,
-        foregroundColor: AppColors.white,
+        backgroundColor: cs.primary,
+        foregroundColor: cs.onPrimary,
         elevation: 0,
         actions: [
           TextButton(
             onPressed: () => ref
                 .read(buyerNotificationControllerProvider.notifier)
                 .markAllAsRead(),
-            child: const Text(
+            child: Text(
               'Weka zote zimesomwa',
-              style: TextStyle(color: Colors.white, fontSize: 12),
+              style: TextStyle(color: cs.onPrimary, fontSize: 12),
             ),
           ),
           // Theme switcher (visible across all buyer-facing screens so
@@ -58,9 +60,9 @@ class BuyerNotificationsScreen extends ConsumerWidget {
                 vertical: AppSizes.paddingSM,
               ),
               itemCount: list.length,
-              separatorBuilder: (_, __) => const Divider(
+              separatorBuilder: (_, __) => Divider(
                 height: 1,
-                color: AppColors.gray100,
+                color: cs.outline.withValues(alpha: 0.15),
                 indent: AppSizes.paddingMD,
                 endIndent: AppSizes.paddingMD,
               ),
@@ -107,8 +109,13 @@ class _NotificationTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    final tt = Theme.of(context).textTheme;
+    final tileColor = item.isRead
+        ? cs.surface
+        : cs.primary.withValues(alpha: 0.06);
     return Material(
-      color: item.isRead ? AppColors.white : AppColors.primaryBlue.withValues(alpha: 0.04),
+      color: tileColor,
       child: InkWell(
         onTap: onTap,
         child: Padding(
@@ -130,12 +137,11 @@ class _NotificationTile extends StatelessWidget {
                         Expanded(
                           child: Text(
                             item.title,
-                            style: TextStyle(
+                            style: tt.bodyMedium?.copyWith(
                               fontWeight: item.isRead
                                   ? FontWeight.w500
                                   : FontWeight.w700,
-                              fontSize: 14,
-                              color: AppColors.textPrimary,
+                              color: cs.onSurface,
                             ),
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
@@ -144,9 +150,8 @@ class _NotificationTile extends StatelessWidget {
                         const SizedBox(width: 8),
                         Text(
                           _relativeTime(item.createdAt),
-                          style: const TextStyle(
-                            fontSize: 11,
-                            color: AppColors.gray500,
+                          style: tt.labelSmall?.copyWith(
+                            color: cs.onSurface.withValues(alpha: 0.55),
                           ),
                         ),
                       ],
@@ -154,9 +159,8 @@ class _NotificationTile extends StatelessWidget {
                     const SizedBox(height: 4),
                     Text(
                       item.body,
-                      style: const TextStyle(
-                        fontSize: 13,
-                        color: AppColors.gray700,
+                      style: tt.bodySmall?.copyWith(
+                        color: cs.onSurface.withValues(alpha: 0.70),
                         height: 1.4,
                       ),
                     ),
@@ -168,8 +172,8 @@ class _NotificationTile extends StatelessWidget {
                   margin: const EdgeInsets.only(left: 6, top: 4),
                   width: 8,
                   height: 8,
-                  decoration: const BoxDecoration(
-                    color: AppColors.primaryBlue,
+                  decoration: BoxDecoration(
+                    color: cs.primary,
                     shape: BoxShape.circle,
                   ),
                 ),
@@ -232,6 +236,7 @@ class _TypeAvatar extends StatelessWidget {
 class _EmptyState extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
     return Center(
       child: Padding(
         padding: const EdgeInsets.all(AppSizes.paddingXL),
@@ -241,27 +246,33 @@ class _EmptyState extends StatelessWidget {
             Container(
               padding: const EdgeInsets.all(AppSizes.paddingLG),
               decoration: BoxDecoration(
-                color: AppColors.gray100,
+                color: cs.surfaceContainerHighest,
                 shape: BoxShape.circle,
-                border: Border.all(color: AppColors.gray200, width: 1.5),
+                border: Border.all(
+                    color: cs.outline.withValues(alpha: 0.4),
+                    width: 1.5),
               ),
-              child: const Icon(Icons.notifications_off_rounded,
-                  size: 56, color: AppColors.gray400),
+              child: Icon(Icons.notifications_off_rounded,
+                  size: 56,
+                  color: cs.onSurface.withValues(alpha: 0.45)),
             ),
             const SizedBox(height: AppSizes.paddingMD),
             Text(
               'Hakuna arifa bado',
               style: Theme.of(context).textTheme.titleMedium?.copyWith(
                     fontWeight: FontWeight.w700,
-                    color: AppColors.gray700,
+                    color: cs.onSurface,
                   ),
             ),
             const SizedBox(height: AppSizes.paddingSM),
-            const Text(
+            Text(
               'Arifa za maombi yako, samaki wapya, na '
               'maendeleo ya oda zitaonekana hapa.',
               textAlign: TextAlign.center,
-              style: TextStyle(color: AppColors.gray600, height: 1.4),
+              style: TextStyle(
+                color: cs.onSurface.withValues(alpha: 0.65),
+                height: 1.4,
+              ),
             ),
           ],
         ),

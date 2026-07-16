@@ -1,0 +1,1018 @@
+// ignore: unused_import
+import 'package:intl/intl.dart' as intl;
+import 'app_localizations.dart';
+
+// ignore_for_file: type=lint
+
+/// The translations for English (`en`).
+class AppLocalizationsEn extends AppLocalizations {
+  AppLocalizationsEn([String locale = 'en']) : super(locale);
+
+  @override
+  String get appTitle => 'Samaki Fresh Connect';
+
+  @override
+  String get welcome => 'Welcome';
+
+  @override
+  String get login => 'Login';
+
+  @override
+  String get signup => 'Sign Up';
+
+  @override
+  String get logout => 'Log Out';
+
+  @override
+  String get email => 'Email';
+
+  @override
+  String get password => 'Password';
+
+  @override
+  String get confirmPassword => 'Confirm Password';
+
+  @override
+  String get phoneNumber => 'Phone Number';
+
+  @override
+  String get fullName => 'Full Name';
+
+  @override
+  String get forgotPassword => 'Forgot Password?';
+
+  @override
+  String get rememberMe => 'Remember me';
+
+  @override
+  String get orContinueWith => 'Or continue with';
+
+  @override
+  String get alreadyHaveAccount => 'Already have an account?';
+
+  @override
+  String get dontHaveAccount => 'Don\'t have an account?';
+
+  @override
+  String get submit => 'Submit';
+
+  @override
+  String get save => 'Save';
+
+  @override
+  String get cancel => 'Cancel';
+
+  @override
+  String get delete => 'Delete';
+
+  @override
+  String get edit => 'Edit';
+
+  @override
+  String get retry => 'Retry';
+
+  @override
+  String get back => 'Back';
+
+  @override
+  String get close => 'Close';
+
+  @override
+  String get confirm => 'Confirm';
+
+  @override
+  String get yes => 'Yes';
+
+  @override
+  String get no => 'No';
+
+  @override
+  String get ok => 'OK';
+
+  @override
+  String get settings => 'Settings';
+
+  @override
+  String get appearance => 'Appearance';
+
+  @override
+  String get language => 'Language';
+
+  @override
+  String get chooseLanguage => 'Choose Language';
+
+  @override
+  String get chooseLanguageSubtitle =>
+      'Switch the entire app to your preferred language.';
+
+  @override
+  String get selectLanguage => 'Select Language';
+
+  @override
+  String get english => 'English';
+
+  @override
+  String get kiswahili => 'Kiswahili';
+
+  @override
+  String get home => 'Home';
+
+  @override
+  String get marketplace => 'Marketplace';
+
+  @override
+  String get myListings => 'My Listings';
+
+  @override
+  String get profile => 'Profile';
+
+  @override
+  String get wishlist => 'Wishlist';
+
+  @override
+  String get notifications => 'Notifications';
+
+  @override
+  String get searchFish => 'Search Fish';
+
+  @override
+  String get searchHint => 'e.g. tuna, mackerel, fillet…';
+
+  @override
+  String get startTypingToSearch => 'Start typing to search';
+
+  @override
+  String noSellersHave(String query) {
+    return 'No sellers have \"$query\" right now';
+  }
+
+  @override
+  String get noSellersHaveSubtitle =>
+      'No seller carries this fish at the moment. Try a different name.';
+
+  @override
+  String get loading => 'Loading…';
+
+  @override
+  String loadingError(String error) {
+    return 'Error: $error';
+  }
+
+  @override
+  String get searchFailed => 'Search failed';
+
+  @override
+  String get notLoggedIn => 'Not logged in';
+
+  @override
+  String get fishType => 'Fish Type';
+
+  @override
+  String get quantity => 'Quantity (kg)';
+
+  @override
+  String get price => 'Price per kg';
+
+  @override
+  String get description => 'Description';
+
+  @override
+  String get requiredField => 'Required';
+
+  @override
+  String get enterValidNumber => 'Enter a valid number';
+
+  @override
+  String get quantityMustBePositive => 'Quantity must be greater than 0';
+
+  @override
+  String get priceMustBePositive => 'Price must be greater than 0';
+
+  @override
+  String get phoneInvalid => 'Enter Tanzanian format: +255XXXXXXXXX';
+
+  @override
+  String get passwordsDoNotMatch => 'Passwords do not match';
+
+  @override
+  String get emailInvalid => 'Enter a valid email address';
+
+  @override
+  String get passwordTooShort => 'Password must be at least 6 characters';
+
+  @override
+  String get postListing => 'Post Listing';
+
+  @override
+  String get sellStock => 'Sell Stock';
+
+  @override
+  String get buyStock => 'Buy Stock';
+
+  @override
+  String get myOrders => 'My Orders';
+
+  @override
+  String get myOrdersSubtitle => 'Track purchases';
+
+  @override
+  String get sellStockSubtitle => 'Post a listing';
+
+  @override
+  String get myListingsSubtitle => 'Manage your stock';
+
+  @override
+  String get buyStockSubtitle => 'Browse marketplace';
+
+  @override
+  String get fishAvailableNearby => 'Fish Available Nearby';
+
+  @override
+  String get activeListings => 'Active Listings';
+
+  @override
+  String get totalStock => 'Total Stock';
+
+  @override
+  String get nearestSeller => 'Nearest Seller';
+
+  @override
+  String get activeRequests => 'Active Requests';
+
+  @override
+  String get online => 'Online';
+
+  @override
+  String get offline => 'Offline';
+
+  @override
+  String get starting => 'Starting…';
+
+  @override
+  String get youAreNowOnline => 'You are now online · sharing location';
+
+  @override
+  String get youAreNowOffline => 'You are now offline';
+
+  @override
+  String get photosUpTo5 => 'Photos (up to 5)';
+
+  @override
+  String get addPhoto => 'Add Photo';
+
+  @override
+  String get gallery => 'Gallery';
+
+  @override
+  String get camera => 'Camera';
+
+  @override
+  String get shopLocation => 'Shop Location';
+
+  @override
+  String get setShopLocation => 'Set shop location';
+
+  @override
+  String get shopLocationSet => 'Shop location set';
+
+  @override
+  String get shopLocationRequired =>
+      'Required so buyers can find your shop on the map';
+
+  @override
+  String get readingGps => 'Reading GPS signal...';
+
+  @override
+  String shopLocationSetTo(String label) {
+    return 'Shop location set to $label';
+  }
+
+  @override
+  String imageUploadFailed(String error) {
+    return 'Could not read photos: $error';
+  }
+
+  @override
+  String cameraImageFailed(String error) {
+    return 'Could not read photo from camera: $error';
+  }
+
+  @override
+  String get listingCreatedSuccessfully => 'Listing created successfully! 🐟';
+
+  @override
+  String errorGeneric(String error) {
+    return 'Error: $error';
+  }
+
+  @override
+  String habari(String name) {
+    return 'Hello, $name! 🛒';
+  }
+
+  @override
+  String get yourStreetSellingHub => 'Your street selling hub';
+
+  @override
+  String get quickActions => 'Quick Actions';
+
+  @override
+  String get noImage => 'No Image';
+
+  @override
+  String expiresIn(String duration) {
+    return 'Expires in $duration';
+  }
+
+  @override
+  String get active => 'ACTIVE';
+
+  @override
+  String get sold => 'SOLD';
+
+  @override
+  String get expired => 'EXPIRED';
+
+  @override
+  String get myProfile => 'My Profile';
+
+  @override
+  String get editProfile => 'Edit profile';
+
+  @override
+  String get accountInformation => 'Account Information';
+
+  @override
+  String get signOut => 'Sign Out';
+
+  @override
+  String get signOutConfirmation => 'Are you sure you want to sign out?';
+
+  @override
+  String get noImageBroken => 'Image could not be loaded';
+
+  @override
+  String get sendFishRequest => 'Send fish request';
+
+  @override
+  String get sendRequest => 'Send Request';
+
+  @override
+  String get callSeller => 'Call';
+
+  @override
+  String get smsSeller => 'SMS';
+
+  @override
+  String get viewDetails => 'View Details';
+
+  @override
+  String sellersNearby(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count sellers',
+      one: '1 seller',
+      zero: 'No sellers',
+    );
+    return '$_temp0 nearby';
+  }
+
+  @override
+  String get live => 'Live';
+
+  @override
+  String get onlineLiveLocation => 'Online · live location';
+
+  @override
+  String get account => 'Account';
+
+  @override
+  String get search => 'Search';
+
+  @override
+  String get demoAccounts => 'Demo Accounts';
+
+  @override
+  String get tryOutApp => 'Try out the app instantly with a demo account.';
+
+  @override
+  String get myLocation => 'My Location';
+
+  @override
+  String get useGps => 'Use GPS';
+
+  @override
+  String get useSavedLocation => 'Use saved location';
+
+  @override
+  String distanceAway(String distance) {
+    return '$distance km away';
+  }
+
+  @override
+  String get verificationRequired => 'Account verification required';
+
+  @override
+  String get verificationMessage =>
+      'Please check your email and verify your account before continuing.';
+
+  @override
+  String get verifyNow => 'Verify Now';
+
+  @override
+  String get noNotificationsYet => 'No notifications yet';
+
+  @override
+  String get noNotificationsSubtitle =>
+      'We\'ll let you know when something happens.';
+
+  @override
+  String get noWishlistItems => 'Your wishlist is empty';
+
+  @override
+  String get noWishlistSubtitle =>
+      'Tap the heart on any fish listing to save it here.';
+
+  @override
+  String get noActiveRequests => 'No active fish requests';
+
+  @override
+  String get noActiveRequestsSubtitle =>
+      'When you post a fish request, it will appear here.';
+
+  @override
+  String get noListings => 'No listings yet';
+
+  @override
+  String get noListingsSubtitle =>
+      'Tap the + button to add your first listing.';
+
+  @override
+  String get noOrders => 'No orders yet';
+
+  @override
+  String get noOrdersSubtitle =>
+      'When you buy or sell fish, orders will appear here.';
+
+  @override
+  String get offlineState => 'This seller is currently offline';
+
+  @override
+  String kmAway(String km) {
+    return '$km km away';
+  }
+
+  @override
+  String get selectLanguageTitle => 'Select Language';
+
+  @override
+  String get selectLanguageDescription =>
+      'The whole app will switch instantly. Your choice is saved on this device.';
+
+  @override
+  String get languageSaved => 'Language saved';
+
+  @override
+  String get settingsSaved => 'Settings saved';
+
+  @override
+  String changeFailed(String setting, String error) {
+    return 'Couldn\'t change $setting: $error';
+  }
+
+  @override
+  String get commonError => 'Something went wrong';
+
+  @override
+  String get tryAgain => 'Try again';
+
+  @override
+  String get personalInformation => 'Personal Information';
+
+  @override
+  String get editListing => 'Edit Listing';
+
+  @override
+  String get logoutConfirmationMessage =>
+      'You will be returned to the login screen.';
+
+  @override
+  String get km => 'km';
+
+  @override
+  String get reorder => 'Reorder';
+
+  @override
+  String get leaveReview => 'Leave a review';
+
+  @override
+  String get shareListing => 'Share listing';
+
+  @override
+  String get reportListing => 'Report listing';
+
+  @override
+  String get deleteListingConfirmation =>
+      'Delete this listing? This cannot be undone.';
+
+  @override
+  String get markAsSold => 'Mark as sold';
+
+  @override
+  String get soldConfirmation => 'Mark this listing as sold?';
+
+  @override
+  String get filter => 'Filter';
+
+  @override
+  String get sortBy => 'Sort by';
+
+  @override
+  String get newestFirst => 'Newest first';
+
+  @override
+  String get priceLowToHigh => 'Price: Low to high';
+
+  @override
+  String get priceHighToLow => 'Price: High to low';
+
+  @override
+  String get apply => 'Apply';
+
+  @override
+  String get clearAll => 'Clear all';
+
+  @override
+  String get results => 'Results';
+
+  @override
+  String get noResults => 'No results';
+
+  @override
+  String get selectLocation => 'Select location';
+
+  @override
+  String get useMyLocation => 'Use my location';
+
+  @override
+  String get savedLocations => 'Saved locations';
+
+  @override
+  String get loadingLocation => 'Loading your location...';
+
+  @override
+  String get couldNotGetLocation => 'Could not get your location';
+
+  @override
+  String get permissionDenied => 'Location permission denied';
+
+  @override
+  String get openSettings => 'Open Settings';
+
+  @override
+  String get loadingMore => 'Loading more...';
+
+  @override
+  String get seeAll => 'See all';
+
+  @override
+  String get viewMore => 'View more';
+
+  @override
+  String get filterByType => 'Filter by fish type';
+
+  @override
+  String distanceFromYou(Object distance) {
+    return '$distance km from you';
+  }
+
+  @override
+  String get selectRadius => 'Select search radius';
+
+  @override
+  String get showingNearest => 'Showing nearest sellers only';
+
+  @override
+  String get languagePreference => 'Language preference';
+
+  @override
+  String get themePreference => 'Theme preference';
+
+  @override
+  String get changed => 'Changed';
+
+  @override
+  String get featureComingSoon => 'Coming soon';
+
+  @override
+  String get noDataYet => 'No data yet';
+
+  @override
+  String get refresh => 'Refresh';
+
+  @override
+  String get pullToRefresh => 'Pull down to refresh';
+
+  @override
+  String get verifyAccount => 'Verify your account';
+
+  @override
+  String get resendEmail => 'Resend verification email';
+
+  @override
+  String get verificationEmailSent => 'Verification email sent';
+
+  @override
+  String get tapToUse => 'Tap to use';
+
+  @override
+  String get selectImage => 'Select image';
+
+  @override
+  String get fromCamera => 'From camera';
+
+  @override
+  String get fromGallery => 'From gallery';
+
+  @override
+  String get changePhoto => 'Change photo';
+
+  @override
+  String get reviewInformation => 'Review your information';
+
+  @override
+  String get totalListings => 'Total listings';
+
+  @override
+  String get totalOrders => 'Total orders';
+
+  @override
+  String get accountInfo => 'Account info';
+
+  @override
+  String get phone => 'Phone';
+
+  @override
+  String get street => 'Street';
+
+  @override
+  String get region => 'Region';
+
+  @override
+  String get market => 'Market';
+
+  @override
+  String get buyersAvailable => 'Buyers available';
+
+  @override
+  String sellersNearbyCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count sellers nearby',
+      one: '1 seller nearby',
+      zero: 'No sellers nearby',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get receiving => 'Receiving';
+
+  @override
+  String get ready => 'Ready';
+
+  @override
+  String get inTransit => 'In transit';
+
+  @override
+  String get delivered => 'Delivered';
+
+  @override
+  String get cancelled => 'Cancelled';
+
+  @override
+  String get pending => 'Pending';
+
+  @override
+  String get completed => 'Completed';
+
+  @override
+  String get buyer => 'Buyer';
+
+  @override
+  String get seller => 'Seller';
+
+  @override
+  String get quantityKg => 'Quantity';
+
+  @override
+  String get perKg => '/ kg';
+
+  @override
+  String get noReviews => 'No reviews yet';
+
+  @override
+  String get seeAllReviews => 'See all reviews';
+
+  @override
+  String get verified => 'Verified';
+
+  @override
+  String get notVerified => 'Not verified';
+
+  @override
+  String get ratings => 'Ratings';
+
+  @override
+  String get reviews => 'Reviews';
+
+  @override
+  String get orderDetails => 'Order Details';
+
+  @override
+  String get deliveryAddress => 'Delivery address';
+
+  @override
+  String get deliveryTime => 'Delivery time';
+
+  @override
+  String get yourOrders => 'Your orders';
+
+  @override
+  String get buyerType => 'Buyer type';
+
+  @override
+  String get transport => 'Transport';
+
+  @override
+  String get individualHousehold => 'Individual/Household';
+
+  @override
+  String get restaurant => 'Restaurant';
+
+  @override
+  String get hotel => 'Hotel';
+
+  @override
+  String get retail => 'Retail';
+
+  @override
+  String get morning => 'Morning';
+
+  @override
+  String get afternoon => 'Afternoon';
+
+  @override
+  String get evening => 'Evening';
+
+  @override
+  String get anytime => 'Anytime';
+
+  @override
+  String get fullAddress => 'Full address';
+
+  @override
+  String get city => 'City';
+
+  @override
+  String get country => 'Country';
+
+  @override
+  String get profilePhoto => 'Profile photo';
+
+  @override
+  String get equipmentPhoto => 'Equipment photo';
+
+  @override
+  String get selectPhotos => 'Select up to 5 photos';
+
+  @override
+  String get tapToAdd => 'Tap to add';
+
+  @override
+  String get enterAddress => 'Enter address';
+
+  @override
+  String get enterCity => 'Enter city';
+
+  @override
+  String get enterRegion => 'Enter region';
+
+  @override
+  String get addListing => 'Add listing';
+
+  @override
+  String get deleteListing => 'Delete listing';
+
+  @override
+  String get markSold => 'Mark as sold';
+
+  @override
+  String get shareLocation => 'Share location';
+
+  @override
+  String get goOnline => 'Go online';
+
+  @override
+  String get goOffline => 'Go offline';
+
+  @override
+  String get startingLocation => 'Starting location...';
+
+  @override
+  String get shareLocationToggle => 'Share your location';
+
+  @override
+  String get shareLocationSubtitle => 'Let buyers see you on the map';
+
+  @override
+  String get onlineStatus => 'Online status';
+
+  @override
+  String get onlineNow => 'You are online';
+
+  @override
+  String get offlineNow => 'You are offline';
+
+  @override
+  String get sellerProfile => 'Seller profile';
+
+  @override
+  String activeListingsCount(Object count) {
+    return 'Active: $count';
+  }
+
+  @override
+  String ratingValue(Object rating) {
+    return '$rating rating';
+  }
+
+  @override
+  String lastSeenMinutesAgo(Object minutes) {
+    return 'Last seen ${minutes}m ago';
+  }
+
+  @override
+  String lastSeenHoursAgo(Object hours) {
+    return 'Last seen ${hours}h ago';
+  }
+
+  @override
+  String lastSeenDaysAgo(Object days) {
+    return 'Last seen ${days}d ago';
+  }
+
+  @override
+  String get justNow => 'Just now';
+
+  @override
+  String get call => 'Call';
+
+  @override
+  String get message => 'Message';
+
+  @override
+  String get directions => 'Directions';
+
+  @override
+  String get send => 'Send';
+
+  @override
+  String get messageSeller => 'Message seller';
+
+  @override
+  String get typeMessage => 'Type a message';
+
+  @override
+  String get onlineDot => 'Online';
+
+  @override
+  String get verifiedBadge => 'Verified';
+
+  @override
+  String get you => 'You';
+
+  @override
+  String get buyerName => 'Buyer name';
+
+  @override
+  String get sellerName => 'Seller name';
+
+  @override
+  String get orders => 'Orders';
+
+  @override
+  String get filters => 'Filters';
+
+  @override
+  String get allTypes => 'All types';
+
+  @override
+  String get noOrdersYetTitle => 'No orders yet';
+
+  @override
+  String get loadingOrders => 'Loading orders...';
+
+  @override
+  String orderId(String id) {
+    return 'Order #$id';
+  }
+
+  @override
+  String get markAsCompleted => 'Mark as completed';
+
+  @override
+  String get cancelOrderConfirmation => 'Cancel this order?';
+
+  @override
+  String get acceptOrder => 'Accept order';
+
+  @override
+  String get confirmOrder => 'Confirm order';
+
+  @override
+  String get rejectOrder => 'Reject order';
+
+  @override
+  String get trackOrder => 'Track order';
+
+  @override
+  String get orderItems => 'Order items';
+
+  @override
+  String get delivery => 'Delivery';
+
+  @override
+  String quantityShortKg(String qty) {
+    return '$qty kg';
+  }
+
+  @override
+  String totalKg(String qty) {
+    return '$qty kg total';
+  }
+
+  @override
+  String buyerOrderedItems(String buyer, String qty) {
+    return '$buyer ordered $qty kg';
+  }
+
+  @override
+  String pricePerKg(String price) {
+    return 'TZS $price/kg';
+  }
+
+  @override
+  String priceRange(String min, String max) {
+    return 'TZS $min – $max / kg';
+  }
+
+  @override
+  String get setMyLocation => 'Set my location';
+
+  @override
+  String get switchToLightTheme => 'Switch to light theme';
+
+  @override
+  String get switchToDarkTheme => 'Switch to dark theme';
+
+  @override
+  String get platformOverview => 'Platform Overview & Management';
+
+  @override
+  String get totalUsers => 'Total Users';
+
+  @override
+  String get ordersToday => 'Orders Today';
+
+  @override
+  String get platformRevenue => 'Platform Revenue';
+
+  @override
+  String get management => 'Management';
+
+  @override
+  String get manageDalalis => 'Manage Dalalis';
+
+  @override
+  String get manageDalalisSubtitle => 'Register, approve or block brokers';
+
+  @override
+  String get allListings => 'All Listings';
+
+  @override
+  String get allListingsSubtitle => 'Review and moderate marketplace';
+
+  @override
+  String get transactions => 'Transactions';
+
+  @override
+  String get transactionsSubtitle => 'View payment history';
+
+  @override
+  String hello(String name) {
+    return 'Hello, $name!';
+  }
+}

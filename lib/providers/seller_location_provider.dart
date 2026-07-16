@@ -81,11 +81,15 @@ final _sellersCollection = FirebaseFirestore.instance.collection('streetSellers'
 /// All sellers whose `isOnline == true` AND `isActive == true`. Real-time.
 /// Used as the "live" layer of the buyer map — the moment a street
 /// seller taps "Go online" anywhere in the city, they appear here.
+///
+/// Capped at [_maxActiveSellers]; Firestore pushdown `LIMIT` keeps
+/// the wire payload bounded even as the seller pool grows.
 final liveSellersProvider = StreamProvider<List<StreetSellerModel>>((ref) {
   if (Firebase.apps.isEmpty) return Stream.value(const []);
   return _sellersCollection
       .where('isOnline', isEqualTo: true)
       .where('isActive', isEqualTo: true)
+      .limit(_maxActiveSellers)
       .snapshots()
       .map((snap) {
     final list =
@@ -100,14 +104,20 @@ final liveSellersProvider = StreamProvider<List<StreetSellerModel>>((ref) {
   });
 });
 
+/// Maximum number of sellers we materialise in memory at once. The
+/// buyer map + search only need the most recently active slice.
+const int _maxActiveSellers = 500;
+
 /// All sellers (online + offline) — keeps the map populated when no
 /// one is currently live but the buyer's last-known area still has
-/// registered sellers.
+/// registered sellers. Capped with `LIMIT` for the same reason as
+/// [liveSellersProvider].
 final activeStreetSellersProviderRemote =
     StreamProvider<List<StreetSellerModel>>((ref) {
   if (Firebase.apps.isEmpty) return Stream.value(const []);
   return _sellersCollection
       .where('isActive', isEqualTo: true)
+      .limit(_maxActiveSellers)
       .snapshots()
       .map((snap) => snap.docs
           .map((d) => StreetSellerModel.fromMap(d.data(), docId: d.id))

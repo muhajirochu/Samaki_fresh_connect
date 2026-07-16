@@ -10,9 +10,10 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
-import '../../constants/app_colors.dart';
+import '../../config/theme_extensions.dart';
 import '../../constants/app_sizes.dart';
 import '../../providers/buyer_provider.dart';
+import '../common/premium_components.dart';
 
 class DashboardSearchBar extends ConsumerStatefulWidget {
   const DashboardSearchBar({super.key});
@@ -96,43 +97,56 @@ class _DashboardSearchBarState extends ConsumerState<DashboardSearchBar> {
 
   @override
   Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
     final suggestions =
         ref.watch(searchSuggestionsProvider(_query));
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        Material(
-          color: AppColors.white,
-          elevation: 2,
-          borderRadius: BorderRadius.circular(AppSizes.radiusLG),
+        // Themed rounded surface for the autocomplete input. Uses
+        // `cs.surface` so it tracks both Light and Dark themes and
+        // gets a soft brand-tinted shadow from `PremiumCard`.
+        PremiumCard(
+          padding: EdgeInsets.zero,
           child: TextField(
             controller: _ctrl,
             focusNode: _focus,
             onChanged: _onChanged,
             onSubmitted: _onSubmit,
             textInputAction: TextInputAction.search,
+            cursorColor: cs.primary,
+            style: Theme.of(context).textTheme.bodyMedium,
             decoration: InputDecoration(
               hintText: 'Tafuta samaki (Changu, Tuna, Kambale...)',
-              hintStyle: const TextStyle(
-                color: AppColors.gray500,
-                fontSize: 14,
+              hintStyle: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                    color: cs.onSurface.withValues(alpha: 0.45),
+                    fontSize: 14,
+                  ),
+              prefixIcon: Icon(
+                Icons.search_rounded,
+                color: cs.onSurface.withValues(alpha: 0.55),
               ),
-              prefixIcon: const Icon(Icons.search_rounded,
-                  color: AppColors.gray500),
               suffixIcon: _ctrl.text.isEmpty
                   ? null
                   : IconButton(
-                      icon: const Icon(Icons.close_rounded,
-                          color: AppColors.gray500),
+                      icon: Icon(
+                        Icons.close_rounded,
+                        color: cs.onSurface.withValues(alpha: 0.55),
+                      ),
                       onPressed: () {
                         _ctrl.clear();
                         _onChanged('');
                       },
                     ),
               filled: true,
-              fillColor: AppColors.white,
+              fillColor: cs.surface,
               border: OutlineInputBorder(
+                borderRadius:
+                    BorderRadius.circular(AppSizes.radiusLG),
+                borderSide: BorderSide.none,
+              ),
+              enabledBorder: OutlineInputBorder(
                 borderRadius:
                     BorderRadius.circular(AppSizes.radiusLG),
                 borderSide: BorderSide.none,
@@ -141,7 +155,7 @@ class _DashboardSearchBarState extends ConsumerState<DashboardSearchBar> {
                 borderRadius:
                     BorderRadius.circular(AppSizes.radiusLG),
                 borderSide:
-                    const BorderSide(color: AppColors.primaryBlue, width: 1.5),
+                    BorderSide(color: cs.primary, width: 1.5),
               ),
               contentPadding: const EdgeInsets.symmetric(
                 vertical: 0,
@@ -153,20 +167,20 @@ class _DashboardSearchBarState extends ConsumerState<DashboardSearchBar> {
         if (_showSuggestions && suggestions.isNotEmpty)
           Padding(
             padding: const EdgeInsets.only(top: AppSizes.paddingXS),
-            child: Material(
-              color: AppColors.white,
-              elevation: 6,
-              borderRadius:
-                  BorderRadius.circular(AppSizes.radiusLG),
+            // Suggestion dropdown also wrapped in `PremiumCard` for the
+            // themed surface + shadow + dividers colour token.
+            child: PremiumCard(
+              padding: EdgeInsets.zero,
+              elevated: true,
               child: ConstrainedBox(
                 constraints: const BoxConstraints(maxHeight: 320),
                 child: ListView.separated(
                   shrinkWrap: true,
                   padding: const EdgeInsets.symmetric(vertical: 4),
                   itemCount: suggestions.length,
-                  separatorBuilder: (_, __) => const Divider(
+                  separatorBuilder: (_, __) => Divider(
                     height: 1,
-                    color: AppColors.gray100,
+                    color: BackgroundStyle.of(context).border,
                   ),
                   itemBuilder: (context, i) {
                     final s = suggestions[i];
@@ -199,6 +213,9 @@ class _SuggestionTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    final bg = BackgroundStyle.of(context).surfaceAlt;
+
     return InkWell(
       onTap: onTap,
       child: Padding(
@@ -217,18 +234,23 @@ class _SuggestionTile extends StatelessWidget {
                     ? CachedNetworkImage(
                         imageUrl: imageUrl!,
                         fit: BoxFit.cover,
-                        placeholder: (_, __) => Container(
-                            color: AppColors.gray100),
+                        placeholder: (_, __) => Container(color: bg),
                         errorWidget: (_, __, ___) => Container(
-                          color: AppColors.gray100,
-                          child: const Icon(Icons.set_meal_rounded,
-                              color: AppColors.gray400, size: 18),
+                          color: bg,
+                          child: Icon(
+                            Icons.set_meal_rounded,
+                            color: cs.onSurface.withValues(alpha: 0.45),
+                            size: 18,
+                          ),
                         ),
                       )
                     : Container(
-                        color: AppColors.gray100,
-                        child: const Icon(Icons.search_rounded,
-                            color: AppColors.gray500, size: 18),
+                        color: bg,
+                        child: Icon(
+                          Icons.search_rounded,
+                          color: cs.onSurface.withValues(alpha: 0.55),
+                          size: 18,
+                        ),
                       ),
               ),
             ),
@@ -237,15 +259,18 @@ class _SuggestionTile extends StatelessWidget {
               child: Text(
                 label,
                 style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                      color: AppColors.textPrimary,
+                      color: cs.onSurface,
                       fontWeight: FontWeight.w500,
                     ),
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
               ),
             ),
-            const Icon(Icons.north_east_rounded,
-                color: AppColors.gray400, size: 18),
+            Icon(
+              Icons.north_east_rounded,
+              color: cs.onSurface.withValues(alpha: 0.45),
+              size: 18,
+            ),
           ],
         ),
       ),

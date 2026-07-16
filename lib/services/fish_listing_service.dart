@@ -144,12 +144,29 @@ class FishListingService {
     return (_fallbackLat, _fallbackLng);
   }
 
-  /// Stream all active listings (marketplace feed)
+  /// Maximum number of active listings we hold in memory at once. The
+  /// buyer's marketplace feed rarely needs more than a few hundred
+  /// most-recent listings — anything older than ~24h has expired and
+  /// isn't buyable anyway. Capping the query lets Firestore use a
+  /// `LIMIT` pushdown (combined with the `status+createdAt` index)
+  /// instead of streaming the whole collection.
+  static const int _maxActiveListings = 500;
+
+  /// Stream all active listings (marketplace feed).
+  ///
+  /// Firestore side: capped at [_maxActiveListings] sorted by
+  /// `createdAt DESC`. The composite `status+createdAt` index in
+  /// `firestore.indexes.json` makes this O(log n). Without the
+  /// `LIMIT`, every snapshot — even ones with zero new docs — would
+  /// pull the entire active collection off the wire.
   Stream<List<FishListingModel>> streamActiveListings() {
     if (!_isAvailable) return Stream.value([]);
+    AppLogger.debug('streamActiveListings: subscribing to fishListings');
     return _firestore
         .collection(_collection)
         .where('status', isEqualTo: 'active')
+        .orderBy('createdAt', descending: true)
+        .limit(_maxActiveListings)
         .snapshots()
         .map((snap) {
       final list =
@@ -159,12 +176,16 @@ class FishListingService {
     });
   }
 
-  /// Stream listings created by a specific seller
+  /// Stream listings created by a specific seller. Capped with
+  /// `LIMIT` so a seller with hundreds of historical listings
+  /// doesn't drag down the seller dashboard render time.
   Stream<List<FishListingModel>> streamListingsBySeller(String sellerId) {
     if (!_isAvailable) return Stream.value([]);
     return _firestore
         .collection(_collection)
         .where('sellerId', isEqualTo: sellerId)
+        .orderBy('createdAt', descending: true)
+        .limit(_maxActiveListings)
         .snapshots()
         .map((snap) {
       final list =

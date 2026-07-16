@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import '../../constants/app_colors.dart';
+import '../../config/theme_extensions.dart';
 import '../../constants/app_sizes.dart';
 import '../../models/enums/order_status.dart';
 import '../../providers/order_provider.dart';
 import '../../providers/auth_provider.dart';
 import '../../widgets/common/common_widgets.dart';
+import '../../widgets/common/premium_components.dart';
 import '../../widgets/timelines/order_timeline.dart';
 import '../../utils/formatters.dart';
 
@@ -18,14 +19,15 @@ class OrderDetailScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final orderAsync = ref.watch(orderDetailProvider(orderId));
     final currentUser = ref.watch(currentUserStreamProvider).valueOrNull;
+    final cs = Theme.of(context).colorScheme;
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF5F7FA),
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       appBar: AppBar(
         title: const Text('Order Details',
             style: TextStyle(fontWeight: FontWeight.w600)),
-        backgroundColor: Colors.white,
-        foregroundColor: AppColors.textPrimary,
+        backgroundColor: cs.surface,
+        foregroundColor: cs.onSurface,
         elevation: 0,
         centerTitle: true,
       ),
@@ -56,16 +58,12 @@ class OrderDetailScreen extends ConsumerWidget {
                 Container(
                   padding: const EdgeInsets.all(AppSizes.paddingLG),
                   decoration: BoxDecoration(
-                    gradient: const LinearGradient(
-                      colors: [AppColors.primaryBlue, Color(0xFF005C99)],
-                      begin: Alignment.topLeft,
-                      end: Alignment.bottomRight,
-                    ),
+                    gradient: AppGradients.of(context).brand,
                     borderRadius: BorderRadius.circular(AppSizes.radiusLG),
                     boxShadow: [
                       BoxShadow(
-                        color: AppColors.primaryBlue.withValues(alpha: 0.3),
-                        blurRadius: 10,
+                        color: cs.primary.withValues(alpha: 0.30),
+                        blurRadius: 12,
                         offset: const Offset(0, 4),
                       ),
                     ],
@@ -75,7 +73,7 @@ class OrderDetailScreen extends ConsumerWidget {
                       Text(
                         'Total Amount',
                         style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                              color: Colors.white.withValues(alpha: 0.8),
+                              color: cs.onPrimary.withValues(alpha: 0.80),
                               fontWeight: FontWeight.w500,
                             ),
                       ),
@@ -86,7 +84,7 @@ class OrderDetailScreen extends ConsumerWidget {
                             .textTheme
                             .headlineMedium
                             ?.copyWith(
-                              color: Colors.white,
+                              color: cs.onPrimary,
                               fontWeight: FontWeight.w800,
                               letterSpacing: -0.5,
                             ),
@@ -96,15 +94,15 @@ class OrderDetailScreen extends ConsumerWidget {
                         padding: const EdgeInsets.symmetric(
                             horizontal: 14, vertical: 6),
                         decoration: BoxDecoration(
-                          color: Colors.white.withValues(alpha: 0.15),
+                          color: cs.onPrimary.withValues(alpha: 0.15),
                           borderRadius:
                               BorderRadius.circular(AppSizes.radiusMD),
                         ),
                         child: Row(
                           mainAxisSize: MainAxisSize.min,
                           children: [
-                            const Icon(Icons.tag_rounded,
-                                color: Colors.white, size: 16),
+                            Icon(Icons.tag_rounded,
+                                color: cs.onPrimary, size: 16),
                             const SizedBox(width: 4),
                             Text(
                               order.orderId
@@ -114,7 +112,7 @@ class OrderDetailScreen extends ConsumerWidget {
                                   .textTheme
                                   .bodySmall
                                   ?.copyWith(
-                                    color: Colors.white,
+                                    color: cs.onPrimary,
                                     fontFamily: 'monospace',
                                     fontWeight: FontWeight.w600,
                                     letterSpacing: 1.0,
@@ -129,20 +127,15 @@ class OrderDetailScreen extends ConsumerWidget {
                 const SizedBox(height: AppSizes.paddingXXL),
 
                 // ── Timeline ──────────────────────────────────────────────────
-                Container(
+                PremiumCard(
                   padding: const EdgeInsets.all(AppSizes.paddingLG),
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(AppSizes.radiusLG),
-                    border: Border.all(color: AppColors.gray200),
-                  ),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Row(
                         children: [
-                          const Icon(Icons.route_rounded,
-                              color: AppColors.primaryBlue, size: 24),
+                          Icon(Icons.route_rounded,
+                              color: cs.primary, size: 24),
                           const SizedBox(width: 8),
                           Text(
                             'Order Status',

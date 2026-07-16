@@ -1,17 +1,27 @@
 // Compact theme switcher intended for [AppBar] action slots. Shows
-// a single icon button that opens a popup menu with three options —
-// White / Cream / Dark — each rendered with a coloured swatch and
+// a single icon button that opens a popup menu with the two theme
+// options — Light / Dark — each rendered with a coloured swatch and
 // label. Tapping an option updates the global theme via the
 // [ThemeModeNotifier] and the entire app rebuilds under the new
-// colorscheme.
+// colorscheme. Also offers a one-tap jump to the full Settings screen
+// for a richer preview.
 
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
 import '../../constants/app_colors.dart';
 import '../../providers/theme_provider.dart';
 
-/// AppBar-friendly action that exposes the three theme choices as a
+/// Discriminated value for the popup menu: when [mode] is non-null it
+/// triggers a theme switch; when it's null the "All settings" row was
+/// tapped and we navigate to the Settings screen.
+class _PopupValue {
+  final AppThemeMode? mode;
+  const _PopupValue(this.mode);
+}
+
+/// AppBar-friendly action that exposes the two theme choices as a
 /// popup menu. Designed to live next to the notifications bell.
 class ThemeSwitcherIconButton extends ConsumerWidget {
   const ThemeSwitcherIconButton({super.key});
@@ -19,7 +29,7 @@ class ThemeSwitcherIconButton extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final mode = ref.watch(themeModeProvider);
-    return PopupMenuButton<AppThemeMode>(
+    return PopupMenuButton<_PopupValue>(
       tooltip: 'Switch theme',
       icon: Icon(
         _modeIcon(mode),
@@ -27,17 +37,42 @@ class ThemeSwitcherIconButton extends ConsumerWidget {
             Theme.of(context).colorScheme.onSurface,
       ),
       color: Theme.of(context).colorScheme.surface,
-      onSelected: (selected) =>
-          ref.read(themeControllerProvider.notifier).setMode(selected),
+      onSelected: (selected) {
+        if (selected.mode != null) {
+          ref.read(themeControllerProvider.notifier).setMode(selected.mode!);
+        } else {
+          context.push('/settings');
+        }
+      },
       itemBuilder: (ctx) => [
         for (final candidate in AppThemeMode.values)
-          PopupMenuItem<AppThemeMode>(
-            value: candidate,
+          PopupMenuItem<_PopupValue>(
+            value: _PopupValue(candidate),
             child: _ThemeMenuRow(
               mode: candidate,
               selected: candidate == mode,
             ),
           ),
+        const PopupMenuDivider(),
+        PopupMenuItem<_PopupValue>(
+          value: const _PopupValue(null),
+          child: Row(
+            children: [
+              Icon(
+                Icons.tune_rounded,
+                size: 18,
+                color: Theme.of(ctx).colorScheme.primary,
+              ),
+              const SizedBox(width: 12),
+              Text(
+                'All settings',
+                style: Theme.of(ctx).textTheme.bodyMedium?.copyWith(
+                      fontWeight: FontWeight.w600,
+                    ),
+              ),
+            ],
+          ),
+        ),
       ],
     );
   }
@@ -45,7 +80,6 @@ class ThemeSwitcherIconButton extends ConsumerWidget {
   IconData _modeIcon(AppThemeMode mode) {
     return switch (mode) {
       AppThemeMode.light => Icons.light_mode_rounded,
-      AppThemeMode.cream => Icons.wb_sunny_rounded,
       AppThemeMode.dark => Icons.dark_mode_rounded,
     };
   }

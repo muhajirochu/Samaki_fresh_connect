@@ -2,35 +2,90 @@ import 'package:flutter/material.dart';
 
 /// Reusable brand logo for SamakiFresh Connect.
 ///
-/// Wraps the asset `assets/images/logo/logo.png` (already registered in
-/// `pubspec.yaml`) so every screen displays the same mark. Defaults use
-/// [BoxFit.contain] so the artwork fits inside the parent without cropping
-/// or distortion, even on screens with non-square containers.
+/// Renders `assets/images/logo/logo.png` at the requested [size].
+/// The icon image already carries its own deep-ocean rounded-square
+/// background, so we use [BoxFit.contain] (never cover/crop) and let
+/// the image fill the square exactly.
 ///
-/// Use [size] to control both width and height (square). Wrap in a parent
-/// [Container] if you need a coloured background or shadow — this widget
-/// renders only the image so it stays composable.
+/// Set [withGlow] to true for a soft cyan ambient glow — best on dark
+/// or gradient backgrounds such as the splash screen.
 class AppLogo extends StatelessWidget {
-  /// Edge length in logical pixels (the logo is rendered square).
+  /// Edge length in logical pixels. The widget is always square.
   final double size;
 
-  /// Optional border radius around the image (handy for the splash tile).
-  final double borderRadius;
+  /// Corner radius for the clip. Defaults to size × 0.22 which matches
+  /// the icon artwork's own internal rounding.
+  final double? borderRadius;
 
-  /// Optional background colour drawn behind the logo. Leave null for a
-  /// transparent background so the parent container's colour shows.
-  final Color? backgroundColor;
+  /// Adds a soft cyan/navy ambient shadow behind the icon.
+  final bool withGlow;
 
-  /// Asset path for the logo. Defaults to the registered brand asset.
+  /// Asset path — override only in tests.
   final String assetPath;
 
   const AppLogo({
     super.key,
     this.size = 48,
-    this.borderRadius = 0,
-    this.backgroundColor,
+    this.borderRadius,
+    this.withGlow = false,
     this.assetPath = 'assets/images/logo/logo.png',
   });
+
+  @override
+  Widget build(BuildContext context) {
+    final double r = borderRadius ?? size * 0.22;
+
+    // The clipped image — BoxFit.contain so nothing is cropped.
+    final Widget img = ClipRRect(
+      borderRadius: BorderRadius.circular(r),
+      child: Image.asset(
+        assetPath,
+        width: size,
+        height: size,
+        fit: BoxFit.contain,
+        filterQuality: FilterQuality.high,
+        errorBuilder: (_, __, ___) => _FallbackIcon(size: size, radius: r),
+      ),
+    );
+
+    if (!withGlow) return SizedBox(width: size, height: size, child: img);
+
+    // Wrap in a sized box so the shadow doesn't affect layout.
+    return SizedBox(
+      width: size,
+      height: size,
+      child: DecoratedBox(
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(r),
+          boxShadow: [
+            // Outer cyan glow
+            BoxShadow(
+              color: const Color(0xFF00C8FF).withValues(alpha: 0.40),
+              blurRadius: size * 0.55,
+              spreadRadius: 0,
+              offset: Offset(0, size * 0.06),
+            ),
+            // Depth shadow
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 0.28),
+              blurRadius: size * 0.35,
+              spreadRadius: 0,
+              offset: Offset(0, size * 0.10),
+            ),
+          ],
+        ),
+        child: img,
+      ),
+    );
+  }
+}
+
+/// Shown when the PNG asset fails to load (e.g., first cold-start before
+/// assets are bundled). Keeps the UI intact with brand colours.
+class _FallbackIcon extends StatelessWidget {
+  final double size;
+  final double radius;
+  const _FallbackIcon({required this.size, required this.radius});
 
   @override
   Widget build(BuildContext context) {
@@ -38,31 +93,18 @@ class AppLogo extends StatelessWidget {
       width: size,
       height: size,
       decoration: BoxDecoration(
-        color: backgroundColor,
-        borderRadius: borderRadius > 0
-            ? BorderRadius.circular(borderRadius)
-            : null,
+        borderRadius: BorderRadius.circular(radius),
+        gradient: const LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [Color(0xFF003D6B), Color(0xFF00A896)],
+        ),
       ),
-      clipBehavior: borderRadius > 0 ? Clip.antiAlias : Clip.none,
-      child: Image.asset(
-        assetPath,
-        fit: BoxFit.contain,
-        // cacheWidth is a soft cap that helps with the 5 MB source PNG.
-        // Skia decodes at this size, so we don't pay full-resolution cost.
-        cacheWidth: (size * 3).round().clamp(96, 1024),
-        errorBuilder: (context, error, stackTrace) {
-          // Fall back to the brand mark colour if the asset is missing —
-          // keeps the UI from showing a broken-image icon.
-          return Container(
-            color: const Color(0xFF0066B4),
-            alignment: Alignment.center,
-            child: Icon(
-              Icons.water_drop_rounded,
-              size: size * 0.5,
-              color: Colors.white,
-            ),
-          );
-        },
+      alignment: Alignment.center,
+      child: Icon(
+        Icons.set_meal_rounded,
+        size: size * 0.5,
+        color: Colors.white,
       ),
     );
   }

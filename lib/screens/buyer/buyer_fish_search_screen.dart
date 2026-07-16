@@ -4,18 +4,25 @@
 // (or any text — descriptions are matched too); results stream in
 // from the [fishSearchProvider] and group by fish type. Tapping a
 // result navigates to the map screen pre-filtered for that seller.
+//
+// Implementation note: the search query is stored in
+// [searchQueryProvider] (a Riverpod `StateProvider<String>`) rather
+// than in a local `useState`. The single, app-wide
+// [fishSearchProvider] listens to that one provider, so changing the
+// query just re-runs the filter against already-loaded buffers —
+// no new Firestore subscription per query.
 
 import 'package:flutter/material.dart';
-import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
 import '../../constants/app_colors.dart';
 import '../../constants/app_sizes.dart';
+import '../../l10n/app_localizations.dart';
 import '../../models/fish_search_result.dart';
 import '../../providers/fish_search_provider.dart';
 
-class BuyerFishSearchScreen extends HookConsumerWidget {
+class BuyerFishSearchScreen extends ConsumerStatefulWidget {
   /// Optional initial query (when the user tapped an autocomplete
   /// suggestion).
   final String? initialQuery;
@@ -23,38 +30,65 @@ class BuyerFishSearchScreen extends HookConsumerWidget {
   const BuyerFishSearchScreen({super.key, this.initialQuery});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final query = useState<String>(initialQuery ?? '');
-    final controller = useTextEditingController(text: initialQuery ?? '');
-    final focusNode = useFocusNode();
+  ConsumerState<BuyerFishSearchScreen> createState() =>
+      _BuyerFishSearchScreenState();
+}
 
-    useEffect(() {
-      // Auto-focus on open so the keyboard pops up immediately.
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        focusNode.requestFocus();
-      });
-      return null;
-    }, const []);
+class _BuyerFishSearchScreenState extends ConsumerState<BuyerFishSearchScreen> {
+  late final TextEditingController _controller;
+  late final FocusNode _focusNode;
 
-    final resultsAsync = ref.watch(fishSearchProvider(query.value));
+  @override
+  void initState() {
+    super.initState();
+    final initial = widget.initialQuery ?? '';
+    _controller = TextEditingController(text: initial);
+    _focusNode = FocusNode();
+    // Seed the shared query provider so the search stream picks up
+    // the initial value before the first frame renders.
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      ref.read(searchQueryProvider.notifier).state = initial;
+      _focusNode.requestFocus();
+    });
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    _focusNode.dispose();
+    super.dispose();
+  }
+
+  void _onChanged(String value) {
+    // Update the shared query so the singleton search provider
+    // re-emits against its already-loaded buffers.
+    ref.read(searchQueryProvider.notifier).state = value;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    final query = ref.watch(searchQueryProvider);
+    final resultsAsync = ref.watch(fishSearchProvider);
 
     return Scaffold(
-      backgroundColor: AppColors.gray100,
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       appBar: AppBar(
-        backgroundColor: AppColors.white,
-        foregroundColor: AppColors.textPrimary,
+        backgroundColor: cs.surface,
+        foregroundColor: cs.onSurface,
         elevation: 0,
         centerTitle: true,
-        title: const Text(
-          'Search Fish',
-          style: TextStyle(fontWeight: FontWeight.w600),
+        title: Text(
+          AppLocalizations.of(context).searchFish,
+          style: const TextStyle(fontWeight: FontWeight.w600),
         ),
       ),
       body: Column(
         children: [
           // Search field pinned to the top.
           Container(
-            color: AppColors.white,
+            color: cs.surface,
             padding: const EdgeInsets.fromLTRB(
               AppSizes.paddingMD,
               AppSizes.paddingSM,
@@ -62,26 +96,26 @@ class BuyerFishSearchScreen extends HookConsumerWidget {
               AppSizes.paddingMD,
             ),
             child: TextField(
-              controller: controller,
-              focusNode: focusNode,
-              onChanged: (v) => query.value = v,
+              controller: _controller,
+              focusNode: _focusNode,
+              onChanged: _onChanged,
               textInputAction: TextInputAction.search,
               decoration: InputDecoration(
-                hintText: 'e.g. tuna, mackerel, fillet…',
-                prefixIcon: const Icon(Icons.search_rounded,
-                    color: AppColors.gray500),
-                suffixIcon: query.value.isEmpty
+                hintText: AppLocalizations.of(context).searchHint,
+                prefixIcon: Icon(Icons.search_rounded,
+                    color: cs.onSurface.withValues(alpha: 0.55)),
+                suffixIcon: query.isEmpty
                     ? null
                     : IconButton(
-                        icon: const Icon(Icons.close_rounded,
-                            color: AppColors.gray500),
+                        icon: Icon(Icons.close_rounded,
+                            color: cs.onSurface.withValues(alpha: 0.55)),
                         onPressed: () {
-                          controller.clear();
-                          query.value = '';
+                          _controller.clear();
+                          ref.read(searchQueryProvider.notifier).state = '';
                         },
                       ),
                 filled: true,
-                fillColor: AppColors.gray100,
+                fillColor: cs.surfaceContainerHighest,
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(AppSizes.radiusMD),
                   borderSide: BorderSide.none,
@@ -93,12 +127,12 @@ class BuyerFishSearchScreen extends HookConsumerWidget {
               ),
             ),
           ),
-          const Divider(height: 1, color: AppColors.gray200),
+          Divider(height: 1, color: cs.outline.withValues(alpha: 0.15)),
 
           // Results.
           Expanded(
             child: _ResultsBody(
-              query: query.value,
+              query: query,
               resultsAsync: resultsAsync,
               onTapListing: (result, listingWithSeller) {
                 context.go(
@@ -130,11 +164,13 @@ class _ResultsBody extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     if (query.trim().isEmpty) {
-      return const _EmptyHint(
+      return _EmptyHint(
         icon: Icons.search_rounded,
-        title: 'Start typing to search',
-        subtitle: 'Find sellers with the fish you want, sorted by distance.',
+        title: l10n.startTypingToSearch,
+        subtitle:
+            'Find sellers with the fish you want, sorted by distance.',
       );
     }
 
@@ -142,7 +178,7 @@ class _ResultsBody extends StatelessWidget {
       loading: () => const Center(child: CircularProgressIndicator()),
       error: (e, _) => _EmptyHint(
         icon: Icons.error_outline_rounded,
-        title: 'Search failed',
+        title: l10n.searchFailed,
         subtitle: '$e',
         color: AppColors.errorRed,
       ),
@@ -150,9 +186,8 @@ class _ResultsBody extends StatelessWidget {
         if (results.isEmpty) {
           return _EmptyHint(
             icon: Icons.set_meal_rounded,
-            title: 'No sellers have "$query" right now',
-            subtitle:
-                'Hakuna muuzaji wa samaki wa aina hii kwa sasa. Try a different fish name.',
+            title: l10n.noSellersHave(query),
+            subtitle: l10n.noSellersHaveSubtitle,
           );
         }
         return ListView.separated(
@@ -185,13 +220,18 @@ class _SearchResultCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final cs = theme.colorScheme;
     return Container(
       decoration: BoxDecoration(
-        color: AppColors.white,
+        color: cs.surface,
         borderRadius: BorderRadius.circular(AppSizes.radiusLG),
+        border: Border.all(
+          color: cs.outline.withValues(alpha: 0.20),
+          width: 0.6,
+        ),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.05),
+            color: cs.shadow.withValues(alpha: 0.06),
             blurRadius: 8,
             offset: const Offset(0, 2),
           ),
@@ -214,11 +254,11 @@ class _SearchResultCard extends StatelessWidget {
                   width: 40,
                   height: 40,
                   decoration: BoxDecoration(
-                    color: AppColors.primaryBlue.withValues(alpha: 0.10),
+                    color: cs.primary.withValues(alpha: 0.10),
                     borderRadius: BorderRadius.circular(AppSizes.radiusMD),
                   ),
-                  child: const Icon(Icons.set_meal_rounded,
-                      color: AppColors.primaryBlue, size: 22),
+                  child: Icon(Icons.set_meal_rounded,
+                      color: cs.primary, size: 22),
                 ),
                 const SizedBox(width: AppSizes.paddingMD),
                 Expanded(
@@ -237,7 +277,7 @@ class _SearchResultCard extends StatelessWidget {
                         '${result.listingCount == 1 ? "" : "s"} · '
                         '${result.totalKgAvailable.toStringAsFixed(0)} kg in stock',
                         style: theme.textTheme.bodySmall?.copyWith(
-                          color: AppColors.gray600,
+                          color: cs.onSurface.withValues(alpha: 0.65),
                         ),
                       ),
                     ],
@@ -291,7 +331,7 @@ class _SearchResultCard extends StatelessWidget {
                   'TZS ${result.minPricePerKg.toStringAsFixed(0)} – '
                   '${result.maxPricePerKg.toStringAsFixed(0)} / kg',
                   style: theme.textTheme.bodySmall?.copyWith(
-                    color: AppColors.gray700,
+                    color: cs.onSurface.withValues(alpha: 0.65),
                     fontWeight: FontWeight.w600,
                   ),
                 ),
@@ -299,8 +339,8 @@ class _SearchResultCard extends StatelessWidget {
             ),
           ),
           const SizedBox(height: AppSizes.paddingSM),
-          const Divider(
-            color: AppColors.gray200,
+          Divider(
+            color: cs.outline.withValues(alpha: 0.15),
             height: 1,
             indent: AppSizes.paddingMD,
             endIndent: AppSizes.paddingMD,
@@ -320,7 +360,7 @@ class _SearchResultCard extends StatelessWidget {
               child: Text(
                 '+ ${result.listings.length - 3} more sellers',
                 style: theme.textTheme.bodySmall?.copyWith(
-                  color: AppColors.primaryBlue,
+                  color: cs.primary,
                   fontWeight: FontWeight.w600,
                 ),
               ),
@@ -340,6 +380,7 @@ class _SellerRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final cs = theme.colorScheme;
     return InkWell(
       onTap: onTap,
       child: Padding(
@@ -353,13 +394,13 @@ class _SellerRow extends StatelessWidget {
           children: [
             CircleAvatar(
               radius: 18,
-              backgroundColor: AppColors.gray100,
+              backgroundColor: cs.surfaceContainerHighest,
               backgroundImage: pair.seller.profilePictureUrl != null
                   ? NetworkImage(pair.seller.profilePictureUrl!)
                   : null,
               child: pair.seller.profilePictureUrl == null
-                  ? const Icon(Icons.person_rounded,
-                      size: 18, color: AppColors.gray500)
+                  ? Icon(Icons.person_rounded,
+                      size: 18, color: cs.onSurface.withValues(alpha: 0.55))
                   : null,
             ),
             const SizedBox(width: AppSizes.paddingMD),
@@ -397,7 +438,7 @@ class _SellerRow extends StatelessWidget {
                     '${pair.listing.quantityKg.toStringAsFixed(1)} kg · '
                     'TZS ${pair.listing.pricePerKg.toStringAsFixed(0)} / kg',
                     style: theme.textTheme.bodySmall?.copyWith(
-                      color: AppColors.gray600,
+                      color: cs.onSurface.withValues(alpha: 0.65),
                     ),
                   ),
                 ],
@@ -410,12 +451,12 @@ class _SellerRow extends StatelessWidget {
                   '${pair.distanceKm.toStringAsFixed(1)} km',
                   style: theme.textTheme.bodySmall?.copyWith(
                     fontWeight: FontWeight.w700,
-                    color: AppColors.primaryBlue,
+                    color: cs.primary,
                   ),
                 ),
                 const SizedBox(height: 2),
-const Icon(Icons.chevron_right_rounded,
-                    size: 18, color: AppColors.gray500),
+                Icon(Icons.chevron_right_rounded,
+                    size: 18, color: cs.onSurface.withValues(alpha: 0.55)),
               ],
             ),
           ],
@@ -441,6 +482,7 @@ class _EmptyHint extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final cs = theme.colorScheme;
     final c = color ?? AppColors.gray500;
     return Center(
       child: Padding(
@@ -469,7 +511,7 @@ class _EmptyHint extends StatelessWidget {
             Text(
               subtitle,
               style: theme.textTheme.bodySmall?.copyWith(
-                color: AppColors.gray600,
+                color: cs.onSurface.withValues(alpha: 0.65),
                 height: 1.4,
               ),
               textAlign: TextAlign.center,

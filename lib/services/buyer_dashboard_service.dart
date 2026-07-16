@@ -9,6 +9,11 @@
 //   - returns a Stream that is already scoped via `.where('buyerId', ...)`.
 //
 // Nothing here reaches across user roles.
+//
+// Street-seller demo data (the `fallback` lists used to live in
+// `services/demo_sellers_data.dart`) was removed so the marketplace
+// shows real registered sellers and their listings, never seeded
+// fixtures.
 
 import 'dart:math' as math;
 
@@ -19,7 +24,6 @@ import '../models/fish_item_model.dart';
 import '../models/fish_request_model.dart';
 import '../models/street_seller_model.dart';
 import '../utils/logger.dart';
-import 'demo_sellers_data.dart' as fallback;
 
 class BuyerDashboardService {
   FirebaseFirestore get _firestore => FirebaseFirestore.instance;
@@ -40,11 +44,7 @@ class BuyerDashboardService {
   /// catches anything the broker didn't approve.
   Stream<List<FishItemModel>> streamApprovedFish() {
     if (!_isAvailable) {
-      // Firebase not initialised — fall back to hardcoded demo data so
-      // the buyer sees something on first launch even when the
-      // platform auth layer hasn't initialised yet (cold-start on
-      // emulators, slow networks).
-      return Stream.value(fallback.fallbackFish());
+      return Stream.value(const <FishItemModel>[]);
     }
     AppLogger.debug(
       'streamApprovedFish: subscribing to fishListings where status=active',
@@ -57,16 +57,6 @@ class BuyerDashboardService {
       AppLogger.debug(
         'streamApprovedFish: snapshot size=${snap.docs.length}',
       );
-      // If Firestore returned *no* listings (e.g. the seeder never
-      // ran because auth was lost mid-seed), fall back to the demo
-      // data so the buyer still sees something.
-      if (snap.docs.isEmpty) {
-        AppLogger.warning(
-          'streamApprovedFish: Firestore returned 0 listings; '
-          'using demo fallback',
-        );
-        return fallback.fallbackFish();
-      }
       final items = <FishItemModel>[];
       for (final d in snap.docs) {
         try {
@@ -150,22 +140,19 @@ class BuyerDashboardService {
 
   // ── Street sellers (read-only for the buyer) ───────────────────────────────
 
+  /// Maximum number of sellers we materialise in memory at once. The
+  /// marketplace feed rarely needs more than a few hundred sellers —
+  /// Firestore pushdown `LIMIT` keeps the wire payload bounded.
+  static const int _maxActiveSellers = 500;
+
   Stream<List<StreetSellerModel>> streamActiveSellers() {
-    if (!_isAvailable) return Stream.value(fallback.fallbackSellers());
+    if (!_isAvailable) return Stream.value(const <StreetSellerModel>[]);
     return _firestore
         .collection(_sellersCollection)
         .where('isActive', isEqualTo: true)
+        .limit(_maxActiveSellers)
         .snapshots()
         .map((snap) {
-      // Empty result → fall back to demo data. Better to show 11 demo
-      // sellers than an empty map.
-      if (snap.docs.isEmpty) {
-        AppLogger.warning(
-          'streamActiveSellers: Firestore returned 0 sellers; '
-          'using demo fallback',
-        );
-        return fallback.fallbackSellers();
-      }
       return snap.docs
           .map((d) => StreetSellerModel.fromMap(d.data(), docId: d.id))
           .toList();

@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import '../../constants/app_colors.dart';
 import '../../constants/app_sizes.dart';
 import '../../providers/listing_provider.dart';
 import '../../widgets/cards/fish_listing_card.dart';
@@ -13,13 +12,14 @@ class FishListingsScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final listingsAsync = ref.watch(activeListingsProvider);
+    final cs = Theme.of(context).colorScheme;
 
     return Scaffold(
       appBar: AppBar(
         title: const Text('Marketplace'),
         elevation: 0,
-        backgroundColor: AppColors.primaryBlue,
-        foregroundColor: AppColors.white,
+        backgroundColor: cs.primary,
+        foregroundColor: cs.onPrimary,
       ),
       body: listingsAsync.when(
         loading: () =>

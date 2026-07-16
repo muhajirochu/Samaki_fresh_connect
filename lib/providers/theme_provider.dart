@@ -1,16 +1,14 @@
-// Theme controller + Riverpod providers for the three theme modes
-// (light / cream / dark). Persists the user's choice in
-// SharedPreferences via the existing StorageService.
+// Theme controller + Riverpod providers for the two theme modes
+// (light / dark). Persists the user's choice in SharedPreferences via
+// the existing `StorageService` so the selection survives app
+// restarts. The whole UI re-themes live when the mode flips — no
+// restart required.
 
 import 'package:flutter/foundation.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
 import '../constants/app_colors.dart';
 import '../services/storage_service.dart';
-
-/// The persisted storage key. Kept inside the [AppThemeMode] enum
-/// for one source of truth.
-const String kThemeModePrefKey = AppThemeMode.prefKey;
 
 /// Holds the active [AppThemeMode]. We deliberately keep our own
 /// [ChangeNotifier] rather than use Riverpod state directly so any
@@ -28,36 +26,40 @@ class ThemeModeNotifier extends ChangeNotifier {
     notifyListeners();
     // Try to persist; failure here shouldn't crash the UI.
     try {
-      await StorageService.instance.setString(kThemeModePrefKey, mode.name);
+      await StorageService.instance.setString(AppThemeMode.prefKey, mode.name);
     } on Object catch (e) {
       debugPrint('Failed to persist theme mode: $e');
     }
   }
+
+  /// Toggle helper — useful for an icon button on the AppBar.
+  Future<void> toggle() async {
+    await setMode(
+      _mode == AppThemeMode.light ? AppThemeMode.dark : AppThemeMode.light,
+    );
+  }
 }
 
 /// Resolves the initial mode from SharedPreferences (or the
-/// [defaultMode] fallback).
+/// [defaultMode] fallback). Tolerates legacy values from earlier app
+/// versions (e.g. `cream`) via [AppThemeMode.fromName].
 Future<AppThemeMode> _resolveInitialMode(AppThemeMode defaultMode) async {
   try {
-    final raw = StorageService.instance.getString(kThemeModePrefKey);
-    if (raw != null) {
-      for (final mode in AppThemeMode.values) {
-        if (mode.name == raw) return mode;
-      }
-    }
+    final raw = StorageService.instance.getString(AppThemeMode.prefKey);
+    return AppThemeMode.fromName(raw);
   } on Object catch (_) {
-    // Fall back to default if storage is unavailable.
+    return defaultMode;
   }
-  return defaultMode;
 }
 
 /// Default theme — used when storage hasn't been read yet.
 const AppThemeMode _defaultThemeMode = AppThemeMode.light;
 
-/// Manual holder — set once the storage service has loaded.
+/// Cached initial value, set once during bootstrap so the first
+/// frame already renders in the right mode.
 AppThemeMode _initialMode = _defaultThemeMode;
 
-/// Called from `main.dart` after `StorageService.init()` resolves.
+/// Called from `main.dart` after `StorageService.bootstrap()` resolves.
 /// We can't use `Future` here because the ChangeNotifierProvider is
 /// synchronous; the resolve happens once and the notifier is created
 /// in the right state on the very first frame.
@@ -66,7 +68,7 @@ Future<void> bootstrapThemeNotifier() async {
 }
 
 /// Riverpod-managed [ThemeModeNotifier]. Initialised with the cached
-/// value from [kThemeModePrefKey] on first read.
+/// value from [AppThemeMode.prefKey] on first read.
 final themeControllerProvider = ChangeNotifierProvider<ThemeModeNotifier>(
   (ref) {
     final notifier = ThemeModeNotifier(_initialMode);

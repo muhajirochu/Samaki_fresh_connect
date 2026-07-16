@@ -23,13 +23,13 @@ class MyListingsScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final userAsync = ref.watch(currentUserStreamProvider);
     return Scaffold(
-      backgroundColor: const Color(0xFFF5F7FA),
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       appBar: AppBar(
         title: const Text('My Listings',
             style: TextStyle(fontWeight: FontWeight.w600)),
         elevation: 0,
-        backgroundColor: Colors.white,
-        foregroundColor: AppColors.textPrimary,
+        backgroundColor: Theme.of(context).colorScheme.surface,
+        foregroundColor: Theme.of(context).colorScheme.onSurface,
         centerTitle: true,
       ),
       body: userAsync.when(
@@ -80,8 +80,8 @@ class MyListingsScreen extends ConsumerWidget {
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () => context.push('/listings/create'),
-        backgroundColor: AppColors.primaryBlue,
-        foregroundColor: Colors.white,
+        backgroundColor: Theme.of(context).colorScheme.primary,
+        foregroundColor: Theme.of(context).colorScheme.onPrimary,
         elevation: 4,
         child: const Icon(Icons.add_rounded),
       ),
@@ -158,6 +158,8 @@ class _ManageableListingCard extends ConsumerWidget {
   Future<void> _showActions(BuildContext context, WidgetRef ref) async {
     final sold = listing.status == ListingStatus.sold.value;
     final expired = listing.status == ListingStatus.expired.value;
+    final cs = Theme.of(context).colorScheme;
+    final tt = Theme.of(context).textTheme;
     await showModalBottomSheet<void>(
       context: context,
       backgroundColor: Colors.transparent,
@@ -167,9 +169,9 @@ class _ManageableListingCard extends ConsumerWidget {
       ),
       builder: (ctx) => SafeArea(
         child: Container(
-          decoration: const BoxDecoration(
-            color: AppColors.white,
-            borderRadius: BorderRadius.vertical(
+          decoration: BoxDecoration(
+            color: cs.surface,
+            borderRadius: const BorderRadius.vertical(
                 top: Radius.circular(AppSizes.radiusXL)),
           ),
           padding: const EdgeInsets.symmetric(
@@ -182,14 +184,16 @@ class _ManageableListingCard extends ConsumerWidget {
                 width: 40,
                 height: 4,
                 decoration: BoxDecoration(
-                  color: AppColors.gray300,
+                  color: cs.onSurface.withValues(alpha: 0.20),
                   borderRadius: BorderRadius.circular(2),
                 ),
               ),
               ListTile(
-                leading: const Icon(Icons.edit_rounded,
-                    color: AppColors.primaryBlue),
-                title: const Text('Edit'),
+                leading: Icon(Icons.edit_rounded,
+                    color: cs.primary),
+                title: Text('Edit',
+                    style: tt.bodyMedium
+                        ?.copyWith(fontWeight: FontWeight.w700)),
                 subtitle: const Text('Update price, quantity or description'),
                 onTap: expired || sold
                     ? null
@@ -201,9 +205,13 @@ class _ManageableListingCard extends ConsumerWidget {
               ListTile(
                 leading: Icon(
                   Icons.check_circle_rounded,
-                  color: sold ? AppColors.gray400 : AppColors.successGreen,
+                  color: sold
+                      ? cs.onSurface.withValues(alpha: 0.45)
+                      : AppColors.successGreen,
                 ),
-                title: Text(sold ? 'Already sold' : 'Mark as sold'),
+                title: Text(sold ? 'Already sold' : 'Mark as sold',
+                    style: tt.bodyMedium
+                        ?.copyWith(fontWeight: FontWeight.w700)),
                 subtitle: const Text('Hide from marketplace'),
                 onTap: sold || expired
                     ? null
@@ -216,7 +224,9 @@ class _ManageableListingCard extends ConsumerWidget {
                 leading:
                     const Icon(Icons.delete_rounded, color: AppColors.errorRed),
                 title: const Text('Delete',
-                    style: TextStyle(color: AppColors.errorRed)),
+                    style: TextStyle(
+                        color: AppColors.errorRed,
+                        fontWeight: FontWeight.w700)),
                 subtitle: const Text('Remove this listing permanently'),
                 onTap: () async {
                   Navigator.of(ctx).pop();
@@ -233,6 +243,7 @@ class _ManageableListingCard extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final cs = Theme.of(context).colorScheme;
     return Stack(
       children: [
         FishListingCard(
@@ -243,7 +254,7 @@ class _ManageableListingCard extends ConsumerWidget {
           top: 6,
           left: 6,
           child: Material(
-            color: AppColors.black.withValues(alpha: 0.5),
+            color: cs.scrim.withValues(alpha: 0.55),
             shape: const CircleBorder(),
             child: IconButton(
               icon: const Icon(Icons.more_vert_rounded, color: Colors.white),

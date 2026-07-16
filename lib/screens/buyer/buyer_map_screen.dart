@@ -126,13 +126,14 @@ class _BuyerMapScreenState extends ConsumerState<BuyerMapScreen> {
     final routeAsync = ref.watch(activeRouteProvider);
     final filter = ref.watch(mapFilterControllerProvider);
     final noMatches = ref.watch(noMatchingSellersProvider);
+    final cs = Theme.of(context).colorScheme;
 
     return Scaffold(
-      backgroundColor: AppColors.gray100,
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       appBar: AppBar(
         title: const Text('Ramani ya Wauzaji'),
-        backgroundColor: AppColors.primaryBlue,
-        foregroundColor: AppColors.white,
+        backgroundColor: cs.primary,
+        foregroundColor: cs.onPrimary,
         elevation: 0,
         actions: [
           IconButton(
@@ -317,8 +318,9 @@ class _SearchAndChips extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
     return Material(
-      color: AppColors.white,
+      color: cs.surface,
       elevation: 4,
       borderRadius: BorderRadius.circular(AppSizes.radiusLG),
       child: Padding(
@@ -331,20 +333,20 @@ class _SearchAndChips extends StatelessWidget {
               onChanged: onSearchChanged,
               decoration: InputDecoration(
                 hintText: 'Tafuta samaki...',
-                prefixIcon: const Icon(Icons.search_rounded,
-                    color: AppColors.gray500),
+                prefixIcon: Icon(Icons.search_rounded,
+                    color: cs.onSurface.withValues(alpha: 0.55)),
                 suffixIcon: searchCtrl.text.isEmpty
                     ? null
                     : IconButton(
-                        icon: const Icon(Icons.close_rounded,
-                            color: AppColors.gray500),
+                        icon: Icon(Icons.close_rounded,
+                            color: cs.onSurface.withValues(alpha: 0.55)),
                         onPressed: () {
                           searchCtrl.clear();
                           onSearchChanged('');
                         },
                       ),
                 filled: true,
-                fillColor: AppColors.gray100,
+                fillColor: cs.surfaceContainerHighest,
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(AppSizes.radiusMD),
                   borderSide: BorderSide.none,
@@ -395,20 +397,23 @@ class _FishChip extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
     return Padding(
       padding: const EdgeInsets.only(right: AppSizes.paddingXS),
       child: ChoiceChip(
         label: Text(label),
         selected: selected,
         onSelected: (_) => onTap(),
-        backgroundColor: AppColors.gray100,
-        selectedColor: AppColors.primaryBlue,
+        backgroundColor: cs.surfaceContainerHighest,
+        selectedColor: cs.primary,
         labelStyle: TextStyle(
-          color: selected ? AppColors.white : AppColors.gray700,
+          color: selected ? cs.onPrimary : cs.onSurface,
           fontWeight: selected ? FontWeight.w600 : FontWeight.w500,
         ),
         side: BorderSide(
-          color: selected ? AppColors.primaryBlue : AppColors.gray200,
+          color: selected
+              ? cs.primary
+              : cs.outline.withValues(alpha: 0.25),
         ),
       ),
     );
@@ -421,6 +426,7 @@ class _LocationSourceBadge extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
     final (label, color) = switch (source) {
       'gps' => ('GPS · Live', AppColors.successGreen),
       'profile' => ('Imehifadhiwa', AppColors.infoBlue),
@@ -432,11 +438,11 @@ class _LocationSourceBadge extends StatelessWidget {
         vertical: AppSizes.paddingXS,
       ),
       decoration: BoxDecoration(
-        color: AppColors.white,
+        color: cs.surface,
         borderRadius: BorderRadius.circular(AppSizes.radiusMD),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.08),
+            color: cs.shadow.withValues(alpha: 0.12),
             blurRadius: 4,
             offset: const Offset(0, 1),
           ),
@@ -455,7 +461,7 @@ class _LocationSourceBadge extends StatelessWidget {
           Text(
             label,
             style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                  color: AppColors.gray700,
+                  color: cs.onSurface,
                   fontWeight: FontWeight.w600,
                 ),
           ),
@@ -470,15 +476,16 @@ class _LoadingRouteCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
     return Container(
       height: 100,
       margin: const EdgeInsets.all(AppSizes.paddingMD),
       decoration: BoxDecoration(
-        color: AppColors.white,
+        color: cs.surface,
         borderRadius: BorderRadius.circular(AppSizes.radiusLG),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.08),
+            color: cs.shadow.withValues(alpha: 0.12),
             blurRadius: 8,
             offset: const Offset(0, 2),
           ),
@@ -550,9 +557,10 @@ class _VisibleSellersPill extends StatelessWidget {
   }
 
   void _showSellersSheet(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
     showModalBottomSheet<void>(
       context: context,
-      backgroundColor: AppColors.white,
+      backgroundColor: cs.surface,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
       ),
@@ -571,7 +579,7 @@ class _VisibleSellersPill extends StatelessWidget {
                   width: 40,
                   height: 4,
                   decoration: BoxDecoration(
-                    color: AppColors.gray300,
+                    color: cs.onSurface.withValues(alpha: 0.20),
                     borderRadius: BorderRadius.circular(2),
                   ),
                 ),
@@ -588,7 +596,7 @@ class _VisibleSellersPill extends StatelessWidget {
                 'Bonyeza marker kwenye ramani kuona samaki, njia, na '
                 'muda unaotarajiwa.',
                 style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                      color: AppColors.gray600,
+                      color: cs.onSurface.withValues(alpha: 0.65),
                       height: 1.4,
                     ),
               ),
@@ -610,6 +618,7 @@ class _VisibleSellerRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: AppSizes.paddingXS),
       child: Row(
@@ -621,7 +630,7 @@ class _VisibleSellerRow extends StatelessWidget {
             decoration: BoxDecoration(
               color: seller.seller.isOnline
                   ? AppColors.successGreen.withValues(alpha: 0.15)
-                  : AppColors.primaryBlue.withValues(alpha: 0.10),
+                  : cs.primary.withValues(alpha: 0.10),
               borderRadius: BorderRadius.circular(AppSizes.radiusMD),
             ),
             child: Icon(
@@ -629,7 +638,7 @@ class _VisibleSellerRow extends StatelessWidget {
               size: 18,
               color: seller.seller.isOnline
                   ? AppColors.successGreen
-                  : AppColors.primaryBlue,
+                  : cs.primary,
             ),
           ),
           const SizedBox(width: AppSizes.paddingMD),
@@ -642,9 +651,10 @@ class _VisibleSellerRow extends StatelessWidget {
                     Flexible(
                       child: Text(
                         seller.seller.fullName,
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontWeight: FontWeight.w700,
                           fontSize: 14,
+                          color: cs.onSurface,
                         ),
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
@@ -668,9 +678,9 @@ class _VisibleSellerRow extends StatelessWidget {
                   '${seller.seller.latitude.toStringAsFixed(4)}, '
                   '${seller.seller.longitude.toStringAsFixed(4)}'
                   '${seller.seller.marketName != null ? ' · ${seller.seller.marketName}' : ''}',
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 11,
-                    color: AppColors.gray600,
+                    color: cs.onSurface.withValues(alpha: 0.65),
                     fontFamily: 'monospace',
                   ),
                 ),

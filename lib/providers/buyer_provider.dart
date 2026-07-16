@@ -32,6 +32,8 @@ import '../models/user_model.dart';
 import '../services/buyer_dashboard_service.dart';
 import '../utils/logger.dart';
 import 'auth_provider.dart';
+import 'seller_location_provider.dart'
+    show activeStreetSellersProviderRemote;
 
 // ── Service provider ──────────────────────────────────────────────────────────
 final buyerDashboardServiceProvider = Provider<BuyerDashboardService>(
@@ -131,28 +133,18 @@ final buyerRecentSearchesProvider =
 });
 
 // ── Active street sellers (read-only) ─────────────────────────────────────────
+//
+// Re-exported alias: `activeStreetSellersProviderRemote` is the single
+// app-wide Firestore subscription for the seller list, defined in
+// `seller_location_provider.dart`. We keep the older name exported
+// here so existing widgets (`buyerDashboardProvider`,
+// `summary_header.dart`, `map_filter_model.dart`, `buyer_map_screen`)
+// continue to compile, but every consumer now reads from the
+// SAME Firestore handle — no duplicate subscriptions.
 
-final activeStreetSellersProvider =
-    StreamProvider<List<StreetSellerModel>>((ref) {
-  // No session dependency — the seller list is public to every
-  // signed-in user (buyer, street seller, admin). Map screens in
-  // other roles benefit from the same dataset.
-  //
-  // Previously this short-circuited on `session == null`, which left
-  // the buyer's map empty whenever:
-  //   - the profile was still loading, OR
-  //   - the signed-in user wasn't a `UserRole.buyer` (e.g. testing
-  //     the buyer flow while signed in as the street-seller demo
-  //     account).
-  //
-  // The Firestore query is `.where('isActive', isEqualTo: true)` on
-  // the `streetSellers` collection. We still need Firestore to be
-  // initialised, otherwise we'd block on `Future`s that never
-  // resolve; in that case we emit an empty list and let the cascading
-  // fallback in `buyer_map_screen` kick in.
-  final service = ref.watch(buyerDashboardServiceProvider);
-  return service.streamActiveSellers();
-});
+final activeStreetSellersProvider = Provider<AsyncValue<List<StreetSellerModel>>>(
+  (ref) => ref.watch(activeStreetSellersProviderRemote),
+);
 
 // ── Aggregated dashboard state ────────────────────────────────────────────────
 

@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:samakifresh_connect/models/order_model.dart';
-import '../../constants/app_colors.dart';
 import '../../constants/app_sizes.dart';
 import '../../providers/order_provider.dart';
 import '../../providers/auth_provider.dart';
@@ -15,15 +14,16 @@ class MyOrdersScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final userAsync = ref.watch(currentUserStreamProvider);
+    final cs = Theme.of(context).colorScheme;
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF5F7FA),
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       appBar: AppBar(
         title: const Text('My Orders',
             style: TextStyle(fontWeight: FontWeight.w600)),
         elevation: 0,
-        backgroundColor: Colors.white,
-        foregroundColor: AppColors.textPrimary,
+        backgroundColor: cs.surface,
+        foregroundColor: cs.onSurface,
         centerTitle: true,
       ),
       body: userAsync.when(

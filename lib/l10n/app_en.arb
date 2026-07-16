@@ -1,0 +1,446 @@
+{
+    "@@locale": "en",
+
+    "appTitle": "Samaki Fresh Connect",
+    "welcome": "Welcome",
+    "login": "Login",
+    "signup": "Sign Up",
+    "logout": "Log Out",
+    "email": "Email",
+    "password": "Password",
+    "confirmPassword": "Confirm Password",
+    "phoneNumber": "Phone Number",
+    "fullName": "Full Name",
+    "forgotPassword": "Forgot Password?",
+    "rememberMe": "Remember me",
+    "orContinueWith": "Or continue with",
+    "alreadyHaveAccount": "Already have an account?",
+    "dontHaveAccount": "Don't have an account?",
+
+    "submit": "Submit",
+    "save": "Save",
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "edit": "Edit",
+    "retry": "Retry",
+    "back": "Back",
+    "close": "Close",
+    "confirm": "Confirm",
+    "yes": "Yes",
+    "no": "No",
+    "ok": "OK",
+
+    "settings": "Settings",
+    "appearance": "Appearance",
+    "language": "Language",
+    "chooseLanguage": "Choose Language",
+    "chooseLanguageSubtitle": "Switch the entire app to your preferred language.",
+    "selectLanguage": "Select Language",
+    "english": "English",
+    "kiswahili": "Kiswahili",
+
+    "home": "Home",
+    "marketplace": "Marketplace",
+    "myListings": "My Listings",
+    "profile": "Profile",
+    "wishlist": "Wishlist",
+    "notifications": "Notifications",
+    "searchFish": "Search Fish",
+    "searchHint": "e.g. tuna, mackerel, fillet…",
+    "startTypingToSearch": "Start typing to search",
+    "noSellersHave": "No sellers have \"{query}\" right now",
+    "@noSellersHave": {
+        "placeholders": {
+            "query": {"type": "String"}
+        }
+    },
+    "noSellersHaveSubtitle": "No seller carries this fish at the moment. Try a different name.",
+
+    "loading": "Loading…",
+    "loadingError": "Error: {error}",
+    "@loadingError": {
+        "placeholders": {
+            "error": {"type": "String"}
+        }
+    },
+    "searchFailed": "Search failed",
+    "notLoggedIn": "Not logged in",
+
+    "fishType": "Fish Type",
+    "quantity": "Quantity (kg)",
+    "price": "Price per kg",
+    "description": "Description",
+    "requiredField": "Required",
+    "enterValidNumber": "Enter a valid number",
+    "quantityMustBePositive": "Quantity must be greater than 0",
+    "priceMustBePositive": "Price must be greater than 0",
+    "phoneInvalid": "Enter Tanzanian format: +255XXXXXXXXX",
+    "passwordsDoNotMatch": "Passwords do not match",
+    "emailInvalid": "Enter a valid email address",
+    "passwordTooShort": "Password must be at least 6 characters",
+
+    "postListing": "Post Listing",
+    "sellStock": "Sell Stock",
+    "buyStock": "Buy Stock",
+    "myOrders": "My Orders",
+    "myOrdersSubtitle": "Track purchases",
+    "sellStockSubtitle": "Post a listing",
+    "myListingsSubtitle": "Manage your stock",
+    "buyStockSubtitle": "Browse marketplace",
+
+    "fishAvailableNearby": "Fish Available Nearby",
+    "activeListings": "Active Listings",
+    "totalStock": "Total Stock",
+    "nearestSeller": "Nearest Seller",
+    "activeRequests": "Active Requests",
+    "online": "Online",
+    "offline": "Offline",
+    "starting": "Starting…",
+    "youAreNowOnline": "You are now online · sharing location",
+    "youAreNowOffline": "You are now offline",
+
+    "photosUpTo5": "Photos (up to 5)",
+    "addPhoto": "Add Photo",
+    "gallery": "Gallery",
+    "camera": "Camera",
+    "shopLocation": "Shop Location",
+    "setShopLocation": "Set shop location",
+    "shopLocationSet": "Shop location set",
+    "shopLocationRequired": "Required so buyers can find your shop on the map",
+    "readingGps": "Reading GPS signal...",
+    "shopLocationSetTo": "Shop location set to {label}",
+    "@shopLocationSetTo": {
+        "placeholders": {
+            "label": {"type": "String"}
+        }
+    },
+
+    "imageUploadFailed": "Could not read photos: {error}",
+    "@imageUploadFailed": {
+        "placeholders": {
+            "error": {"type": "String"}
+        }
+    },
+    "cameraImageFailed": "Could not read photo from camera: {error}",
+    "@cameraImageFailed": {
+        "placeholders": {
+            "error": {"type": "String"}
+        }
+    },
+
+    "listingCreatedSuccessfully": "Listing created successfully! 🐟",
+    "errorGeneric": "Error: {error}",
+    "@errorGeneric": {
+        "placeholders": {
+            "error": {"type": "String"}
+        }
+    },
+
+    "habari": "Hello, {name}! 🛒",
+    "@habari": {
+        "placeholders": {
+            "name": {"type": "String"}
+        }
+    },
+    "yourStreetSellingHub": "Your street selling hub",
+    "quickActions": "Quick Actions",
+
+    "noImage": "No Image",
+    "expiresIn": "Expires in {duration}",
+    "@expiresIn": {
+        "placeholders": {
+            "duration": {"type": "String"}
+        }
+    },
+    "active": "ACTIVE",
+    "sold": "SOLD",
+    "expired": "EXPIRED",
+
+    "myProfile": "My Profile",
+    "editProfile": "Edit profile",
+    "accountInformation": "Account Information",
+    "signOut": "Sign Out",
+    "signOutConfirmation": "Are you sure you want to sign out?",
+    "noImageBroken": "Image could not be loaded",
+
+    "sendFishRequest": "Send fish request",
+    "sendRequest": "Send Request",
+    "callSeller": "Call",
+    "smsSeller": "SMS",
+    "viewDetails": "View Details",
+    "sellersNearby": "{count, plural, =0{No sellers} =1{1 seller} other{{count} sellers}} nearby",
+    "@sellersNearby": {
+        "placeholders": {
+            "count": {"type": "int"}
+        }
+    },
+    "live": "Live",
+    "onlineLiveLocation": "Online · live location",
+
+    "account": "Account",
+    "search": "Search",
+
+    "demoAccounts": "Demo Accounts",
+    "tryOutApp": "Try out the app instantly with a demo account.",
+
+    "myLocation": "My Location",
+    "useGps": "Use GPS",
+    "useSavedLocation": "Use saved location",
+    "distanceAway": "{distance} km away",
+    "@distanceAway": {
+        "placeholders": {
+            "distance": {"type": "String"}
+        }
+    },
+
+    "verificationRequired": "Account verification required",
+    "verificationMessage": "Please check your email and verify your account before continuing.",
+    "verifyNow": "Verify Now",
+
+    "noNotificationsYet": "No notifications yet",
+    "noNotificationsSubtitle": "We'll let you know when something happens.",
+
+    "noWishlistItems": "Your wishlist is empty",
+    "noWishlistSubtitle": "Tap the heart on any fish listing to save it here.",
+
+    "noActiveRequests": "No active fish requests",
+    "noActiveRequestsSubtitle": "When you post a fish request, it will appear here.",
+
+    "noListings": "No listings yet",
+    "noListingsSubtitle": "Tap the + button to add your first listing.",
+
+    "noOrders": "No orders yet",
+    "noOrdersSubtitle": "When you buy or sell fish, orders will appear here.",
+
+    "offlineState": "This seller is currently offline",
+    "kmAway": "{km} km away",
+    "@kmAway": {
+        "placeholders": {
+            "km": {"type": "String"}
+        }
+    },
+
+    "selectLanguageTitle": "Select Language",
+    "selectLanguageDescription": "The whole app will switch instantly. Your choice is saved on this device.",
+    "languageSaved": "Language saved",
+
+    "settingsSaved": "Settings saved",
+    "changeFailed": "Couldn't change {setting}: {error}",
+    "@changeFailed": {
+        "placeholders": {
+            "setting": {"type": "String"},
+            "error": {"type": "String"}
+        }
+    },
+
+    "commonError": "Something went wrong",
+    "tryAgain": "Try again",
+
+    "personalInformation": "Personal Information",
+    "editListing": "Edit Listing",
+    "logoutConfirmationMessage": "You will be returned to the login screen.",
+    "km": "km",
+    "reorder": "Reorder",
+    "leaveReview": "Leave a review",
+    "shareListing": "Share listing",
+    "reportListing": "Report listing",
+    "deleteListingConfirmation": "Delete this listing? This cannot be undone.",
+    "markAsSold": "Mark as sold",
+    "soldConfirmation": "Mark this listing as sold?",
+    "filter": "Filter",
+    "sortBy": "Sort by",
+    "newestFirst": "Newest first",
+    "priceLowToHigh": "Price: Low to high",
+    "priceHighToLow": "Price: High to low",
+    "apply": "Apply",
+    "clearAll": "Clear all",
+    "results": "Results",
+    "noResults": "No results",
+    "selectLocation": "Select location",
+    "useMyLocation": "Use my location",
+    "savedLocations": "Saved locations",
+    "loadingLocation": "Loading your location...",
+    "couldNotGetLocation": "Could not get your location",
+    "permissionDenied": "Location permission denied",
+    "openSettings": "Open Settings",
+    "loadingMore": "Loading more...",
+    "seeAll": "See all",
+    "viewMore": "View more",
+    "filterByType": "Filter by fish type",
+    "distanceFromYou": "{distance} km from you",
+    "selectRadius": "Select search radius",
+    "showingNearest": "Showing nearest sellers only",
+    "languagePreference": "Language preference",
+    "themePreference": "Theme preference",
+    "changed": "Changed",
+    "featureComingSoon": "Coming soon",
+    "noDataYet": "No data yet",
+    "refresh": "Refresh",
+    "pullToRefresh": "Pull down to refresh",
+    "verifyAccount": "Verify your account",
+    "resendEmail": "Resend verification email",
+    "verificationEmailSent": "Verification email sent",
+    "tapToUse": "Tap to use",
+    "selectImage": "Select image",
+    "fromCamera": "From camera",
+    "fromGallery": "From gallery",
+    "changePhoto": "Change photo",
+    "reviewInformation": "Review your information",
+    "totalListings": "Total listings",
+    "totalOrders": "Total orders",
+    "accountInfo": "Account info",
+    "phone": "Phone",
+    "street": "Street",
+    "region": "Region",
+    "market": "Market",
+    "buyersAvailable": "Buyers available",
+    "sellersNearbyCount": "{count, plural, =0{No sellers nearby} =1{1 seller nearby} other{{count} sellers nearby}}",
+    "receiving": "Receiving",
+    "ready": "Ready",
+    "inTransit": "In transit",
+    "delivered": "Delivered",
+    "cancelled": "Cancelled",
+    "pending": "Pending",
+    "completed": "Completed",
+    "buyer": "Buyer",
+    "seller": "Seller",
+    "quantityKg": "Quantity",
+    "perKg": "/ kg",
+    "noReviews": "No reviews yet",
+    "seeAllReviews": "See all reviews",
+    "verified": "Verified",
+    "notVerified": "Not verified",
+    "ratings": "Ratings",
+    "reviews": "Reviews",
+    "orderDetails": "Order Details",
+    "deliveryAddress": "Delivery address",
+    "deliveryTime": "Delivery time",
+    "yourOrders": "Your orders",
+    "buyerType": "Buyer type",
+    "transport": "Transport",
+    "individualHousehold": "Individual/Household",
+    "restaurant": "Restaurant",
+    "hotel": "Hotel",
+    "retail": "Retail",
+    "morning": "Morning",
+    "afternoon": "Afternoon",
+    "evening": "Evening",
+    "anytime": "Anytime",
+    "fullAddress": "Full address",
+    "city": "City",
+    "country": "Country",
+    "profilePhoto": "Profile photo",
+    "equipmentPhoto": "Equipment photo",
+    "selectPhotos": "Select up to 5 photos",
+    "tapToAdd": "Tap to add",
+    "enterAddress": "Enter address",
+    "enterCity": "Enter city",
+    "enterRegion": "Enter region",
+    "addListing": "Add listing",
+    "deleteListing": "Delete listing",
+    "markSold": "Mark as sold",
+    "shareLocation": "Share location",
+    "goOnline": "Go online",
+    "goOffline": "Go offline",
+    "startingLocation": "Starting location...",
+    "shareLocationToggle": "Share your location",
+    "shareLocationSubtitle": "Let buyers see you on the map",
+    "onlineStatus": "Online status",
+    "onlineNow": "You are online",
+    "offlineNow": "You are offline",
+    "sellerProfile": "Seller profile",
+    "activeListingsCount": "Active: {count}",
+    "ratingValue": "{rating} rating",
+    "lastSeenMinutesAgo": "Last seen {minutes}m ago",
+    "lastSeenHoursAgo": "Last seen {hours}h ago",
+    "lastSeenDaysAgo": "Last seen {days}d ago",
+    "justNow": "Just now",
+    "call": "Call",
+    "message": "Message",
+    "directions": "Directions",
+    "send": "Send",
+    "messageSeller": "Message seller",
+    "typeMessage": "Type a message",
+    "onlineDot": "Online",
+    "verifiedBadge": "Verified",
+    "you": "You",
+    "buyerName": "Buyer name",
+    "sellerName": "Seller name",
+    "orders": "Orders",
+    "filters": "Filters",
+    "allTypes": "All types",
+    "noOrdersYetTitle": "No orders yet",
+    "loadingOrders": "Loading orders...",
+    "orderId": "Order #{id}",
+    "@orderId": {
+        "placeholders": {
+            "id": {"type": "String"}
+        }
+    },
+    "markAsCompleted": "Mark as completed",
+    "cancelOrderConfirmation": "Cancel this order?",
+    "acceptOrder": "Accept order",
+    "confirmOrder": "Confirm order",
+    "rejectOrder": "Reject order",
+    "trackOrder": "Track order",
+    "orderItems": "Order items",
+    "delivery": "Delivery",
+    "quantityShortKg": "{qty} kg",
+    "@quantityShortKg": {
+        "placeholders": {
+            "qty": {"type": "String"}
+        }
+    },
+    "totalKg": "{qty} kg total",
+    "@totalKg": {
+        "placeholders": {
+            "qty": {"type": "String"}
+        }
+    },
+    "buyerOrderedItems": "{buyer} ordered {qty} kg",
+    "@buyerOrderedItems": {
+        "placeholders": {
+            "buyer": {"type": "String"},
+            "qty": {"type": "String"}
+        }
+    },
+    "pricePerKg": "TZS {price}/kg",
+    "@pricePerKg": {
+        "placeholders": {
+            "price": {"type": "String"}
+        }
+    },
+    "priceRange": "TZS {min} – {max} / kg",
+    "@priceRange": {
+        "placeholders": {
+            "min": {"type": "String"},
+            "max": {"type": "String"}
+        }
+    },
+    "sellersNearbyCount": "{count, plural, =0{No sellers nearby} =1{1 seller nearby} other{{count} sellers nearby}}",
+    "@sellersNearbyCount": {
+        "placeholders": {
+            "count": {"type": "int"}
+        }
+    },
+    "setMyLocation": "Set my location",
+    "switchToLightTheme": "Switch to light theme",
+    "switchToDarkTheme": "Switch to dark theme",
+    "platformOverview": "Platform Overview & Management",
+    "totalUsers": "Total Users",
+    "ordersToday": "Orders Today",
+    "platformRevenue": "Platform Revenue",
+    "management": "Management",
+    "manageDalalis": "Manage Dalalis",
+    "manageDalalisSubtitle": "Register, approve or block brokers",
+    "allListings": "All Listings",
+    "allListingsSubtitle": "Review and moderate marketplace",
+    "transactions": "Transactions",
+    "transactionsSubtitle": "View payment history",
+    "hello": "Hello, {name}!",
+    "@hello": {
+        "placeholders": {
+            "name": {"type": "String"}
+        }
+    }
+}
