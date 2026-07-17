@@ -90,7 +90,9 @@ class SamakiFreshApp extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    // Riverpod's [themeModeProvider] re-emits on every theme change.
+    // Riverpod's [themeModeProvider] (StateProvider) re-emits on
+    // every theme change — MaterialApp below picks up the new
+    // themeMode parameter and re-themes the whole tree.
     final mode = ref.watch(themeModeProvider);
     // Subscribe to the per-user theme bootstrap so the moment the
     // signed-in account changes (sign-in / sign-out / role switch)
@@ -98,10 +100,12 @@ class SamakiFreshApp extends ConsumerWidget {
     // [userThemeBootstrapProvider] would never trigger and the
     // theme would leak across accounts on the same device.
     ref.watch(userThemeBootstrapProvider);
-    // The singleton [LocaleNotifier] is observed via
-    // [Localizations.override] below so the framework rebuilds the
-    // whole tree the moment the user picks a new language.
-    final localeNotifier = ref.watch(localeControllerProvider);
+    // Riverpod's [localeProvider] (NotifierProvider) re-emits on
+    // every language change — MaterialApp's `locale` parameter
+    // below picks up the new value so every widget reading
+    // `AppLocalizations.of(context)` rebuilds with the new locale
+    // immediately, no restart needed.
+    final locale = ref.watch(localeProvider);
 
     return MaterialApp.router(
       title: 'Samaki Fresh Connect',
@@ -113,10 +117,9 @@ class SamakiFreshApp extends ConsumerWidget {
         AppThemeMode.dark => ThemeMode.dark,
       },
       // Localizations wiring — flutter_localizations drives the
-      // generated AppLocalizations class. The `Locale? override`
-      // callback re-reads the notifier on every build, so flipping
-      // the language triggers an instant re-translation without
-      // restarting the app.
+      // generated AppLocalizations class. `locale` is the live
+      // value out of `localeProvider`, so flipping the language
+      // re-translates the whole tree instantly.
       localizationsDelegates: const [
         AppLocalizations.delegate,
         GlobalMaterialLocalizations.delegate,
@@ -124,17 +127,16 @@ class SamakiFreshApp extends ConsumerWidget {
         GlobalCupertinoLocalizations.delegate,
       ],
       supportedLocales: kSupportedLocales,
-      locale: localeNotifier.locale,
+      locale: locale,
       localeResolutionCallback: (deviceLocale, supported) {
-        if (deviceLocale == null) return localeNotifier.locale;
-        for (final locale in supported) {
-          if (locale.languageCode == deviceLocale.languageCode) return locale;
+        if (deviceLocale == null) return locale;
+        for (final l in supported) {
+          if (l.languageCode == deviceLocale.languageCode) return l;
         }
-        return localeNotifier.locale;
+        return locale;
       },
-      routerConfig: appRouter,
+      // AnimatedTheme lerps colour schemes across rebuilds.
       builder: (context, child) {
-        // AnimatedTheme lerps colour schemes across rebuilds.
         return Theme(
           data: Theme.of(context),
           child: AnimatedTheme(
@@ -145,6 +147,7 @@ class SamakiFreshApp extends ConsumerWidget {
           ),
         );
       },
+      routerConfig: appRouter,
     );
   }
 }

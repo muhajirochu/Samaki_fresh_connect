@@ -28,12 +28,18 @@ import '../constants/app_colors.dart';
 import '../services/storage_service.dart';
 import 'auth_provider.dart';
 
-/// Holds the active [AppThemeMode]. We deliberately keep our own
-/// [ChangeNotifier] rather than use Riverpod state directly so any
-/// widget (including the platform one in `main.dart`) can subscribe.
+/// Holds the active [AppThemeMode]. Riverpod-managed via
+/// `themeControllerProvider`. Also keeps the simpler
+/// `themeModeProvider` (a `StateProvider<AppThemeMode>`) in sync so
+/// the root `MaterialApp` rebuilds the moment the mode flips.
 class ThemeModeNotifier extends ChangeNotifier {
   AppThemeMode _mode;
   String _uid;
+  // Optional Riverpod ref so [setMode] can notify the simpler
+  // `themeModeProvider` (a `StateProvider`) directly. This avoids
+  // the previous bug where `themeModeProvider` was a plain `Provider`
+  // that never picked up the notifier's notifications reliably.
+  void Function(AppThemeMode)? _bridge;
 
   ThemeModeNotifier(this._mode, this._uid);
 
@@ -47,6 +53,7 @@ class ThemeModeNotifier extends ChangeNotifier {
     if (_mode == mode) return;
     _mode = mode;
     notifyListeners();
+    _bridge?.call(mode);
     final key = _uid.isEmpty
         ? AppThemeMode.prefKeyAnonymous
         : AppThemeMode.prefKeyFor(_uid);
@@ -86,6 +93,14 @@ class ThemeModeNotifier extends ChangeNotifier {
     if (next == _mode) return;
     _mode = next;
     notifyListeners();
+    _bridge?.call(next);
+  }
+
+  /// Wire a callback that re-emits the mode through a separate
+  /// `StateProvider` so any consumer of `themeModeProvider` rebuilds.
+  /// Called from the `themeControllerProvider` factory.
+  void bindBridge(void Function(AppThemeMode) bridge) {
+    _bridge = bridge;
   }
 }
 
@@ -164,14 +179,28 @@ Future<void> migrateLegacyThemeSlot() async {
 final themeControllerProvider = ChangeNotifierProvider<ThemeModeNotifier>(
   (ref) {
     final notifier = ThemeModeNotifier(_initialMode, '');
+    // Wire the StateProvider bridge so every setMode / loadForUser
+    // call also re-emits through `themeModeProvider`. Without this
+    // bridge, `themeModeProvider` is a separate piece of state that
+    // never sees the notifier's updates.
+    notifier.bindBridge((mode) {
+      ref.read(themeModeProvider.notifier).state = mode;
+    });
     ref.onDispose(notifier.dispose);
     return notifier;
   },
 );
 
 /// Convenience provider — exposes just the [AppThemeMode] value.
-final themeModeProvider = Provider<AppThemeMode>(
-  (ref) => ref.watch(themeControllerProvider).mode,
+///
+/// This is a `StateProvider` (not a plain `Provider`) so the value
+/// it emits is its own first-class state. The old plain `Provider`
+/// pattern relied on `themeControllerProvider` notifying, but in a
+/// Riverpod graph where many consumers only `ref.watch` the mode
+/// (not the notifier itself) the dependency wasn't always picked up.
+/// Making this a `StateProvider` removes that fragility.
+final themeModeProvider = StateProvider<AppThemeMode>(
+  (_) => _initialMode,
 );
 
 /// Convenience provider — exposes the matching [AppColorTokens].

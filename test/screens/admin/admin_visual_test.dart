@@ -83,7 +83,7 @@ Widget _wrap(Widget child) {
           .overrideWith((ref) => Stream.value(const <Never>[])),
       adminPlatformRevenueProvider
           .overrideWith((ref) => Stream.value(125000.0)),
-      localeProvider.overrideWith((ref) => const Locale('en')),
+      localeProvider.overrideWith(() => LocaleNotifier()),
     ],
     child: MaterialApp.router(
       theme: buildLightTheme(),

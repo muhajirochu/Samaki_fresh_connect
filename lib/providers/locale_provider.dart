@@ -1,25 +1,26 @@
 // Locale (language) provider for the entire app.
 //
 // Architecture:
-//   - `localeProvider` (this file) — Riverpod `StateProvider<Locale>`,
-//     the single source of truth for the current locale. Holds the
-//     active `Locale` so every widget can rebuild on change.
-//   - `LocaleNotifier` — `ChangeNotifier` wrapper used by the
-//     root `MaterialApp.router` via `Localizations.override` so the
-//     framework rebuilds the widget tree when the locale flips.
-//   - `LocaleStorage` — persists/restores the chosen locale via
-//     `SharedPreferences` (through `StorageService`).
+//   - `localeProvider` — Riverpod `NotifierProvider<LocaleNotifier, Locale>`
+//     the single source of truth for the current locale.
+//   - `LocaleNotifier` — the notifier holding the active `Locale`.
+//     Mutating its `state` rebuilds every widget that watches
+//     [localeProvider] AND notifies the legacy ChangeNotifier
+//     bridge so the root `MaterialApp.router` (which listens via
+//     `Localizations.override`) re-translates the tree instantly.
+//   - SharedPreferences via `StorageService` persists the choice so
+//     it survives app restarts.
 //
 // The whole flow:
 //   1. App boots → `bootstrapLocale()` reads SharedPreferences and
-//      pre-populates both the Riverpod `StateProvider` and the
-//      `LocaleNotifier` so the first frame already renders the right
-//      locale (no flash of English on launch for Kiswahili users).
+//      seeds the singleton used by `Localizations.override` so the
+//      very first frame already renders the right language.
 //   2. User taps a language in `LanguageSelectorScreen` →
-//      `LocaleNotifier.setLocale()` writes to SharedPreferences and
-//      notifies. `MaterialApp.router`'s `Localizations.override`
-//      listens and rebuilds the tree → every `AppLocalizations.of(context)`
-//      returns the new translation immediately, no restart needed.
+//      `LocaleNotifier.setLocale()` updates `state` AND notifies
+//      the legacy bridge. `MaterialApp.router`'s `builder` rebuilds
+//      with `Localizations.override(locale: notifier.locale)`, so
+//      every `AppLocalizations.of(context)` returns the new
+//      translation immediately, no restart needed.
 
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
@@ -55,23 +56,45 @@ Locale resolveStoredLocale() {
   return kFallbackLocale;
 }
 
-/// `ChangeNotifier` that the root `MaterialApp.router` listens to via
-/// `Localizations.override`. When the locale flips the framework
-/// rebuilds the widget tree with the new locale.
-class LocaleNotifier extends ChangeNotifier {
-  LocaleNotifier(this._locale);
-
-  Locale _locale;
+/// Legacy `ChangeNotifier` that the root `MaterialApp.router` listens
+/// to via `Localizations.override`. The Riverpod [LocaleNotifier]
+/// below keeps this in sync so both reactive systems see every
+/// change.
+class LocaleChangeBridge extends ChangeNotifier {
+  Locale _locale = resolveStoredLocale();
 
   /// The active locale.
   Locale get locale => _locale;
 
-  /// Flip to [newLocale] and persist the choice. Notifies listeners
-  /// so the framework rebuilds.
-  Future<void> setLocale(Locale newLocale) async {
-    if (_locale.languageCode == newLocale.languageCode) return;
-    _locale = newLocale;
+  /// Update the bridge's locale AND notify listeners so the root
+  /// MaterialApp rebuilds with the new locale.
+  set locale(Locale value) {
+    if (_locale.languageCode == value.languageCode) return;
+    _locale = value;
     notifyListeners();
+  }
+}
+
+/// Singleton bridge — there's exactly one app-wide language
+/// listener for the legacy `Localizations.override` API.
+final LocaleChangeBridge _bridge = LocaleChangeBridge();
+
+/// Riverpod `Notifier<Locale>` — every widget that `ref.watch`es
+/// [localeProvider] rebuilds the moment [setLocale] is called.
+class LocaleNotifier extends Notifier<Locale> {
+  @override
+  Locale build() => _bridge.locale;
+
+  /// The active locale. Alias for `state`.
+  Locale get locale => state;
+
+  /// Flip to [newLocale] and persist the choice.
+  Future<void> setLocale(Locale newLocale) async {
+    if (state.languageCode == newLocale.languageCode) return;
+    state = newLocale;
+    // Keep the legacy ChangeNotifier bridge in sync so the root
+    // MaterialApp's `Localizations.override` rebuilds the tree.
+    _bridge.locale = newLocale;
     try {
       await StorageService.instance.setString(
         kLocalePrefKey,
@@ -83,23 +106,18 @@ class LocaleNotifier extends ChangeNotifier {
   }
 }
 
-/// Singleton `LocaleNotifier` — there's exactly one app-wide
-/// language controller. We seed it from SharedPreferences before the
-/// first frame so the very first build already renders in the
-/// right language.
-LocaleNotifier _localeNotifier = LocaleNotifier(resolveStoredLocale());
-
-/// Provider exposing the current [Locale] as a Riverpod state value.
-final localeProvider = StateProvider<Locale>(
-  (_) => _localeNotifier.locale,
+/// Riverpod-managed [Locale] — every widget that `ref.watch`es this
+/// rebuilds the moment the user picks a new language.
+final localeProvider = NotifierProvider<LocaleNotifier, Locale>(
+  LocaleNotifier.new,
 );
 
-/// Provider exposing the singleton [LocaleNotifier]. Widgets that
-/// need to *change* the locale (e.g. `LanguageSelectorScreen`) read
-/// this; widgets that just need the current locale read
-/// [localeProvider] instead.
+/// Provider exposing the same [LocaleNotifier] singleton used by
+/// [localeProvider]. Use this when you need to *change* the locale
+/// (e.g. `LanguageSelectorScreen`); use [localeProvider] when you
+/// just need to read the current locale.
 final localeControllerProvider = Provider<LocaleNotifier>(
-  (_) => _localeNotifier,
+  (ref) => ref.watch(localeProvider.notifier),
 );
 
 /// Pre-bootstrap hook. Call this from `main()` after
@@ -107,18 +125,5 @@ final localeControllerProvider = Provider<LocaleNotifier>(
 /// `runApp` runs.
 void bootstrapLocale() {
   final resolved = resolveStoredLocale();
-  _localeNotifier = LocaleNotifier(resolved);
-  // The StateProvider can only be written via a `ref.read`, but the
-  // initial value will be picked up the first time something reads
-  // `localeProvider`. To keep things consistent across both, we
-  // re-seed the StateProvider via a tiny `ProviderContainer` here.
-  // This keeps Riverpod's view of the world in sync with the
-  // ChangeNotifier that the root MaterialApp actually listens to.
-  // The container is torn down immediately.
-  final container = ProviderContainer();
-  container.read(localeProvider.notifier).state = resolved;
-  container.dispose();
+  _bridge.locale = resolved;
 }
-
-/// Convenience: read the active locale code (`en` / `sw`).
-String currentLocaleCode() => _localeNotifier.locale.languageCode;

@@ -54,7 +54,7 @@ Widget _wrap({
       themeControllerProvider.overrideWith(
         (ref) => ThemeModeNotifier(mode, 'admin-1'),
       ),
-      localeProvider.overrideWith((ref) => locale),
+      localeProvider.overrideWith(() => LocaleNotifier()),
       adminUserCountsProvider.overrideWith(
         (ref) => Stream.value(<String, int>{
               'buyer': 12,

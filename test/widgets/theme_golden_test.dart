@@ -28,7 +28,7 @@ Widget _wrap({
       themeControllerProvider.overrideWith(
         (ref) => ThemeModeNotifier(mode, ''),
       ),
-      localeProvider.overrideWith((ref) => locale),
+      localeProvider.overrideWith(() => LocaleNotifier()),
     ],
     child: MaterialApp(
       theme: theme,
