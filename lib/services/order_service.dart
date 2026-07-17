@@ -152,4 +152,121 @@ class OrderService {
       return Stream.value(<OrderModel>[]);
     }
   }
+
+  /// Stream orders filtered by their [orderStatus] field. Used by
+  /// the admin Orders Management screen to drive the
+  /// Pending / Completed / Cancelled / All tabs.
+  ///
+  /// Note: this query relies on the `orderStatus + createdAt`
+  /// composite index in `firestore.indexes.json`.
+  Stream<List<OrderModel>> streamOrdersByStatus(String orderStatus) {
+    if (!_isAvailable) return Stream.value(<OrderModel>[]);
+    try {
+      return _firestore
+          .collection(_collection)
+          .where('orderStatus', isEqualTo: orderStatus)
+          .orderBy('createdAt', descending: true)
+          .snapshots()
+          .map((snap) => snap.docs
+              .map((d) => OrderModel.fromJson(d.data()))
+              .toList(growable: false));
+    } catch (e) {
+      AppLogger.error('Error streaming orders by status $orderStatus: $e');
+      return Stream.value(<OrderModel>[]);
+    }
+  }
+
+  /// Stream orders created between [start] (inclusive) and [end]
+  /// (exclusive). Used by the admin Sales Reports screen to compute
+  /// Daily / Weekly / Monthly sales totals.
+  Stream<List<OrderModel>> streamOrdersInRange(DateTime start, DateTime end) {
+    if (!_isAvailable) return Stream.value(<OrderModel>[]);
+    try {
+      return _firestore
+          .collection(_collection)
+          .where('createdAt', isGreaterThanOrEqualTo: start)
+          .where('createdAt', isLessThan: end)
+          .orderBy('createdAt', descending: true)
+          .snapshots()
+          .map((snap) => snap.docs
+              .map((d) => OrderModel.fromJson(d.data()))
+              .toList(growable: false));
+    } catch (e) {
+      AppLogger.error('Error streaming orders in range: $e');
+      return Stream.value(<OrderModel>[]);
+    }
+  }
+
+  /// Admin override for order status. Used by the dispute-resolution
+  /// flow when the admin needs to push an order to a specific
+  /// state regardless of the buyer / seller participant logic.
+  Future<void> adminUpdateOrderStatus(
+    String orderId,
+    String newStatus, {
+    String? note,
+  }) async {
+    await updateOrderStatus(orderId, newStatus, extraFields: {
+      if (note != null && note.isNotEmpty) 'adminNote': note,
+      'adminLastTouchedAt': FieldValue.serverTimestamp(),
+    });
+  }
+
+  /// Count of orders currently in a specific [orderStatus]. Used
+  /// by the admin dashboard's Pending / Completed / Cancelled
+  /// stat tiles. Cheaper than fetching the full list — Firestore
+  /// returns the doc count in a single round-trip.
+  Stream<int> streamOrdersCountByStatus(String orderStatus) {
+    if (!_isAvailable) return Stream.value(0);
+    try {
+      return _firestore
+          .collection(_collection)
+          .where('orderStatus', isEqualTo: orderStatus)
+          .snapshots()
+          .map((snap) => snap.docs.length);
+    } catch (e) {
+      AppLogger.error(
+        'Error streaming orders count by status $orderStatus: $e',
+      );
+      return Stream.value(0);
+    }
+  }
+
+  /// Client-side search across the full orders list. Cheap enough
+  /// for admin use (orders capped at `streamAllOrders` limit) and
+  /// avoids Firestore composite-index sprawl.
+  Future<List<OrderModel>> searchOrders(String rawQuery) async {
+    final q = rawQuery.trim().toLowerCase();
+    if (q.isEmpty) return <OrderModel>[];
+    return _firestore
+        .collection(_collection)
+        .orderBy('createdAt', descending: true)
+        .limit(500)
+        .get()
+        .then((snap) => snap.docs
+            .map((d) => OrderModel.fromJson(d.data()))
+            .where((o) =>
+                o.orderId.toLowerCase().contains(q) ||
+                o.buyerId.toLowerCase().contains(q) ||
+                (o.streetSellerId?.toLowerCase().contains(q) ?? false))
+            .toList(growable: false));
+  }
+
+  /// Admin-side dispute resolution. Sets `disputeAction` and
+  /// `disputeResolvedBy` so the audit trail makes the resolution
+  /// authority obvious. Caller is responsible for writing the
+  /// `activityLogs/{id}` entry — this service intentionally does
+  /// not couple to the log service so it stays drop-in usable.
+  Future<void> disputeResolution({
+    required String orderId,
+    required String action,
+    required String resolvedByUid,
+    String? note,
+  }) async {
+    await updateOrderStatus(orderId, action, extraFields: {
+      if (note != null && note.isNotEmpty) 'adminNote': note,
+      'disputeAction': action,
+      'disputeResolvedBy': resolvedByUid,
+      'disputeResolvedAt': FieldValue.serverTimestamp(),
+    });
+  }
 }

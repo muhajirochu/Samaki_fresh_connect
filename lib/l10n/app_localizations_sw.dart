@@ -1114,6 +1114,204 @@ class AppLocalizationsSw extends AppLocalizations {
       'Uchaguzi wako unatumika papo hapo kwenye kila skrini na kuhifadhiwa kwa wakati ujao.';
 
   @override
+  String get adminDashboardSubtitle => 'Muhtasari wa jukwaa na usimamizi';
+
+  @override
+  String get totalSellers => 'Wauzaji wa barabarani wote';
+
+  @override
+  String get totalBuyers => 'Wanunuzi wote';
+
+  @override
+  String get pendingOrders => 'Maagizo yanayosubiri';
+
+  @override
+  String get completedOrders => 'Maagizo yaliyokamilika';
+
+  @override
+  String get cancelledOrders => 'Maagizo yaliyositishwa';
+
+  @override
+  String get recentActivity => 'Shughuli za hivi karibuni';
+
+  @override
+  String get manageBuyers => 'Simamia Wanunuzi';
+
+  @override
+  String get manageBuyersSubtitle => 'Simamisha au rejesha akaunti za wanunuzi';
+
+  @override
+  String get approveSeller => 'Kubali muuzaji';
+
+  @override
+  String get revokeApproval => 'Ondoa idhini';
+
+  @override
+  String get approvedBadge => 'Hai';
+
+  @override
+  String get pendingApprovalBadge => 'Inasubiri idhini';
+
+  @override
+  String get suspendedBadge => 'Imesimamishwa';
+
+  @override
+  String get suspendDialog => 'Simamisha mtumiaji';
+
+  @override
+  String get suspendReason => 'Sababu';
+
+  @override
+  String get reactivateUser => 'Anzisha tena';
+
+  @override
+  String get searchBy => 'Tafuta kwa jina, barua pepe au simu';
+
+  @override
+  String get searchSellers => 'Tafuta wauzaji';
+
+  @override
+  String get searchBuyers => 'Tafuta wanunuzi';
+
+  @override
+  String get searchOrders => 'Tafuta maagizo';
+
+  @override
+  String get manageCategories => 'Aina za Samaki';
+
+  @override
+  String get manageCategoriesSubtitle =>
+      'Ongeza, hariri au futa aina za samaki';
+
+  @override
+  String get newCategory => 'Aina mpya';
+
+  @override
+  String get categoryName => 'Jina la kuonyesha';
+
+  @override
+  String get categorySlug => 'Kitambulisho';
+
+  @override
+  String get categoryActive => 'Hai';
+
+  @override
+  String get categoryInactive => 'Isiyotumika';
+
+  @override
+  String get seedDefaults => 'Weka chaguo-msingi';
+
+  @override
+  String get seedDefaultsHint => 'Weka aina saba za msingi za samaki';
+
+  @override
+  String get reportsTab => 'Ripoti';
+
+  @override
+  String get reportsSales => 'Ripoti ya mauzo';
+
+  @override
+  String get reportsOrders => 'Ripoti ya maagizo';
+
+  @override
+  String get reportsSellers => 'Ripoti ya wauzaji wa barabarani';
+
+  @override
+  String get reportsBuyers => 'Ripoti ya wanunuzi';
+
+  @override
+  String get reportsRevenue => 'Muhtasari wa mapato';
+
+  @override
+  String get thisWeek => 'Wiki hii';
+
+  @override
+  String get thisMonth => 'Mwezi huu';
+
+  @override
+  String get topSellers => 'Wauzaji bora';
+
+  @override
+  String get topBuyers => 'Wanunuzi bora';
+
+  @override
+  String get logsTitle => 'Kumbukumbu za Shughuli';
+
+  @override
+  String get logsSubtitle =>
+      'Historia ya kuingia, usajili na vitendo vya admin';
+
+  @override
+  String get loginEvents => 'Kuingia';
+
+  @override
+  String get registrationEvents => 'Usajili';
+
+  @override
+  String get adminActions => 'Vitendo vya admin';
+
+  @override
+  String get disputeEvents => 'Mizozo';
+
+  @override
+  String get listingEvents => 'Zabuni';
+
+  @override
+  String get noLogsYet => 'Bado hakuna shughuli zilizorekodiwa';
+
+  @override
+  String get adminSettingsTitle => 'Mipango ya Admin';
+
+  @override
+  String get platformMaintenance => 'Hali ya matengenezo';
+
+  @override
+  String get platformMaintenanceSubtitle =>
+      'Lemaza kuingia kwa wanunuzi na wauzaji kwa muda';
+
+  @override
+  String get refreshData => 'Onyesha upya data';
+
+  @override
+  String get refreshDataSubtitle => 'Batilisha cache ya admin na upake tena';
+
+  @override
+  String get dangerZone => 'Eneo hatari';
+
+  @override
+  String get disputeResolution => 'Utatuzi wa mizozo';
+
+  @override
+  String get disputeNote => 'Ujumbe wa admin';
+
+  @override
+  String get disputeNoteHint => 'Fupi eleza utatuzi';
+
+  @override
+  String get adminActionsSection => 'Vitendo vya admin';
+
+  @override
+  String get adminOnlySection => 'Zana za admin';
+
+  @override
+  String get viewOrderDetail => 'Ona agizo';
+
+  @override
+  String get statusAll => 'Zote';
+
+  @override
+  String get statusPending => 'Inasubiri';
+
+  @override
+  String get statusCompleted => 'Imekamilika';
+
+  @override
+  String get statusCancelled => 'Imeghairiwa';
+
+  @override
+  String get suspendUserAction => 'Simamisha mtumiaji';
+
+  @override
   String get transactionsTitle => 'Miamala';
 
   @override

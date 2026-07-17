@@ -1,0 +1,146 @@
+// ActivityLogService — admin-side audit trail writes and reads.
+//
+// Every meaningful platform event writes a doc here so the admin
+// can answer "who did what when?" without trawling through
+// Firestore by hand.
+//
+// CRITICAL — writes are BEST EFFORT.
+//
+// Callers MUST wrap every `write(...)` call in try/catch and
+// downgrade to `AppLogger.warning` on failure. A failed audit
+// write must never block a login, order placement, or admin
+// mutation. The activity log is observability, not a hard
+// dependency.
+
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_core/firebase_core.dart';
+
+import '../models/activity_log_model.dart';
+import '../utils/logger.dart';
+
+class ActivityLogService {
+  FirebaseFirestore get _firestore => FirebaseFirestore.instance;
+  bool get _isAvailable => Firebase.apps.isNotEmpty;
+
+  static const String _collection = 'activityLogs';
+
+  /// Append a single log entry. Returns the generated document id,
+  /// or `null` if Firebase is unavailable / the write failed.
+  /// Callers should `await` this from a `try/catch` and treat any
+  /// exception as a soft warning.
+  Future<String?> write({
+    required String type,
+    String? actorUid,
+    String? actorRole,
+    String? targetType,
+    String? targetId,
+    required String title,
+    String? subtitle,
+    Map<String, dynamic>? metadata,
+  }) async {
+    if (!_isAvailable) return null;
+    try {
+      final docRef = _firestore.collection(_collection).doc();
+      final entry = ActivityLogModel(
+        logId: docRef.id,
+        type: type,
+        actorUid: actorUid,
+        actorRole: actorRole,
+        targetType: targetType,
+        targetId: targetId,
+        title: title,
+        subtitle: subtitle,
+        metadata: metadata,
+        createdAt: DateTime.now(),
+      );
+      // Server-timestamp the createdAt so reads sort correctly even
+      // when the client clock is off.
+      await docRef.set({
+        ...entry.toJson(),
+        'createdAt': FieldValue.serverTimestamp(),
+      });
+      return docRef.id;
+    } catch (e) {
+      AppLogger.warning('ActivityLog write failed: $e');
+      return null;
+    }
+  }
+
+  /// Most-recent N log entries, newest first. Drives the dashboard
+  /// "Recent Activity" strip and the Logs screen.
+  Stream<List<ActivityLogModel>> streamRecent({int limit = 25}) {
+    if (!_isAvailable) return Stream.value(<ActivityLogModel>[]);
+    try {
+      return _firestore
+          .collection(_collection)
+          .orderBy('createdAt', descending: true)
+          .limit(limit)
+          .snapshots()
+          .map((snap) => snap.docs
+              .map((d) {
+                // Coerce server-timestamp back to DateTime on read.
+                final data = d.data();
+                final ts = data['createdAt'];
+                if (ts is Timestamp) {
+                  data['createdAt'] = ts.toDate().toIso8601String();
+                }
+                return ActivityLogModel.fromJson(data);
+              })
+              .toList(growable: false));
+    } catch (e) {
+      AppLogger.error('Error streaming recent activity: $e');
+      return Stream.value(<ActivityLogModel>[]);
+    }
+  }
+
+  /// Stream entries filtered by [type]. The dashboard's filter
+  /// chips use this.
+  Stream<List<ActivityLogModel>> streamByType(String type) {
+    if (!_isAvailable) return Stream.value(<ActivityLogModel>[]);
+    try {
+      return _firestore
+          .collection(_collection)
+          .where('type', isEqualTo: type)
+          .orderBy('createdAt', descending: true)
+          .snapshots()
+          .map((snap) => snap.docs
+              .map((d) {
+                final data = d.data();
+                final ts = data['createdAt'];
+                if (ts is Timestamp) {
+                  data['createdAt'] = ts.toDate().toIso8601String();
+                }
+                return ActivityLogModel.fromJson(data);
+              })
+              .toList(growable: false));
+    } catch (e) {
+      AppLogger.error('Error streaming activity by type $type: $e');
+      return Stream.value(<ActivityLogModel>[]);
+    }
+  }
+
+  /// Stream entries produced by a single actor (uid).
+  Stream<List<ActivityLogModel>> streamByActor(String actorUid) {
+    if (!_isAvailable) return Stream.value(<ActivityLogModel>[]);
+    try {
+      return _firestore
+          .collection(_collection)
+          .where('actorUid', isEqualTo: actorUid)
+          .orderBy('createdAt', descending: true)
+          .snapshots()
+          .map((snap) => snap.docs
+              .map((d) {
+                final data = d.data();
+                final ts = data['createdAt'];
+                if (ts is Timestamp) {
+                  data['createdAt'] = ts.toDate().toIso8601String();
+                }
+                return ActivityLogModel.fromJson(data);
+              })
+              .toList(growable: false));
+    } catch (e) {
+      AppLogger.error('Error streaming activity by actor: $e');
+      return Stream.value(<ActivityLogModel>[]);
+    }
+  }
+}

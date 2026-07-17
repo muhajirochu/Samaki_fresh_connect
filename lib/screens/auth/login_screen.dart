@@ -11,6 +11,7 @@ import '../../utils/error_handler.dart';
 import '../../providers/auth_provider.dart';
 import '../../models/enums/user_role.dart';
 import '../../models/user_model.dart';
+import '../../providers/admin_provider.dart';
 import '../../utils/logger.dart';
 import '../../widgets/common/app_logo.dart';
 import '../../widgets/common/premium_components.dart';
@@ -322,6 +323,17 @@ class _SignInTab extends HookConsumerWidget {
         if (user != null && context.mounted) {
           final userData = await userService.fetchUserById(user.uid);
           if (userData != null && context.mounted) {
+            // Best-effort activity log — never blocks the sign-in.
+            try {
+              final log = ref.read(adminActivityLogServiceProvider);
+              await log.write(
+                type: 'login',
+                actorUid: userData.userId,
+                actorRole: userData.role.name,
+                title: 'User signed in',
+                subtitle: userData.email,
+              );
+            } catch (_) {/* swallow — audit-only */}
             context.go(_routeForRole(userData.role));
           } else if (context.mounted) {
             _showSnack(context, 'Failed to fetch user data. Try again.',

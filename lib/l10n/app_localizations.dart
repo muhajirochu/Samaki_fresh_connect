@@ -2102,6 +2102,396 @@ abstract class AppLocalizations {
   /// **'Your selection is applied instantly across every screen and saved for next time.'**
   String get appearanceLiveHint;
 
+  /// No description provided for @adminDashboardSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Platform overview and management'**
+  String get adminDashboardSubtitle;
+
+  /// No description provided for @totalSellers.
+  ///
+  /// In en, this message translates to:
+  /// **'Total street sellers'**
+  String get totalSellers;
+
+  /// No description provided for @totalBuyers.
+  ///
+  /// In en, this message translates to:
+  /// **'Total buyers'**
+  String get totalBuyers;
+
+  /// No description provided for @pendingOrders.
+  ///
+  /// In en, this message translates to:
+  /// **'Pending orders'**
+  String get pendingOrders;
+
+  /// No description provided for @completedOrders.
+  ///
+  /// In en, this message translates to:
+  /// **'Completed orders'**
+  String get completedOrders;
+
+  /// No description provided for @cancelledOrders.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancelled orders'**
+  String get cancelledOrders;
+
+  /// No description provided for @recentActivity.
+  ///
+  /// In en, this message translates to:
+  /// **'Recent activity'**
+  String get recentActivity;
+
+  /// No description provided for @manageBuyers.
+  ///
+  /// In en, this message translates to:
+  /// **'Manage Buyers'**
+  String get manageBuyers;
+
+  /// No description provided for @manageBuyersSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Suspend or reactivate buyer accounts'**
+  String get manageBuyersSubtitle;
+
+  /// No description provided for @approveSeller.
+  ///
+  /// In en, this message translates to:
+  /// **'Approve seller'**
+  String get approveSeller;
+
+  /// No description provided for @revokeApproval.
+  ///
+  /// In en, this message translates to:
+  /// **'Revoke approval'**
+  String get revokeApproval;
+
+  /// No description provided for @approvedBadge.
+  ///
+  /// In en, this message translates to:
+  /// **'Active'**
+  String get approvedBadge;
+
+  /// No description provided for @pendingApprovalBadge.
+  ///
+  /// In en, this message translates to:
+  /// **'Pending approval'**
+  String get pendingApprovalBadge;
+
+  /// No description provided for @suspendedBadge.
+  ///
+  /// In en, this message translates to:
+  /// **'Suspended'**
+  String get suspendedBadge;
+
+  /// No description provided for @suspendDialog.
+  ///
+  /// In en, this message translates to:
+  /// **'Suspend user'**
+  String get suspendDialog;
+
+  /// No description provided for @suspendReason.
+  ///
+  /// In en, this message translates to:
+  /// **'Reason'**
+  String get suspendReason;
+
+  /// No description provided for @reactivateUser.
+  ///
+  /// In en, this message translates to:
+  /// **'Reactivate'**
+  String get reactivateUser;
+
+  /// No description provided for @searchBy.
+  ///
+  /// In en, this message translates to:
+  /// **'Search by name, email or phone'**
+  String get searchBy;
+
+  /// No description provided for @searchSellers.
+  ///
+  /// In en, this message translates to:
+  /// **'Search sellers'**
+  String get searchSellers;
+
+  /// No description provided for @searchBuyers.
+  ///
+  /// In en, this message translates to:
+  /// **'Search buyers'**
+  String get searchBuyers;
+
+  /// No description provided for @searchOrders.
+  ///
+  /// In en, this message translates to:
+  /// **'Search orders'**
+  String get searchOrders;
+
+  /// No description provided for @manageCategories.
+  ///
+  /// In en, this message translates to:
+  /// **'Fish Categories'**
+  String get manageCategories;
+
+  /// No description provided for @manageCategoriesSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Add, edit or remove fish types'**
+  String get manageCategoriesSubtitle;
+
+  /// No description provided for @newCategory.
+  ///
+  /// In en, this message translates to:
+  /// **'New category'**
+  String get newCategory;
+
+  /// No description provided for @categoryName.
+  ///
+  /// In en, this message translates to:
+  /// **'Display name'**
+  String get categoryName;
+
+  /// No description provided for @categorySlug.
+  ///
+  /// In en, this message translates to:
+  /// **'Slug'**
+  String get categorySlug;
+
+  /// No description provided for @categoryActive.
+  ///
+  /// In en, this message translates to:
+  /// **'Active'**
+  String get categoryActive;
+
+  /// No description provided for @categoryInactive.
+  ///
+  /// In en, this message translates to:
+  /// **'Inactive'**
+  String get categoryInactive;
+
+  /// No description provided for @seedDefaults.
+  ///
+  /// In en, this message translates to:
+  /// **'Seed defaults'**
+  String get seedDefaults;
+
+  /// No description provided for @seedDefaultsHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Populate the seven default fish types'**
+  String get seedDefaultsHint;
+
+  /// No description provided for @reportsTab.
+  ///
+  /// In en, this message translates to:
+  /// **'Reports'**
+  String get reportsTab;
+
+  /// No description provided for @reportsSales.
+  ///
+  /// In en, this message translates to:
+  /// **'Sales report'**
+  String get reportsSales;
+
+  /// No description provided for @reportsOrders.
+  ///
+  /// In en, this message translates to:
+  /// **'Orders report'**
+  String get reportsOrders;
+
+  /// No description provided for @reportsSellers.
+  ///
+  /// In en, this message translates to:
+  /// **'Street sellers report'**
+  String get reportsSellers;
+
+  /// No description provided for @reportsBuyers.
+  ///
+  /// In en, this message translates to:
+  /// **'Buyers report'**
+  String get reportsBuyers;
+
+  /// No description provided for @reportsRevenue.
+  ///
+  /// In en, this message translates to:
+  /// **'Revenue summary'**
+  String get reportsRevenue;
+
+  /// No description provided for @thisWeek.
+  ///
+  /// In en, this message translates to:
+  /// **'This week'**
+  String get thisWeek;
+
+  /// No description provided for @thisMonth.
+  ///
+  /// In en, this message translates to:
+  /// **'This month'**
+  String get thisMonth;
+
+  /// No description provided for @topSellers.
+  ///
+  /// In en, this message translates to:
+  /// **'Top sellers'**
+  String get topSellers;
+
+  /// No description provided for @topBuyers.
+  ///
+  /// In en, this message translates to:
+  /// **'Top buyers'**
+  String get topBuyers;
+
+  /// No description provided for @logsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Activity Logs'**
+  String get logsTitle;
+
+  /// No description provided for @logsSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Login history, registrations and admin actions'**
+  String get logsSubtitle;
+
+  /// No description provided for @loginEvents.
+  ///
+  /// In en, this message translates to:
+  /// **'Logins'**
+  String get loginEvents;
+
+  /// No description provided for @registrationEvents.
+  ///
+  /// In en, this message translates to:
+  /// **'Registrations'**
+  String get registrationEvents;
+
+  /// No description provided for @adminActions.
+  ///
+  /// In en, this message translates to:
+  /// **'Admin actions'**
+  String get adminActions;
+
+  /// No description provided for @disputeEvents.
+  ///
+  /// In en, this message translates to:
+  /// **'Disputes'**
+  String get disputeEvents;
+
+  /// No description provided for @listingEvents.
+  ///
+  /// In en, this message translates to:
+  /// **'Listings'**
+  String get listingEvents;
+
+  /// No description provided for @noLogsYet.
+  ///
+  /// In en, this message translates to:
+  /// **'No activity recorded yet'**
+  String get noLogsYet;
+
+  /// No description provided for @adminSettingsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Admin Settings'**
+  String get adminSettingsTitle;
+
+  /// No description provided for @platformMaintenance.
+  ///
+  /// In en, this message translates to:
+  /// **'Maintenance mode'**
+  String get platformMaintenance;
+
+  /// No description provided for @platformMaintenanceSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Disable buyer + seller sign-ins temporarily'**
+  String get platformMaintenanceSubtitle;
+
+  /// No description provided for @refreshData.
+  ///
+  /// In en, this message translates to:
+  /// **'Refresh live data'**
+  String get refreshData;
+
+  /// No description provided for @refreshDataSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Invalidate every admin cache and re-fetch'**
+  String get refreshDataSubtitle;
+
+  /// No description provided for @dangerZone.
+  ///
+  /// In en, this message translates to:
+  /// **'Danger zone'**
+  String get dangerZone;
+
+  /// No description provided for @disputeResolution.
+  ///
+  /// In en, this message translates to:
+  /// **'Dispute resolution'**
+  String get disputeResolution;
+
+  /// No description provided for @disputeNote.
+  ///
+  /// In en, this message translates to:
+  /// **'Admin note'**
+  String get disputeNote;
+
+  /// No description provided for @disputeNoteHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Briefly describe the resolution'**
+  String get disputeNoteHint;
+
+  /// No description provided for @adminActionsSection.
+  ///
+  /// In en, this message translates to:
+  /// **'Admin actions'**
+  String get adminActionsSection;
+
+  /// No description provided for @adminOnlySection.
+  ///
+  /// In en, this message translates to:
+  /// **'Admin tools'**
+  String get adminOnlySection;
+
+  /// No description provided for @viewOrderDetail.
+  ///
+  /// In en, this message translates to:
+  /// **'View order'**
+  String get viewOrderDetail;
+
+  /// No description provided for @statusAll.
+  ///
+  /// In en, this message translates to:
+  /// **'All'**
+  String get statusAll;
+
+  /// No description provided for @statusPending.
+  ///
+  /// In en, this message translates to:
+  /// **'Pending'**
+  String get statusPending;
+
+  /// No description provided for @statusCompleted.
+  ///
+  /// In en, this message translates to:
+  /// **'Completed'**
+  String get statusCompleted;
+
+  /// No description provided for @statusCancelled.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancelled'**
+  String get statusCancelled;
+
+  /// No description provided for @suspendUserAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Suspend user'**
+  String get suspendUserAction;
+
   /// No description provided for @transactionsTitle.
   ///
   /// In en, this message translates to:

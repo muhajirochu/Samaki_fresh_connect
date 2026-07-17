@@ -247,6 +247,46 @@ class FishListingService {
     }
   }
 
+  /// Live count of every listing in the system (regardless of
+  /// status). Drives the admin dashboard's Total Listings tile.
+  Stream<int> streamTotalListingsCount() {
+    if (!_isAvailable) return Stream.value(0);
+    try {
+      return _firestore
+          .collection(_collection)
+          .snapshots()
+          .map((snap) => snap.docs.length);
+    } catch (e) {
+      AppLogger.error('Error streaming total listings count: $e');
+      return Stream.value(0);
+    }
+  }
+
+  /// Stream every listing matching a specific fish type / category
+  /// slug. Used by the admin category moderation view.
+  Stream<List<FishListingModel>> streamListingsByCategorySlug(String slug) {
+    if (!_isAvailable) return Stream.value(<FishListingModel>[]);
+    try {
+      return _firestore
+          .collection(_collection)
+          .where('fishType', isEqualTo: slug)
+          .orderBy('createdAt', descending: true)
+          .snapshots()
+          .map((snap) => snap.docs
+              .map((d) {
+                final raw = d.data();
+                if ((raw['listingId'] as String?)?.isEmpty ?? true) {
+                  raw['listingId'] = d.id;
+                }
+                return FishListingModel.fromJson(raw);
+              })
+              .toList(growable: false));
+    } catch (e) {
+      AppLogger.error('Error streaming listings by category $slug: $e');
+      return Stream.value(<FishListingModel>[]);
+    }
+  }
+
 
 
   /// Fetch a single listing by ID

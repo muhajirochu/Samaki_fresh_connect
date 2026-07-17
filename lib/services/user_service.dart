@@ -231,4 +231,205 @@ class UserService {
       rethrow;
     }
   }
+
+  /// Stream every buyer in the system — used by the admin Manage
+  /// Buyers screen. Pre-filters on `role == buyer` so the screen
+  /// doesn't have to filter client-side.
+  Stream<List<UserModel>> streamAllBuyers() {
+    if (!_isFirebaseAvailable) return Stream.value(<UserModel>[]);
+    try {
+      return _firestore
+          .collection('users')
+          .where('role', isEqualTo: 'buyer')
+          .orderBy('createdAt', descending: true)
+          .snapshots()
+          .map((snap) => snap.docs
+              .map((d) => UserModel.fromJson(d.data()))
+              .toList(growable: false));
+    } catch (e) {
+      AppLogger.error('Error streaming buyers: $e');
+      return Stream.value(<UserModel>[]);
+    }
+  }
+
+  /// Stream every seller, including pending approval and rejected
+  /// applicants. Used by the Manage Street Sellers screen to give
+  /// the admin a complete pipeline view (awaiting approval,
+  /// approved, suspended, rejected).
+  Stream<List<UserModel>> streamAllSellersFull() {
+    if (!_isFirebaseAvailable) return Stream.value(<UserModel>[]);
+    try {
+      return _firestore
+          .collection('users')
+          .where('role', isEqualTo: 'streetSeller')
+          .orderBy('createdAt', descending: true)
+          .snapshots()
+          .map((snap) => snap.docs
+              .map((d) => UserModel.fromJson(d.data()))
+              .toList(growable: false));
+    } catch (e) {
+      AppLogger.error('Error streaming sellers full: $e');
+      return Stream.value(<UserModel>[]);
+    }
+  }
+
+  /// Approve a street-seller account. Sets `isApproved = true` and
+  /// stamps the auditor fields so the moderation timeline stays
+  /// intact.
+  Future<void> approveSeller(String sellerId, String approverUid) async {
+    if (!_isFirebaseAvailable) return;
+    try {
+      await _firestore.collection('users').doc(sellerId).update({
+        'isApproved': true,
+        'approvedBy': approverUid,
+        'approvedAt': FieldValue.serverTimestamp(),
+        'updatedAt': FieldValue.serverTimestamp(),
+      });
+      AppLogger.info('Seller $sellerId approved by $approverUid');
+    } catch (e) {
+      AppLogger.error('Error approving seller $sellerId: $e');
+      rethrow;
+    }
+  }
+
+  /// Revoke a previously-approved seller account. Sets
+  /// `isApproved = false` so the seller can no longer post listings
+  /// but keeps their data so the action is reversible.
+  Future<void> revokeSellerApproval(String sellerId, String revokerUid) async {
+    if (!_isFirebaseAvailable) return;
+    try {
+      await _firestore.collection('users').doc(sellerId).update({
+        'isApproved': false,
+        'approvedBy': revokerUid,
+        'updatedAt': FieldValue.serverTimestamp(),
+      });
+      AppLogger.info('Seller $sellerId approval revoked by $revokerUid');
+    } catch (e) {
+      AppLogger.error('Error revoking seller $sellerId: $e');
+      rethrow;
+    }
+  }
+
+  /// Suspend a user (buyer or seller). Sets `isActive = false` so
+  /// the user cannot sign in or interact with the marketplace.
+  /// Reversible via [reactivateUser].
+  Future<void> suspendUser(String userId, String actorUid) async {
+    await setUserActive(userId, false);
+    AppLogger.info('User $userId suspended by $actorUid');
+  }
+
+  /// Reactivate a previously-suspended user. Sets `isActive = true`.
+  Future<void> reactivateUser(String userId, String actorUid) async {
+    await setUserActive(userId, true);
+    AppLogger.info('User $userId reactivated by $actorUid');
+  }
+
+  /// Live count of users that have [role]. Used by the admin
+  /// dashboard's Total Sellers / Total Buyers tiles.
+  Stream<int> streamUserCountByRole(String role) {
+    if (!_isFirebaseAvailable) return Stream.value(0);
+    try {
+      return _firestore
+          .collection('users')
+          .where('role', isEqualTo: role)
+          .snapshots()
+          .map((snap) => snap.docs.length);
+    } catch (e) {
+      AppLogger.error('Error streaming count for role $role: $e');
+      return Stream.value(0);
+    }
+  }
+
+  /// Stream of street-sellers filtered by approval flag. Used by
+  /// the Manage Street Sellers "Awaiting approval / Approved /
+  /// Rejected" segmented filter.
+  Stream<List<UserModel>> streamSellersByApproval(bool isApproved) {
+    if (!_isFirebaseAvailable) return Stream.value(<UserModel>[]);
+    try {
+      return _firestore
+          .collection('users')
+          .where('role', isEqualTo: 'streetSeller')
+          .where('isApproved', isEqualTo: isApproved)
+          .orderBy('createdAt', descending: true)
+          .snapshots()
+          .map((snap) => snap.docs
+              .map((d) => UserModel.fromJson(d.data()))
+              .toList(growable: false));
+    } catch (e) {
+      AppLogger.error(
+        'Error streaming sellers by approval $isApproved: $e',
+      );
+      return Stream.value(<UserModel>[]);
+    }
+  }
+
+  /// One-shot client-side search across all sellers. Cheap enough
+  /// for admin use because `streamAllSellersFull` already caps
+  /// the underlying read.
+  Future<List<UserModel>> searchSellers(String rawQuery) async {
+    final q = rawQuery.trim().toLowerCase();
+    if (q.isEmpty) return <UserModel>[];
+    if (!_isFirebaseAvailable) return <UserModel>[];
+    try {
+      final snap = await _firestore
+          .collection('users')
+          .where('role', isEqualTo: 'streetSeller')
+          .orderBy('createdAt', descending: true)
+          .limit(500)
+          .get();
+      return snap.docs
+          .map((d) => UserModel.fromJson(d.data()))
+          .where((u) =>
+              u.fullName.toLowerCase().contains(q) ||
+              u.email.toLowerCase().contains(q) ||
+              u.phoneNumber.toLowerCase().contains(q))
+          .toList(growable: false);
+    } catch (e) {
+      AppLogger.error('Error searching sellers: $e');
+      return <UserModel>[];
+    }
+  }
+
+  /// Same as [searchSellers] but against the buyers collection.
+  Future<List<UserModel>> searchBuyers(String rawQuery) async {
+    final q = rawQuery.trim().toLowerCase();
+    if (q.isEmpty) return <UserModel>[];
+    if (!_isFirebaseAvailable) return <UserModel>[];
+    try {
+      final snap = await _firestore
+          .collection('users')
+          .where('role', isEqualTo: 'buyer')
+          .orderBy('createdAt', descending: true)
+          .limit(500)
+          .get();
+      return snap.docs
+          .map((d) => UserModel.fromJson(d.data()))
+          .where((u) =>
+              u.fullName.toLowerCase().contains(q) ||
+              u.email.toLowerCase().contains(q) ||
+              u.phoneNumber.toLowerCase().contains(q))
+          .toList(growable: false);
+    } catch (e) {
+      AppLogger.error('Error searching buyers: $e');
+      return <UserModel>[];
+    }
+  }
+
+  /// Stream every listing owned by [sellerId]. Used by the admin
+  /// Seller Profile screen to show their catalogue without
+  /// re-instantiating the buyer-facing list.
+  Stream<List<Map<String, dynamic>>> streamSellerListingsRaw(String sellerId) {
+    if (!_isFirebaseAvailable) return Stream.value(<Map<String, dynamic>>[]);
+    try {
+      return _firestore
+          .collection('fishListings')
+          .where('sellerId', isEqualTo: sellerId)
+          .snapshots()
+          .map((snap) =>
+              snap.docs.map((d) => d.data()).toList(growable: false));
+    } catch (e) {
+      AppLogger.error('Error streaming seller listings: $e');
+      return Stream.value(<Map<String, dynamic>>[]);
+    }
+  }
 }

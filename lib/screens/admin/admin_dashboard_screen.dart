@@ -1,6 +1,23 @@
+// Admin — Dashboard (v2 — 11 stats + recent activity).
+//
+// Layout (top → bottom):
+//   1. Brand-gradient greeting header (admin-aware)
+//   2. 4 stat cards: Total Sellers / Total Buyers / Total Listings
+//      / Active Listings
+//   3. 4 stat cards: Total Orders / Pending / Completed / Cancelled
+//   4. 3 revenue / sales cards: Platform Revenue / Today's Orders
+//      / This Week
+//   5. Recent activity strip (5 most-recent audit log entries)
+//   6. 6 quick-action tiles (User Mgmt, Categories, Orders,
+//      Reports, Logs, Settings)
+//
+// Reads from Riverpod providers so every tile updates live as
+// Firestore data changes.
+
 import 'package:flutter/material.dart';
-import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:hooks_riverpod/hooks_riverpod.dart';
+
 import '../../config/theme_extensions.dart';
 import '../../constants/app_colors.dart';
 import '../../constants/app_sizes.dart';
@@ -8,6 +25,7 @@ import '../../l10n/app_localizations.dart';
 import '../../providers/admin_provider.dart';
 import '../../providers/auth_provider.dart';
 import '../../widgets/common/common_widgets.dart';
+import '../../widgets/common/premium_components.dart';
 import '../../widgets/common/top_app_bar.dart';
 
 class AdminDashboardScreen extends ConsumerWidget {
@@ -15,13 +33,11 @@ class AdminDashboardScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final userAsync = ref.watch(currentUserStreamProvider);
     final l10n = AppLocalizations.of(context);
+    final userAsync = ref.watch(currentUserStreamProvider);
 
     return Scaffold(
       backgroundColor: Theme.of(context).scaffoldBackgroundColor,
-      // Shared TopAppBar gives admin the same profile, notifications
-      // and theme toggle affordances as buyer + street seller.
       appBar: const TopAppBar(),
       body: userAsync.when(
         loading: () => const LoadingIndicator(),
@@ -32,75 +48,182 @@ class AdminDashboardScreen extends ConsumerWidget {
           }
           return CustomScrollView(
             slivers: [
-              // ── Brand gradient greeting header ─────────────────────
               SliverToBoxAdapter(
                 child: _AdminGreetingHeader(
                   greeting: l10n.hello(
                       user.fullName.split(' ').first),
-                  subtitle: l10n.platformOverview,
+                  subtitle: l10n.adminDashboardSubtitle,
                 ),
               ),
-
-              // ── Stats Grid ─────────────────────────────────────────
+              // Row 1 — People & Listings
               SliverPadding(
-                padding: const EdgeInsets.all(AppSizes.paddingLG),
+                padding: const EdgeInsets.fromLTRB(
+                  AppSizes.paddingLG,
+                  AppSizes.paddingMD,
+                  AppSizes.paddingLG,
+                  0,
+                ),
                 sliver: SliverGrid.count(
                   crossAxisCount: 2,
                   mainAxisSpacing: AppSizes.paddingMD,
                   crossAxisSpacing: AppSizes.paddingMD,
-                  childAspectRatio: 1.15,
+                  childAspectRatio: 1.25,
                   children: [
-                    _TotalUsersCard(),
+                    _TotalSellersCard(),
+                    _TotalBuyersCard(),
+                    _TotalListingsCard(),
                     _ActiveListingsCard(),
-                    _OrdersTodayCard(),
-                    _PlatformRevenueCard(),
                   ],
                 ),
               ),
-
-              // ── Quick Actions ────────────────────────────────────────
+              // Row 2 — Orders
+              SliverPadding(
+                padding: const EdgeInsets.fromLTRB(
+                  AppSizes.paddingLG,
+                  AppSizes.paddingMD,
+                  AppSizes.paddingLG,
+                  0,
+                ),
+                sliver: SliverGrid.count(
+                  crossAxisCount: 2,
+                  mainAxisSpacing: AppSizes.paddingMD,
+                  crossAxisSpacing: AppSizes.paddingMD,
+                  childAspectRatio: 1.25,
+                  children: [
+                    _TotalOrdersCard(),
+                    _PendingOrdersCard(),
+                    _CompletedOrdersCard(),
+                    _CancelledOrdersCard(),
+                  ],
+                ),
+              ),
+              // Row 3 — Sales
+              SliverPadding(
+                padding: const EdgeInsets.fromLTRB(
+                  AppSizes.paddingLG,
+                  AppSizes.paddingMD,
+                  AppSizes.paddingLG,
+                  0,
+                ),
+                sliver: SliverGrid.count(
+                  crossAxisCount: 3,
+                  mainAxisSpacing: AppSizes.paddingMD,
+                  crossAxisSpacing: AppSizes.paddingMD,
+                  childAspectRatio: 1.25,
+                  children: [
+                    _DailySalesCard(),
+                    _WeeklySalesCard(),
+                    _MonthlySalesCard(),
+                  ],
+                ),
+              ),
+              // Recent activity
               SliverToBoxAdapter(
                 child: Padding(
-                  padding: const EdgeInsets.symmetric(
-                      horizontal: AppSizes.paddingLG),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [
-                      const SizedBox(height: AppSizes.paddingMD),
-                      Text(
-                        l10n.management,
-                        style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                              fontWeight: FontWeight.w700,
-                              letterSpacing: -0.3,
-                            ),
-                      ),
-                      const SizedBox(height: AppSizes.paddingLG),
-                      _ActionTile(
-                        icon: Icons.people_outline_rounded,
-                        title: l10n.manageStreetSellers,
-                        subtitle: l10n.manageStreetSellersSubtitle,
-                        onTap: () => context.push('/admin/sellers'),
-                        color: AppColors.primaryBlue,
-                      ),
-                      const SizedBox(height: AppSizes.paddingMD),
-                      _ActionTile(
-                        icon: Icons.list_alt_rounded,
-                        title: l10n.allListings,
-                        subtitle: l10n.allListingsSubtitle,
-                        onTap: () => context.push('/admin/listings'),
-                        color: AppColors.secondaryTeal,
-                      ),
-                      const SizedBox(height: AppSizes.paddingMD),
-                      _ActionTile(
-                        icon: Icons.payments_outlined,
-                        title: l10n.transactionsTitle,
-                        subtitle: l10n.transactionsScreenSubtitle,
-                        onTap: () => context.push('/admin/transactions'),
-                        color: AppColors.successGreen,
-                      ),
-                      const SizedBox(height: AppSizes.paddingXXL),
-                    ],
+                  padding: const EdgeInsets.fromLTRB(
+                    AppSizes.paddingLG,
+                    AppSizes.paddingXL,
+                    AppSizes.paddingLG,
+                    AppSizes.paddingSM,
                   ),
+                  child: SectionHeader(
+                    title: l10n.recentActivity,
+                    leadingIcon: Icons.history_rounded,
+                  ),
+                ),
+              ),
+              SliverToBoxAdapter(
+                child: Padding(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: AppSizes.paddingLG),
+                  child: _RecentActivityStrip(),
+                ),
+              ),
+              // Quick actions
+              SliverToBoxAdapter(
+                child: Padding(
+                  padding: const EdgeInsets.fromLTRB(
+                    AppSizes.paddingLG,
+                    AppSizes.paddingXL,
+                    AppSizes.paddingLG,
+                    AppSizes.paddingSM,
+                  ),
+                  child: SectionHeader(
+                    title: l10n.management,
+                    leadingIcon: Icons.build_rounded,
+                  ),
+                ),
+              ),
+              SliverPadding(
+                padding: const EdgeInsets.symmetric(
+                    horizontal: AppSizes.paddingLG),
+                sliver: SliverList(
+                  delegate: SliverChildListDelegate([
+                    _ActionTile(
+                      icon: Icons.people_outline_rounded,
+                      title: l10n.manageStreetSellers,
+                      subtitle: l10n.manageStreetSellersSubtitle,
+                      onTap: () => context.push('/admin/sellers'),
+                      color: AppColors.primaryBlue,
+                    ),
+                    const SizedBox(height: AppSizes.paddingMD),
+                    _ActionTile(
+                      icon: Icons.shopping_cart_rounded,
+                      title: l10n.manageBuyers,
+                      subtitle: l10n.manageBuyersSubtitle,
+                      onTap: () => context.push('/admin/buyers'),
+                      color: AppColors.accentGreen,
+                    ),
+                    const SizedBox(height: AppSizes.paddingMD),
+                    _ActionTile(
+                      icon: Icons.category_rounded,
+                      title: l10n.manageCategories,
+                      subtitle: l10n.manageCategoriesSubtitle,
+                      onTap: () => context.push('/admin/categories'),
+                      color: AppColors.infoBlue,
+                    ),
+                    const SizedBox(height: AppSizes.paddingMD),
+                    _ActionTile(
+                      icon: Icons.list_alt_rounded,
+                      title: l10n.allListings,
+                      subtitle: l10n.adminAllListingsSubtitle,
+                      onTap: () => context.push('/admin/listings'),
+                      color: AppColors.secondaryTeal,
+                    ),
+                    const SizedBox(height: AppSizes.paddingMD),
+                    _ActionTile(
+                      icon: Icons.receipt_long_rounded,
+                      title: l10n.transactionsTitle,
+                      subtitle: l10n.transactionsScreenSubtitle,
+                      onTap: () => context.push('/admin/transactions'),
+                      color: AppColors.successGreen,
+                    ),
+                    const SizedBox(height: AppSizes.paddingMD),
+                    _ActionTile(
+                      icon: Icons.bar_chart_rounded,
+                      title: l10n.reportsTab,
+                      subtitle: l10n.reportsSales,
+                      onTap: () => context.push('/admin/reports'),
+                      color: AppColors.primaryBlue,
+                    ),
+                    const SizedBox(height: AppSizes.paddingMD),
+                    _ActionTile(
+                      icon: Icons.history_rounded,
+                      title: l10n.logsTitle,
+                      subtitle: l10n.logsSubtitle,
+                      onTap: () => context.push('/admin/logs'),
+                      color: AppColors.accentOrange,
+                    ),
+                    const SizedBox(height: AppSizes.paddingMD),
+                    _ActionTile(
+                      icon: Icons.settings_rounded,
+                      title: l10n.adminSettingsTitle,
+                      subtitle: l10n.adminOnlySection,
+                      onTap: () => context.push('/admin/settings'),
+                      color: AppColors.infoBlue,
+                    ),
+                    const SizedBox(height: AppSizes.paddingXXL),
+                  ]),
                 ),
               ),
             ],
@@ -111,99 +234,13 @@ class AdminDashboardScreen extends ConsumerWidget {
   }
 }
 
-// ── Live stat cards ─────────────────────────────────────────────────────
-//
-// Each card reads from a dedicated Riverpod stream so the value
-// updates in real time as data lands in Firestore.
+// ── Greeting header ───────────────────────────────────────────────
 
-class _TotalUsersCard extends ConsumerWidget {
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final l10n = AppLocalizations.of(context);
-    final countsAsync = ref.watch(adminUserCountsProvider);
-    final total = countsAsync.maybeWhen(
-      data: (counts) {
-        final b = counts['buyer'] ?? 0;
-        final s = counts['streetSeller'] ?? 0;
-        final a = counts['admin'] ?? 0;
-        return b + s + a;
-      },
-      orElse: () => 0,
-    );
-    return _StatCard(
-      title: l10n.totalUsers,
-      value: total.toString(),
-      icon: Icons.people_alt_rounded,
-      color: AppColors.primaryBlue,
-    );
-  }
-}
-
-class _ActiveListingsCard extends ConsumerWidget {
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final l10n = AppLocalizations.of(context);
-    final countAsync = ref.watch(adminActiveListingsCountProvider);
-    final count = countAsync.valueOrNull ?? 0;
-    return _StatCard(
-      title: l10n.activeListings,
-      value: count.toString(),
-      icon: Icons.storefront_rounded,
-      color: AppColors.secondaryTeal,
-    );
-  }
-}
-
-class _OrdersTodayCard extends ConsumerWidget {
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final l10n = AppLocalizations.of(context);
-    final countAsync = ref.watch(adminTodaysOrdersProvider);
-    final count = countAsync.valueOrNull?.length ?? 0;
-    return _StatCard(
-      title: l10n.ordersToday,
-      value: count.toString(),
-      icon: Icons.receipt_long_rounded,
-      color: AppColors.infoBlue,
-    );
-  }
-}
-
-class _PlatformRevenueCard extends ConsumerWidget {
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final l10n = AppLocalizations.of(context);
-    final revenueAsync = ref.watch(adminPlatformRevenueProvider);
-    final revenue = revenueAsync.valueOrNull ?? 0.0;
-    return _StatCard(
-      title: l10n.platformRevenue,
-      value: _formatRevenue(revenue),
-      icon: Icons.account_balance_rounded,
-      color: AppColors.successGreen,
-    );
-  }
-
-  String _formatRevenue(double amount) {
-    if (amount == 0) return 'TZS 0';
-    if (amount >= 1000) {
-      final k = amount / 1000;
-      return 'TZS ${k.toStringAsFixed(k >= 100 ? 0 : 1)}K';
-    }
-    return 'TZS ${amount.toStringAsFixed(0)}';
-  }
-}
-
-/// Brand gradient greeting header for the admin dashboard — same
-/// visual language as buyer + street seller greeting headers so all
-/// three dashboards read as one product family.
 class _AdminGreetingHeader extends StatelessWidget {
   final String greeting;
   final String subtitle;
-
-  const _AdminGreetingHeader({
-    required this.greeting,
-    required this.subtitle,
-  });
+  const _AdminGreetingHeader(
+      {required this.greeting, required this.subtitle});
 
   @override
   Widget build(BuildContext context) {
@@ -225,7 +262,6 @@ class _AdminGreetingHeader extends StatelessWidget {
       ),
       child: Stack(
         children: [
-          // Decorative glow blob top-right
           Positioned(
             top: -40,
             right: -40,
@@ -237,24 +273,6 @@ class _AdminGreetingHeader extends StatelessWidget {
                 gradient: RadialGradient(
                   colors: [
                     Colors.white.withValues(alpha: 0.18),
-                    Colors.white.withValues(alpha: 0),
-                  ],
-                ),
-              ),
-            ),
-          ),
-          // Decorative glow blob bottom-left
-          Positioned(
-            bottom: -50,
-            left: -30,
-            child: Container(
-              width: 140,
-              height: 140,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                gradient: RadialGradient(
-                  colors: [
-                    Colors.white.withValues(alpha: 0.10),
                     Colors.white.withValues(alpha: 0),
                   ],
                 ),
@@ -306,6 +324,173 @@ class _AdminGreetingHeader extends StatelessWidget {
   }
 }
 
+// ── Stat cards (live) ────────────────────────────────────────────
+
+class _TotalSellersCard extends ConsumerWidget {
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = AppLocalizations.of(context);
+    final count = ref.watch(adminTotalSellersProvider).valueOrNull ?? 0;
+    return _StatCard(
+      title: l10n.totalSellers,
+      value: count.toString(),
+      icon: Icons.storefront_rounded,
+      color: AppColors.primaryBlue,
+    );
+  }
+}
+
+class _TotalBuyersCard extends ConsumerWidget {
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = AppLocalizations.of(context);
+    final count = ref.watch(adminTotalBuyersProvider).valueOrNull ?? 0;
+    return _StatCard(
+      title: l10n.totalBuyers,
+      value: count.toString(),
+      icon: Icons.shopping_bag_rounded,
+      color: AppColors.accentGreen,
+    );
+  }
+}
+
+class _TotalListingsCard extends ConsumerWidget {
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = AppLocalizations.of(context);
+    final count = ref.watch(adminTotalListingsProvider).valueOrNull ?? 0;
+    return _StatCard(
+      title: l10n.totalListings,
+      value: count.toString(),
+      icon: Icons.inventory_2_rounded,
+      color: AppColors.secondaryTeal,
+    );
+  }
+}
+
+class _ActiveListingsCard extends ConsumerWidget {
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = AppLocalizations.of(context);
+    final count = ref.watch(adminActiveListingsCountProvider).valueOrNull ?? 0;
+    return _StatCard(
+      title: l10n.activeListings,
+      value: count.toString(),
+      icon: Icons.check_circle_rounded,
+      color: AppColors.infoBlue,
+    );
+  }
+}
+
+class _TotalOrdersCard extends ConsumerWidget {
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = AppLocalizations.of(context);
+    final count = ref.watch(adminTotalOrdersProvider).valueOrNull ?? 0;
+    return _StatCard(
+      title: l10n.totalOrders,
+      value: count.toString(),
+      icon: Icons.receipt_long_rounded,
+      color: AppColors.primaryBlue,
+    );
+  }
+}
+
+class _PendingOrdersCard extends ConsumerWidget {
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = AppLocalizations.of(context);
+    final count = ref.watch(adminPendingOrdersProvider).valueOrNull ?? 0;
+    return _StatCard(
+      title: l10n.pendingOrders,
+      value: count.toString(),
+      icon: Icons.hourglass_top_rounded,
+      color: AppColors.accentOrange,
+    );
+  }
+}
+
+class _CompletedOrdersCard extends ConsumerWidget {
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = AppLocalizations.of(context);
+    final count = ref.watch(adminCompletedOrdersProvider).valueOrNull ?? 0;
+    return _StatCard(
+      title: l10n.completedOrders,
+      value: count.toString(),
+      icon: Icons.check_circle_rounded,
+      color: AppColors.accentGreen,
+    );
+  }
+}
+
+class _CancelledOrdersCard extends ConsumerWidget {
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = AppLocalizations.of(context);
+    final count = ref.watch(adminCancelledOrdersProvider).valueOrNull ?? 0;
+    return _StatCard(
+      title: l10n.cancelledOrders,
+      value: count.toString(),
+      icon: Icons.cancel_rounded,
+      color: AppColors.errorRed,
+    );
+  }
+}
+
+class _DailySalesCard extends ConsumerWidget {
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = AppLocalizations.of(context);
+    final orders = ref.watch(adminDailyOrdersProvider).valueOrNull ?? [];
+    final revenue = orders
+        .where((o) => o.orderStatus == 'delivered')
+        .fold<double>(0, (acc, o) => acc + (o.finalPrice * o.quantityKg));
+    return _StatCard(
+      title: 'Daily sales',
+      value: 'TZS ${(revenue / 1000).toStringAsFixed(0)}K',
+      icon: Icons.today_rounded,
+      color: AppColors.successGreen,
+    );
+  }
+}
+
+class _WeeklySalesCard extends ConsumerWidget {
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = AppLocalizations.of(context);
+    final orders = ref.watch(adminWeeklyOrdersProvider).valueOrNull ?? [];
+    final revenue = orders
+        .where((o) => o.orderStatus == 'delivered')
+        .fold<double>(0, (acc, o) => acc + (o.finalPrice * o.quantityKg));
+    return _StatCard(
+      title: l10n.thisWeek,
+      value: 'TZS ${(revenue / 1000).toStringAsFixed(0)}K',
+      icon: Icons.date_range_rounded,
+      color: AppColors.primaryBlue,
+    );
+  }
+}
+
+class _MonthlySalesCard extends ConsumerWidget {
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = AppLocalizations.of(context);
+    final orders = ref.watch(adminMonthlyOrdersProvider).valueOrNull ?? [];
+    final revenue = orders
+        .where((o) => o.orderStatus == 'delivered')
+        .fold<double>(0, (acc, o) => acc + (o.finalPrice * o.quantityKg));
+    return _StatCard(
+      title: l10n.thisMonth,
+      value: 'TZS ${(revenue / 1000).toStringAsFixed(0)}K',
+      icon: Icons.calendar_month_rounded,
+      color: AppColors.accentOrange,
+    );
+  }
+}
+
+// ── Stat card (shared) ────────────────────────────────────────────
+
 class _StatCard extends StatelessWidget {
   final String title;
   final String value;
@@ -323,17 +508,12 @@ class _StatCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
     final tt = Theme.of(context).textTheme;
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-    final background = isDark
-        ? cs.surfaceContainerHighest
-        : color.withValues(alpha: 0.10);
-
     return Container(
       padding: const EdgeInsets.all(AppSizes.paddingMD),
       decoration: BoxDecoration(
-        color: background,
+        color: cs.surface,
         borderRadius: BorderRadius.circular(AppSizes.radiusLG),
-        border: Border.all(color: color.withValues(alpha: 0.25), width: 0.8),
+        border: Border.all(color: color.withValues(alpha: 0.30)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -353,6 +533,8 @@ class _StatCard extends StatelessWidget {
               fontWeight: FontWeight.w800,
               color: cs.onSurface,
             ),
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
           ),
           const SizedBox(height: 2),
           Text(
@@ -361,12 +543,119 @@ class _StatCard extends StatelessWidget {
               color: cs.onSurface.withValues(alpha: 0.65),
               fontWeight: FontWeight.w500,
             ),
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
           ),
         ],
       ),
     );
   }
 }
+
+// ── Recent activity strip ─────────────────────────────────────────
+
+class _RecentActivityStrip extends ConsumerWidget {
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final cs = Theme.of(context).colorScheme;
+    final tt = Theme.of(context).textTheme;
+    final l10n = AppLocalizations.of(context);
+    final logsAsync = ref.watch(adminRecentActivityProvider);
+    return logsAsync.when(
+      loading: () => const Padding(
+        padding: EdgeInsets.all(AppSizes.paddingMD),
+        child: LinearProgressIndicator(),
+      ),
+      error: (e, _) => Text(l10n.loadingError(e.toString())),
+      data: (logs) {
+        final recent = logs.take(5).toList();
+        if (recent.isEmpty) {
+          return Container(
+            padding: const EdgeInsets.all(AppSizes.paddingLG),
+            decoration: BoxDecoration(
+              color: cs.surface,
+              borderRadius: BorderRadius.circular(AppSizes.radiusLG),
+              border: Border.all(color: cs.outline.withValues(alpha: 0.25)),
+            ),
+            child: Text(l10n.noLogsYet),
+          );
+        }
+        return Container(
+          decoration: BoxDecoration(
+            color: cs.surface,
+            borderRadius: BorderRadius.circular(AppSizes.radiusLG),
+            border: Border.all(color: cs.outline.withValues(alpha: 0.25)),
+          ),
+          child: Column(
+            children: List.generate(recent.length, (i) {
+              final log = recent[i];
+              return Column(
+                children: [
+                  ListTile(
+                    dense: true,
+                    leading: Icon(_iconForType(log.type),
+                        color: _colorForType(log.type)),
+                    title: Text(log.title,
+                        style: tt.bodyMedium
+                            ?.copyWith(fontWeight: FontWeight.w600)),
+                    subtitle: log.subtitle != null
+                        ? Text(log.subtitle!,
+                            style: tt.bodySmall?.copyWith(
+                              color:
+                                  cs.onSurface.withValues(alpha: 0.65),
+                            ),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis)
+                        : null,
+                  ),
+                  if (i != recent.length - 1)
+                    Divider(
+                      height: 1,
+                      color: cs.outline.withValues(alpha: 0.25),
+                    ),
+                ],
+              );
+            }),
+          ),
+        );
+      },
+    );
+  }
+
+  IconData _iconForType(String type) {
+    switch (type) {
+      case 'login':
+        return Icons.login_rounded;
+      case 'registration':
+        return Icons.person_add_rounded;
+      case 'adminAction':
+        return Icons.build_rounded;
+      case 'disputeResolution':
+        return Icons.gavel_rounded;
+      case 'listingModeration':
+        return Icons.inventory_rounded;
+      default:
+        return Icons.history_rounded;
+    }
+  }
+
+  Color _colorForType(String type) {
+    switch (type) {
+      case 'login':
+        return AppColors.primaryBlue;
+      case 'registration':
+        return AppColors.accentGreen;
+      case 'adminAction':
+        return AppColors.accentOrange;
+      case 'disputeResolution':
+        return AppColors.errorRed;
+      default:
+        return AppColors.primaryBlue;
+    }
+  }
+}
+
+// ── Quick action tile (shared with seller) ─────────────────────────
 
 class _ActionTile extends StatelessWidget {
   final IconData icon;
@@ -394,16 +683,7 @@ class _ActionTile extends StatelessWidget {
         decoration: BoxDecoration(
           color: cs.surface,
           borderRadius: BorderRadius.circular(AppSizes.radiusLG),
-          border: Border.all(
-            color: cs.outline.withValues(alpha: 0.25),
-          ),
-          boxShadow: [
-            BoxShadow(
-              color: cs.shadow.withValues(alpha: 0.06),
-              blurRadius: 10,
-              offset: const Offset(0, 3),
-            ),
-          ],
+          border: Border.all(color: cs.outline.withValues(alpha: 0.25)),
         ),
         child: Row(
           children: [

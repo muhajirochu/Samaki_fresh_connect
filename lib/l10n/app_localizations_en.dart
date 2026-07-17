@@ -1116,6 +1116,202 @@ class AppLocalizationsEn extends AppLocalizations {
       'Your selection is applied instantly across every screen and saved for next time.';
 
   @override
+  String get adminDashboardSubtitle => 'Platform overview and management';
+
+  @override
+  String get totalSellers => 'Total street sellers';
+
+  @override
+  String get totalBuyers => 'Total buyers';
+
+  @override
+  String get pendingOrders => 'Pending orders';
+
+  @override
+  String get completedOrders => 'Completed orders';
+
+  @override
+  String get cancelledOrders => 'Cancelled orders';
+
+  @override
+  String get recentActivity => 'Recent activity';
+
+  @override
+  String get manageBuyers => 'Manage Buyers';
+
+  @override
+  String get manageBuyersSubtitle => 'Suspend or reactivate buyer accounts';
+
+  @override
+  String get approveSeller => 'Approve seller';
+
+  @override
+  String get revokeApproval => 'Revoke approval';
+
+  @override
+  String get approvedBadge => 'Active';
+
+  @override
+  String get pendingApprovalBadge => 'Pending approval';
+
+  @override
+  String get suspendedBadge => 'Suspended';
+
+  @override
+  String get suspendDialog => 'Suspend user';
+
+  @override
+  String get suspendReason => 'Reason';
+
+  @override
+  String get reactivateUser => 'Reactivate';
+
+  @override
+  String get searchBy => 'Search by name, email or phone';
+
+  @override
+  String get searchSellers => 'Search sellers';
+
+  @override
+  String get searchBuyers => 'Search buyers';
+
+  @override
+  String get searchOrders => 'Search orders';
+
+  @override
+  String get manageCategories => 'Fish Categories';
+
+  @override
+  String get manageCategoriesSubtitle => 'Add, edit or remove fish types';
+
+  @override
+  String get newCategory => 'New category';
+
+  @override
+  String get categoryName => 'Display name';
+
+  @override
+  String get categorySlug => 'Slug';
+
+  @override
+  String get categoryActive => 'Active';
+
+  @override
+  String get categoryInactive => 'Inactive';
+
+  @override
+  String get seedDefaults => 'Seed defaults';
+
+  @override
+  String get seedDefaultsHint => 'Populate the seven default fish types';
+
+  @override
+  String get reportsTab => 'Reports';
+
+  @override
+  String get reportsSales => 'Sales report';
+
+  @override
+  String get reportsOrders => 'Orders report';
+
+  @override
+  String get reportsSellers => 'Street sellers report';
+
+  @override
+  String get reportsBuyers => 'Buyers report';
+
+  @override
+  String get reportsRevenue => 'Revenue summary';
+
+  @override
+  String get thisWeek => 'This week';
+
+  @override
+  String get thisMonth => 'This month';
+
+  @override
+  String get topSellers => 'Top sellers';
+
+  @override
+  String get topBuyers => 'Top buyers';
+
+  @override
+  String get logsTitle => 'Activity Logs';
+
+  @override
+  String get logsSubtitle => 'Login history, registrations and admin actions';
+
+  @override
+  String get loginEvents => 'Logins';
+
+  @override
+  String get registrationEvents => 'Registrations';
+
+  @override
+  String get adminActions => 'Admin actions';
+
+  @override
+  String get disputeEvents => 'Disputes';
+
+  @override
+  String get listingEvents => 'Listings';
+
+  @override
+  String get noLogsYet => 'No activity recorded yet';
+
+  @override
+  String get adminSettingsTitle => 'Admin Settings';
+
+  @override
+  String get platformMaintenance => 'Maintenance mode';
+
+  @override
+  String get platformMaintenanceSubtitle =>
+      'Disable buyer + seller sign-ins temporarily';
+
+  @override
+  String get refreshData => 'Refresh live data';
+
+  @override
+  String get refreshDataSubtitle => 'Invalidate every admin cache and re-fetch';
+
+  @override
+  String get dangerZone => 'Danger zone';
+
+  @override
+  String get disputeResolution => 'Dispute resolution';
+
+  @override
+  String get disputeNote => 'Admin note';
+
+  @override
+  String get disputeNoteHint => 'Briefly describe the resolution';
+
+  @override
+  String get adminActionsSection => 'Admin actions';
+
+  @override
+  String get adminOnlySection => 'Admin tools';
+
+  @override
+  String get viewOrderDetail => 'View order';
+
+  @override
+  String get statusAll => 'All';
+
+  @override
+  String get statusPending => 'Pending';
+
+  @override
+  String get statusCompleted => 'Completed';
+
+  @override
+  String get statusCancelled => 'Cancelled';
+
+  @override
+  String get suspendUserAction => 'Suspend user';
+
+  @override
   String get transactionsTitle => 'Transactions';
 
   @override

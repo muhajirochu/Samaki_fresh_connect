@@ -186,6 +186,26 @@ service cloud.firestore {
       allow delete: if isAdmin();
     }
 
+    // ---------- fishCategories/{categoryId} ----------
+    // Admin-managed taxonomy of fish types. Buyers and sellers
+    // can read the active list for the listing-type picker. Only
+    // admins can create / update / delete.
+    match /fishCategories/{categoryId} {
+      allow read: if isSignedIn();
+      allow create, update, delete: if isAdmin();
+    }
+
+    // ---------- activityLogs/{logId} ----------
+    // Append-only audit trail. Admins read everything and write
+    // on every privileged mutation. Individual users can read
+    // their own actor entries for transparency.
+    match /activityLogs/{logId} {
+      allow read: if isAdmin()
+        || (isSignedIn() && resource.data.actorUid == request.auth.uid);
+      allow create: if isAdmin();
+      allow update, delete: if isAdmin();
+    }
+
     // ---------- Catch-all ----------
     match /{document=**} {
       allow read, write: if false;

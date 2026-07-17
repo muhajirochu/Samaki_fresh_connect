@@ -15,8 +15,15 @@ import '../screens/buyer/buyer_wishlist_screen.dart';
 import '../screens/street_seller/street_seller_dashboard_screen.dart';
 import '../screens/admin/admin_dashboard_screen.dart';
 import '../screens/admin/manage_sellers_screen.dart';
+import '../screens/admin/manage_buyers_screen.dart';
+import '../screens/admin/admin_user_profile_screen.dart';
 import '../screens/admin/admin_all_listings_screen.dart';
 import '../screens/admin/admin_transactions_screen.dart';
+import '../screens/admin/admin_order_detail_screen.dart';
+import '../screens/admin/fish_categories_screen.dart';
+import '../screens/admin/admin_reports_screen.dart';
+import '../screens/admin/admin_activity_logs_screen.dart';
+import '../screens/admin/admin_settings_screen.dart';
 import '../screens/common/fish_listings_screen.dart';
 import '../screens/fisherman/create_listing_screen.dart';
 import '../screens/common/fish_listing_detail_screen.dart';
@@ -46,10 +53,25 @@ final appRouter = GoRouter(
     // If not logged in and trying to access protected route → login
     if (!isLoggedIn && !isAuthRoute) return '/login';
 
+    // Admin-only guard — only an admin can land on /admin/* URLs.
+    // Buyer + street seller attempts get redirected to their own
+    // dashboards so they can never see or trigger admin tooling.
+    if (isLoggedIn &&
+        state.matchedLocation.startsWith('/admin') &&
+        state.matchedLocation != '/admin/notifications') {
+      final userModel =
+          mockUser ?? _container.read(currentUserStreamProvider).valueOrNull;
+      if (userModel != null && userModel.role.name != 'admin') {
+        return userModel.role.name == 'streetSeller'
+            ? '/dashboard/street_seller'
+            : '/dashboard/buyer';
+      }
+    }
+
     // If logged in and trying to access auth route → redirect to appropriate dashboard
     if (isLoggedIn && isAuthRoute) {
        final userModel = mockUser ?? _container.read(currentUserStreamProvider).valueOrNull;
-       
+
        if (userModel != null) {
           switch (userModel.role.name) {
             case 'streetSeller': return '/dashboard/street_seller';
@@ -169,6 +191,40 @@ final appRouter = GoRouter(
     GoRoute(
       path: '/admin/transactions',
       builder: (context, state) => const AdminTransactionsScreen(),
+    ),
+    GoRoute(
+      path: '/admin/buyers',
+      builder: (context, state) => const ManageBuyersScreen(),
+    ),
+    GoRoute(
+      path: '/admin/users/:userId',
+      builder: (context, state) {
+        final id = state.pathParameters['userId']!;
+        return AdminUserProfileScreen(userId: id);
+      },
+    ),
+    GoRoute(
+      path: '/admin/categories',
+      builder: (context, state) => const FishCategoriesScreen(),
+    ),
+    GoRoute(
+      path: '/admin/orders/:orderId',
+      builder: (context, state) {
+        final id = state.pathParameters['orderId']!;
+        return AdminOrderDetailScreen(orderId: id);
+      },
+    ),
+    GoRoute(
+      path: '/admin/reports',
+      builder: (context, state) => const AdminReportsScreen(),
+    ),
+    GoRoute(
+      path: '/admin/logs',
+      builder: (context, state) => const AdminActivityLogsScreen(),
+    ),
+    GoRoute(
+      path: '/admin/settings',
+      builder: (context, state) => const AdminSettingsScreen(),
     ),
 
     // ── Fish Listings ─────────────────────────────────────────────────────────
