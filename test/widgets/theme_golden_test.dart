@@ -15,7 +15,6 @@ import 'package:samakifresh_connect/constants/app_colors.dart';
 import 'package:samakifresh_connect/l10n/app_localizations.dart';
 import 'package:samakifresh_connect/providers/locale_provider.dart';
 import 'package:samakifresh_connect/providers/theme_provider.dart';
-import 'package:samakifresh_connect/providers/user_preferences_provider.dart';
 import 'package:samakifresh_connect/screens/common/settings_screen.dart';
 
 Widget _wrap({
@@ -30,12 +29,6 @@ Widget _wrap({
         (ref) => ThemeModeNotifier(mode, ''),
       ),
       localeProvider.overrideWith((ref) => locale),
-      // Settings now consumes [userPreferencesProvider]; pin it to a
-      // fixed default so the test isn't dependent on the host
-      // machine's SharedPreferences.
-      userPreferencesProvider.overrideWith(
-        (ref) => UserPreferencesNotifier('test-uid'),
-      ),
     ],
     child: MaterialApp(
       theme: theme,

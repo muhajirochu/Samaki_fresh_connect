@@ -9,21 +9,21 @@
 //   2. Language — language picker (English / Kiswahili). Opens the
 //      dedicated selector screen; selection flips the locale live
 //      and persists via [LocaleNotifier].
-//   3. Notifications — push / email / order-updates / promotions
-//      toggles. Per-user via [UserPreferencesNotifier].
-//   4. Privacy — show online status, share location toggles.
-//      Per-user.
-//   5. About — version, open-source licenses, privacy policy,
-//      terms of service. Read-only links.
-//   6. Account — Edit Profile shortcut + Sign Out (with
+//   3. Account — Edit Profile shortcut + Sign Out (with
 //      confirmation dialog).
 //
-// ADMIN NOTE: this screen is identical for buyer, street seller and
-// admin. There is no admin-only tile or admin-only theme control
-// here. The only path that mutates a theme is the per-user
-// Settings screen itself; the admin has no "Manage Themes" or
-// equivalent capability. Theme + preferences are personal settings
-// for the signed-in user.
+// ADMIN NOTE: this screen is identical for buyer, street seller
+// and admin. There is no admin-only tile or admin-only theme
+// control here. The only path that mutates a theme is the
+// per-user Settings screen itself; the admin has no
+// "Manage Themes" or equivalent capability. Theme is a personal
+// setting for the signed-in user.
+//
+// The Notifications / Privacy / About sections that were briefly
+// shipped here have been removed from this build — those
+// surfaces are being designed separately and will be reintroduced
+// later. The ARB keys are kept in place (en + sw) so the copy is
+// ready to wire back when the new screens land.
 
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
@@ -36,7 +36,6 @@ import '../../l10n/app_localizations.dart';
 import '../../providers/auth_provider.dart';
 import '../../providers/locale_provider.dart';
 import '../../providers/theme_provider.dart';
-import '../../providers/user_preferences_provider.dart';
 import 'language_selector_screen.dart';
 
 class SettingsScreen extends ConsumerWidget {
@@ -143,39 +142,6 @@ class SettingsScreen extends ConsumerWidget {
 
               const SizedBox(height: AppSizes.paddingXL),
 
-              // ── Notifications section ──────────────────────────────────
-              _SectionHeader(
-                title: l10n.notificationsSection,
-                subtitle: l10n.notificationsSubtitle,
-                leadingIcon: Icons.notifications_rounded,
-              ),
-              const SizedBox(height: 16),
-              const _NotificationsCard(),
-
-              const SizedBox(height: AppSizes.paddingXL),
-
-              // ── Privacy section ────────────────────────────────────────
-              _SectionHeader(
-                title: l10n.privacySection,
-                subtitle: l10n.privacySubtitle,
-                leadingIcon: Icons.shield_rounded,
-              ),
-              const SizedBox(height: 16),
-              const _PrivacyCard(),
-
-              const SizedBox(height: AppSizes.paddingXL),
-
-              // ── About section ──────────────────────────────────────────
-              _SectionHeader(
-                title: l10n.aboutSection,
-                subtitle: l10n.aboutSubtitle,
-                leadingIcon: Icons.info_rounded,
-              ),
-              const SizedBox(height: 16),
-              const _AboutCard(),
-
-              const SizedBox(height: AppSizes.paddingXL),
-
               // ── Account section ────────────────────────────────────────
               _SectionHeader(
                 title: l10n.account,
@@ -194,10 +160,9 @@ class SettingsScreen extends ConsumerWidget {
 
 // ── Section header ───────────────────────────────────────────────────────
 //
-// Adds an optional `leadingIcon` so Appearance / Notifications /
-// Privacy / About / Account all share the same compact visual
-// identity. Appearance used to omit the icon (it had its own
-// palette mini-card); the rest now follow the same pattern.
+// Adds an optional `leadingIcon` so the Appearance / Language /
+// Account sections share the same compact visual identity where
+// appropriate.
 
 class _SectionHeader extends StatelessWidget {
   final String title;
@@ -246,7 +211,7 @@ class _SectionHeader extends StatelessWidget {
   }
 }
 
-// ── Theme preview card (unchanged) ───────────────────────────────────────
+// ── Theme preview card ───────────────────────────────────────────────────
 
 class _ThemePreviewCard extends StatelessWidget {
   final AppThemeMode mode;
@@ -504,7 +469,7 @@ class _SelectionIndicator extends StatelessWidget {
   }
 }
 
-// ── Language picker tile (unchanged) ─────────────────────────────────────
+// ── Language picker tile ─────────────────────────────────────────────────
 
 class _LanguagePickerTile extends StatelessWidget {
   const _LanguagePickerTile({
@@ -620,346 +585,7 @@ class _LanguagePickerTile extends StatelessWidget {
   }
 }
 
-// ── Notifications card ──────────────────────────────────────────────────
-//
-// Personal preference toggles, persisted per-user via
-// [UserPreferencesNotifier]. Switches call set* methods on the
-// notifier, which both update the in-memory state and write to
-// the per-user SharedPreferences slot.
-
-class _NotificationsCard extends ConsumerWidget {
-  const _NotificationsCard();
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final l10n = AppLocalizations.of(context);
-    final prefs = ref.watch(userPreferencesProvider);
-    final notifier = ref.read(userPreferencesProvider.notifier);
-    return _PreferenceCard(
-      children: [
-        _ToggleRow(
-          icon: Icons.notifications_active_rounded,
-          title: l10n.notificationsPush,
-          subtitle: l10n.notificationsPushSubtitle,
-          value: prefs.pushNotifications,
-          onChanged: notifier.setPushNotifications,
-        ),
-        _Divider(),
-        _ToggleRow(
-          icon: Icons.email_rounded,
-          title: l10n.notificationsEmail,
-          subtitle: l10n.notificationsEmailSubtitle,
-          value: prefs.emailNotifications,
-          onChanged: notifier.setEmailNotifications,
-        ),
-        _Divider(),
-        _ToggleRow(
-          icon: Icons.receipt_long_rounded,
-          title: l10n.notificationsOrderUpdates,
-          subtitle: l10n.notificationsOrderUpdatesSubtitle,
-          value: prefs.orderUpdates,
-          onChanged: notifier.setOrderUpdates,
-        ),
-        _Divider(),
-        _ToggleRow(
-          icon: Icons.campaign_rounded,
-          title: l10n.notificationsPromotions,
-          subtitle: l10n.notificationsPromotionsSubtitle,
-          value: prefs.promotions,
-          onChanged: notifier.setPromotions,
-        ),
-      ],
-    );
-  }
-}
-
-// ── Privacy card ────────────────────────────────────────────────────────
-
-class _PrivacyCard extends ConsumerWidget {
-  const _PrivacyCard();
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final l10n = AppLocalizations.of(context);
-    final prefs = ref.watch(userPreferencesProvider);
-    final notifier = ref.read(userPreferencesProvider.notifier);
-    return _PreferenceCard(
-      children: [
-        _ToggleRow(
-          icon: Icons.visibility_rounded,
-          title: l10n.privacyShowOnlineStatus,
-          subtitle: l10n.privacyShowOnlineStatusSubtitle,
-          value: prefs.showOnlineStatus,
-          onChanged: notifier.setShowOnlineStatus,
-        ),
-        _Divider(),
-        _ToggleRow(
-          icon: Icons.location_on_rounded,
-          title: l10n.privacyShowLocation,
-          subtitle: l10n.privacyShowLocationSubtitle,
-          value: prefs.shareLocation,
-          onChanged: notifier.setShareLocation,
-        ),
-      ],
-    );
-  }
-}
-
-// ── About card ──────────────────────────────────────────────────────────
-//
-// Read-only links. Each opens a SnackBar marked "Coming soon" in
-// the current build — the actual destinations (privacy policy,
-// licenses, terms) are intentionally left to be wired to real
-// URLs in a follow-up so this commit stays scoped to the
-// settings-structure task.
-
-class _AboutCard extends StatelessWidget {
-  const _AboutCard();
-
-  void _comingSoon(BuildContext context) {
-    final l10n = AppLocalizations.of(context);
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(l10n.comingSoon),
-        behavior: SnackBarBehavior.floating,
-      ),
-    );
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context);
-    return _PreferenceCard(
-      children: [
-        _LinkRow(
-          icon: Icons.tag_rounded,
-          title: l10n.aboutAppVersion,
-          trailing: Text(
-            'v1.0',
-            style: TextStyle(
-              color: Theme.of(context)
-                  .colorScheme
-                  .onSurface
-                  .withValues(alpha: 0.6),
-              fontWeight: FontWeight.w600,
-            ),
-          ),
-          onTap: null, // not interactive
-        ),
-        _Divider(),
-        _LinkRow(
-          icon: Icons.description_rounded,
-          title: l10n.aboutViewLicenses,
-          subtitle: l10n.aboutViewLicensesSubtitle,
-          onTap: () => _comingSoon(context),
-        ),
-        _Divider(),
-        _LinkRow(
-          icon: Icons.privacy_tip_rounded,
-          title: l10n.aboutPrivacyPolicy,
-          subtitle: l10n.aboutPrivacyPolicySubtitle,
-          onTap: () => _comingSoon(context),
-        ),
-        _Divider(),
-        _LinkRow(
-          icon: Icons.gavel_rounded,
-          title: l10n.aboutTermsOfService,
-          subtitle: l10n.aboutTermsOfServiceSubtitle,
-          onTap: () => _comingSoon(context),
-        ),
-      ],
-    );
-  }
-}
-
-// ── Shared widgets for the three preference cards ──────────────────────
-
-class _PreferenceCard extends StatelessWidget {
-  final List<Widget> children;
-  const _PreferenceCard({required this.children});
-
-  @override
-  Widget build(BuildContext context) {
-    final cs = Theme.of(context).colorScheme;
-    return Container(
-      decoration: BoxDecoration(
-        color: cs.surface,
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(
-          color: Theme.of(context).dividerColor,
-          width: 0.6,
-        ),
-        boxShadow: [
-          BoxShadow(
-            color: cs.shadow.withValues(alpha: 0.06),
-            blurRadius: 18,
-            offset: const Offset(0, 6),
-          ),
-        ],
-      ),
-      child: Column(children: children),
-    );
-  }
-}
-
-class _Divider extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return Divider(
-      height: 1,
-      indent: 64,
-      endIndent: 18,
-      color: Theme.of(context).dividerColor,
-    );
-  }
-}
-
-class _ToggleRow extends StatelessWidget {
-  final IconData icon;
-  final String title;
-  final String subtitle;
-  final bool value;
-  final Future<void> Function(bool) onChanged;
-
-  const _ToggleRow({
-    required this.icon,
-    required this.title,
-    required this.subtitle,
-    required this.value,
-    required this.onChanged,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final cs = Theme.of(context).colorScheme;
-    final tt = Theme.of(context).textTheme;
-    return Padding(
-      padding: const EdgeInsets.symmetric(
-        horizontal: 18,
-        vertical: 14,
-      ),
-      child: Row(
-        children: [
-          Container(
-            width: 36,
-            height: 36,
-            decoration: BoxDecoration(
-              color: cs.primary.withValues(alpha: 0.10),
-              borderRadius: BorderRadius.circular(10),
-            ),
-            child: Icon(icon, size: 18, color: cs.primary),
-          ),
-          const SizedBox(width: 14),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  title,
-                  style: tt.titleSmall?.copyWith(
-                    fontWeight: FontWeight.w700,
-                  ),
-                ),
-                const SizedBox(height: 2),
-                Text(
-                  subtitle,
-                  style: tt.bodySmall?.copyWith(
-                    color: cs.onSurface.withValues(alpha: 0.65),
-                  ),
-                ),
-              ],
-            ),
-          ),
-          Switch(
-            value: value,
-            onChanged: (v) => onChanged(v),
-            activeThumbColor: cs.primary,
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _LinkRow extends StatelessWidget {
-  final IconData icon;
-  final String title;
-  final String? subtitle;
-  final Widget? trailing;
-  final VoidCallback? onTap;
-
-  const _LinkRow({
-    required this.icon,
-    required this.title,
-    this.subtitle,
-    this.trailing,
-    this.onTap,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final cs = Theme.of(context).colorScheme;
-    final tt = Theme.of(context).textTheme;
-    return Material(
-      color: Colors.transparent,
-      child: InkWell(
-        onTap: onTap,
-        child: Padding(
-          padding: const EdgeInsets.symmetric(
-            horizontal: 18,
-            vertical: 14,
-          ),
-          child: Row(
-            children: [
-              Container(
-                width: 36,
-                height: 36,
-                decoration: BoxDecoration(
-                  color: cs.primary.withValues(alpha: 0.10),
-                  borderRadius: BorderRadius.circular(10),
-                ),
-                child: Icon(icon, size: 18, color: cs.primary),
-              ),
-              const SizedBox(width: 14),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      title,
-                      style: tt.titleSmall?.copyWith(
-                        fontWeight: FontWeight.w700,
-                      ),
-                    ),
-                    if (subtitle != null) ...[
-                      const SizedBox(height: 2),
-                      Text(
-                        subtitle!,
-                        style: tt.bodySmall?.copyWith(
-                          color: cs.onSurface.withValues(alpha: 0.65),
-                        ),
-                      ),
-                    ],
-                  ],
-                ),
-              ),
-              if (trailing != null)
-                trailing!
-              else if (onTap != null)
-                Icon(
-                  Icons.arrow_forward_ios_rounded,
-                  size: 14,
-                  color: cs.onSurface.withValues(alpha: 0.45),
-                ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-// ── Account actions card (unchanged) ────────────────────────────────────
+// ── Account actions card ─────────────────────────────────────────────────
 
 class _AccountActionsCard extends ConsumerWidget {
   Future<void> _confirmSignOut(BuildContext context, WidgetRef ref) async {
