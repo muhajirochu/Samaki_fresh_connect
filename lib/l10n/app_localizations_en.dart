@@ -1068,6 +1068,50 @@ class AppLocalizationsEn extends AppLocalizations {
   String get listingDeleted => 'Listing deleted';
 
   @override
+  String listingsDeleted(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count listings deleted',
+      one: '1 listing deleted',
+      zero: 'No listings deleted',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get selectMode => 'Select';
+
+  @override
+  String get exitSelectMode => 'Exit selection';
+
+  @override
+  String get selectAll => 'Select all';
+
+  @override
+  String get deselectAll => 'Deselect all';
+
+  @override
+  String get deleteSelected => 'Delete selected';
+
+  @override
+  String deleteListingsConfirmationAdmin(int count) {
+    return 'Permanently delete $count listings? This cannot be undone.';
+  }
+
+  @override
+  String selectedCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count selected',
+      one: '1 selected',
+      zero: 'None selected',
+    );
+    return '$_temp0';
+  }
+
+  @override
   String get transactionsTitle => 'Transactions';
 
   @override

@@ -2048,6 +2048,54 @@ abstract class AppLocalizations {
   /// **'Listing deleted'**
   String get listingDeleted;
 
+  /// No description provided for @listingsDeleted.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =0{No listings deleted} =1{1 listing deleted} other{{count} listings deleted}}'**
+  String listingsDeleted(int count);
+
+  /// No description provided for @selectMode.
+  ///
+  /// In en, this message translates to:
+  /// **'Select'**
+  String get selectMode;
+
+  /// No description provided for @exitSelectMode.
+  ///
+  /// In en, this message translates to:
+  /// **'Exit selection'**
+  String get exitSelectMode;
+
+  /// No description provided for @selectAll.
+  ///
+  /// In en, this message translates to:
+  /// **'Select all'**
+  String get selectAll;
+
+  /// No description provided for @deselectAll.
+  ///
+  /// In en, this message translates to:
+  /// **'Deselect all'**
+  String get deselectAll;
+
+  /// No description provided for @deleteSelected.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete selected'**
+  String get deleteSelected;
+
+  /// No description provided for @deleteListingsConfirmationAdmin.
+  ///
+  /// In en, this message translates to:
+  /// **'Permanently delete {count} listings? This cannot be undone.'**
+  String deleteListingsConfirmationAdmin(int count);
+
+  /// No description provided for @selectedCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =0{None selected} =1{1 selected} other{{count} selected}}'**
+  String selectedCount(int count);
+
   /// No description provided for @transactionsTitle.
   ///
   /// In en, this message translates to:

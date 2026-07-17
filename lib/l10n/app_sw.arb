@@ -462,6 +462,29 @@
     "noListingsFoundSubtitle": "Wanunuzi au wauzaji wanapounda zabuni, zitaonekana hapa.",
     "deleteListingConfirmationAdmin": "Futa kabisa zabuni hii? Hii haiwezi kubatilishwa.",
     "listingDeleted": "Zabuni imefutwa",
+    "listingsDeleted": "{count, plural, =0{Hakuna zabuni zilizofutwa} =1{Zabuni 1 imefutwa} other{Zabuni {count} zimefutwa}}",
+    "@listingsDeleted": {
+        "placeholders": {
+            "count": {"type": "int"}
+        }
+    },
+    "selectMode": "Chagua",
+    "exitSelectMode": "Toka kwenye uteuzi",
+    "selectAll": "Chagua zote",
+    "deselectAll": "Ondoa uteuzi wote",
+    "deleteSelected": "Futa zilizochaguliwa",
+    "deleteListingsConfirmationAdmin": "Futa kabisa zabuni {count}? Hii haiwezi kubatilishwa.",
+    "@deleteListingsConfirmationAdmin": {
+        "placeholders": {
+            "count": {"type": "int"}
+        }
+    },
+    "selectedCount": "{count, plural, =0{Hakuna iliyochaguliwa} =1{1 imechaguliwa} other{Zimechaguliwa {count}}}",
+    "@selectedCount": {
+        "placeholders": {
+            "count": {"type": "int"}
+        }
+    },
     "transactionsTitle": "Miamala",
     "transactionsScreenSubtitle": "Maagizo yote yaliyowekwa kwenye jukwaa",
     "noTransactions": "Bado hakuna miamala",

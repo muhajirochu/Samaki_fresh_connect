@@ -1066,6 +1066,50 @@ class AppLocalizationsSw extends AppLocalizations {
   String get listingDeleted => 'Zabuni imefutwa';
 
   @override
+  String listingsDeleted(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Zabuni $count zimefutwa',
+      one: 'Zabuni 1 imefutwa',
+      zero: 'Hakuna zabuni zilizofutwa',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get selectMode => 'Chagua';
+
+  @override
+  String get exitSelectMode => 'Toka kwenye uteuzi';
+
+  @override
+  String get selectAll => 'Chagua zote';
+
+  @override
+  String get deselectAll => 'Ondoa uteuzi wote';
+
+  @override
+  String get deleteSelected => 'Futa zilizochaguliwa';
+
+  @override
+  String deleteListingsConfirmationAdmin(int count) {
+    return 'Futa kabisa zabuni $count? Hii haiwezi kubatilishwa.';
+  }
+
+  @override
+  String selectedCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Zimechaguliwa $count',
+      one: '1 imechaguliwa',
+      zero: 'Hakuna iliyochaguliwa',
+    );
+    return '$_temp0';
+  }
+
+  @override
   String get transactionsTitle => 'Miamala';
 
   @override

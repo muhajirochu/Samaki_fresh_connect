@@ -297,6 +297,36 @@ class FishListingService {
     }
   }
 
+  /// Bulk-delete many listings in a single round trip.
+  ///
+  /// Uses Firestore's `WriteBatch` so the deletes commit atomically
+  /// (all-or-nothing) and the network round trips stay linear with
+  /// the batch size instead of N. Returns the count of listings that
+  /// were successfully committed.
+  ///
+  /// Empty / null listing ids are skipped silently — the admin UI
+  /// filters them out before the call, but defensive code here means
+  /// a stray empty string can't blow up the whole batch.
+  Future<int> deleteListingsBulk(Iterable<String> listingIds) async {
+    if (!_isAvailable) return 0;
+    final ids = listingIds
+        .where((id) => id.isNotEmpty)
+        .toList(growable: false);
+    if (ids.isEmpty) return 0;
+    try {
+      final batch = _firestore.batch();
+      for (final id in ids) {
+        batch.delete(_firestore.collection(_collection).doc(id));
+      }
+      await batch.commit();
+      AppLogger.info('Bulk-deleted ${ids.length} listings');
+      return ids.length;
+    } catch (e) {
+      AppLogger.error('Error bulk-deleting listings: $e');
+      rethrow;
+    }
+  }
+
   /// Persist a `location` patch to an existing listing. Used by the
   /// `ListingLocationService` after the seller captures their shop
   /// location — the listing may have been created earlier without a
