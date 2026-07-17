@@ -67,7 +67,7 @@ class AdminDashboardScreen extends ConsumerWidget {
                   crossAxisCount: 2,
                   mainAxisSpacing: AppSizes.paddingMD,
                   crossAxisSpacing: AppSizes.paddingMD,
-                  childAspectRatio: 1.25,
+                  childAspectRatio: 1.5,
                   children: [
                     _TotalSellersCard(),
                     _TotalBuyersCard(),
@@ -88,7 +88,7 @@ class AdminDashboardScreen extends ConsumerWidget {
                   crossAxisCount: 2,
                   mainAxisSpacing: AppSizes.paddingMD,
                   crossAxisSpacing: AppSizes.paddingMD,
-                  childAspectRatio: 1.25,
+                  childAspectRatio: 1.5,
                   children: [
                     _TotalOrdersCard(),
                     _PendingOrdersCard(),
@@ -106,14 +106,15 @@ class AdminDashboardScreen extends ConsumerWidget {
                   0,
                 ),
                 sliver: SliverGrid.count(
-                  crossAxisCount: 3,
+                  crossAxisCount: 2,
                   mainAxisSpacing: AppSizes.paddingMD,
                   crossAxisSpacing: AppSizes.paddingMD,
-                  childAspectRatio: 1.25,
+                  childAspectRatio: 1.6,
                   children: [
                     _DailySalesCard(),
                     _WeeklySalesCard(),
                     _MonthlySalesCard(),
+                    _PlatformRevenueCard(),
                   ],
                 ),
               ),
@@ -447,7 +448,7 @@ class _DailySalesCard extends ConsumerWidget {
         .where((o) => o.orderStatus == 'delivered')
         .fold<double>(0, (acc, o) => acc + (o.finalPrice * o.quantityKg));
     return _StatCard(
-      title: 'Daily sales',
+      title: l10n.dailySales,
       value: 'TZS ${(revenue / 1000).toStringAsFixed(0)}K',
       icon: Icons.today_rounded,
       color: AppColors.successGreen,
@@ -464,7 +465,7 @@ class _WeeklySalesCard extends ConsumerWidget {
         .where((o) => o.orderStatus == 'delivered')
         .fold<double>(0, (acc, o) => acc + (o.finalPrice * o.quantityKg));
     return _StatCard(
-      title: l10n.thisWeek,
+      title: l10n.weeklySales,
       value: 'TZS ${(revenue / 1000).toStringAsFixed(0)}K',
       icon: Icons.date_range_rounded,
       color: AppColors.primaryBlue,
@@ -481,10 +482,24 @@ class _MonthlySalesCard extends ConsumerWidget {
         .where((o) => o.orderStatus == 'delivered')
         .fold<double>(0, (acc, o) => acc + (o.finalPrice * o.quantityKg));
     return _StatCard(
-      title: l10n.thisMonth,
+      title: l10n.monthlySales,
       value: 'TZS ${(revenue / 1000).toStringAsFixed(0)}K',
       icon: Icons.calendar_month_rounded,
       color: AppColors.accentOrange,
+    );
+  }
+}
+
+class _PlatformRevenueCard extends ConsumerWidget {
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = AppLocalizations.of(context);
+    final revenue = ref.watch(adminPlatformRevenueProvider).valueOrNull ?? 0;
+    return _StatCard(
+      title: l10n.platformRevenue,
+      value: 'TZS ${(revenue / 1000).toStringAsFixed(0)}K',
+      icon: Icons.account_balance_rounded,
+      color: AppColors.accentGreen,
     );
   }
 }
@@ -517,6 +532,7 @@ class _StatCard extends StatelessWidget {
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           Container(
             padding: const EdgeInsets.all(8),
@@ -526,25 +542,30 @@ class _StatCard extends StatelessWidget {
             ),
             child: Icon(icon, color: color, size: 22),
           ),
-          const Spacer(),
-          Text(
-            value,
-            style: tt.titleLarge?.copyWith(
-              fontWeight: FontWeight.w800,
-              color: cs.onSurface,
-            ),
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-          ),
-          const SizedBox(height: 2),
-          Text(
-            title,
-            style: tt.bodySmall?.copyWith(
-              color: cs.onSurface.withValues(alpha: 0.65),
-              fontWeight: FontWeight.w500,
-            ),
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                value,
+                style: tt.titleLarge?.copyWith(
+                  fontWeight: FontWeight.w800,
+                  color: cs.onSurface,
+                ),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+              ),
+              const SizedBox(height: 2),
+              Text(
+                title,
+                style: tt.bodySmall?.copyWith(
+                  color: cs.onSurface.withValues(alpha: 0.65),
+                  fontWeight: FontWeight.w500,
+                ),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+              ),
+            ],
           ),
         ],
       ),

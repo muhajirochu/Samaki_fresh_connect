@@ -2492,6 +2492,48 @@ abstract class AppLocalizations {
   /// **'Suspend user'**
   String get suspendUserAction;
 
+  /// No description provided for @dailySales.
+  ///
+  /// In en, this message translates to:
+  /// **'Daily sales'**
+  String get dailySales;
+
+  /// No description provided for @weeklySales.
+  ///
+  /// In en, this message translates to:
+  /// **'Weekly sales'**
+  String get weeklySales;
+
+  /// No description provided for @monthlySales.
+  ///
+  /// In en, this message translates to:
+  /// **'Monthly sales'**
+  String get monthlySales;
+
+  /// No description provided for @appInfoAndCredits.
+  ///
+  /// In en, this message translates to:
+  /// **'App info and credits'**
+  String get appInfoAndCredits;
+
+  /// No description provided for @notificationsPreferences.
+  ///
+  /// In en, this message translates to:
+  /// **'Notification preferences'**
+  String get notificationsPreferences;
+
+  /// No description provided for @about.
+  ///
+  /// In en, this message translates to:
+  /// **'About'**
+  String get about;
+
+  /// No description provided for @aboutTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'About'**
+  String get aboutTitle;
+
   /// No description provided for @transactionsTitle.
   ///
   /// In en, this message translates to:

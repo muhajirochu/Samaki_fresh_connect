@@ -1312,6 +1312,27 @@ class AppLocalizationsEn extends AppLocalizations {
   String get suspendUserAction => 'Suspend user';
 
   @override
+  String get dailySales => 'Daily sales';
+
+  @override
+  String get weeklySales => 'Weekly sales';
+
+  @override
+  String get monthlySales => 'Monthly sales';
+
+  @override
+  String get appInfoAndCredits => 'App info and credits';
+
+  @override
+  String get notificationsPreferences => 'Notification preferences';
+
+  @override
+  String get about => 'About';
+
+  @override
+  String get aboutTitle => 'About';
+
+  @override
   String get transactionsTitle => 'Transactions';
 
   @override

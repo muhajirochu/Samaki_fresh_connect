@@ -1312,6 +1312,27 @@ class AppLocalizationsSw extends AppLocalizations {
   String get suspendUserAction => 'Simamisha mtumiaji';
 
   @override
+  String get dailySales => 'Mauzo ya leo';
+
+  @override
+  String get weeklySales => 'Mauzo ya wiki';
+
+  @override
+  String get monthlySales => 'Mauzo ya mwezi';
+
+  @override
+  String get appInfoAndCredits => 'Taarifa za programu na sifa';
+
+  @override
+  String get notificationsPreferences => 'Mapendeleo ya arifa';
+
+  @override
+  String get about => 'Kuhusu';
+
+  @override
+  String get aboutTitle => 'Kuhusu';
+
+  @override
   String get transactionsTitle => 'Miamala';
 
   @override

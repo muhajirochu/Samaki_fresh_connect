@@ -81,15 +81,15 @@ class AdminSettingsScreen extends ConsumerWidget {
           _AdminToolTile(
             icon: Icons.notifications_rounded,
             title: l10n.notifications,
-            subtitle: 'Notifications preferences',
+            subtitle: l10n.notificationsPreferences,
             color: AppColors.accentOrange,
             onTap: () {},
           ),
           const SizedBox(height: AppSizes.paddingMD),
           _AdminToolTile(
             icon: Icons.info_rounded,
-            title: 'About',
-            subtitle: 'App info and credits',
+            title: l10n.aboutTitle,
+            subtitle: l10n.appInfoAndCredits,
             color: AppColors.infoBlue,
             onTap: () {},
           ),
