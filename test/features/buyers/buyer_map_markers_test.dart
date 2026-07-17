@@ -1,5 +1,6 @@
-// Runtime verification: the buyer map data pipeline actually delivers
-// sellers with valid coordinates to the SellerMap widget.
+// Runtime verification: the buyer map data pipeline correctly surfaces
+// sellers from Firestore (or returns an empty list when no real
+// sellers have registered).
 //
 // We don't render BuyerMapScreen directly because:
 //   - flutter_map's tile layer tries to fetch OSM tiles over HTTP,
@@ -9,116 +10,84 @@
 //
 // Instead, this test exercises the data path the map widget
 // consumes (the three providers BuyerMapScreen reads from) and
-// asserts that they all surface the 5 Stone Town demo sellers with
-// non-zero coordinates. If any of these fall, the markers can't
-// render — this test catches the regression.
+// asserts that they all surface the sellers registered through
+// the real flow. Demo seller fixtures were removed, so the
+// fallback path now returns an empty list (rather than 11 seeded
+// sellers).
+//
+// If any of these fall, the markers can't render — this test
+// catches the regression.
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
-import 'package:samakifresh_connect/models/map_filter_model.dart';
 import 'package:samakifresh_connect/models/street_seller_model.dart';
 import 'package:samakifresh_connect/providers/buyer_provider.dart';
-import 'package:samakifresh_connect/services/demo_sellers_data.dart';
+import 'package:samakifresh_connect/providers/seller_location_provider.dart';
 
 void main() {
   group('Buyer map data pipeline', () {
-    test('all 5 Stone Town demo sellers reach activeStreetSellersProvider '
-        'via the hardcoded fallback', () async {
+    test(
+        'activeStreetSellersProviderRemote returns an empty list when no real '
+        'sellers are registered', () async {
       // Force Firestore off (test env has no Firebase) so the
-      // hardcoded fallback kicks in.
-      final fallback = fallbackSellers();
-      expect(fallback.length, 11, reason: 'fallback should have all sellers');
-
-      // Wrap the read in a ProviderContainer so we exercise the
-      // *real* provider chain — `activeStreetSellersProvider` falls
-      // back to the hardcoded list when Firebase is absent.
+      // service returns the empty fallback.
       final container = ProviderContainer();
       addTearDown(container.dispose);
 
       // The provider is async (StreamProvider) — wait for the first
       // emission.
-      final result =
-          await container.read(activeStreetSellersProvider.future);
-      expect(result, isNotEmpty);
-
-      // Five Stone Town sellers must be present.
-      final st = result.where((s) => s.marketName == 'Stone Town').toList();
-      expect(st.length, 5,
-          reason: '5 Stone Town demo sellers must always be present');
+      final result = await container
+          .read(activeStreetSellersProviderRemote.future);
+      expect(result, isEmpty,
+          reason: 'no demo sellers should be returned once the demo '
+              'fixtures are removed');
     });
 
-    test('each demo seller has a non-zero Stone Town coordinate', () {
-      // The pipeline doesn't add coords — if any seller in the
-      // fallback has (0, 0) the marker renders in the Gulf of Guinea.
-      for (final s in fallbackSellers()) {
-        expect(s.latitude, isNot(0.0),
-            reason: '${s.fullName} has 0.0 latitude');
-        expect(s.longitude, isNot(0.0),
-            reason: '${s.fullName} has 0.0 longitude');
-      }
-    });
-
-    test('sellersWithFishProvider accepts the fallback sellers', () async {
-      // Simulate the buyer map's data path: activeStreetSellersProvider
-      // emits the fallback list, buyerFishFeedProvider is empty (no
-      // session). The cascade in sellersWithFishProvider must still
-      // surface sellers when no filter is set.
-      final container = ProviderContainer(
-        overrides: [
-          activeStreetSellersProvider.overrideWith(
-            (ref) => Stream.value(fallbackSellers()),
-          ),
-        ],
-      );
+    test('activeStreetSellersProvider re-exports the remote stream',
+        () async {
+      // The buyer-facing alias `activeStreetSellersProvider` should
+      // be a thin re-export of `activeStreetSellersProviderRemote` so
+      // we don't open a duplicate Firestore subscription.
+      final container = ProviderContainer();
       addTearDown(container.dispose);
 
-      // sellersWithFishProvider is a synchronous Provider; we read its
-      // current value and pump frames until all upstream providers
-      // have emitted at least once.
-      var list = container.read(sellersWithFishProvider);
-      for (var i = 0; i < 5 && list.isEmpty; i++) {
-        await Future<void>.delayed(const Duration(milliseconds: 10));
-        list = container.read(sellersWithFishProvider);
-      }
-      // When the filter is empty (default), every seller shows up
-      // even without fish matches.
-      expect(list.length, fallbackSellers().length,
-          reason: 'sellers should pass through without filtering');
+      final remote = await container
+          .read(activeStreetSellersProviderRemote.future);
+      final aliased = container.read(activeStreetSellersProvider).valueOrNull ??
+          const <StreetSellerModel>[];
+      expect(aliased, remote,
+          reason: 'alias must share the same backing data');
     });
 
-    test('each seller produces a valid LatLng for marker placement', () {
+    test('StreetSellerModel produces a finite LatLng from a valid coordinate',
+        () {
       // The SellerMap widget uses LatLng(seller.latitude, seller.longitude).
-      // If either is NaN/Inf the marker won't render.
-      for (final s in fallbackSellers()) {
-        expect(s.latitude.isFinite, isTrue,
-            reason: '${s.fullName} latitude is not finite');
-        expect(s.longitude.isFinite, isTrue,
-            reason: '${s.fullName} longitude is not finite');
-        expect(s.latitude.abs(), greaterThan(0.5),
-            reason: '${s.fullName} latitude too close to 0');
-      }
-    });
-
-    test('Stone Town sellers are within 1 km of Stone Town center', () {
-      // The buyer's default GPS fix is Stone Town. Markers further
-      // than 1 km from the center won't appear in the visible
-      // viewport at default zoom.
-const stLat = -6.1629;
-const stLng = 39.2026;
-      for (final s in fallbackSellers()
-          .where((s) => s.marketName == 'Stone Town')) {
-        final d = s.distanceKmFrom(stLat, stLng);
-        expect(d, lessThan(1.5),
-            reason:
-                '${s.fullName} (${s.marketName}) is ${d.toStringAsFixed(2)} km '
-                'from Stone Town center — marker will be off-screen');
-      }
+      // If either is NaN/Inf the marker won't render. Verify the model
+      // behaves correctly for a known-good coordinate pair.
+      final epoch = DateTime(2026, 7, 3, 12);
+      final s = StreetSellerModel(
+        sellerId: 'test',
+        fullName: 'Test Seller',
+        phoneNumber: '+255770000000',
+        latitude: -6.1629,
+        longitude: 39.2026,
+        marketName: 'Stone Town',
+        regionName: 'Mjini Magharibi',
+        streetName: 'Test Street',
+        isActive: true,
+        isOnline: false,
+        isVerified: true,
+        averageRating: 4.5,
+        totalRatings: 12,
+        totalOrders: 38,
+        createdAt: epoch,
+        updatedAt: epoch,
+      );
+      expect(s.latitude, closeTo(-6.1629, 0.0001));
+      expect(s.longitude, closeTo(39.2026, 0.0001));
+      expect(s.latitude.isFinite, isTrue);
+      expect(s.longitude.isFinite, isTrue);
     });
   });
 }
-
-// Keep the unused import warning quiet — `StreetSellerModel` is
-// referenced indirectly through the stream type.
-// ignore: unused_element
-const _ignored = StreetSellerModel;

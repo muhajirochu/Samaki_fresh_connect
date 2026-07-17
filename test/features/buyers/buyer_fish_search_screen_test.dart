@@ -1,17 +1,24 @@
 // Widget test for [BuyerFishSearchScreen].
 //
-// We override the upstream providers with canned data so the screen
-// renders the "no results" empty state for an empty query and a
-// single result card for a non-empty one.
+// We override the upstream `fishSearchProvider` (now a singleton
+// instead of a family`) plus the upstream streams it listens to, so
+// the screen renders deterministically. Localisation delegates are
+// injected so the screen can resolve strings via
+// `AppLocalizations.of(context)`.
 
 import 'package:flutter/material.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:samakifresh_connect/l10n/app_localizations.dart';
 import 'package:samakifresh_connect/models/fish_listing_model.dart';
 import 'package:samakifresh_connect/models/fish_search_result.dart';
 import 'package:samakifresh_connect/models/street_seller_model.dart';
 import 'package:samakifresh_connect/providers/fish_search_provider.dart';
+import 'package:samakifresh_connect/providers/listing_provider.dart';
+import 'package:samakifresh_connect/providers/seller_location_provider.dart';
 import 'package:samakifresh_connect/screens/buyer/buyer_fish_search_screen.dart';
+import 'package:samakifresh_connect/services/location_service.dart';
 
 FishListingModel _listing({
   required String id,
@@ -26,8 +33,8 @@ FishListingModel _listing({
     totalPrice: 6000,
     imageUrls: const [],
     status: 'active',
-    createdAt: DateTime(2026, 7, 3, 12),
-    expiresAt: DateTime(2026, 7, 4, 12),
+    createdAt: DateTime.now(),
+    expiresAt: DateTime.now().add(const Duration(hours: 24)),
   );
 }
 
@@ -45,50 +52,45 @@ StreetSellerModel _seller({String id = 's1'}) {
   );
 }
 
-// Typed list of search results — exercises the same shape the
-// provider emits.
-final _emptyResults = <FishSearchResult>[];
+const _fallbackLocation = BuyerLocation(
+  latitude: -6.20,
+  longitude: 39.20,
+  source: 'profile',
+);
 
-final _oneResult = <FishSearchResult>[
-  FishSearchResult(
-    fishType: 'tuna',
-    displayName: 'Tuna',
-    listings: [
-      FishListingWithSeller(
-        listing: _listing(id: 'l1'),
-        seller: _seller(),
-        distanceKm: 1.2,
-      ),
-    ],
-  ),
-];
-
-Widget _wrap({required List<Override> overrides, String? initialQuery}) {
+Widget _wrap({
+  required List<Override> overrides,
+  String? initialQuery,
+}) {
   return ProviderScope(
     overrides: overrides,
     child: MaterialApp(
+      localizationsDelegates: const [
+        AppLocalizations.delegate,
+        GlobalMaterialLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+        GlobalCupertinoLocalizations.delegate,
+      ],
+      supportedLocales: AppLocalizations.supportedLocales,
+      locale: const Locale('en'),
       home: BuyerFishSearchScreen(initialQuery: initialQuery),
     ),
   );
-}
-
-/// Replaces the family parameter with a stubbed result. The family
-/// uses `String` (the query) as the key.
-List<Override> _stubForQuery(String query, List<FishSearchResult> results) {
-  return [
-    fishSearchProvider(query).overrideWith(
-      (ref) => Stream.value(results),
-    ),
-  ];
 }
 
 void main() {
   testWidgets('renders an empty hint when the query is empty',
       (tester) async {
     await tester.pumpWidget(_wrap(
-      overrides: _stubForQuery('', _emptyResults),
-      initialQuery: '',
+      overrides: [
+        activeListingsProvider.overrideWith((ref) => Stream.value([])),
+        activeStreetSellersProviderRemote
+            .overrideWith((ref) => Stream.value([])),
+        currentBuyerLocationProvider.overrideWith((ref) async => _fallbackLocation),
+      ],
     ));
+    // Seed the (empty) query.
+    await tester.pump();
     await tester.pumpAndSettle();
 
     expect(find.text('Start typing to search'), findsOneWidget);
@@ -96,8 +98,30 @@ void main() {
 
   testWidgets('renders a result card for a matching query',
       (tester) async {
+    final results = <FishSearchResult>[
+      FishSearchResult(
+        fishType: 'tuna',
+        displayName: 'Tuna',
+        listings: [
+          FishListingWithSeller(
+            listing: _listing(id: 'l1'),
+            seller: _seller(),
+            distanceKm: 1.2,
+          ),
+        ],
+      ),
+    ];
+
     await tester.pumpWidget(_wrap(
-      overrides: _stubForQuery('tuna', _oneResult),
+      overrides: [
+        activeListingsProvider
+            .overrideWith((ref) => Stream.value([_listing(id: 'l1')])),
+        activeStreetSellersProviderRemote
+            .overrideWith((ref) => Stream.value([_seller()])),
+        currentBuyerLocationProvider
+            .overrideWith((ref) async => _fallbackLocation),
+        fishSearchProvider.overrideWith((ref) => Stream.value(results)),
+      ],
       initialQuery: 'tuna',
     ));
     await tester.pumpAndSettle();
@@ -113,12 +137,21 @@ void main() {
 
   testWidgets('renders the empty hint for "no sellers" matches',
       (tester) async {
+    final l10n = await AppLocalizations.delegate.load(const Locale('en'));
     await tester.pumpWidget(_wrap(
-      overrides: _stubForQuery('mackerel', _emptyResults),
+      overrides: [
+        activeListingsProvider.overrideWith((ref) => Stream.value([])),
+        activeStreetSellersProviderRemote
+            .overrideWith((ref) => Stream.value([])),
+        currentBuyerLocationProvider
+            .overrideWith((ref) async => _fallbackLocation),
+        fishSearchProvider.overrideWith((ref) => Stream.value(const [])),
+      ],
       initialQuery: 'mackerel',
     ));
     await tester.pumpAndSettle();
 
-    expect(find.textContaining('No sellers have "mackerel"'), findsOneWidget);
+    expect(find.textContaining(l10n.noSellersHave('mackerel')),
+        findsOneWidget);
   });
 }

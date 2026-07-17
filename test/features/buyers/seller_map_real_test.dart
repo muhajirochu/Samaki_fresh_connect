@@ -1,14 +1,15 @@
-// Final integration test: SellerMap widget builds Marker objects for
-// every demo seller with the correct LatLng position.
+// Integration test: SellerMap widget builds Marker objects for every
+// seller passed in with the correct LatLng position.
 //
-// This is the test that proves "5+ sellers show up on the buyer
-// map with their locations". We:
-//   1. Pump SellerMap with real fallback data.
+// This is the test that proves "sellers show up on the buyer map
+// with their locations". We:
+//   1. Pump SellerMap with a small fixture list of sellers.
 //   2. Find the MarkerLayer widget that it builds.
 //   3. Read the layer.markers list.
 //   4. Verify count + each marker's LatLng.
 //
-// If this test passes, every seller will render on the map.
+// Demo seller fixtures were removed, so this test now uses inline
+// StreetSellerModel fixtures instead of a hardcoded demo list.
 
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -16,20 +17,91 @@ import 'package:flutter_map/flutter_map.dart';
 
 import 'package:samakifresh_connect/models/fish_item_model.dart';
 import 'package:samakifresh_connect/models/map_filter_model.dart';
-import 'package:samakifresh_connect/services/demo_sellers_data.dart';
+import 'package:samakifresh_connect/models/street_seller_model.dart';
 import 'package:samakifresh_connect/services/location_service.dart';
 import 'package:samakifresh_connect/widgets/map/seller_map.dart';
 
+final DateTime _kFixtureEpoch = DateTime(2026, 7, 3, 12);
+
+StreetSellerModel _fixtureSeller({
+  required String id,
+  required String name,
+  required double lat,
+  required double lng,
+}) {
+  return StreetSellerModel(
+    sellerId: id,
+    fullName: name,
+    phoneNumber: '+255770000000',
+    latitude: lat,
+    longitude: lng,
+    marketName: 'Stone Town',
+    regionName: 'Mjini Magharibi',
+    streetName: 'Test Street',
+    isActive: true,
+    isOnline: false,
+    isVerified: true,
+    averageRating: 4.5,
+    totalRatings: 12,
+    totalOrders: 38,
+    createdAt: _kFixtureEpoch,
+    updatedAt: _kFixtureEpoch,
+  );
+}
+
 List<SellerWithFish> _pairs() {
-  return fallbackSellers()
-      .map((s) =>
-          SellerWithFish(seller: s, matchingItems: const <FishItemModel>[]))
-      .toList();
+  return [
+    SellerWithFish(
+      seller: _fixtureSeller(
+        id: 'seller-1',
+        name: 'Seller One',
+        lat: -6.1608,
+        lng: 39.2040,
+      ),
+      matchingItems: const <FishItemModel>[],
+    ),
+    SellerWithFish(
+      seller: _fixtureSeller(
+        id: 'seller-2',
+        name: 'Seller Two',
+        lat: -6.1616,
+        lng: 39.2010,
+      ),
+      matchingItems: const <FishItemModel>[],
+    ),
+    SellerWithFish(
+      seller: _fixtureSeller(
+        id: 'seller-3',
+        name: 'Seller Three',
+        lat: -6.1642,
+        lng: 39.2055,
+      ),
+      matchingItems: const <FishItemModel>[],
+    ),
+    SellerWithFish(
+      seller: _fixtureSeller(
+        id: 'seller-4',
+        name: 'Seller Four',
+        lat: -6.1599,
+        lng: 39.1999,
+      ),
+      matchingItems: const <FishItemModel>[],
+    ),
+    SellerWithFish(
+      seller: _fixtureSeller(
+        id: 'seller-5',
+        name: 'Seller Five',
+        lat: -6.1665,
+        lng: 39.2025,
+      ),
+      matchingItems: const <FishItemModel>[],
+    ),
+  ];
 }
 
 void main() {
   testWidgets(
-    'SellerMap builds one Marker per demo seller with correct LatLng',
+    'SellerMap builds one Marker per seller with correct LatLng',
     (tester) async {
       final pairs = _pairs();
 
@@ -164,9 +236,8 @@ void main() {
       }
       final markers = richest!.markers.skip(1).toList(); // skip buyer
 
-      // The first 5 sellers are Stone Town cluster — must be within
-      // 2 km of buyer.
-      for (var i = 0; i < 5; i++) {
+      // Each fixture seller is within 2 km of Stone Town buyer.
+      for (var i = 0; i < pairs.length; i++) {
         final m = markers[i];
         final s = pairs[i].seller;
         final dist = _haversineKm(

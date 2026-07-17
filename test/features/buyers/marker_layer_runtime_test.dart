@@ -1,27 +1,63 @@
-// Runtime verification: the seller-marker list passed into the map
-// widget contains a valid Marker for each demo seller, with the
-// correct LatLng position.
-//
-// This is the last-mile runtime check: the buyer map's MarkerLayer
-// receives one Marker per seller (plus the buyer marker). If a
-// seller's Marker has the wrong position (or no Marker at all),
-// the buyer will not see that seller on the map.
+// Runtime verification: a list of SellerMap markers built from
+// StreetSellerModel instances renders correctly through
+// flutter_map's MarkerLayer.
 //
 // We don't render the full FlutterMap tile layer (it tries to
 // fetch OSM tiles). Instead we inspect the Marker widgets directly
 // — that's the part that maps to real on-screen markers.
+//
+// Demo seller fixtures were removed, so the production code path
+// always receives a real (or empty) list of sellers from Firestore.
+// This test exercises the marker-build path against an inline
+// fixture so a regression in the marker construction still surfaces.
 
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
 
-import 'package:samakifresh_connect/services/demo_sellers_data.dart';
+import 'package:samakifresh_connect/models/street_seller_model.dart';
+
+final DateTime _kFixtureEpoch = DateTime(2026, 7, 3, 12);
+
+StreetSellerModel _fixture({
+  required String id,
+  required String name,
+  required double lat,
+  required double lng,
+}) {
+  return StreetSellerModel(
+    sellerId: id,
+    fullName: name,
+    phoneNumber: '+255770000000',
+    latitude: lat,
+    longitude: lng,
+    marketName: 'Stone Town',
+    regionName: 'Mjini Magharibi',
+    streetName: 'Test Street',
+    isActive: true,
+    isOnline: false,
+    isVerified: true,
+    averageRating: 4.5,
+    totalRatings: 12,
+    totalOrders: 38,
+    createdAt: _kFixtureEpoch,
+    updatedAt: _kFixtureEpoch,
+  );
+}
+
+List<StreetSellerModel> _fixtureSellers() {
+  return [
+    _fixture(id: 'a', name: 'A', lat: -6.1608, lng: 39.2040),
+    _fixture(id: 'b', name: 'B', lat: -6.1616, lng: 39.2010),
+    _fixture(id: 'c', name: 'C', lat: -6.1642, lng: 39.2055),
+  ];
+}
 
 void main() {
-  test('every demo seller produces a Marker with the correct LatLng', () {
-    final sellers = fallbackSellers();
-    expect(sellers.length, 11);
+  test('every registered seller produces a Marker with the correct LatLng',
+      () {
+    final sellers = _fixtureSellers();
 
     // Build the marker list exactly the way SellerMap does.
     final markers = <Marker>[
@@ -53,7 +89,7 @@ void main() {
   });
 
   test('MarkerLayer accepts the seller marker list without throwing', () {
-    final sellers = fallbackSellers();
+    final sellers = _fixtureSellers();
     final markers = <Marker>[
       for (final s in sellers)
         Marker(
@@ -68,14 +104,14 @@ void main() {
     expect(layer.markers.length, sellers.length);
   });
 
-  testWidgets('MarkerLayer accepts all 11 seller markers as widget data',
+  testWidgets('MarkerLayer accepts all seller markers as widget data',
       (tester) async {
     // flutter_map's MarkerLayer wraps markers in positioned widgets
     // that don't expose the original key. We can't test the rendered
     // tree directly, but we *can* read back the layer's stored
     // markers list (which is what the painter iterates) and verify
     // the geometry is intact.
-    final sellers = fallbackSellers();
+    final sellers = _fixtureSellers();
     final markers = <Marker>[
       for (final s in sellers)
         Marker(
@@ -87,7 +123,7 @@ void main() {
     ];
 
     // Verify the marker list itself is correct without rendering.
-    expect(markers.length, 11);
+    expect(markers.length, sellers.length);
     for (var i = 0; i < sellers.length; i++) {
       expect(markers[i].point.latitude, sellers[i].latitude);
       expect(markers[i].point.longitude, sellers[i].longitude);
@@ -99,12 +135,14 @@ void main() {
   });
 
   testWidgets(
-    'buyer map pill "11 wauzaji wanaonekana" appears with all sellers',
+    'buyer map pill shows the visible-sellers count from a registered list',
     (tester) async {
       // This simulates what buyer_map_screen renders: a top-right
       // pill showing the visible-sellers count. We pump it directly
       // without the surrounding map so the test is independent of
-      // the tile layer.
+      // the tile layer. The count is now driven by real Firestore
+      // reads (no demo fallback).
+      final sellers = _fixtureSellers();
       await tester.pumpWidget(
         MaterialApp(
           home: Scaffold(
@@ -116,7 +154,7 @@ void main() {
                     padding: const EdgeInsets.symmetric(
                         horizontal: 16, vertical: 8),
                     child: Text(
-                      '${fallbackSellers().length} wauzaji wanaonekana',
+                      '${sellers.length} wauzaji wanaonekana',
                       style: const TextStyle(color: Colors.white),
                     ),
                   ),
@@ -127,7 +165,8 @@ void main() {
         ),
       );
 
-      expect(find.text('11 wauzaji wanaonekana'), findsOneWidget);
+      expect(find.text('${sellers.length} wauzaji wanaonekana'),
+          findsOneWidget);
     },
   );
 }

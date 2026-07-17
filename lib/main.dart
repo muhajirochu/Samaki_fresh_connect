@@ -30,6 +30,7 @@ void main() async {
     // app launches in the right colour scheme — no flash of the
     // wrong theme on cold start.
     AppLogger.info('Bootstrapping theme mode...');
+    await migrateLegacyThemeSlot();
     await bootstrapThemeNotifier();
     AppLogger.info('Theme mode bootstrapped');
 
@@ -91,6 +92,12 @@ class SamakiFreshApp extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     // Riverpod's [themeModeProvider] re-emits on every theme change.
     final mode = ref.watch(themeModeProvider);
+    // Subscribe to the per-user theme bootstrap so the moment the
+    // signed-in account changes (sign-in / sign-out / role switch)
+    // we re-load that user's saved theme. Without this watch, the
+    // [userThemeBootstrapProvider] would never trigger and the
+    // theme would leak across accounts on the same device.
+    ref.watch(userThemeBootstrapProvider);
     // The singleton [LocaleNotifier] is observed via
     // [Localizations.override] below so the framework rebuilds the
     // whole tree the moment the user picks a new language.

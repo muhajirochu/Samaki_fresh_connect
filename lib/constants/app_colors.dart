@@ -150,9 +150,20 @@ enum AppThemeMode {
         AppThemeMode.dark => 'Deep Navy & Teal, easy on the eyes',
       };
 
-  /// Storage key for SharedPreferences. The value is the
-  /// [AppThemeMode.name] (e.g. `"dark"`).
-  static const String prefKey = 'app.themeMode.v2';
+  /// Storage key prefix for SharedPreferences. The full key is
+  /// derived per-user so each signed-in account keeps its own theme
+  /// choice (buyer, street seller, admin all share the same key
+  /// derivation — theme is a personal preference, not a role-level
+  /// or device-level setting).
+  ///
+  /// Use [prefKeyFor] when you have a uid; [prefKeyAnonymous] is the
+  /// fallback for the brief window before sign-in completes.
+  static const String _prefKeyPrefix = 'app.themeMode.v3';
+  static const String prefKeyAnonymous = '$_prefKeyPrefix.guest';
+
+  /// Per-user storage key. Pass the signed-in user's uid (or any
+  /// stable string identifier) so each account keeps its own theme.
+  static String prefKeyFor(String uid) => '$_prefKeyPrefix.user.$uid';
 
   /// Resolve from the persisted string. Falls back to [light] when
   /// the stored value is missing or comes from an older enum version
