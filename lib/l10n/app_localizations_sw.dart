@@ -1110,6 +1110,93 @@ class AppLocalizationsSw extends AppLocalizations {
   }
 
   @override
+  String get notificationsSection => 'Arifa';
+
+  @override
+  String get notificationsSubtitle => 'Chagua arifa zipi unazipokea';
+
+  @override
+  String get notificationsPush => 'Arifa za papo hapo';
+
+  @override
+  String get notificationsPushSubtitle => 'Onyesha arifa kwenye kifaa hiki';
+
+  @override
+  String get notificationsEmail => 'Arifa za barua pepe';
+
+  @override
+  String get notificationsEmailSubtitle => 'Pokea masasisho kwa barua pepe';
+
+  @override
+  String get notificationsOrderUpdates => 'Masasisho ya maagizo';
+
+  @override
+  String get notificationsOrderUpdatesSubtitle =>
+      'Mabadiliko ya hali ya maagizo yako';
+
+  @override
+  String get notificationsPromotions => 'Matangazo na vidokezo';
+
+  @override
+  String get notificationsPromotionsSubtitle => 'Mara kwa mara, habari za soko';
+
+  @override
+  String get privacySection => 'Faragha';
+
+  @override
+  String get privacySubtitle => 'Dhibiti watumiaji wengine wanaona nini';
+
+  @override
+  String get privacyShowOnlineStatus => 'Onyesha hali yangu ya mtandaoni';
+
+  @override
+  String get privacyShowOnlineStatusSubtitle =>
+      'Wanunuzi na wauzaji wanaona unapokuwa live';
+
+  @override
+  String get privacyShowLocation => 'Shiriki eneo langu';
+
+  @override
+  String get privacyShowLocationSubtitle =>
+      'Inasaidia wanunuzi kukupata kwenye ramani';
+
+  @override
+  String get aboutSection => 'Kuhusu';
+
+  @override
+  String get aboutSubtitle => 'Taarifa za programu na sifa';
+
+  @override
+  String get aboutAppVersion => 'Toleo';
+
+  @override
+  String get aboutViewLicenses => 'Leseni za chanzo wazi';
+
+  @override
+  String get aboutViewLicensesSubtitle =>
+      'Ona matangazo ya maktaba za wahusika wengine';
+
+  @override
+  String get aboutPrivacyPolicy => 'Sera ya faragha';
+
+  @override
+  String get aboutPrivacyPolicySubtitle => 'Jinsi tunavyoshughulikia data yako';
+
+  @override
+  String get aboutTermsOfService => 'Masharti ya huduma';
+
+  @override
+  String get aboutTermsOfServiceSubtitle =>
+      'Kanuni za kutumia Samaki Fresh Connect';
+
+  @override
+  String get comingSoon => 'Inakuja hivi karibuni';
+
+  @override
+  String get appearanceLiveHint =>
+      'Uchaguzi wako unatumika papo hapo kwenye kila skrini na kuhifadhiwa kwa wakati ujao.';
+
+  @override
   String get transactionsTitle => 'Miamala';
 
   @override

@@ -2096,6 +2096,168 @@ abstract class AppLocalizations {
   /// **'{count, plural, =0{None selected} =1{1 selected} other{{count} selected}}'**
   String selectedCount(int count);
 
+  /// No description provided for @notificationsSection.
+  ///
+  /// In en, this message translates to:
+  /// **'Notifications'**
+  String get notificationsSection;
+
+  /// No description provided for @notificationsSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose which alerts you receive'**
+  String get notificationsSubtitle;
+
+  /// No description provided for @notificationsPush.
+  ///
+  /// In en, this message translates to:
+  /// **'Push notifications'**
+  String get notificationsPush;
+
+  /// No description provided for @notificationsPushSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Show alerts on this device'**
+  String get notificationsPushSubtitle;
+
+  /// No description provided for @notificationsEmail.
+  ///
+  /// In en, this message translates to:
+  /// **'Email notifications'**
+  String get notificationsEmail;
+
+  /// No description provided for @notificationsEmailSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Receive updates by email'**
+  String get notificationsEmailSubtitle;
+
+  /// No description provided for @notificationsOrderUpdates.
+  ///
+  /// In en, this message translates to:
+  /// **'Order updates'**
+  String get notificationsOrderUpdates;
+
+  /// No description provided for @notificationsOrderUpdatesSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Status changes on your orders'**
+  String get notificationsOrderUpdatesSubtitle;
+
+  /// No description provided for @notificationsPromotions.
+  ///
+  /// In en, this message translates to:
+  /// **'Promotions & tips'**
+  String get notificationsPromotions;
+
+  /// No description provided for @notificationsPromotionsSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Occasional marketplace news'**
+  String get notificationsPromotionsSubtitle;
+
+  /// No description provided for @privacySection.
+  ///
+  /// In en, this message translates to:
+  /// **'Privacy'**
+  String get privacySection;
+
+  /// No description provided for @privacySubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Control what other users see'**
+  String get privacySubtitle;
+
+  /// No description provided for @privacyShowOnlineStatus.
+  ///
+  /// In en, this message translates to:
+  /// **'Show my online status'**
+  String get privacyShowOnlineStatus;
+
+  /// No description provided for @privacyShowOnlineStatusSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Buyers and sellers can see when you are live'**
+  String get privacyShowOnlineStatusSubtitle;
+
+  /// No description provided for @privacyShowLocation.
+  ///
+  /// In en, this message translates to:
+  /// **'Share my location'**
+  String get privacyShowLocation;
+
+  /// No description provided for @privacyShowLocationSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Helps buyers find you on the map'**
+  String get privacyShowLocationSubtitle;
+
+  /// No description provided for @aboutSection.
+  ///
+  /// In en, this message translates to:
+  /// **'About'**
+  String get aboutSection;
+
+  /// No description provided for @aboutSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'App info and credits'**
+  String get aboutSubtitle;
+
+  /// No description provided for @aboutAppVersion.
+  ///
+  /// In en, this message translates to:
+  /// **'Version'**
+  String get aboutAppVersion;
+
+  /// No description provided for @aboutViewLicenses.
+  ///
+  /// In en, this message translates to:
+  /// **'Open-source licenses'**
+  String get aboutViewLicenses;
+
+  /// No description provided for @aboutViewLicensesSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'View third-party library notices'**
+  String get aboutViewLicensesSubtitle;
+
+  /// No description provided for @aboutPrivacyPolicy.
+  ///
+  /// In en, this message translates to:
+  /// **'Privacy policy'**
+  String get aboutPrivacyPolicy;
+
+  /// No description provided for @aboutPrivacyPolicySubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'How we handle your data'**
+  String get aboutPrivacyPolicySubtitle;
+
+  /// No description provided for @aboutTermsOfService.
+  ///
+  /// In en, this message translates to:
+  /// **'Terms of service'**
+  String get aboutTermsOfService;
+
+  /// No description provided for @aboutTermsOfServiceSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'The rules of using Samaki Fresh Connect'**
+  String get aboutTermsOfServiceSubtitle;
+
+  /// No description provided for @comingSoon.
+  ///
+  /// In en, this message translates to:
+  /// **'Coming soon'**
+  String get comingSoon;
+
+  /// No description provided for @appearanceLiveHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Your selection is applied instantly across every screen and saved for next time.'**
+  String get appearanceLiveHint;
+
   /// No description provided for @transactionsTitle.
   ///
   /// In en, this message translates to:
