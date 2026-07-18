@@ -54,6 +54,8 @@ dependencies:
   flutter_local_notifications: ^17.2.4
   
   # Localization
+  flutter_localizations:
+    sdk: flutter
   easy_localization: ^3.0.0
   
   # Code Generation
@@ -86,11 +88,9 @@ dev_dependencies:
 
 flutter:
   uses-material-design: true
-  
+
   assets:
     - assets/images/
     - assets/images/logo/logo.png
-    - assets/images/illustrations/
-    - assets/images/icons/
     - assets/translations/
-    - assets/animations/
+  generate: true

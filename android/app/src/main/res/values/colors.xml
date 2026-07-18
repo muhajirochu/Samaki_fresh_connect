@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- SamakiFresh brand colour palette for Android native resources.
+     These colours are used by the LaunchTheme before Flutter draws its
+     first frame, so the native launch screen matches the Flutter splash
+     screen exactly — no white flash, no colour mismatch. -->
+<resources>
+    <!-- Deep navy: matches the Flutter SplashScreen scaffold background -->
+    <color name="launch_background_color">#FF001229</color>
+</resources>
