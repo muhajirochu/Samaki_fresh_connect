@@ -25,6 +25,7 @@ class ManageBuyersScreen extends ConsumerStatefulWidget {
 
 class _ManageBuyersScreenState extends ConsumerState<ManageBuyersScreen> {
   String _query = '';
+  String _statusFilter = 'all'; // 'all' | 'active' | 'suspended'
 
   @override
   Widget build(BuildContext context) {
@@ -38,7 +39,7 @@ class _ManageBuyersScreenState extends ConsumerState<ManageBuyersScreen> {
         error: (e, _) =>
             Center(child: Text(l10n.loadingError(e.toString()))),
         data: (buyers) {
-          final filtered = _query.isEmpty
+          final filteredByQuery = _query.isEmpty
               ? buyers
               : buyers.where((u) {
                   final q = _query.toLowerCase();
@@ -46,6 +47,21 @@ class _ManageBuyersScreenState extends ConsumerState<ManageBuyersScreen> {
                       u.email.toLowerCase().contains(q) ||
                       u.phoneNumber.toLowerCase().contains(q);
                 }).toList();
+
+          // Apply status filter. Admins reach for this when triaging
+          // abuse reports — pick "Suspended" to find the offenders in
+          // one tap, "Active" to find the normal cohort.
+          final filtered = filteredByQuery.where((u) {
+            switch (_statusFilter) {
+              case 'suspended':
+                return !u.isActive;
+              case 'active':
+                return u.isActive;
+              case 'all':
+              default:
+                return true;
+            }
+          }).toList();
 
           if (buyers.isEmpty) {
             return Center(
@@ -63,15 +79,47 @@ class _ManageBuyersScreenState extends ConsumerState<ManageBuyersScreen> {
             children: [
               Padding(
                 padding: const EdgeInsets.all(AppSizes.paddingLG),
-                child: TextField(
-                  decoration: InputDecoration(
-                    prefixIcon: const Icon(Icons.search_rounded),
-                    hintText: l10n.searchBuyers,
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(14),
+                child: Column(
+                  children: [
+                    TextField(
+                      decoration: InputDecoration(
+                        prefixIcon: const Icon(Icons.search_rounded),
+                        hintText: l10n.searchBuyers,
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(14),
+                        ),
+                      ),
+                      onChanged: (v) => setState(() => _query = v.trim()),
                     ),
-                  ),
-                  onChanged: (v) => setState(() => _query = v.trim()),
+                    const SizedBox(height: AppSizes.paddingMD),
+                    SingleChildScrollView(
+                      scrollDirection: Axis.horizontal,
+                      child: Row(
+                        children: [
+                          _BuyerStatusChip(
+                            label: 'All',
+                            selected: _statusFilter == 'all',
+                            onTap: () =>
+                                setState(() => _statusFilter = 'all'),
+                          ),
+                          const SizedBox(width: AppSizes.paddingSM),
+                          _BuyerStatusChip(
+                            label: 'Active',
+                            selected: _statusFilter == 'active',
+                            onTap: () =>
+                                setState(() => _statusFilter = 'active'),
+                          ),
+                          const SizedBox(width: AppSizes.paddingSM),
+                          _BuyerStatusChip(
+                            label: l10n.suspendedBadge,
+                            selected: _statusFilter == 'suspended',
+                            onTap: () =>
+                                setState(() => _statusFilter = 'suspended'),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
                 ),
               ),
               Expanded(
@@ -237,6 +285,47 @@ class _BuyerCard extends ConsumerWidget {
             ],
           ),
         ],
+      ),
+    );
+  }
+}
+
+class _BuyerStatusChip extends StatelessWidget {
+  final String label;
+  final bool selected;
+  final VoidCallback onTap;
+
+  const _BuyerStatusChip({
+    required this.label,
+    required this.selected,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    return InkWell(
+      borderRadius: BorderRadius.circular(20),
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.symmetric(
+          horizontal: AppSizes.paddingMD,
+          vertical: AppSizes.paddingSM,
+        ),
+        decoration: BoxDecoration(
+          color: selected ? cs.primary : cs.surface,
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(
+            color: selected ? cs.primary : cs.outline.withValues(alpha: 0.4),
+          ),
+        ),
+        child: Text(
+          label,
+          style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                color: selected ? cs.onPrimary : cs.onSurface,
+                fontWeight: FontWeight.w700,
+              ),
+        ),
       ),
     );
   }
