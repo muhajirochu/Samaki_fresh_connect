@@ -358,13 +358,34 @@ class AppLocalizationsEn extends AppLocalizations {
   String get sendRequest => 'Send Request';
 
   @override
-  String get callSeller => 'Call';
+  String get callSeller => 'Call seller';
 
   @override
-  String get smsSeller => 'SMS';
+  String get smsSeller => 'Message seller';
+
+  @override
+  String get callFailed => 'Call not available — number copied';
+
+  @override
+  String get smsFailed => 'SMS not available — number copied';
 
   @override
   String get viewDetails => 'View Details';
+
+  @override
+  String get trackSeller => 'Track seller';
+
+  @override
+  String get sellersNearYou => 'Sellers near you';
+
+  @override
+  String get liveFishFromThisSeller => 'Live fish from this seller';
+
+  @override
+  String get noFishPhotos => 'No fish photos yet';
+
+  @override
+  String get phoneCopied => 'Phone number copied';
 
   @override
   String sellersNearby(int count) {

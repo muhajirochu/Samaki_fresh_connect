@@ -5,6 +5,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
+import 'package:samakifresh_connect/l10n/app_localizations.dart';
 import 'package:samakifresh_connect/models/street_seller_model.dart';
 import 'package:samakifresh_connect/widgets/map/seller_profile_sheet.dart';
 
@@ -44,6 +45,9 @@ Future<void> _pumpSellerProfile(
     WidgetTester tester, StreetSellerModel seller) async {
   await tester.pumpWidget(
     MaterialApp(
+      localizationsDelegates: AppLocalizations.localizationsDelegates,
+      supportedLocales: AppLocalizations.supportedLocales,
+      locale: const Locale('en'),
       home: Builder(
         builder: (context) => Scaffold(
           body: SizedBox(
@@ -71,8 +75,7 @@ void main() {
     expect(find.text('Fatma Tuna Specialist'), findsOneWidget);
   });
 
-  testWidgets('shows verified badge when isVerified is true',
-      (tester) async {
+  testWidgets('shows verified badge when isVerified is true', (tester) async {
     await _pumpSellerProfile(tester, _testSeller());
 
     // The verified tooltip icon is rendered with the message
@@ -80,8 +83,7 @@ void main() {
     expect(find.byTooltip('Verified seller'), findsOneWidget);
   });
 
-  testWidgets('hides verified badge when isVerified is false',
-      (tester) async {
+  testWidgets('hides verified badge when isVerified is false', (tester) async {
     await _pumpSellerProfile(
       tester,
       _testSeller(isVerified: false),
@@ -104,8 +106,7 @@ void main() {
     expect(find.textContaining('-6.16080, 39.20400'), findsOneWidget);
   });
 
-  testWidgets('shows phone number in Call and SMS tiles',
-      (tester) async {
+  testWidgets('shows phone number in Call and SMS tiles', (tester) async {
     await _pumpSellerProfile(tester, _testSeller());
 
     expect(find.text('Call'), findsOneWidget);
@@ -114,14 +115,16 @@ void main() {
     expect(find.text('+255770000001'), findsNWidgets(2));
   });
 
-  testWidgets('shows rating, orders, and verification status',
-      (tester) async {
+  testWidgets('shows rating, orders, and verification status', (tester) async {
     // The trust signals row sits in the middle of the sheet, so we
     // scroll the inner ListView until the values are visible. We
     // anchor on the headline numbers ("4.5", "38") which are larger
     // and easier for the finder to match against.
     await tester.pumpWidget(
       MaterialApp(
+        localizationsDelegates: AppLocalizations.localizationsDelegates,
+        supportedLocales: AppLocalizations.supportedLocales,
+        locale: const Locale('en'),
         home: Builder(
           builder: (context) => Scaffold(
             body: SizedBox(
@@ -153,10 +156,14 @@ void main() {
     expect(find.text('Verified'), findsOneWidget);
   });
 
-  testWidgets('shows "Online · live location" pill when seller is online and fresh',
+  testWidgets(
+      'shows "Online · live location" pill when seller is online and fresh',
       (tester) async {
     await tester.pumpWidget(
       MaterialApp(
+        localizationsDelegates: AppLocalizations.localizationsDelegates,
+        supportedLocales: AppLocalizations.supportedLocales,
+        locale: const Locale('en'),
         home: Builder(
           builder: (context) => Scaffold(
             body: SizedBox(
@@ -178,8 +185,7 @@ void main() {
     expect(find.text('Online · live location'), findsOneWidget);
   });
 
-  testWidgets('shows offline state when seller is not online',
-      (tester) async {
+  testWidgets('shows offline state when seller is not online', (tester) async {
     await _pumpSellerProfile(tester, _testSeller());
 
     // Without lastLocationUpdateAt and isOnline=false, the pill
@@ -200,6 +206,9 @@ void main() {
       (tester) async {
     await tester.pumpWidget(
       MaterialApp(
+        localizationsDelegates: AppLocalizations.localizationsDelegates,
+        supportedLocales: AppLocalizations.supportedLocales,
+        locale: const Locale('en'),
         home: Builder(
           builder: (context) => Scaffold(
             body: SizedBox(
@@ -225,26 +234,28 @@ void main() {
 // recent refactors — both expose `onPressed`. Verify the label is
 // found and that the underlying button is disabled by walking
 // whichever ancestor button widget is rendered.
-final labelFinder = find.text('Tuma Ombi la Samaki');
-expect(labelFinder, findsOneWidget);
+    final labelFinder = find.text('Tuma Ombi la Samaki');
+    expect(labelFinder, findsOneWidget);
 
 // Walk up to the closest ButtonStyleButton (FilledButton, OutlinedButton,
 // TextButton) or the GradientButton's Material/Opacity/InkWell parent.
 // If we can't find a FilledButton ancestor, just verify the label is
 // present and the parent's onPressed is null.
-ButtonStyleButton? styleButton;
-try {
-  styleButton = tester.widget<ButtonStyleButton>(
-    find.ancestor(of: labelFinder, matching: find.byType(ButtonStyleButton)),
-  );
-  expect(styleButton.onPressed, isNull,
-      reason: 'without onSendRequest callback, the button should be disabled');
-} catch (_) {
-  // No ButtonStyleButton ancestor — likely a custom button (GradientButton).
-  // Still consider the test passing as long as the label is rendered;
-  // custom buttons correctly read widget.onPressed directly.
-  expect(labelFinder, findsOneWidget);
-}
+    ButtonStyleButton? styleButton;
+    try {
+      styleButton = tester.widget<ButtonStyleButton>(
+        find.ancestor(
+            of: labelFinder, matching: find.byType(ButtonStyleButton)),
+      );
+      expect(styleButton.onPressed, isNull,
+          reason:
+              'without onSendRequest callback, the button should be disabled');
+    } catch (_) {
+      // No ButtonStyleButton ancestor — likely a custom button (GradientButton).
+      // Still consider the test passing as long as the label is rendered;
+      // custom buttons correctly read widget.onPressed directly.
+      expect(labelFinder, findsOneWidget);
+    }
   });
 
   testWidgets('"Send fish request" button is enabled when callback is provided',
@@ -252,6 +263,9 @@ try {
     var tapped = false;
     await tester.pumpWidget(
       MaterialApp(
+        localizationsDelegates: AppLocalizations.localizationsDelegates,
+        supportedLocales: AppLocalizations.supportedLocales,
+        locale: const Locale('en'),
         home: Builder(
           builder: (context) => Scaffold(
             body: SizedBox(
@@ -288,8 +302,7 @@ try {
     expect(find.text('FT'), findsOneWidget);
   });
 
-  testWidgets('every demo seller renders their own initials',
-      (tester) async {
+  testWidgets('every demo seller renders their own initials', (tester) async {
     final sellers = [
       ('Fatma Tuna Specialist', 'FT'),
       ('Babu Tilapia', 'BT'),

@@ -356,13 +356,34 @@ class AppLocalizationsSw extends AppLocalizations {
   String get sendRequest => 'Tuma Ombi';
 
   @override
-  String get callSeller => 'Piga simu';
+  String get callSeller => 'Piga muuzaji';
 
   @override
-  String get smsSeller => 'Tuma Ujumbe';
+  String get smsSeller => 'Tuma ujumbe kwa muuzaji';
+
+  @override
+  String get callFailed => 'Simu haipatikani — nambari imenakiliwa';
+
+  @override
+  String get smsFailed => 'Ujumbe haupatikani — nambari imenakiliwa';
 
   @override
   String get viewDetails => 'Ona Maelezo';
+
+  @override
+  String get trackSeller => 'Fuatilia muuzaji';
+
+  @override
+  String get sellersNearYou => 'Wauzaji karibu nawe';
+
+  @override
+  String get liveFishFromThisSeller => 'Samaki hai kutoka kwa muuzaji huyu';
+
+  @override
+  String get noFishPhotos => 'Hakuna picha za samaki bado';
+
+  @override
+  String get phoneCopied => 'Nambari ya simu imenakiliwa';
 
   @override
   String sellersNearby(int count) {

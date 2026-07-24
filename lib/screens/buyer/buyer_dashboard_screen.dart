@@ -26,6 +26,7 @@ import '../../constants/app_colors.dart';
 import '../../constants/app_sizes.dart';
 import '../../l10n/app_localizations.dart';
 import '../../models/fish_item_model.dart';
+import '../../models/street_seller_model.dart';
 import '../../providers/auth_provider.dart';
 import '../../providers/buyer_provider.dart';
 import '../../widgets/common/premium_components.dart';
@@ -183,6 +184,14 @@ class _DashboardBody extends ConsumerWidget {
             ),
           ),
 
+          // ── 4b. Sellers near you (track-seller entry point) ─────────
+          SliverToBoxAdapter(
+            child: _SellersNearYouSection(
+              onTapSeller: (sellerId) =>
+                  context.push('/buyer/seller/$sellerId'),
+            ),
+          ),
+
           // ── 5. Browse Other Fish ────────────────────────────────────────
           SliverToBoxAdapter(
             child: Padding(
@@ -289,13 +298,11 @@ class _MapCtaCard extends StatelessWidget {
                     children: [
                       Text(
                         'Fungua Ramani',
-                        style: Theme.of(context)
-                            .textTheme
-                            .titleMedium
-                            ?.copyWith(
-                              color: Colors.white,
-                              fontWeight: FontWeight.w700,
-                            ),
+                        style:
+                            Theme.of(context).textTheme.titleMedium?.copyWith(
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.w700,
+                                ),
                       ),
                       const SizedBox(height: 2),
                       Text(
@@ -310,8 +317,7 @@ class _MapCtaCard extends StatelessWidget {
                     ],
                   ),
                 ),
-                const Icon(Icons.arrow_forward_rounded,
-                    color: Colors.white),
+                const Icon(Icons.arrow_forward_rounded, color: Colors.white),
               ],
             ),
           ),
@@ -389,8 +395,8 @@ class _RequestsCtaCard extends StatelessWidget {
                 ),
                 if (activeCount > 0)
                   Container(
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 8, vertical: 3),
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                     decoration: BoxDecoration(
                       color: AppColors.accentOrange,
                       borderRadius: BorderRadius.circular(10),
@@ -406,8 +412,271 @@ class _RequestsCtaCard extends StatelessWidget {
                   ),
                 const SizedBox(width: 4),
                 Icon(Icons.arrow_forward_ios_rounded,
+                    color: cs.onSurface.withValues(alpha: 0.45), size: 16),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+/// "Sellers near you" — horizontally-scrolling strip of live street
+/// sellers. Each card pushes `/buyer/seller/:sellerId` so the buyer
+/// can track the seller (see profile, listings, call / SMS).
+///
+/// Implementation note: inline (not in a separate file) because this
+/// is tightly coupled to the dashboard's live-sellers slice. The
+/// widget falls back to an empty-state tile when the live sellers
+/// stream is empty so the dashboard layout doesn't jump.
+class _SellersNearYouSection extends ConsumerWidget {
+  final void Function(String sellerId) onTapSeller;
+  const _SellersNearYouSection({required this.onTapSeller});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = AppLocalizations.of(context);
+    final tokens = BackgroundStyle.of(context);
+    final cs = Theme.of(context).colorScheme;
+    final tt = Theme.of(context).textTheme;
+    final sellersAsync = ref.watch(activeStreetSellersProvider);
+
+    return sellersAsync.when(
+      loading: () => const SizedBox(
+        height: 132,
+        child: Center(child: CircularProgressIndicator()),
+      ),
+      error: (e, _) => Padding(
+        padding: const EdgeInsets.symmetric(horizontal: AppSizes.paddingLG),
+        child: Container(
+          padding: const EdgeInsets.all(AppSizes.paddingLG),
+          decoration: BoxDecoration(
+            color: tokens.surface,
+            borderRadius: BorderRadius.circular(AppSizes.radiusLG),
+            border: Border.all(color: tokens.border, width: 0.6),
+          ),
+          child: Row(
+            children: [
+              const Icon(Icons.error_outline, color: Colors.redAccent),
+              const SizedBox(width: AppSizes.paddingSM),
+              Expanded(
+                child: Text(
+                  l10n.loadingError(e.toString()),
+                  style: tt.bodySmall?.copyWith(
+                    color: cs.onSurface.withValues(alpha: 0.65),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+      data: (allSellers) {
+        final sellers = allSellers.take(5).toList(growable: false);
+        if (sellers.isEmpty) {
+          return Padding(
+            padding: const EdgeInsets.symmetric(horizontal: AppSizes.paddingLG),
+            child: Container(
+              padding: const EdgeInsets.all(AppSizes.paddingLG),
+              decoration: BoxDecoration(
+                color: tokens.surface,
+                borderRadius: BorderRadius.circular(AppSizes.radiusLG),
+                border: Border.all(color: tokens.border, width: 0.6),
+              ),
+              child: Row(
+                children: [
+                  Icon(
+                    Icons.storefront_outlined,
                     color: cs.onSurface.withValues(alpha: 0.45),
-                    size: 16),
+                  ),
+                  const SizedBox(width: AppSizes.paddingSM),
+                  Expanded(
+                    child: Text(
+                      l10n.sellersNearby(0),
+                      style: tt.bodyMedium?.copyWith(
+                        color: cs.onSurface.withValues(alpha: 0.65),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          );
+        }
+        return Padding(
+          padding: const EdgeInsets.only(
+            top: AppSizes.paddingSM,
+            bottom: AppSizes.paddingMD,
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Padding(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: AppSizes.paddingLG,
+                ),
+                child: Row(
+                  children: [
+                    Icon(Icons.storefront_rounded, color: cs.primary, size: 20),
+                    const SizedBox(width: AppSizes.paddingSM),
+                    Expanded(
+                      child: Text(
+                        l10n.sellersNearYou,
+                        style: tt.titleMedium?.copyWith(
+                          fontWeight: FontWeight.w800,
+                          letterSpacing: -0.2,
+                        ),
+                      ),
+                    ),
+                    Text(
+                      l10n.sellersNearby(sellers.length),
+                      style: tt.labelSmall?.copyWith(
+                        color: cs.onSurface.withValues(alpha: 0.65),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: AppSizes.paddingSM),
+              SizedBox(
+                height: 132,
+                child: ListView.separated(
+                  scrollDirection: Axis.horizontal,
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: AppSizes.paddingLG,
+                  ),
+                  itemCount: sellers.length,
+                  separatorBuilder: (_, __) =>
+                      const SizedBox(width: AppSizes.paddingMD),
+                  itemBuilder: (context, i) => _SellerNearbyCard(
+                    seller: sellers[i],
+                    onTap: () => onTapSeller(sellers[i].sellerId),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+}
+
+/// Compact card for a single street seller in the "Sellers near you"
+/// strip — avatar, name, online dot, and tap-to-track.
+class _SellerNearbyCard extends StatelessWidget {
+  final StreetSellerModel seller;
+  final VoidCallback onTap;
+  const _SellerNearbyCard({required this.seller, required this.onTap});
+
+  String _initials(String name) {
+    final parts = name.trim().split(RegExp(r'\s+'));
+    if (parts.isEmpty || parts.first.isEmpty) return '?';
+    if (parts.length == 1) return parts[0].substring(0, 1).toUpperCase();
+    return (parts[0].substring(0, 1) + parts[1].substring(0, 1)).toUpperCase();
+  }
+
+  Color _tintFor(String seed) {
+    const palette = [
+      AppColors.primaryBlue,
+      AppColors.secondaryTeal,
+      AppColors.accentOrange,
+      AppColors.successGreen,
+      AppColors.infoBlue,
+      AppColors.warningAmber,
+    ];
+    final hash = seed.codeUnits.fold<int>(0, (a, b) => a + b);
+    return palette[hash % palette.length];
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final tokens = BackgroundStyle.of(context);
+    final cs = Theme.of(context).colorScheme;
+    final tt = Theme.of(context).textTheme;
+    final tint = _tintFor(seller.sellerId);
+    return SizedBox(
+      width: 168,
+      child: Material(
+        color: tokens.surface,
+        borderRadius: BorderRadius.circular(AppSizes.radiusLG),
+        child: InkWell(
+          onTap: onTap,
+          borderRadius: BorderRadius.circular(AppSizes.radiusLG),
+          child: Container(
+            padding: const EdgeInsets.all(AppSizes.paddingMD),
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(AppSizes.radiusLG),
+              border: Border.all(color: tokens.border, width: 0.6),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    Container(
+                      width: 36,
+                      height: 36,
+                      decoration: BoxDecoration(
+                        color: tint.withValues(alpha: 0.18),
+                        shape: BoxShape.circle,
+                      ),
+                      alignment: Alignment.center,
+                      child: Text(
+                        _initials(seller.fullName),
+                        style: tt.titleSmall?.copyWith(
+                          color: tint,
+                          fontWeight: FontWeight.w800,
+                        ),
+                      ),
+                    ),
+                    const Spacer(),
+                    if (seller.isOnline)
+                      Container(
+                        width: 10,
+                        height: 10,
+                        decoration: const BoxDecoration(
+                          color: AppColors.successGreen,
+                          shape: BoxShape.circle,
+                        ),
+                      ),
+                  ],
+                ),
+                const SizedBox(height: AppSizes.paddingSM),
+                Text(
+                  seller.fullName,
+                  style: tt.titleSmall?.copyWith(fontWeight: FontWeight.w700),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+                const SizedBox(height: 2),
+                Row(
+                  children: [
+                    const Icon(Icons.star_rounded,
+                        color: AppColors.warningAmber, size: 14),
+                    const SizedBox(width: 2),
+                    Text(
+                      seller.totalRatings == 0
+                          ? '—'
+                          : seller.averageRating.toStringAsFixed(1),
+                      style: tt.labelMedium?.copyWith(
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                    const SizedBox(width: 6),
+                    Expanded(
+                      child: Text(
+                        seller.marketName ?? '',
+                        style: tt.labelSmall?.copyWith(
+                          color: cs.onSurface.withValues(alpha: 0.65),
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                  ],
+                ),
               ],
             ),
           ),

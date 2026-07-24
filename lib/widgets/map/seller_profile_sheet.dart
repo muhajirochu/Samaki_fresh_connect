@@ -19,11 +19,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import '../../config/theme_extensions.dart';
 import '../../constants/app_colors.dart';
 import '../../constants/app_sizes.dart';
 import '../../features/map/utils/gps_helper.dart';
+import '../../l10n/app_localizations.dart';
 import '../../models/street_seller_model.dart';
 import '../common/premium_components.dart';
 
@@ -340,8 +342,7 @@ class _OnlineStatusPill extends StatelessWidget {
     final lastFix = seller.lastLocationUpdateAt;
     final isFresh = seller.isOnline &&
         lastFix != null &&
-        DateTime.now().difference(lastFix) <
-            const Duration(minutes: 5);
+        DateTime.now().difference(lastFix) < const Duration(minutes: 5);
 
     final theme = Theme.of(context);
     final cs = theme.colorScheme;
@@ -367,11 +368,15 @@ class _OnlineStatusPill extends StatelessWidget {
               ),
             ),
             const SizedBox(width: AppSizes.paddingXS),
-            Text(
-              'Online · live location',
-              style: theme.textTheme.bodySmall?.copyWith(
-                color: AppColors.successGreen,
-                fontWeight: FontWeight.w700,
+            Flexible(
+              child: Text(
+                'Online · live location',
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: theme.textTheme.bodySmall?.copyWith(
+                  color: AppColors.successGreen,
+                  fontWeight: FontWeight.w700,
+                ),
               ),
             ),
           ],
@@ -424,8 +429,8 @@ class _OnlineStatusPill extends StatelessWidget {
   }
 }
 
-/// Phone + SMS action row. Both copy the number to the clipboard
-/// so the buyer can paste into their dialer / messaging app.
+/// Phone + SMS action row. Both launch the appropriate platform app and
+/// fall back to copying the number when a launch is unavailable.
 class _ContactStrip extends StatelessWidget {
   final StreetSellerModel seller;
   const _ContactStrip({required this.seller});
@@ -445,6 +450,68 @@ class _ContactStrip extends StatelessWidget {
     );
   }
 
+  Future<void> _callSeller(BuildContext context, String phoneNumber) async {
+    try {
+      final launched = await launchUrl(Uri(scheme: 'tel', path: phoneNumber));
+      if (!launched && context.mounted) {
+        final l10n = Localizations.of<AppLocalizations>(
+          context,
+          AppLocalizations,
+        );
+        _copyToClipboard(
+          context,
+          phoneNumber,
+          message: l10n?.callFailed ??
+              'Phone number copied — paste into your dialer',
+        );
+      }
+    } catch (_) {
+      if (context.mounted) {
+        final l10n = Localizations.of<AppLocalizations>(
+          context,
+          AppLocalizations,
+        );
+        _copyToClipboard(
+          context,
+          phoneNumber,
+          message: l10n?.callFailed ??
+              'Phone number copied — paste into your dialer',
+        );
+      }
+    }
+  }
+
+  Future<void> _smsSeller(BuildContext context, String phoneNumber) async {
+    try {
+      final launched = await launchUrl(Uri(scheme: 'sms', path: phoneNumber));
+      if (!launched && context.mounted) {
+        final l10n = Localizations.of<AppLocalizations>(
+          context,
+          AppLocalizations,
+        );
+        _copyToClipboard(
+          context,
+          phoneNumber,
+          message: l10n?.smsFailed ??
+              'Phone number copied — paste into your messaging app',
+        );
+      }
+    } catch (_) {
+      if (context.mounted) {
+        final l10n = Localizations.of<AppLocalizations>(
+          context,
+          AppLocalizations,
+        );
+        _copyToClipboard(
+          context,
+          phoneNumber,
+          message: l10n?.smsFailed ??
+              'Phone number copied — paste into your messaging app',
+        );
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Row(
@@ -455,8 +522,7 @@ class _ContactStrip extends StatelessWidget {
             label: 'Call',
             value: seller.phoneNumber,
             color: AppColors.successGreen,
-            onTap: () => _copyToClipboard(context, seller.phoneNumber,
-                message: 'Phone number copied — paste into your dialer'),
+            onTap: () => _callSeller(context, seller.phoneNumber),
           ),
         ),
         const SizedBox(width: AppSizes.paddingMD),
@@ -466,8 +532,7 @@ class _ContactStrip extends StatelessWidget {
             label: 'SMS',
             value: seller.phoneNumber,
             color: AppColors.primaryBlue,
-            onTap: () => _copyToClipboard(context, seller.phoneNumber,
-                message: 'Phone number copied — paste into your messaging app'),
+            onTap: () => _smsSeller(context, seller.phoneNumber),
           ),
         ),
       ],
@@ -653,8 +718,7 @@ class _LocationRow extends StatelessWidget {
       padding: const EdgeInsets.symmetric(vertical: 4),
       child: Row(
         children: [
-          Icon(icon,
-              size: 16, color: cs.onSurface.withValues(alpha: 0.55)),
+          Icon(icon, size: 16, color: cs.onSurface.withValues(alpha: 0.55)),
           const SizedBox(width: 8),
           SizedBox(
             width: 80,
@@ -720,9 +784,8 @@ class _TrustSignals extends StatelessWidget {
             icon: seller.isVerified
                 ? Icons.verified_rounded
                 : Icons.verified_outlined,
-            iconColor: seller.isVerified
-                ? AppColors.successGreen
-                : AppColors.gray500,
+            iconColor:
+                seller.isVerified ? AppColors.successGreen : AppColors.gray500,
             label: 'Status',
             value: seller.isVerified ? 'Verified' : 'Pending',
             subtitle: seller.isVerified ? 'Admin approved' : 'In review',

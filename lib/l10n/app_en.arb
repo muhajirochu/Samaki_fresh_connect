@@ -165,9 +165,16 @@
 
     "sendFishRequest": "Send fish request",
     "sendRequest": "Send Request",
-    "callSeller": "Call",
-    "smsSeller": "SMS",
+    "callSeller": "Call seller",
+    "smsSeller": "Message seller",
+    "callFailed": "Call not available — number copied",
+    "smsFailed": "SMS not available — number copied",
     "viewDetails": "View Details",
+    "trackSeller": "Track seller",
+    "sellersNearYou": "Sellers near you",
+    "liveFishFromThisSeller": "Live fish from this seller",
+    "noFishPhotos": "No fish photos yet",
+    "phoneCopied": "Phone number copied",
     "sellersNearby": "{count, plural, =0{No sellers} =1{1 seller} other{{count} sellers}} nearby",
     "@sellersNearby": {
         "placeholders": {

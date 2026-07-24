@@ -165,9 +165,16 @@
 
     "sendFishRequest": "Tuma ombi la samaki",
     "sendRequest": "Tuma Ombi",
-    "callSeller": "Piga simu",
-    "smsSeller": "Tuma Ujumbe",
+    "callSeller": "Piga muuzaji",
+    "smsSeller": "Tuma ujumbe kwa muuzaji",
+    "callFailed": "Simu haipatikani — nambari imenakiliwa",
+    "smsFailed": "Ujumbe haupatikani — nambari imenakiliwa",
     "viewDetails": "Ona Maelezo",
+    "trackSeller": "Fuatilia muuzaji",
+    "sellersNearYou": "Wauzaji karibu nawe",
+    "liveFishFromThisSeller": "Samaki hai kutoka kwa muuzaji huyu",
+    "noFishPhotos": "Hakuna picha za samaki bado",
+    "phoneCopied": "Nambari ya simu imenakiliwa",
     "sellersNearby": "{count, plural, =0{Hakuna wauzaji} =1{Muuzaji 1} other{Wauzaji {count}}} karibu",
     "@sellersNearby": {
         "placeholders": {

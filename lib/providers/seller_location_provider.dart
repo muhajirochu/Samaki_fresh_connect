@@ -76,7 +76,8 @@ final sellerOnlineActionsProvider = Provider<SellerOnlineActions>((ref) {
 
 // ── Buyer-side: live + geohash-filtered seller streams ───────────────────────
 
-final _sellersCollection = FirebaseFirestore.instance.collection('streetSellers');
+final _sellersCollection =
+    FirebaseFirestore.instance.collection('streetSellers');
 
 /// All sellers whose `isOnline == true` AND `isActive == true`. Real-time.
 /// Used as the "live" layer of the buyer map — the moment a street
@@ -92,17 +93,22 @@ final liveSellersProvider = StreamProvider<List<StreetSellerModel>>((ref) {
       .limit(_maxActiveSellers)
       .snapshots()
       .map((snap) {
-    final list =
-        snap.docs.map((d) => StreetSellerModel.fromMap(d.data(), docId: d.id))
-            .toList();
+    final list = snap.docs
+        .map((d) => StreetSellerModel.fromMap(d.data(), docId: d.id))
+        .toList();
     list.sort((a, b) {
-      final aT = a.lastLocationUpdateAt ?? DateTime.fromMillisecondsSinceEpoch(0);
-      final bT = b.lastLocationUpdateAt ?? DateTime.fromMillisecondsSinceEpoch(0);
+      final aT =
+          a.lastLocationUpdateAt ?? DateTime.fromMillisecondsSinceEpoch(0);
+      final bT =
+          b.lastLocationUpdateAt ?? DateTime.fromMillisecondsSinceEpoch(0);
       return bT.compareTo(aT);
     });
     return list;
   });
 });
+
+/// Live street sellers shown to buyers on the dashboard and map.
+final liveStreetSellersProvider = liveSellersProvider;
 
 /// Maximum number of sellers we materialise in memory at once. The
 /// buyer map + search only need the most recently active slice.
@@ -163,8 +169,9 @@ class GeoSearchParams {
 /// On any Firestore error (most commonly a missing composite index on
 /// `(geohash, isActive)`) we **silently** fall back to
 /// `activeStreetSellersProviderRemote` so the buyer always sees
-final nearbySellersGeoQueryProvider = StreamProvider.family<
-    List<StreetSellerModel>, GeoSearchParams>((ref, params) {
+final nearbySellersGeoQueryProvider =
+    StreamProvider.family<List<StreetSellerModel>, GeoSearchParams>(
+        (ref, params) {
   if (Firebase.apps.isEmpty) return Stream.value(const []);
 
   final q = GeohashService.queryBox(
@@ -211,9 +218,9 @@ final nearbySellersGeoQueryProvider = StreamProvider.family<
         radiusKm: params.radiusKm,
       );
     }).toList();
-    docs.sort(
-        (a, b) => a.distanceKmFrom(params.latitude, params.longitude)
-            .compareTo(b.distanceKmFrom(params.latitude, params.longitude)));
+    docs.sort((a, b) => a
+        .distanceKmFrom(params.latitude, params.longitude)
+        .compareTo(b.distanceKmFrom(params.latitude, params.longitude)));
     if (!controller.isClosed) controller.add(docs);
   }
 
@@ -273,4 +280,3 @@ final nearbySellersGeoQueryProvider = StreamProvider.family<
 
   return controller.stream;
 });
-

@@ -761,20 +761,62 @@ abstract class AppLocalizations {
   /// No description provided for @callSeller.
   ///
   /// In en, this message translates to:
-  /// **'Call'**
+  /// **'Call seller'**
   String get callSeller;
 
   /// No description provided for @smsSeller.
   ///
   /// In en, this message translates to:
-  /// **'SMS'**
+  /// **'Message seller'**
   String get smsSeller;
+
+  /// No description provided for @callFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Call not available — number copied'**
+  String get callFailed;
+
+  /// No description provided for @smsFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'SMS not available — number copied'**
+  String get smsFailed;
 
   /// No description provided for @viewDetails.
   ///
   /// In en, this message translates to:
   /// **'View Details'**
   String get viewDetails;
+
+  /// No description provided for @trackSeller.
+  ///
+  /// In en, this message translates to:
+  /// **'Track seller'**
+  String get trackSeller;
+
+  /// No description provided for @sellersNearYou.
+  ///
+  /// In en, this message translates to:
+  /// **'Sellers near you'**
+  String get sellersNearYou;
+
+  /// No description provided for @liveFishFromThisSeller.
+  ///
+  /// In en, this message translates to:
+  /// **'Live fish from this seller'**
+  String get liveFishFromThisSeller;
+
+  /// No description provided for @noFishPhotos.
+  ///
+  /// In en, this message translates to:
+  /// **'No fish photos yet'**
+  String get noFishPhotos;
+
+  /// No description provided for @phoneCopied.
+  ///
+  /// In en, this message translates to:
+  /// **'Phone number copied'**
+  String get phoneCopied;
 
   /// No description provided for @sellersNearby.
   ///

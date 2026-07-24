@@ -11,6 +11,7 @@ import '../screens/buyer/buyer_fish_search_screen.dart';
 import '../screens/buyer/buyer_map_screen.dart';
 import '../screens/buyer/buyer_notifications_screen.dart';
 import '../screens/buyer/buyer_requests_screen.dart';
+import '../screens/buyer/buyer_seller_tracking_screen.dart';
 import '../screens/buyer/buyer_wishlist_screen.dart';
 import '../screens/street_seller/street_seller_dashboard_screen.dart';
 import '../screens/admin/admin_shell_screen.dart';
@@ -70,18 +71,22 @@ final appRouter = GoRouter(
 
     // If logged in and trying to access auth route → redirect to appropriate dashboard
     if (isLoggedIn && isAuthRoute) {
-       final userModel = mockUser ?? _container.read(currentUserStreamProvider).valueOrNull;
+      final userModel =
+          mockUser ?? _container.read(currentUserStreamProvider).valueOrNull;
 
-       if (userModel != null) {
-          switch (userModel.role.name) {
-            case 'streetSeller': return '/dashboard/street_seller';
-            case 'admin': return '/dashboard/admin';
-            default: return '/dashboard/buyer';
-          }
-       }
-       // If the user hasn't fully loaded, we stay on the splash screen
-       if (state.matchedLocation == '/splash') return null;
-       return '/dashboard/buyer'; // Fallback if data hasn't loaded yet
+      if (userModel != null) {
+        switch (userModel.role.name) {
+          case 'streetSeller':
+            return '/dashboard/street_seller';
+          case 'admin':
+            return '/dashboard/admin';
+          default:
+            return '/dashboard/buyer';
+        }
+      }
+      // If the user hasn't fully loaded, we stay on the splash screen
+      if (state.matchedLocation == '/splash') return null;
+      return '/dashboard/buyer'; // Fallback if data hasn't loaded yet
     }
 
     return null;
@@ -169,6 +174,12 @@ final appRouter = GoRouter(
     GoRoute(
       path: '/buyer/requests',
       builder: (context, state) => const BuyerRequestsScreen(),
+    ),
+    GoRoute(
+      path: '/buyer/seller/:sellerId',
+      builder: (context, state) => BuyerSellerTrackingScreen(
+        sellerId: state.pathParameters['sellerId']!,
+      ),
     ),
     GoRoute(
       path: '/dashboard/street_seller',
