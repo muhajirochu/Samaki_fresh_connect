@@ -1333,6 +1333,9 @@ class AppLocalizationsSw extends AppLocalizations {
   String get suspendUserAction => 'Simamisha mtumiaji';
 
   @override
+  String get noBuyersRegistered => 'Bado hakuna wanunuzi waliosajiliwa';
+
+  @override
   String get fishAvailableNearbyTile => 'Samaki\nKaribu';
 
   @override

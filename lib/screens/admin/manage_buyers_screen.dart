@@ -7,6 +7,7 @@
 // tinted treatment.
 
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
 import '../../constants/app_colors.dart';
@@ -50,7 +51,11 @@ class _ManageBuyersScreenState extends ConsumerState<ManageBuyersScreen> {
             return Center(
               child: Padding(
                 padding: const EdgeInsets.all(AppSizes.paddingXL),
-                child: Text('No buyers registered yet'),
+                child: Text(
+                  l10n.noBuyersRegistered,
+                  textAlign: TextAlign.center,
+                  style: Theme.of(context).textTheme.titleMedium,
+                ),
               ),
             );
           }
@@ -193,11 +198,9 @@ class _BuyerCard extends ConsumerWidget {
             icon: const Icon(Icons.more_vert_rounded),
             onSelected: (v) async {
               if (v == 'view') {
-                // Reuse admin user profile route.
-                // ignore: use_build_context_synchronously
-                Navigator.of(context).pushNamed(
-                  '/admin/users/${buyer.userId}',
-                );
+                // Use go_router so the screen mounts inside the
+                // same navigator as the rest of the admin module.
+                context.push('/admin/users/${buyer.userId}');
               } else if (v == 'toggle') {
                 if (isSuspended) {
                   await adminReactivateUser(ref, buyer.userId);

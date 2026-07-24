@@ -2534,6 +2534,12 @@ abstract class AppLocalizations {
   /// **'Suspend user'**
   String get suspendUserAction;
 
+  /// No description provided for @noBuyersRegistered.
+  ///
+  /// In en, this message translates to:
+  /// **'No buyers registered yet'**
+  String get noBuyersRegistered;
+
   /// No description provided for @fishAvailableNearbyTile.
   ///
   /// In en, this message translates to:

@@ -1333,6 +1333,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get suspendUserAction => 'Suspend user';
 
   @override
+  String get noBuyersRegistered => 'No buyers registered yet';
+
+  @override
   String get fishAvailableNearbyTile => 'Fish Available\nNearby';
 
   @override

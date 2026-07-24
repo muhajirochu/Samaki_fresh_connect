@@ -556,6 +556,7 @@
     "statusCompleted": "Completed",
     "statusCancelled": "Cancelled",
     "suspendUserAction": "Suspend user",
+    "noBuyersRegistered": "No buyers registered yet",
     "fishAvailableNearbyTile": "Fish Available\nNearby",
     "activeRequestsTile": "Active\nRequests",
     "nearestSellerTile": "Nearest\nSeller",
