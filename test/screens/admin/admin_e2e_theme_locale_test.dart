@@ -40,6 +40,11 @@ UserModel _admin() => UserModel(
     );
 
 Widget _wrap(ProviderContainer container, Widget home) {
+  // Make sure the mock user is set so the dashboard greeting
+  // header renders. setUp() also sets it, but we double-set here
+  // defensively so this wrapper stays robust to tests that run it
+  // outside of the suite's setUp.
+  setMockUser(_admin());
   return UncontrolledProviderScope(
     container: container,
     child: _ReactiveAppWrapper(container: container, home: home),
@@ -112,6 +117,17 @@ void _emptyAdminStreams(ProviderContainer c) {
 }
 
 void main() {
+  setUp(() {
+    // Seed the demo user so screens that watch currentUserStreamProvider
+    // see an admin instead of falling back to the raw `null` from
+    // previous tests.
+    setMockUser(_admin());
+  });
+
+  tearDown(() {
+    setMockUser(null);
+  });
+
   testWidgets(
     'E2E — themeModeProvider flips flip dashboard brightness when set',
     (tester) async {

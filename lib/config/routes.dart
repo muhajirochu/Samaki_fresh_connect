@@ -13,7 +13,7 @@ import '../screens/buyer/buyer_notifications_screen.dart';
 import '../screens/buyer/buyer_requests_screen.dart';
 import '../screens/buyer/buyer_wishlist_screen.dart';
 import '../screens/street_seller/street_seller_dashboard_screen.dart';
-import '../screens/admin/admin_dashboard_screen.dart';
+import '../screens/admin/admin_shell_screen.dart';
 import '../screens/admin/manage_sellers_screen.dart';
 import '../screens/admin/manage_buyers_screen.dart';
 import '../screens/admin/admin_user_profile_screen.dart';
@@ -176,7 +176,7 @@ final appRouter = GoRouter(
     ),
     GoRoute(
       path: '/dashboard/admin',
-      builder: (context, state) => const AdminDashboardScreen(),
+      builder: (context, state) => const AdminShellScreen(),
     ),
 
     // ── Admin management screens ────────────────────────────────────

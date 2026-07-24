@@ -294,7 +294,7 @@ class _SignInTab extends HookConsumerWidget {
         AppLogger.info('Demo login: ${demo.email}');
         await Future.delayed(const Duration(milliseconds: 500));
         final now = DateTime.now();
-        mockUser = UserModel(
+        setMockUser(UserModel(
           userId: 'demo_${demo.role.name}',
           email: demo.email,
           fullName: demo.name,
@@ -303,7 +303,7 @@ class _SignInTab extends HookConsumerWidget {
           isActive: true,
           createdAt: now,
           updatedAt: now,
-        );
+        ));
         ref.invalidate(authStateProvider);
         ref.invalidate(currentUserProvider);
         ref.invalidate(currentUserStreamProvider);
@@ -314,7 +314,7 @@ class _SignInTab extends HookConsumerWidget {
       }
 
       try {
-        mockUser = null;
+        setMockUser(null);
         ref.invalidate(authStateProvider);
         ref.invalidate(currentUserProvider);
         ref.invalidate(currentUserStreamProvider);
@@ -547,7 +547,7 @@ class _DemoCard extends HookConsumerWidget {
       await Future.delayed(const Duration(milliseconds: 300));
 
       final now = DateTime.now();
-      mockUser = UserModel(
+      setMockUser(UserModel(
         userId: 'demo_${demo.role.name}',
         email: demo.email,
         fullName: demo.name,
@@ -556,7 +556,7 @@ class _DemoCard extends HookConsumerWidget {
         isActive: true,
         createdAt: now,
         updatedAt: now,
-      );
+      ));
       ref.invalidate(authStateProvider);
       ref.invalidate(currentUserProvider);
       ref.invalidate(currentUserStreamProvider);

@@ -137,7 +137,7 @@ class RegisterScreen extends HookConsumerWidget {
 
       isLoading.value = true;
       try {
-        mockUser = null;
+        setMockUser(null);
         // 1. Firebase Auth sign up
         final user = await authService.signUp(
           email: emailCtrl.text.trim(),

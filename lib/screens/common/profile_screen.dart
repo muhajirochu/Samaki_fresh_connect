@@ -275,7 +275,7 @@ class ProfileScreen extends ConsumerWidget {
                       const SizedBox(height: AppSizes.paddingXXL),
                       OutlinedButton.icon(
                         onPressed: () async {
-                          mockUser = null;
+                          setMockUser(null);
                           ref.invalidate(authStateProvider);
                           ref.invalidate(currentUserProvider);
                           ref.invalidate(currentUserStreamProvider);

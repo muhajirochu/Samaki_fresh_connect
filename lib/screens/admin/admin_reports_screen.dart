@@ -25,13 +25,14 @@ class AdminReportsScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     return DefaultTabController(
-      length: 5,
+      length: 6,
       child: Scaffold(
         appBar: AppBar(
           title: Text(AppLocalizations.of(context).reportsTab),
           bottom: TabBar(
             isScrollable: true,
             tabs: const [
+              Tab(text: 'Overview'),
               Tab(text: 'Sales'),
               Tab(text: 'Orders'),
               Tab(text: 'Sellers'),
@@ -42,6 +43,7 @@ class AdminReportsScreen extends ConsumerWidget {
         ),
         body: const TabBarView(
           children: [
+            _OverviewTab(),
             _SalesTab(),
             _OrdersTab(),
             _SellersTab(),
@@ -379,6 +381,240 @@ class _RevenueTab extends ConsumerWidget {
         const SizedBox(height: AppSizes.paddingMD),
         _MetricRow(title: l10n.thisMonth, count: 0, revenue: monthly),
       ],
+    );
+  }
+}
+
+// ── Overview Tab (Moved from Dashboard) ────────────────────────────
+
+class _OverviewTab extends StatelessWidget {
+  const _OverviewTab();
+
+  @override
+  Widget build(BuildContext context) {
+    return ListView(
+      padding: const EdgeInsets.all(AppSizes.paddingLG),
+      children: [
+        GridView.count(
+          shrinkWrap: true,
+          physics: const NeverScrollableScrollPhysics(),
+          crossAxisCount: 2,
+          mainAxisSpacing: AppSizes.paddingMD,
+          crossAxisSpacing: AppSizes.paddingMD,
+          childAspectRatio: 1.5,
+          children: [
+            _TotalOrdersCard(),
+            _PendingOrdersCard(),
+            _CompletedOrdersCard(),
+            _CancelledOrdersCard(),
+          ],
+        ),
+        const SizedBox(height: AppSizes.paddingLG),
+        GridView.count(
+          shrinkWrap: true,
+          physics: const NeverScrollableScrollPhysics(),
+          crossAxisCount: 2,
+          mainAxisSpacing: AppSizes.paddingMD,
+          crossAxisSpacing: AppSizes.paddingMD,
+          childAspectRatio: 1.6,
+          children: [
+            _DailySalesCard(),
+            _WeeklySalesCard(),
+            _MonthlySalesCard(),
+            _PlatformRevenueCard(),
+          ],
+        ),
+      ],
+    );
+  }
+}
+
+class _TotalOrdersCard extends ConsumerWidget {
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = AppLocalizations.of(context);
+    final count = ref.watch(adminTotalOrdersProvider).valueOrNull ?? 0;
+    return _StatCard(
+      title: l10n.totalOrders,
+      value: count.toString(),
+      icon: Icons.receipt_long_rounded,
+      color: AppColors.primaryBlue,
+    );
+  }
+}
+
+class _PendingOrdersCard extends ConsumerWidget {
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = AppLocalizations.of(context);
+    final count = ref.watch(adminPendingOrdersProvider).valueOrNull ?? 0;
+    return _StatCard(
+      title: l10n.pendingOrders,
+      value: count.toString(),
+      icon: Icons.hourglass_top_rounded,
+      color: AppColors.accentOrange,
+    );
+  }
+}
+
+class _CompletedOrdersCard extends ConsumerWidget {
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = AppLocalizations.of(context);
+    final count = ref.watch(adminCompletedOrdersProvider).valueOrNull ?? 0;
+    return _StatCard(
+      title: l10n.completedOrders,
+      value: count.toString(),
+      icon: Icons.check_circle_rounded,
+      color: AppColors.accentGreen,
+    );
+  }
+}
+
+class _CancelledOrdersCard extends ConsumerWidget {
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = AppLocalizations.of(context);
+    final count = ref.watch(adminCancelledOrdersProvider).valueOrNull ?? 0;
+    return _StatCard(
+      title: l10n.cancelledOrders,
+      value: count.toString(),
+      icon: Icons.cancel_rounded,
+      color: AppColors.errorRed,
+    );
+  }
+}
+
+class _DailySalesCard extends ConsumerWidget {
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = AppLocalizations.of(context);
+    final orders = ref.watch(adminDailyOrdersProvider).valueOrNull ?? [];
+    final revenue = orders
+        .where((o) => o.orderStatus == 'delivered')
+        .fold<double>(0, (acc, o) => acc + (o.finalPrice * o.quantityKg));
+    return _StatCard(
+      title: l10n.dailySales,
+      value: 'TZS ${(revenue / 1000).toStringAsFixed(0)}K',
+      icon: Icons.today_rounded,
+      color: AppColors.successGreen,
+    );
+  }
+}
+
+class _WeeklySalesCard extends ConsumerWidget {
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = AppLocalizations.of(context);
+    final orders = ref.watch(adminWeeklyOrdersProvider).valueOrNull ?? [];
+    final revenue = orders
+        .where((o) => o.orderStatus == 'delivered')
+        .fold<double>(0, (acc, o) => acc + (o.finalPrice * o.quantityKg));
+    return _StatCard(
+      title: l10n.weeklySales,
+      value: 'TZS ${(revenue / 1000).toStringAsFixed(0)}K',
+      icon: Icons.date_range_rounded,
+      color: AppColors.primaryBlue,
+    );
+  }
+}
+
+class _MonthlySalesCard extends ConsumerWidget {
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = AppLocalizations.of(context);
+    final orders = ref.watch(adminMonthlyOrdersProvider).valueOrNull ?? [];
+    final revenue = orders
+        .where((o) => o.orderStatus == 'delivered')
+        .fold<double>(0, (acc, o) => acc + (o.finalPrice * o.quantityKg));
+    return _StatCard(
+      title: l10n.monthlySales,
+      value: 'TZS ${(revenue / 1000).toStringAsFixed(0)}K',
+      icon: Icons.calendar_month_rounded,
+      color: AppColors.accentOrange,
+    );
+  }
+}
+
+class _PlatformRevenueCard extends ConsumerWidget {
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = AppLocalizations.of(context);
+    final revenue = ref.watch(adminPlatformRevenueProvider).valueOrNull ?? 0;
+    return _StatCard(
+      title: l10n.platformRevenue,
+      value: 'TZS ${(revenue / 1000).toStringAsFixed(0)}K',
+      icon: Icons.account_balance_rounded,
+      color: AppColors.accentGreen,
+    );
+  }
+}
+
+// ── Stat card (shared) ────────────────────────────────────────────
+
+class _StatCard extends StatelessWidget {
+  final String title;
+  final String value;
+  final IconData icon;
+  final Color color;
+
+  const _StatCard({
+    required this.title,
+    required this.value,
+    required this.icon,
+    required this.color,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    final tt = Theme.of(context).textTheme;
+    return Container(
+      padding: const EdgeInsets.all(AppSizes.paddingMD),
+      decoration: BoxDecoration(
+        color: cs.surface,
+        borderRadius: BorderRadius.circular(AppSizes.radiusLG),
+        border: Border.all(color: color.withValues(alpha: 0.30)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Container(
+            padding: const EdgeInsets.all(8),
+            decoration: BoxDecoration(
+              color: color.withValues(alpha: 0.18),
+              borderRadius: BorderRadius.circular(10),
+            ),
+            child: Icon(icon, color: color, size: 22),
+          ),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                value,
+                style: tt.titleLarge?.copyWith(
+                  fontWeight: FontWeight.w800,
+                  color: cs.onSurface,
+                ),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+              ),
+              const SizedBox(height: 2),
+              Text(
+                title,
+                style: tt.bodySmall?.copyWith(
+                  color: cs.onSurface.withValues(alpha: 0.65),
+                  fontWeight: FontWeight.w500,
+                ),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+              ),
+            ],
+          ),
+        ],
+      ),
     );
   }
 }

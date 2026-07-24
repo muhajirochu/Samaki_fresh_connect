@@ -612,7 +612,7 @@ class _AccountActionsCard extends ConsumerWidget {
     );
     if (shouldSignOut != true) return;
     if (!context.mounted) return;
-    mockUser = null;
+    setMockUser(null);
     ref.invalidate(authStateProvider);
     ref.invalidate(currentUserProvider);
     ref.invalidate(currentUserStreamProvider);

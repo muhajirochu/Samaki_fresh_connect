@@ -71,11 +71,15 @@ void main() async {
     await notificationService.init();
     AppLogger.info('Notification service initialized');
 
+    final container = ProviderContainer(
+      overrides: [
+        notificationServiceProvider.overrideWithValue(notificationService),
+      ],
+    );
+    bindAuthProviderContainer(container);
     runApp(
-      ProviderScope(
-        overrides: [
-          notificationServiceProvider.overrideWithValue(notificationService),
-        ],
+      UncontrolledProviderScope(
+        container: container,
         child: const SamakiFreshApp(),
       ),
     );
