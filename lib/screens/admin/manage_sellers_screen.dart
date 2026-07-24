@@ -27,6 +27,7 @@ class ManageSellersScreen extends ConsumerStatefulWidget {
 
 class _ManageSellersScreenState extends ConsumerState<ManageSellersScreen> {
   String _query = '';
+  String _statusFilter = 'all'; // 'all' | 'pending' | 'approved' | 'suspended'
 
   @override
   Widget build(BuildContext context) {
@@ -34,13 +35,27 @@ class _ManageSellersScreenState extends ConsumerState<ManageSellersScreen> {
     final sellersAsync = ref.watch(adminAllSellersProvider);
 
     return Scaffold(
-      appBar: AppBar(title: Text(l10n.manageStreetSellers)),
+      appBar: AppBar(
+        title: Text(l10n.manageStreetSellers),
+        actions: [
+          // Pending-approval quick filter — admin opens this screen
+          // most often to clear the queue of new sellers awaiting
+          // review, so we put it one tap away in the AppBar.
+          IconButton(
+            tooltip: l10n.pendingApprovalBadge,
+            icon: const Icon(Icons.schedule_rounded),
+            onPressed: () => setState(() {
+              _statusFilter = _statusFilter == 'pending' ? 'all' : 'pending';
+            }),
+          ),
+        ],
+      ),
       body: sellersAsync.when(
         loading: () => const Center(child: CircularProgressIndicator()),
         error: (e, _) =>
             Center(child: Text(l10n.loadingError(e.toString()))),
         data: (sellers) {
-          final filtered = _query.isEmpty
+          final filteredByQuery = _query.isEmpty
               ? sellers
               : sellers.where((u) {
                   final q = _query.toLowerCase();
@@ -48,6 +63,23 @@ class _ManageSellersScreenState extends ConsumerState<ManageSellersScreen> {
                       u.email.toLowerCase().contains(q) ||
                       u.phoneNumber.toLowerCase().contains(q);
                 }).toList();
+
+          // Apply status filter. The pending list is special-cased
+          // so admins can see "inactive but pending approval"
+          // accounts even after suspension.
+          final filtered = filteredByQuery.where((u) {
+            switch (_statusFilter) {
+              case 'pending':
+                return !u.isApproved;
+              case 'suspended':
+                return !u.isActive;
+              case 'approved':
+                return u.isApproved && u.isActive;
+              case 'all':
+              default:
+                return true;
+            }
+          }).toList();
 
           if (sellers.isEmpty) {
             return _EmptyState(
@@ -60,15 +92,57 @@ class _ManageSellersScreenState extends ConsumerState<ManageSellersScreen> {
             children: [
               Padding(
                 padding: const EdgeInsets.all(AppSizes.paddingLG),
-                child: TextField(
-                  decoration: InputDecoration(
-                    prefixIcon: const Icon(Icons.search_rounded),
-                    hintText: l10n.searchSellers,
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(14),
+                child: Column(
+                  children: [
+                    TextField(
+                      decoration: InputDecoration(
+                        prefixIcon: const Icon(Icons.search_rounded),
+                        hintText: l10n.searchSellers,
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(14),
+                        ),
+                      ),
+                      onChanged: (v) => setState(() => _query = v.trim()),
                     ),
-                  ),
-                  onChanged: (v) => setState(() => _query = v.trim()),
+                    const SizedBox(height: AppSizes.paddingMD),
+                    // Status filter chips — Pending / Approved /
+                    // Suspended / All. The active chip is filled
+                    // with the brand primary so the admin can
+                    // spot the active filter at a glance.
+                    SingleChildScrollView(
+                      scrollDirection: Axis.horizontal,
+                      child: Row(
+                        children: [
+                          _StatusChip(
+                            label: 'All',
+                            selected: _statusFilter == 'all',
+                            onTap: () => setState(() => _statusFilter = 'all'),
+                          ),
+                          const SizedBox(width: AppSizes.paddingSM),
+                          _StatusChip(
+                            label: l10n.pendingApprovalBadge,
+                            selected: _statusFilter == 'pending',
+                            onTap: () =>
+                                setState(() => _statusFilter = 'pending'),
+                          ),
+                          const SizedBox(width: AppSizes.paddingSM),
+                          _StatusChip(
+                            label: l10n.approvedBadge,
+                            selected: _statusFilter == 'approved',
+                            onTap: () =>
+                                setState(() => _statusFilter = 'approved'),
+                          ),
+                          const SizedBox(width: AppSizes.paddingSM),
+                          _StatusChip(
+                            label: l10n.suspendedBadge,
+                            selected: _statusFilter == 'suspended',
+                            onTap: () =>
+                                setState(() => _statusFilter == 'suspended'),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
                 ),
               ),
               Expanded(
@@ -98,6 +172,47 @@ class _ManageSellersScreenState extends ConsumerState<ManageSellersScreen> {
             ],
           );
         },
+      ),
+    );
+  }
+}
+
+class _StatusChip extends StatelessWidget {
+  final String label;
+  final bool selected;
+  final VoidCallback onTap;
+
+  const _StatusChip({
+    required this.label,
+    required this.selected,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    return InkWell(
+      borderRadius: BorderRadius.circular(20),
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.symmetric(
+          horizontal: AppSizes.paddingMD,
+          vertical: AppSizes.paddingSM,
+        ),
+        decoration: BoxDecoration(
+          color: selected ? cs.primary : cs.surface,
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(
+            color: selected ? cs.primary : cs.outline.withValues(alpha: 0.4),
+          ),
+        ),
+        child: Text(
+          label,
+          style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                color: selected ? cs.onPrimary : cs.onSurface,
+                fontWeight: FontWeight.w700,
+              ),
+        ),
       ),
     );
   }
