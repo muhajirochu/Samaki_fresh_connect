@@ -1333,6 +1333,24 @@ class AppLocalizationsSw extends AppLocalizations {
   String get suspendUserAction => 'Simamisha mtumiaji';
 
   @override
+  String get fishAvailableNearbyTile => 'Samaki\nKaribu';
+
+  @override
+  String get activeRequestsTile => 'Maombi\nHai';
+
+  @override
+  String get nearestSellerTile => 'Muuzaji\nwa Karibu';
+
+  @override
+  String get fishAvailableSubtitle => 'Hai karibu nawe';
+
+  @override
+  String get activeRequestsSubtitle => 'Maombi yaliyofunguliwa';
+
+  @override
+  String get nearestSellerSubtitle => 'Samaki wa karibu';
+
+  @override
   String get dailySales => 'Mauzo ya leo';
 
   @override

@@ -2534,6 +2534,42 @@ abstract class AppLocalizations {
   /// **'Suspend user'**
   String get suspendUserAction;
 
+  /// No description provided for @fishAvailableNearbyTile.
+  ///
+  /// In en, this message translates to:
+  /// **'Fish Available\nNearby'**
+  String get fishAvailableNearbyTile;
+
+  /// No description provided for @activeRequestsTile.
+  ///
+  /// In en, this message translates to:
+  /// **'Active\nRequests'**
+  String get activeRequestsTile;
+
+  /// No description provided for @nearestSellerTile.
+  ///
+  /// In en, this message translates to:
+  /// **'Nearest\nSeller'**
+  String get nearestSellerTile;
+
+  /// No description provided for @fishAvailableSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Live around you'**
+  String get fishAvailableSubtitle;
+
+  /// No description provided for @activeRequestsSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Open requests'**
+  String get activeRequestsSubtitle;
+
+  /// No description provided for @nearestSellerSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Closest fish'**
+  String get nearestSellerSubtitle;
+
   /// No description provided for @dailySales.
   ///
   /// In en, this message translates to:
