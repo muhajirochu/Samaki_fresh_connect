@@ -597,4 +597,6 @@
             "count": {"type": "int"}
         }
     }
+,
+    "goOnlineFailed": "Imeshindwa kuwa online"
 }

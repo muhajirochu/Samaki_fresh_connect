@@ -241,6 +241,9 @@ class _StatCard extends StatelessWidget {
           const SizedBox(height: AppSizes.paddingSM),
           Text(
             value,
+            maxLines: 1,
+            softWrap: false,
+            overflow: TextOverflow.ellipsis,
             style: tt.titleLarge?.copyWith(
               fontWeight: FontWeight.w800,
               color: cs.onSurface,
@@ -249,6 +252,9 @@ class _StatCard extends StatelessWidget {
           const SizedBox(height: 2),
           Text(
             title,
+            maxLines: 1,
+            softWrap: false,
+            overflow: TextOverflow.ellipsis,
             style: tt.bodySmall?.copyWith(
               color: cs.onSurface.withValues(alpha: 0.65),
               fontWeight: FontWeight.w500,
@@ -319,6 +325,9 @@ class _ActionCard extends StatelessWidget {
               const SizedBox(height: AppSizes.paddingSM),
               Text(
                 title,
+                maxLines: 1,
+                softWrap: false,
+                overflow: TextOverflow.ellipsis,
                 style: tt.titleSmall?.copyWith(
                   fontWeight: FontWeight.w700,
                 ),
@@ -327,6 +336,8 @@ class _ActionCard extends StatelessWidget {
               const SizedBox(height: 2),
               Text(
                 subtitle,
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
                 style: tt.bodySmall?.copyWith(
                   color: cs.onSurface.withValues(alpha: 0.60),
                   fontSize: 11,
@@ -402,6 +413,7 @@ class _OnlineToggleButton extends ConsumerWidget {
                         SnackBar(
                           content: Text(
                             tracker.errorMessage ??
+                                AppLocalizations.of(context).callFailed ??
                                 'Could not go online',
                           ),
                           backgroundColor: AppColors.errorRed,
@@ -598,9 +610,12 @@ class _SellerGreetingHeader extends StatelessWidget {
                     Expanded(
                       child: Text(
                         greeting,
+                        maxLines: 2,
+                        softWrap: true,
+                        overflow: TextOverflow.ellipsis,
                         style: const TextStyle(
                           color: Colors.white,
-                          fontSize: 24,
+                          fontSize: 22,
                           fontWeight: FontWeight.w700,
                           letterSpacing: -0.3,
                         ),

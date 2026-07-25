@@ -2665,6 +2665,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'{count, plural, =0{No orders} =1{1 order} other{{count} orders}}'**
   String ordersCount(int count);
+
+  /// No description provided for @goOnlineFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Imeshindwa kuwa online'**
+  String get goOnlineFailed;
 }
 
 class _AppLocalizationsDelegate
