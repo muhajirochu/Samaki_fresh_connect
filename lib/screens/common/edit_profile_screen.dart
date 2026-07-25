@@ -4,6 +4,7 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../constants/app_colors.dart';
 import '../../constants/app_sizes.dart';
+import '../../l10n/app_localizations.dart';
 import '../../providers/auth_provider.dart';
 import '../../widgets/common/common_widgets.dart';
 
@@ -12,6 +13,7 @@ class EditProfileScreen extends HookConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = AppLocalizations.of(context);
     final user = ref.watch(currentUserStreamProvider).valueOrNull;
     final cs = Theme.of(context).colorScheme;
 
@@ -31,7 +33,7 @@ class EditProfileScreen extends HookConsumerWidget {
     final isLoading = useState(false);
 
     if (user == null) {
-      return const Scaffold(body: Center(child: Text('Not logged in')));
+      return Scaffold(body: Center(child: Text(l10n.notLoggedInSimple)));
     }
 
     Future<void> save() async {
@@ -61,8 +63,8 @@ class EditProfileScreen extends HookConsumerWidget {
 
         if (context.mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Profile updated successfully'),
+            SnackBar(
+              content: Text(l10n.profileUpdatedSuccess),
               backgroundColor: AppColors.successGreen,
             ),
           );
@@ -72,8 +74,8 @@ class EditProfileScreen extends HookConsumerWidget {
         if (context.mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-                content: Text('Error: $e'),
-                backgroundColor: AppColors.errorRed),
+              content: Text(l10n.errorWithMessage(e.toString())),
+              backgroundColor: AppColors.errorRed),
           );
         }
       } finally {
@@ -84,8 +86,8 @@ class EditProfileScreen extends HookConsumerWidget {
     return Scaffold(
       backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       appBar: AppBar(
-        title: const Text('Edit Profile',
-            style: TextStyle(fontWeight: FontWeight.w600)),
+        title: Text(l10n.editProfile,
+            style: const TextStyle(fontWeight: FontWeight.w600)),
         backgroundColor: cs.surface,
         foregroundColor: cs.onSurface,
         elevation: 0,

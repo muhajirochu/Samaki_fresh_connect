@@ -35,28 +35,29 @@ import '../screens/common/order_detail_screen.dart';
 import '../screens/common/profile_screen.dart';
 import '../screens/common/edit_profile_screen.dart';
 import '../screens/common/settings_screen.dart';
+import '../screens/common/language_selector_screen.dart';
 import '../features/map/screens/map_screen.dart';
+import 'route_paths.dart';
 
 // GoRouter requires a listenable to re-evaluate redirect on auth change.
 // We use a ProviderContainer to read providers outside widget tree.
 final _container = ProviderContainer();
 
 final appRouter = GoRouter(
-  initialLocation: '/splash',
-  // BUG-11 fix: auth guard redirect
+  initialLocation: AppRoutes.splash,
+  // Auth guard redirect. Uses AppRoutes constants so a path rename
+  // stays in sync with all navigation calls in the app.
   redirect: (context, state) {
     final authState = _container.read(authStateProvider);
     final isLoggedIn = authState.valueOrNull != null || mockUser != null;
-    final isAuthRoute = state.matchedLocation == '/login' ||
-        state.matchedLocation == '/register' ||
-        state.matchedLocation == '/splash';
+    final isAuthRoute = state.matchedLocation == AppRoutes.login ||
+        state.matchedLocation == AppRoutes.register ||
+        state.matchedLocation == AppRoutes.splash;
 
-    // If not logged in and trying to access protected route → login
-    if (!isLoggedIn && !isAuthRoute) return '/login';
+    // If not logged in and trying to access protected route → login.
+    if (!isLoggedIn && !isAuthRoute) return AppRoutes.login;
 
     // Admin-only guard — only an admin can land on /admin/* URLs.
-    // Buyer + street seller attempts get redirected to their own
-    // dashboards so they can never see or trigger admin tooling.
     if (isLoggedIn &&
         state.matchedLocation.startsWith('/admin') &&
         state.matchedLocation != '/admin/notifications') {
@@ -64,12 +65,12 @@ final appRouter = GoRouter(
           mockUser ?? _container.read(currentUserStreamProvider).valueOrNull;
       if (userModel != null && userModel.role.name != 'admin') {
         return userModel.role.name == 'streetSeller'
-            ? '/dashboard/street_seller'
-            : '/dashboard/buyer';
+            ? AppRoutes.dashboardStreetSeller
+            : AppRoutes.dashboardBuyer;
       }
     }
 
-    // If logged in and trying to access auth route → redirect to appropriate dashboard
+    // If logged in and trying to access auth route → redirect to dashboard.
     if (isLoggedIn && isAuthRoute) {
       final userModel =
           mockUser ?? _container.read(currentUserStreamProvider).valueOrNull;
@@ -77,16 +78,15 @@ final appRouter = GoRouter(
       if (userModel != null) {
         switch (userModel.role.name) {
           case 'streetSeller':
-            return '/dashboard/street_seller';
+            return AppRoutes.dashboardStreetSeller;
           case 'admin':
-            return '/dashboard/admin';
+            return AppRoutes.dashboardAdmin;
           default:
-            return '/dashboard/buyer';
+            return AppRoutes.dashboardBuyer;
         }
       }
-      // If the user hasn't fully loaded, we stay on the splash screen
-      if (state.matchedLocation == '/splash') return null;
-      return '/dashboard/buyer'; // Fallback if data hasn't loaded yet
+      if (state.matchedLocation == AppRoutes.splash) return null;
+      return AppRoutes.dashboardBuyer;
     }
 
     return null;
@@ -107,7 +107,7 @@ final appRouter = GoRouter(
             Text(state.uri.toString()),
             const SizedBox(height: 24),
             ElevatedButton(
-              onPressed: () => context.go('/splash'),
+              onPressed: () => context.go(AppRoutes.splash),
               child: const Text('Go Home'),
             ),
           ],
@@ -116,29 +116,44 @@ final appRouter = GoRouter(
     );
   },
   routes: [
-    // ── Auth & Onboarding ─────────────────────────────────────────────────────
+    // ── Auth & Onboarding ────────────────────────────────────────
     GoRoute(
-      path: '/splash',
+      path: AppRoutes.splash,
+      name: AppRouteNames.splash,
       builder: (context, state) => const SplashScreen(),
     ),
     GoRoute(
-      path: '/login',
+      path: AppRoutes.login,
+      name: AppRouteNames.login,
       builder: (context, state) => const LoginScreen(),
     ),
     GoRoute(
-      path: '/register',
+      path: AppRoutes.register,
+      name: AppRouteNames.register,
       builder: (context, state) => const RegisterScreen(),
     ),
 
-    // ── Role-based Dashboards ─────────────────────────────────────────────────
+    // ── Role-based Dashboards ────────────────────────────────────
     GoRoute(
-      path: '/dashboard/buyer',
+      path: AppRoutes.dashboardBuyer,
+      name: AppRouteNames.dashboardBuyer,
       builder: (context, state) => const BuyerDashboardScreen(),
     ),
-
-    // ── Buyer: Map / OSM routing (Phase 2) ───────────────────────────────
     GoRoute(
-      path: '/buyer/map',
+      path: AppRoutes.dashboardStreetSeller,
+      name: AppRouteNames.dashboardStreetSeller,
+      builder: (context, state) => const StreetSellerDashboardScreen(),
+    ),
+    GoRoute(
+      path: AppRoutes.dashboardAdmin,
+      name: AppRouteNames.dashboardAdmin,
+      builder: (context, state) => const AdminShellScreen(),
+    ),
+
+    // ── Buyer: Map / Search / Tracking ──────────────────────────
+    GoRoute(
+      path: AppRoutes.buyerMap,
+      name: AppRouteNames.buyerMap,
       builder: (context, state) {
         final initialType = state.uri.queryParameters['fishType'];
         final initialQuery = state.uri.queryParameters['q'];
@@ -151,148 +166,167 @@ final appRouter = GoRouter(
       },
     ),
     GoRoute(
-      path: '/buyer/search',
+      path: AppRoutes.buyerSearch,
+      name: AppRouteNames.buyerSearch,
       builder: (context, state) {
         final q = state.uri.queryParameters['q'];
         return BuyerFishSearchScreen(initialQuery: q);
       },
     ),
     GoRoute(
-      path: '/map-foundation',
+      path: AppRoutes.mapFoundation,
+      name: AppRouteNames.mapFoundation,
       builder: (context, state) => const MapScreen(),
     ),
-
-    // ── Buyer: Notifications + Wishlist (Phase 4) ────────────────────
     GoRoute(
-      path: '/buyer/notifications',
+      path: AppRoutes.buyerNotifications,
+      name: AppRouteNames.buyerNotifications,
       builder: (context, state) => const BuyerNotificationsScreen(),
     ),
     GoRoute(
-      path: '/buyer/wishlist',
+      path: AppRoutes.buyerWishlist,
+      name: AppRouteNames.buyerWishlist,
       builder: (context, state) => const BuyerWishlistScreen(),
     ),
     GoRoute(
-      path: '/buyer/requests',
+      path: AppRoutes.buyerRequests,
+      name: AppRouteNames.buyerRequests,
       builder: (context, state) => const BuyerRequestsScreen(),
     ),
     GoRoute(
-      path: '/buyer/seller/:sellerId',
+      path: AppRoutes.buyerSellerTrackingPath,
+      name: AppRouteNames.buyerSellerTracking,
       builder: (context, state) => BuyerSellerTrackingScreen(
         sellerId: state.pathParameters['sellerId']!,
       ),
     ),
-    GoRoute(
-      path: '/dashboard/street_seller',
-      builder: (context, state) => const StreetSellerDashboardScreen(),
-    ),
-    GoRoute(
-      path: '/dashboard/admin',
-      builder: (context, state) => const AdminShellScreen(),
-    ),
 
-    // ── Admin management screens ────────────────────────────────────
+    // ── Fish Listings ────────────────────────────────────────────
     GoRoute(
-      path: '/admin/sellers',
-      builder: (context, state) => const ManageSellersScreen(),
-    ),
-    GoRoute(
-      path: '/admin/listings',
-      builder: (context, state) => const AdminAllListingsScreen(),
-    ),
-    GoRoute(
-      path: '/admin/transactions',
-      builder: (context, state) => const AdminTransactionsScreen(),
-    ),
-    GoRoute(
-      path: '/admin/buyers',
-      builder: (context, state) => const ManageBuyersScreen(),
-    ),
-    GoRoute(
-      path: '/admin/users/:userId',
-      builder: (context, state) {
-        final id = state.pathParameters['userId']!;
-        return AdminUserProfileScreen(userId: id);
-      },
-    ),
-    GoRoute(
-      path: '/admin/categories',
-      builder: (context, state) => const FishCategoriesScreen(),
-    ),
-    GoRoute(
-      path: '/admin/orders/:orderId',
-      builder: (context, state) {
-        final id = state.pathParameters['orderId']!;
-        return AdminOrderDetailScreen(orderId: id);
-      },
-    ),
-    GoRoute(
-      path: '/admin/reports',
-      builder: (context, state) => const AdminReportsScreen(),
-    ),
-    GoRoute(
-      path: '/admin/logs',
-      builder: (context, state) => const AdminActivityLogsScreen(),
-    ),
-    GoRoute(
-      path: '/admin/settings',
-      builder: (context, state) => const AdminSettingsScreen(),
-    ),
-
-    // ── Fish Listings ─────────────────────────────────────────────────────────
-    GoRoute(
-      path: '/listings',
+      path: AppRoutes.listings,
+      name: AppRouteNames.listings,
       builder: (context, state) => const FishListingsScreen(),
     ),
     GoRoute(
-      path: '/listings/create',
+      path: AppRoutes.listingsCreate,
+      name: AppRouteNames.listingsCreate,
       builder: (context, state) => const CreateListingScreen(),
     ),
     GoRoute(
-      path: '/listings/mine',
+      path: AppRoutes.listingsMine,
+      name: AppRouteNames.listingsMine,
       builder: (context, state) => const MyListingsScreen(),
     ),
     GoRoute(
-      path: '/listings/:id',
+      path: AppRoutes.listingDetailPath,
+      name: AppRouteNames.listingDetail,
       builder: (context, state) {
         final id = state.pathParameters['id']!;
         return FishListingDetailScreen(listingId: id);
       },
     ),
     GoRoute(
-      path: '/listings/:id/edit',
+      path: AppRoutes.listingEditPath,
+      name: AppRouteNames.listingEdit,
       builder: (context, state) {
         final id = state.pathParameters['id']!;
         return EditListingScreen(listingId: id);
       },
     ),
 
-    // ── Orders ────────────────────────────────────────────────────────────────
+    // ── Orders ────────────────────────────────────────────────────
     GoRoute(
-      path: '/orders',
+      path: AppRoutes.orders,
+      name: AppRouteNames.orders,
       builder: (context, state) => const MyOrdersScreen(),
     ),
     GoRoute(
-      path: '/orders/:id',
+      path: AppRoutes.orderDetailPath,
+      name: AppRouteNames.orderDetail,
       builder: (context, state) {
         final id = state.pathParameters['id']!;
         return OrderDetailScreen(orderId: id);
       },
     ),
 
-    // ── Profile ───────────────────────────────────────────────────────────────
+    // ── Profile / Settings ────────────────────────────────────────
     GoRoute(
-      path: '/profile',
+      path: AppRoutes.profile,
+      name: AppRouteNames.profile,
       builder: (context, state) => const ProfileScreen(),
     ),
     GoRoute(
-      path: '/profile/edit',
+      path: AppRoutes.profileEdit,
+      name: AppRouteNames.profileEdit,
       builder: (context, state) => const EditProfileScreen(),
     ),
-
-    // ── Settings (theme switcher etc.) ───────────────────────────────────────
     GoRoute(
-      path: '/settings',
+      path: AppRoutes.settings,
+      name: AppRouteNames.settings,
       builder: (context, state) => const SettingsScreen(),
+    ),
+    GoRoute(
+      path: AppRoutes.languageSelector,
+      name: AppRouteNames.languageSelector,
+      builder: (context, state) => const LanguageSelectorScreen(),
+    ),
+
+    // ── Admin management screens ─────────────────────────────────
+    GoRoute(
+      path: AppRoutes.adminSellers,
+      name: AppRouteNames.adminSellers,
+      builder: (context, state) => const ManageSellersScreen(),
+    ),
+    GoRoute(
+      path: AppRoutes.adminListings,
+      name: AppRouteNames.adminListings,
+      builder: (context, state) => const AdminAllListingsScreen(),
+    ),
+    GoRoute(
+      path: AppRoutes.adminTransactions,
+      name: AppRouteNames.adminTransactions,
+      builder: (context, state) => const AdminTransactionsScreen(),
+    ),
+    GoRoute(
+      path: AppRoutes.adminBuyers,
+      name: AppRouteNames.adminBuyers,
+      builder: (context, state) => const ManageBuyersScreen(),
+    ),
+    GoRoute(
+      path: AppRoutes.adminCategories,
+      name: AppRouteNames.adminCategories,
+      builder: (context, state) => const FishCategoriesScreen(),
+    ),
+    GoRoute(
+      path: AppRoutes.adminReports,
+      name: AppRouteNames.adminReports,
+      builder: (context, state) => const AdminReportsScreen(),
+    ),
+    GoRoute(
+      path: AppRoutes.adminLogs,
+      name: AppRouteNames.adminLogs,
+      builder: (context, state) => const AdminActivityLogsScreen(),
+    ),
+    GoRoute(
+      path: AppRoutes.adminSettings,
+      name: AppRouteNames.adminSettings,
+      builder: (context, state) => const AdminSettingsScreen(),
+    ),
+    GoRoute(
+      path: AppRoutes.adminUserProfilePath,
+      name: AppRouteNames.adminUserProfile,
+      builder: (context, state) {
+        final id = state.pathParameters['userId']!;
+        return AdminUserProfileScreen(userId: id);
+      },
+    ),
+    GoRoute(
+      path: AppRoutes.adminOrderDetailPath,
+      name: AppRouteNames.adminOrderDetail,
+      builder: (context, state) {
+        final id = state.pathParameters['orderId']!;
+        return AdminOrderDetailScreen(orderId: id);
+      },
     ),
   ],
 );

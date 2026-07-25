@@ -6,13 +6,14 @@
 // only an admin can use (live data refresh).
 
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
+import '../../config/route_paths.dart';
 import '../../constants/app_colors.dart';
 import '../../constants/app_sizes.dart';
 import '../../l10n/app_localizations.dart';
 import '../../providers/admin_provider.dart';
-import '../common/settings_screen.dart';
 
 class AdminSettingsScreen extends ConsumerWidget {
   const AdminSettingsScreen({super.key});
@@ -109,8 +110,8 @@ class _EmbeddedSettings extends StatelessWidget {
     // We hand-roll the inner tiles here (rather than mounting the
     // full SettingsScreen) so the section header strip / appbar
     // duplication is avoided.
-    return Column(
-      children: const [
+    return const Column(
+      children: [
         // The personal profile / sign out / language / theme actions
         // can be reached from the Profile screen / TopAppBar, so
         // this embed stays minimal — a static link to that screen.
@@ -132,9 +133,7 @@ class _ExternalLinkTile extends StatelessWidget {
       subtitle: Text(l10n.editProfile),
       trailing: const Icon(Icons.arrow_forward_ios_rounded, size: 16),
       onTap: () {
-        Navigator.of(context).push(
-          MaterialPageRoute(builder: (_) => const SettingsScreen()),
-        );
+        context.pushNamed(AppRouteNames.settings);
       },
     );
   }

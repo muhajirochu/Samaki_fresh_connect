@@ -19,7 +19,6 @@ import 'package:samakifresh_connect/config/dark_theme.dart';
 import 'package:samakifresh_connect/config/light_theme.dart';
 import 'package:samakifresh_connect/constants/app_colors.dart';
 import 'package:samakifresh_connect/l10n/app_localizations.dart';
-import 'package:samakifresh_connect/main.dart';
 import 'package:samakifresh_connect/models/enums/user_role.dart';
 import 'package:samakifresh_connect/models/user_model.dart';
 import 'package:samakifresh_connect/providers/admin_provider.dart';

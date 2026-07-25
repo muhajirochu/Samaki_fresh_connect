@@ -32,11 +32,11 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import '../../config/theme_extensions.dart';
 import '../../constants/app_colors.dart';
 import '../../constants/app_sizes.dart';
+import '../../config/route_paths.dart';
 import '../../l10n/app_localizations.dart';
 import '../../providers/auth_provider.dart';
 import '../../providers/locale_provider.dart';
 import '../../providers/theme_provider.dart';
-import 'language_selector_screen.dart';
 
 class SettingsScreen extends ConsumerWidget {
   const SettingsScreen({super.key});
@@ -57,7 +57,7 @@ class SettingsScreen extends ConsumerWidget {
         leading: IconButton(
           icon: const Icon(Icons.arrow_back_rounded),
           tooltip: l10n.back,
-          onPressed: () => Navigator.of(context).maybePop(),
+          onPressed: () => context.pop(),
         ),
       ),
       body: SafeArea(
@@ -133,11 +133,7 @@ class SettingsScreen extends ConsumerWidget {
               const SizedBox(height: 16),
               _LanguagePickerTile(
                 activeLocale: activeLocale,
-                onTap: () => Navigator.of(context).push(
-                  MaterialPageRoute(
-                    builder: (_) => const LanguageSelectorScreen(),
-                  ),
-                ),
+                onTap: () => context.pushNamed(AppRouteNames.languageSelector),
               ),
 
               const SizedBox(height: AppSizes.paddingXL),

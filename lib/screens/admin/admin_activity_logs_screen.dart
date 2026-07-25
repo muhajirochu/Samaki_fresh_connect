@@ -11,7 +11,6 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import '../../constants/app_colors.dart';
 import '../../constants/app_sizes.dart';
 import '../../l10n/app_localizations.dart';
-import '../../models/activity_log_model.dart';
 import '../../providers/admin_provider.dart';
 
 class AdminActivityLogsScreen extends ConsumerWidget {

@@ -10,7 +10,6 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
 import 'package:samakifresh_connect/providers/locale_provider.dart';
-import 'package:samakifresh_connect/providers/theme_provider.dart';
 
 void main() {
   test('localeProvider — setLocale flips the provider state', () async {

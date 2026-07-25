@@ -4,6 +4,7 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../constants/app_colors.dart';
 import '../../constants/app_sizes.dart';
+import '../../l10n/app_localizations.dart';
 import '../../models/user_model.dart';
 import '../../models/enums/user_role.dart';
 import '../../models/fish_listing_model.dart';
@@ -24,6 +25,7 @@ class FishListingDetailScreen extends HookConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = AppLocalizations.of(context);
     final listingAsync = ref.watch(listingDetailProvider(listingId));
     final currentUser = ref.watch(currentUserStreamProvider).valueOrNull;
     final cs = Theme.of(context).colorScheme;
@@ -32,8 +34,8 @@ class FishListingDetailScreen extends HookConsumerWidget {
       backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       extendBodyBehindAppBar: true,
       appBar: AppBar(
-        title: const Text('Listing Details',
-            style: TextStyle(fontWeight: FontWeight.w600)),
+        title: Text(l10n.listingDetails,
+            style: const TextStyle(fontWeight: FontWeight.w600)),
         backgroundColor: Colors.transparent,
         foregroundColor: Colors.white,
         elevation: 0,
@@ -56,15 +58,15 @@ class FishListingDetailScreen extends HookConsumerWidget {
         loading: () => const LoadingIndicator(),
         error: (e, _) => EmptyStateWidget(
           icon: Icons.error_rounded,
-          title: 'Error loading listing',
+          title: l10n.errorLoadingListing,
           subtitle: e.toString(),
         ),
         data: (listing) {
           if (listing == null) {
-            return const EmptyStateWidget(
+            return EmptyStateWidget(
               icon: Icons.search_off_rounded,
-              title: 'Listing not found',
-              subtitle: 'This listing may have been removed.',
+              title: l10n.listingNotFound,
+              subtitle: l10n.listingMayBeRemoved,
             );
           }
 

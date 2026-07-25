@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:samakifresh_connect/models/order_model.dart';
+import '../../config/route_paths.dart';
 import '../../constants/app_sizes.dart';
+import '../../l10n/app_localizations.dart';
 import '../../providers/order_provider.dart';
 import '../../providers/auth_provider.dart';
 import '../../widgets/cards/order_card.dart';
@@ -13,14 +15,15 @@ class MyOrdersScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = AppLocalizations.of(context);
     final userAsync = ref.watch(currentUserStreamProvider);
     final cs = Theme.of(context).colorScheme;
 
     return Scaffold(
       backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       appBar: AppBar(
-        title: const Text('My Orders',
-            style: TextStyle(fontWeight: FontWeight.w600)),
+        title: Text(l10n.myOrders,
+            style: const TextStyle(fontWeight: FontWeight.w600)),
         elevation: 0,
         backgroundColor: cs.surface,
         foregroundColor: cs.onSurface,
@@ -30,7 +33,7 @@ class MyOrdersScreen extends ConsumerWidget {
         loading: () => const LoadingIndicator(),
         error: (e, _) => EmptyStateWidget(
           icon: Icons.error_rounded,
-          title: 'Error loading user data',
+          title: l10n.failedToLoadUserData,
           subtitle: e.toString(),
         ),
         data: (user) {
@@ -43,10 +46,10 @@ class MyOrdersScreen extends ConsumerWidget {
           } else if (user.role.name == 'streetSeller') {
             provider = streetSellerOrdersProvider(user.userId);
           } else {
-            return const EmptyStateWidget(
+            return EmptyStateWidget(
               icon: Icons.receipt_long_rounded,
-              title: 'No Orders',
-              subtitle: 'Order tracking is for buyers and sellers.',
+              title: l10n.noOrdersYet,
+              subtitle: l10n.orderTrackingExplanation,
             );
           }
 
@@ -54,10 +57,10 @@ class MyOrdersScreen extends ConsumerWidget {
 
           return ordersAsync.when(
             loading: () =>
-                const LoadingIndicator(message: 'Loading your orders...'),
+                LoadingIndicator(message: l10n.loadingYourOrders),
             error: (error, _) => EmptyStateWidget(
               icon: Icons.error_outline_rounded,
-              title: 'Failed to load orders',
+              title: l10n.failedToLoadOrders,
               subtitle: error.toString(),
               onRetry: () => ref.refresh(provider),
             ),
@@ -65,8 +68,8 @@ class MyOrdersScreen extends ConsumerWidget {
               if (orders.isEmpty) {
                 return EmptyStateWidget(
                   icon: Icons.receipt_long_rounded,
-                  title: 'No Orders Found',
-                  subtitle: 'You haven\'t made any transactions yet.',
+                  title: l10n.noOrdersFound,
+                  subtitle: l10n.noOrdersPrompt,
                   onRetry: () => ref.refresh(provider),
                 );
               }
@@ -82,7 +85,10 @@ class MyOrdersScreen extends ConsumerWidget {
                     final order = orders[index];
                     return OrderCard(
                       order: order,
-                      onTap: () => context.push('/orders/${order.orderId}'),
+                      onTap: () => context.pushNamed(
+                        AppRouteNames.orderDetail,
+                        pathParameters: {'id': order.orderId},
+                      ),
                     );
                   },
                 ),

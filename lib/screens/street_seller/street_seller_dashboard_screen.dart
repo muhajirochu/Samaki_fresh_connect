@@ -397,9 +397,10 @@ class _OnlineToggleButton extends ConsumerWidget {
               : () async {
                   final messenger = ScaffoldMessenger.of(context);
                   final actions = ref.read(sellerOnlineActionsProvider);
+                  final l10n = AppLocalizations.of(context);
                   if (isOnline) {
                     await actions.goOffline();
-                    final l10n = AppLocalizations.of(context);
+                    if (!context.mounted) return;
                     messenger.showSnackBar(
                       SnackBar(
                         content: Text(l10n.youAreNowOffline),
@@ -408,20 +409,18 @@ class _OnlineToggleButton extends ConsumerWidget {
                     );
                   } else {
                     final ok = await actions.goOnline();
-                    if (!ok && context.mounted) {
+                    if (!context.mounted) return;
+                    if (!ok) {
                       messenger.showSnackBar(
                         SnackBar(
                           content: Text(
-                            tracker.errorMessage ??
-                                AppLocalizations.of(context).callFailed ??
-                                'Could not go online',
+                            tracker.errorMessage ?? l10n.callFailed,
                           ),
                           backgroundColor: AppColors.errorRed,
                           behavior: SnackBarBehavior.floating,
                         ),
                       );
-                    } else if (context.mounted) {
-                      final l10n = AppLocalizations.of(context);
+                    } else {
                       messenger.showSnackBar(
                         SnackBar(
                           content: Text(l10n.youAreNowOnline),

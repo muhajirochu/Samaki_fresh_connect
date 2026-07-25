@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import '../../config/theme_extensions.dart';
 import '../../constants/app_sizes.dart';
+import '../../l10n/app_localizations.dart';
 import '../../models/enums/order_status.dart';
 import '../../providers/order_provider.dart';
 import '../../providers/auth_provider.dart';
@@ -17,6 +18,7 @@ class OrderDetailScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = AppLocalizations.of(context);
     final orderAsync = ref.watch(orderDetailProvider(orderId));
     final currentUser = ref.watch(currentUserStreamProvider).valueOrNull;
     final cs = Theme.of(context).colorScheme;
@@ -24,8 +26,8 @@ class OrderDetailScreen extends ConsumerWidget {
     return Scaffold(
       backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       appBar: AppBar(
-        title: const Text('Order Details',
-            style: TextStyle(fontWeight: FontWeight.w600)),
+        title: Text(l10n.orderDetails,
+            style: const TextStyle(fontWeight: FontWeight.w600)),
         backgroundColor: cs.surface,
         foregroundColor: cs.onSurface,
         elevation: 0,
@@ -35,15 +37,15 @@ class OrderDetailScreen extends ConsumerWidget {
         loading: () => const LoadingIndicator(),
         error: (e, _) => EmptyStateWidget(
           icon: Icons.error_rounded,
-          title: 'Error loading order',
+          title: l10n.errorLoadingOrder,
           subtitle: e.toString(),
         ),
         data: (order) {
           if (order == null) {
-            return const EmptyStateWidget(
+            return EmptyStateWidget(
               icon: Icons.search_off_rounded,
-              title: 'Order not found',
-              subtitle: 'This order may have been deleted.',
+              title: l10n.orderNotFound,
+              subtitle: l10n.orderMayBeDeleted,
             );
           }
 

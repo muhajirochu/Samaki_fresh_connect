@@ -7,8 +7,10 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
+import '../../config/route_paths.dart';
 import '../../constants/app_colors.dart';
 import '../../constants/app_sizes.dart';
+import '../../l10n/app_localizations.dart';
 import '../../models/enums/listing_status.dart';
 import '../../models/fish_listing_model.dart';
 import '../../providers/auth_provider.dart';
@@ -21,12 +23,13 @@ class MyListingsScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = AppLocalizations.of(context);
     final userAsync = ref.watch(currentUserStreamProvider);
     return Scaffold(
       backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       appBar: AppBar(
-        title: const Text('My Listings',
-            style: TextStyle(fontWeight: FontWeight.w600)),
+        title: Text(l10n.myListings,
+            style: const TextStyle(fontWeight: FontWeight.w600)),
         elevation: 0,
         backgroundColor: Theme.of(context).colorScheme.surface,
         foregroundColor: Theme.of(context).colorScheme.onSurface,
@@ -36,7 +39,7 @@ class MyListingsScreen extends ConsumerWidget {
         loading: () => const LoadingIndicator(),
         error: (e, _) => EmptyStateWidget(
           icon: Icons.error_rounded,
-          title: 'Error loading user data',
+          title: l10n.failedToLoadUserData,
           subtitle: e.toString(),
         ),
         data: (user) {
@@ -45,10 +48,10 @@ class MyListingsScreen extends ConsumerWidget {
           final listingsAsync = ref.watch(provider);
           return listingsAsync.when(
             loading: () =>
-                const LoadingIndicator(message: 'Loading your listings...'),
+                LoadingIndicator(message: l10n.loadingYourListings),
             error: (error, _) => EmptyStateWidget(
               icon: Icons.error_outline_rounded,
-              title: 'Failed to load listings',
+              title: l10n.failedToLoadListings,
               subtitle: error.toString(),
               onRetry: () => ref.refresh(provider),
             ),
@@ -56,8 +59,8 @@ class MyListingsScreen extends ConsumerWidget {
               if (listings.isEmpty) {
                 return EmptyStateWidget(
                   icon: Icons.inventory_2_rounded,
-                  title: 'No Listings Yet',
-                  subtitle: 'Create a listing to start selling!',
+                  title: l10n.noListingsYet,
+                  subtitle: l10n.createListingPrompt,
                   onRetry: () => ref.refresh(provider),
                 );
               }
@@ -79,7 +82,7 @@ class MyListingsScreen extends ConsumerWidget {
         },
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: () => context.push('/listings/create'),
+        onPressed: () => context.pushNamed(AppRouteNames.listingsCreate),
         backgroundColor: Theme.of(context).colorScheme.primary,
         foregroundColor: Theme.of(context).colorScheme.onPrimary,
         elevation: 4,
@@ -94,28 +97,28 @@ class _ManageableListingCard extends ConsumerWidget {
   const _ManageableListingCard({required this.listing});
 
   Future<void> _confirmAndDelete(BuildContext context, WidgetRef ref) async {
+    final l10n = AppLocalizations.of(context);
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
         shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(AppSizes.radiusLG)),
-        title: const Text('Delete listing?'),
-        content: Text(
-          'This will permanently remove the ${listing.fishType} listing '
-          '(${listing.quantityKg.toStringAsFixed(1)} kg). Buyers will no '
-          'longer see it on the marketplace.',
-        ),
+        title: Text(l10n.deleteListingTitle),
+        content: Text(l10n.deleteListingBody(
+          listing.fishType,
+          listing.quantityKg.toStringAsFixed(1),
+        )),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(ctx).pop(false),
-            child: const Text('Cancel'),
+            child: Text(l10n.cancel),
           ),
           FilledButton(
             onPressed: () => Navigator.of(ctx).pop(true),
             style: FilledButton.styleFrom(
               backgroundColor: AppColors.errorRed,
             ),
-            child: const Text('Delete'),
+            child: Text(l10n.delete),
           ),
         ],
       ),
@@ -129,8 +132,8 @@ class _ManageableListingCard extends ConsumerWidget {
     messenger.showSnackBar(
       SnackBar(
         content: Text(result.success
-            ? 'Listing deleted'
-            : (result.error ?? 'Delete failed')),
+            ? l10n.listingDeleted
+            : (result.error ?? l10n.deleteFailed)),
         backgroundColor:
             result.success ? AppColors.successGreen : AppColors.errorRed,
         behavior: SnackBarBehavior.floating,
@@ -139,6 +142,7 @@ class _ManageableListingCard extends ConsumerWidget {
   }
 
   Future<void> _markSold(BuildContext context, WidgetRef ref) async {
+    final l10n = AppLocalizations.of(context);
     final messenger = ScaffoldMessenger.of(context);
     final result = await ref
         .read(listingManagementControllerProvider.notifier)
@@ -146,8 +150,8 @@ class _ManageableListingCard extends ConsumerWidget {
     messenger.showSnackBar(
       SnackBar(
         content: Text(result.success
-            ? 'Marked as sold'
-            : (result.error ?? 'Action failed')),
+            ? l10n.markedAsSold
+            : (result.error ?? l10n.actionFailed)),
         backgroundColor:
             result.success ? AppColors.successGreen : AppColors.errorRed,
         behavior: SnackBarBehavior.floating,
@@ -156,6 +160,7 @@ class _ManageableListingCard extends ConsumerWidget {
   }
 
   Future<void> _showActions(BuildContext context, WidgetRef ref) async {
+    final l10n = AppLocalizations.of(context);
     final sold = listing.status == ListingStatus.sold.value;
     final expired = listing.status == ListingStatus.expired.value;
     final cs = Theme.of(context).colorScheme;
@@ -191,7 +196,7 @@ class _ManageableListingCard extends ConsumerWidget {
               ListTile(
                 leading: Icon(Icons.edit_rounded,
                     color: cs.primary),
-                title: Text('Edit',
+                title: Text(l10n.edit,
                     style: tt.bodyMedium
                         ?.copyWith(fontWeight: FontWeight.w700)),
                 subtitle: const Text('Update price, quantity or description'),
@@ -199,7 +204,10 @@ class _ManageableListingCard extends ConsumerWidget {
                     ? null
                     : () {
                         Navigator.of(ctx).pop();
-                        context.push('/listings/${listing.listingId}/edit');
+                        context.pushNamed(
+                          AppRouteNames.listingEdit,
+                          pathParameters: {'id': listing.listingId},
+                        );
                       },
               ),
               ListTile(
@@ -223,8 +231,8 @@ class _ManageableListingCard extends ConsumerWidget {
               ListTile(
                 leading:
                     const Icon(Icons.delete_rounded, color: AppColors.errorRed),
-                title: const Text('Delete',
-                    style: TextStyle(
+                title: Text(l10n.delete,
+                    style: const TextStyle(
                         color: AppColors.errorRed,
                         fontWeight: FontWeight.w700)),
                 subtitle: const Text('Remove this listing permanently'),
@@ -243,12 +251,16 @@ class _ManageableListingCard extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = AppLocalizations.of(context);
     final cs = Theme.of(context).colorScheme;
     return Stack(
       children: [
         FishListingCard(
           listing: listing,
-          onTap: () => context.push('/listings/${listing.listingId}'),
+          onTap: () => context.pushNamed(
+            AppRouteNames.listingDetail,
+            pathParameters: {'id': listing.listingId},
+          ),
         ),
         Positioned(
           top: 6,
@@ -258,7 +270,7 @@ class _ManageableListingCard extends ConsumerWidget {
             shape: const CircleBorder(),
             child: IconButton(
               icon: const Icon(Icons.more_vert_rounded, color: Colors.white),
-              tooltip: 'Manage listing',
+              tooltip: l10n.manageListingTooltip,
               onPressed: () => _showActions(context, ref),
             ),
           ),

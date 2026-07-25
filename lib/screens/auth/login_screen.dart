@@ -334,7 +334,7 @@ class _SignInTab extends HookConsumerWidget {
                 subtitle: userData.email,
               );
             } catch (_) {/* swallow — audit-only */}
-            context.go(_routeForRole(userData.role));
+            if (context.mounted) context.go(_routeForRole(userData.role));
           } else if (context.mounted) {
             _showSnack(context, 'Failed to fetch user data. Try again.',
                 isError: true);

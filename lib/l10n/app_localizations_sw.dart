@@ -120,7 +120,7 @@ class AppLocalizationsSw extends AppLocalizations {
   String get marketplace => 'Soko';
 
   @override
-  String get myListings => 'Zabuni zangu';
+  String get myListings => 'Orodha Zangu';
 
   @override
   String get profile => 'Wasifu';
@@ -315,7 +315,7 @@ class AppLocalizationsSw extends AppLocalizations {
   String get quickActions => 'Vitendo vya Haraka';
 
   @override
-  String get noImage => 'Hakuna Picha';
+  String get noImage => 'Hakuna picha';
 
   @override
   String expiresIn(String duration) {
@@ -335,7 +335,7 @@ class AppLocalizationsSw extends AppLocalizations {
   String get myProfile => 'Wasifu Wangu';
 
   @override
-  String get editProfile => 'Hariri wasifu';
+  String get editProfile => 'Hariri Wasifu';
 
   @override
   String get accountInformation => 'Maelezo ya Akaunti';
@@ -510,7 +510,7 @@ class AppLocalizationsSw extends AppLocalizations {
   String get personalInformation => 'Maelezo ya Kibinafsi';
 
   @override
-  String get editListing => 'Hariri Zabuni';
+  String get editListing => 'Hariri Orodha';
 
   @override
   String get logoutConfirmationMessage =>
@@ -1084,7 +1084,7 @@ class AppLocalizationsSw extends AppLocalizations {
       'Futa kabisa zabuni hii? Hii haiwezi kubatilishwa.';
 
   @override
-  String get listingDeleted => 'Zabuni imefutwa';
+  String get listingDeleted => 'Orodha imefutwa';
 
   @override
   String listingsDeleted(int count) {
@@ -1213,6 +1213,135 @@ class AppLocalizationsSw extends AppLocalizations {
   @override
   String get userModerationFailed =>
       'Imeshindwa kusasisha mnunuzi huyu. Tafadhali jaribu tena.';
+
+  @override
+  String get listingDetails => 'Maelezo ya Orodha';
+
+  @override
+  String get notLoggedInSimple => 'Hujaingia';
+
+  @override
+  String get loadingFreshCatch => 'Inapakia samaki fresh...';
+
+  @override
+  String get loadingYourListings => 'Inapakia orodha zako...';
+
+  @override
+  String get loadingYourOrders => 'Inapakia maagizo yako...';
+
+  @override
+  String get failedToLoadListings => 'Imeshindwa kupakia orodha';
+
+  @override
+  String get failedToLoadOrders => 'Imeshindwa kupakia maagizo';
+
+  @override
+  String get failedToLoadUserData => 'Hitilafu kupakia data ya mtumiaji';
+
+  @override
+  String get noListingsYet => 'Hakuna Orodha Bado';
+
+  @override
+  String get createListingPrompt => 'Anza orodha ili kuuza samaki!';
+
+  @override
+  String get noOrdersYet => 'Hakuna Maagizo';
+
+  @override
+  String get orderTrackingExplanation =>
+      'Ufuatiliaji wa maagizo ni kwa wanunuzi na wauzaji.';
+
+  @override
+  String get noOrdersFound => 'Hakuna Maagizo Yaliyopatikana';
+
+  @override
+  String get noOrdersPrompt => 'Bado hujafanya miamala yoyote.';
+
+  @override
+  String get show => 'Onyesha';
+
+  @override
+  String get hide => 'Ficha';
+
+  @override
+  String get deleteListingTitle => 'Futa orodha?';
+
+  @override
+  String deleteListingBody(String fishType, String quantity) {
+    return 'Hii itafuta kabisa orodha ya $fishType ($quantity kg). Wanunuzi hawatakuona tena sokoni.';
+  }
+
+  @override
+  String get deleteFailed => 'Kufuta kumeshindwa';
+
+  @override
+  String get listingUpdated => 'Orodha imesasishwa';
+
+  @override
+  String get updateFailed => 'Kusasisha kumeshindwa';
+
+  @override
+  String get markedAsSold => 'Imeuzwa';
+
+  @override
+  String get actionFailed => 'Kitendo kimeshindwa';
+
+  @override
+  String get noFishAvailable => 'Hakuna Samaki';
+
+  @override
+  String get checkBackLater => 'Rudi baadaye kwa samaki fresh!';
+
+  @override
+  String get errorLoadingListing => 'Hitilafu kupakia orodha';
+
+  @override
+  String get errorLoadingOrder => 'Hitilafu kupakia agizo';
+
+  @override
+  String get listingNotFound => 'Orodha haikupatikana';
+
+  @override
+  String get listingMayBeRemoved => 'Orodha hii inaweza kuwa imeondolewa.';
+
+  @override
+  String get orderNotFound => 'Agizo halikupatikana';
+
+  @override
+  String get orderMayBeDeleted => 'Agizo hili linaweza kuwa limefutwa.';
+
+  @override
+  String couldNotLoadListing(String error) {
+    return 'Imeshindwa kupakia orodha: $error';
+  }
+
+  @override
+  String get orderPlacedSuccess => 'Agizo limewekwa!';
+
+  @override
+  String get profileUpdatedSuccess => 'Wasifu umesasishwa';
+
+  @override
+  String errorWithMessage(String message) {
+    return 'Hitilafu: $message';
+  }
+
+  @override
+  String get noRatingsYet => 'Bado hakuna tathmini';
+
+  @override
+  String reviewCount(int count) {
+    return 'Tathmini $count';
+  }
+
+  @override
+  String get manageListingTooltip => 'Simamia orodha';
+
+  @override
+  String get switchThemeTooltip => 'Badilisha mandhari';
+
+  @override
+  String get allSettingsTooltip => 'Mipangilio yote';
 
   @override
   String get searchOrders => 'Tafuta maagizo';

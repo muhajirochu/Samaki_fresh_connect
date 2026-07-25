@@ -6,6 +6,7 @@
 // role-conditional admin actions.
 
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
 import '../../constants/app_colors.dart';
@@ -318,7 +319,7 @@ class _AdminActionsCard extends ConsumerWidget {
     if (ok != true) return;
     await adminSuspendUser(ref, user.userId,
         reason: reasonCtl.text.trim());
-    if (context.mounted) Navigator.of(context).maybePop();
+    if (context.mounted) context.pop();
   }
 
   @override
@@ -357,7 +358,7 @@ class _AdminActionsCard extends ConsumerWidget {
               color: AppColors.accentGreen,
               onPressed: () async {
                 await adminApproveSeller(ref, user.userId);
-                if (context.mounted) Navigator.of(context).maybePop();
+                if (context.mounted) context.pop();
               },
             ),
           if (canRevoke)
@@ -367,7 +368,7 @@ class _AdminActionsCard extends ConsumerWidget {
               color: AppColors.accentOrange,
               onPressed: () async {
                 await adminRevokeSellerApproval(ref, user.userId);
-                if (context.mounted) Navigator.of(context).maybePop();
+                if (context.mounted) context.pop();
               },
             ),
           if (canSuspend)
@@ -384,7 +385,7 @@ class _AdminActionsCard extends ConsumerWidget {
               color: AppColors.accentGreen,
               onPressed: () async {
                 await adminReactivateUser(ref, user.userId);
-                if (context.mounted) Navigator.of(context).maybePop();
+                if (context.mounted) context.pop();
               },
             ),
         ],

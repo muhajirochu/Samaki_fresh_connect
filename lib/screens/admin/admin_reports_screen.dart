@@ -29,9 +29,9 @@ class AdminReportsScreen extends ConsumerWidget {
       child: Scaffold(
         appBar: AppBar(
           title: Text(AppLocalizations.of(context).reportsTab),
-          bottom: TabBar(
+          bottom: const TabBar(
             isScrollable: true,
-            tabs: const [
+            tabs: [
               Tab(text: 'Overview'),
               Tab(text: 'Sales'),
               Tab(text: 'Orders'),
@@ -275,7 +275,7 @@ class _SellersTab extends ConsumerWidget {
     final l10n = AppLocalizations.of(context);
     final sellers = ref.watch(adminAllSellersProvider).valueOrNull ?? [];
     if (sellers.isEmpty) {
-      return Center(child: Text(l10n.noStreetSellers ?? 'No sellers'));
+      return Center(child: Text(l10n.noStreetSellers));
     }
     final top = [...sellers]..sort((a, b) => b.totalSales.compareTo(a.totalSales));
     return ListView.separated(
@@ -314,12 +314,11 @@ class _BuyersTab extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final l10n = AppLocalizations.of(context);
     final buyers = ref.watch(adminAllBuyersProvider).valueOrNull ?? [];
     final orders = ref.watch(adminAllOrdersProvider).valueOrNull ?? [];
 
     if (buyers.isEmpty) {
-      return Center(child: Text('No buyers yet'));
+      return const Center(child: Text('No buyers yet'));
     }
     final byBuyer = <String, int>{};
     for (final o in orders) {

@@ -9,6 +9,7 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 
 import '../../constants/app_colors.dart';
 import '../../constants/app_sizes.dart';
+import '../../l10n/app_localizations.dart';
 import '../../models/enums/listing_status.dart';
 import '../../models/fish_listing_model.dart';
 import '../../providers/listing_provider.dart';
@@ -73,10 +74,11 @@ class _EditListingScreenState extends ConsumerState<EditListingScreen> {
 
     if (!mounted) return;
     setState(() => _saving = false);
+    final l10n = AppLocalizations.of(context);
     if (result.success) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Listing updated'),
+        SnackBar(
+          content: Text(l10n.listingUpdated),
           backgroundColor: AppColors.successGreen,
           behavior: SnackBarBehavior.floating,
         ),
@@ -85,7 +87,7 @@ class _EditListingScreenState extends ConsumerState<EditListingScreen> {
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text(result.error ?? 'Update failed'),
+          content: Text(result.error ?? l10n.updateFailed),
           backgroundColor: AppColors.errorRed,
           behavior: SnackBarBehavior.floating,
         ),
@@ -95,6 +97,7 @@ class _EditListingScreenState extends ConsumerState<EditListingScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     final detailAsync = ref.watch(listingDetailProvider(widget.listingId));
     final cs = Theme.of(context).colorScheme;
     final tt = Theme.of(context).textTheme;
@@ -102,8 +105,8 @@ class _EditListingScreenState extends ConsumerState<EditListingScreen> {
     return Scaffold(
       backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       appBar: AppBar(
-        title: const Text('Edit Listing',
-            style: TextStyle(fontWeight: FontWeight.w600)),
+        title: Text(l10n.editListing,
+            style: const TextStyle(fontWeight: FontWeight.w600)),
         backgroundColor: cs.primary,
         foregroundColor: cs.onPrimary,
         elevation: 0,
@@ -122,7 +125,7 @@ class _EditListingScreenState extends ConsumerState<EditListingScreen> {
                     )
                   : Icon(Icons.check_rounded, color: cs.onPrimary),
               label: Text(
-                'Save',
+                l10n.save,
                 style: TextStyle(
                     color: cs.onPrimary, fontWeight: FontWeight.w600),
               ),
@@ -134,13 +137,13 @@ class _EditListingScreenState extends ConsumerState<EditListingScreen> {
         error: (e, _) => Center(
           child: Padding(
             padding: const EdgeInsets.all(AppSizes.paddingLG),
-            child: Text('Could not load listing: $e',
+            child: Text(l10n.couldNotLoadListing(e.toString()),
                 textAlign: TextAlign.center),
           ),
         ),
         data: (listing) {
           if (listing == null) {
-            return const Center(child: Text('Listing not found'));
+            return Center(child: Text(l10n.listingNotFound));
           }
           _seedFromListing(listing);
           // Block edits if the listing is sold/expired.

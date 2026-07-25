@@ -517,6 +517,81 @@
     "userSuspended": "Buyer suspended",
     "userReactivated": "Buyer reactivated",
     "userModerationFailed": "Couldn't update this buyer. Please try again.",
+
+    "marketplace": "Marketplace",
+    "myOrders": "My Orders",
+    "myListings": "My Listings",
+    "editListing": "Edit Listing",
+    "listingDetails": "Listing Details",
+    "orderDetails": "Order Details",
+    "editProfile": "Edit Profile",
+    "notLoggedInSimple": "Not logged in",
+    "loadingFreshCatch": "Loading fresh catch...",
+    "loadingYourListings": "Loading your listings...",
+    "loadingYourOrders": "Loading your orders...",
+    "failedToLoadListings": "Failed to load listings",
+    "failedToLoadOrders": "Failed to load orders",
+    "failedToLoadUserData": "Error loading user data",
+    "noListingsYet": "No Listings Yet",
+    "createListingPrompt": "Create a listing to start selling!",
+    "noOrdersYet": "No Orders",
+    "orderTrackingExplanation": "Order tracking is for buyers and sellers.",
+    "noOrdersFound": "No Orders Found",
+    "noOrdersPrompt": "You haven't made any transactions yet.",
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "edit": "Edit",
+    "save": "Save",
+    "retry": "Retry",
+    "show": "Show",
+    "hide": "Hide",
+    "deleteListingTitle": "Delete listing?",
+    "deleteListingBody": "This will permanently remove the {fishType} listing ({quantity} kg). Buyers will no longer see it on the marketplace.",
+    "@deleteListingBody": {
+        "placeholders": {
+            "fishType": {"type": "String"},
+            "quantity": {"type": "String"}
+        }
+    },
+    "listingDeleted": "Listing deleted",
+    "deleteFailed": "Delete failed",
+    "listingUpdated": "Listing updated",
+    "updateFailed": "Update failed",
+    "markedAsSold": "Marked as sold",
+    "actionFailed": "Action failed",
+    "noFishAvailable": "No Fish Available",
+    "checkBackLater": "Check back later for fresh catch!",
+    "errorLoadingListing": "Error loading listing",
+    "errorLoadingOrder": "Error loading order",
+    "listingNotFound": "Listing not found",
+    "listingMayBeRemoved": "This listing may have been removed.",
+    "orderNotFound": "Order not found",
+    "orderMayBeDeleted": "This order may have been deleted.",
+    "couldNotLoadListing": "Could not load listing: {error}",
+    "@couldNotLoadListing": {
+        "placeholders": {
+            "error": {"type": "String"}
+        }
+    },
+    "orderPlacedSuccess": "Order placed successfully!",
+    "profileUpdatedSuccess": "Profile updated successfully",
+    "errorWithMessage": "Error: {message}",
+    "@errorWithMessage": {
+        "placeholders": {
+            "message": {"type": "String"}
+        }
+    },
+    "noImage": "No image",
+    "noRatingsYet": "No ratings yet",
+    "reviewCount": "{count} reviews",
+    "@reviewCount": {
+        "placeholders": {
+            "count": {"type": "int"}
+        }
+    },
+    "manageListingTooltip": "Manage listing",
+    "switchThemeTooltip": "Switch theme",
+    "allSettingsTooltip": "All settings",
     "searchOrders": "Search orders",
     "manageCategories": "Fish Categories",
     "manageCategoriesSubtitle": "Add, edit or remove fish types",

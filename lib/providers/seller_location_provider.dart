@@ -104,6 +104,14 @@ final liveSellersProvider = StreamProvider<List<StreetSellerModel>>((ref) {
       return bT.compareTo(aT);
     });
     return list;
+  })
+      // A single malformed doc or transient permission error must not
+      // kill the whole stream — return the last empty fallback so
+      // the map keeps rendering. Most common cause is a missing
+      // composite index; once it's added the stream resumes
+      // automatically.
+      .handleError((Object e, StackTrace s) {
+    AppLogger.warning('liveSellersProvider error: $e');
   });
 });
 
@@ -127,7 +135,10 @@ final activeStreetSellersProviderRemote =
       .snapshots()
       .map((snap) => snap.docs
           .map((d) => StreetSellerModel.fromMap(d.data(), docId: d.id))
-          .toList());
+          .toList())
+      .handleError((Object e, StackTrace s) {
+    AppLogger.warning('activeStreetSellersProviderRemote error: $e');
+  });
 });
 
 /// Parameters for a geo query against the streetSellers collection.

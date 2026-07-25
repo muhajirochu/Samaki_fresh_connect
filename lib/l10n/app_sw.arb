@@ -521,6 +521,81 @@
     "userSuspended": "Mnunuzi amesimamishwa",
     "userReactivated": "Mnunuzi ameanzishwa tena",
     "userModerationFailed": "Imeshindwa kusasisha mnunuzi huyu. Tafadhali jaribu tena.",
+
+    "marketplace": "Soko",
+    "myOrders": "Maagizo Yangu",
+    "myListings": "Orodha Zangu",
+    "editListing": "Hariri Orodha",
+    "listingDetails": "Maelezo ya Orodha",
+    "orderDetails": "Maelezo ya Agizo",
+    "editProfile": "Hariri Wasifu",
+    "notLoggedInSimple": "Hujaingia",
+    "loadingFreshCatch": "Inapakia samaki fresh...",
+    "loadingYourListings": "Inapakia orodha zako...",
+    "loadingYourOrders": "Inapakia maagizo yako...",
+    "failedToLoadListings": "Imeshindwa kupakia orodha",
+    "failedToLoadOrders": "Imeshindwa kupakia maagizo",
+    "failedToLoadUserData": "Hitilafu kupakia data ya mtumiaji",
+    "noListingsYet": "Hakuna Orodha Bado",
+    "createListingPrompt": "Anza orodha ili kuuza samaki!",
+    "noOrdersYet": "Hakuna Maagizo",
+    "orderTrackingExplanation": "Ufuatiliaji wa maagizo ni kwa wanunuzi na wauzaji.",
+    "noOrdersFound": "Hakuna Maagizo Yaliyopatikana",
+    "noOrdersPrompt": "Bado hujafanya miamala yoyote.",
+    "cancel": "Ghairi",
+    "delete": "Futa",
+    "edit": "Hariri",
+    "save": "Hifadhi",
+    "retry": "Jaribu tena",
+    "show": "Onyesha",
+    "hide": "Ficha",
+    "deleteListingTitle": "Futa orodha?",
+    "deleteListingBody": "Hii itafuta kabisa orodha ya {fishType} ({quantity} kg). Wanunuzi hawatakuona tena sokoni.",
+    "@deleteListingBody": {
+        "placeholders": {
+            "fishType": {"type": "String"},
+            "quantity": {"type": "String"}
+        }
+    },
+    "listingDeleted": "Orodha imefutwa",
+    "deleteFailed": "Kufuta kumeshindwa",
+    "listingUpdated": "Orodha imesasishwa",
+    "updateFailed": "Kusasisha kumeshindwa",
+    "markedAsSold": "Imeuzwa",
+    "actionFailed": "Kitendo kimeshindwa",
+    "noFishAvailable": "Hakuna Samaki",
+    "checkBackLater": "Rudi baadaye kwa samaki fresh!",
+    "errorLoadingListing": "Hitilafu kupakia orodha",
+    "errorLoadingOrder": "Hitilafu kupakia agizo",
+    "listingNotFound": "Orodha haikupatikana",
+    "listingMayBeRemoved": "Orodha hii inaweza kuwa imeondolewa.",
+    "orderNotFound": "Agizo halikupatikana",
+    "orderMayBeDeleted": "Agizo hili linaweza kuwa limefutwa.",
+    "couldNotLoadListing": "Imeshindwa kupakia orodha: {error}",
+    "@couldNotLoadListing": {
+        "placeholders": {
+            "error": {"type": "String"}
+        }
+    },
+    "orderPlacedSuccess": "Agizo limewekwa!",
+    "profileUpdatedSuccess": "Wasifu umesasishwa",
+    "errorWithMessage": "Hitilafu: {message}",
+    "@errorWithMessage": {
+        "placeholders": {
+            "message": {"type": "String"}
+        }
+    },
+    "noImage": "Hakuna picha",
+    "noRatingsYet": "Bado hakuna tathmini",
+    "reviewCount": "Tathmini {count}",
+    "@reviewCount": {
+        "placeholders": {
+            "count": {"type": "int"}
+        }
+    },
+    "manageListingTooltip": "Simamia orodha",
+    "switchThemeTooltip": "Badilisha mandhari",
+    "allSettingsTooltip": "Mipangilio yote",
     "searchOrders": "Tafuta maagizo",
     "manageCategories": "Aina za Samaki",
     "manageCategoriesSubtitle": "Ongeza, hariri au futa aina za samaki",

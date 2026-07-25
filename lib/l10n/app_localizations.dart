@@ -683,7 +683,7 @@ abstract class AppLocalizations {
   /// No description provided for @noImage.
   ///
   /// In en, this message translates to:
-  /// **'No Image'**
+  /// **'No image'**
   String get noImage;
 
   /// No description provided for @expiresIn.
@@ -719,7 +719,7 @@ abstract class AppLocalizations {
   /// No description provided for @editProfile.
   ///
   /// In en, this message translates to:
-  /// **'Edit profile'**
+  /// **'Edit Profile'**
   String get editProfile;
 
   /// No description provided for @accountInformation.
@@ -2299,6 +2299,246 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Couldn\'t update this buyer. Please try again.'**
   String get userModerationFailed;
+
+  /// No description provided for @listingDetails.
+  ///
+  /// In en, this message translates to:
+  /// **'Listing Details'**
+  String get listingDetails;
+
+  /// No description provided for @notLoggedInSimple.
+  ///
+  /// In en, this message translates to:
+  /// **'Not logged in'**
+  String get notLoggedInSimple;
+
+  /// No description provided for @loadingFreshCatch.
+  ///
+  /// In en, this message translates to:
+  /// **'Loading fresh catch...'**
+  String get loadingFreshCatch;
+
+  /// No description provided for @loadingYourListings.
+  ///
+  /// In en, this message translates to:
+  /// **'Loading your listings...'**
+  String get loadingYourListings;
+
+  /// No description provided for @loadingYourOrders.
+  ///
+  /// In en, this message translates to:
+  /// **'Loading your orders...'**
+  String get loadingYourOrders;
+
+  /// No description provided for @failedToLoadListings.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to load listings'**
+  String get failedToLoadListings;
+
+  /// No description provided for @failedToLoadOrders.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to load orders'**
+  String get failedToLoadOrders;
+
+  /// No description provided for @failedToLoadUserData.
+  ///
+  /// In en, this message translates to:
+  /// **'Error loading user data'**
+  String get failedToLoadUserData;
+
+  /// No description provided for @noListingsYet.
+  ///
+  /// In en, this message translates to:
+  /// **'No Listings Yet'**
+  String get noListingsYet;
+
+  /// No description provided for @createListingPrompt.
+  ///
+  /// In en, this message translates to:
+  /// **'Create a listing to start selling!'**
+  String get createListingPrompt;
+
+  /// No description provided for @noOrdersYet.
+  ///
+  /// In en, this message translates to:
+  /// **'No Orders'**
+  String get noOrdersYet;
+
+  /// No description provided for @orderTrackingExplanation.
+  ///
+  /// In en, this message translates to:
+  /// **'Order tracking is for buyers and sellers.'**
+  String get orderTrackingExplanation;
+
+  /// No description provided for @noOrdersFound.
+  ///
+  /// In en, this message translates to:
+  /// **'No Orders Found'**
+  String get noOrdersFound;
+
+  /// No description provided for @noOrdersPrompt.
+  ///
+  /// In en, this message translates to:
+  /// **'You haven\'t made any transactions yet.'**
+  String get noOrdersPrompt;
+
+  /// No description provided for @show.
+  ///
+  /// In en, this message translates to:
+  /// **'Show'**
+  String get show;
+
+  /// No description provided for @hide.
+  ///
+  /// In en, this message translates to:
+  /// **'Hide'**
+  String get hide;
+
+  /// No description provided for @deleteListingTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete listing?'**
+  String get deleteListingTitle;
+
+  /// No description provided for @deleteListingBody.
+  ///
+  /// In en, this message translates to:
+  /// **'This will permanently remove the {fishType} listing ({quantity} kg). Buyers will no longer see it on the marketplace.'**
+  String deleteListingBody(String fishType, String quantity);
+
+  /// No description provided for @deleteFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete failed'**
+  String get deleteFailed;
+
+  /// No description provided for @listingUpdated.
+  ///
+  /// In en, this message translates to:
+  /// **'Listing updated'**
+  String get listingUpdated;
+
+  /// No description provided for @updateFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Update failed'**
+  String get updateFailed;
+
+  /// No description provided for @markedAsSold.
+  ///
+  /// In en, this message translates to:
+  /// **'Marked as sold'**
+  String get markedAsSold;
+
+  /// No description provided for @actionFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Action failed'**
+  String get actionFailed;
+
+  /// No description provided for @noFishAvailable.
+  ///
+  /// In en, this message translates to:
+  /// **'No Fish Available'**
+  String get noFishAvailable;
+
+  /// No description provided for @checkBackLater.
+  ///
+  /// In en, this message translates to:
+  /// **'Check back later for fresh catch!'**
+  String get checkBackLater;
+
+  /// No description provided for @errorLoadingListing.
+  ///
+  /// In en, this message translates to:
+  /// **'Error loading listing'**
+  String get errorLoadingListing;
+
+  /// No description provided for @errorLoadingOrder.
+  ///
+  /// In en, this message translates to:
+  /// **'Error loading order'**
+  String get errorLoadingOrder;
+
+  /// No description provided for @listingNotFound.
+  ///
+  /// In en, this message translates to:
+  /// **'Listing not found'**
+  String get listingNotFound;
+
+  /// No description provided for @listingMayBeRemoved.
+  ///
+  /// In en, this message translates to:
+  /// **'This listing may have been removed.'**
+  String get listingMayBeRemoved;
+
+  /// No description provided for @orderNotFound.
+  ///
+  /// In en, this message translates to:
+  /// **'Order not found'**
+  String get orderNotFound;
+
+  /// No description provided for @orderMayBeDeleted.
+  ///
+  /// In en, this message translates to:
+  /// **'This order may have been deleted.'**
+  String get orderMayBeDeleted;
+
+  /// No description provided for @couldNotLoadListing.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not load listing: {error}'**
+  String couldNotLoadListing(String error);
+
+  /// No description provided for @orderPlacedSuccess.
+  ///
+  /// In en, this message translates to:
+  /// **'Order placed successfully!'**
+  String get orderPlacedSuccess;
+
+  /// No description provided for @profileUpdatedSuccess.
+  ///
+  /// In en, this message translates to:
+  /// **'Profile updated successfully'**
+  String get profileUpdatedSuccess;
+
+  /// No description provided for @errorWithMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Error: {message}'**
+  String errorWithMessage(String message);
+
+  /// No description provided for @noRatingsYet.
+  ///
+  /// In en, this message translates to:
+  /// **'No ratings yet'**
+  String get noRatingsYet;
+
+  /// No description provided for @reviewCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} reviews'**
+  String reviewCount(int count);
+
+  /// No description provided for @manageListingTooltip.
+  ///
+  /// In en, this message translates to:
+  /// **'Manage listing'**
+  String get manageListingTooltip;
+
+  /// No description provided for @switchThemeTooltip.
+  ///
+  /// In en, this message translates to:
+  /// **'Switch theme'**
+  String get switchThemeTooltip;
+
+  /// No description provided for @allSettingsTooltip.
+  ///
+  /// In en, this message translates to:
+  /// **'All settings'**
+  String get allSettingsTooltip;
 
   /// No description provided for @searchOrders.
   ///

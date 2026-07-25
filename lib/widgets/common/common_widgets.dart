@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../constants/app_sizes.dart';
+import '../../l10n/app_localizations.dart';
 import 'premium_components.dart' as premium;
 
 /// Primary CTA used across the app. By default this now renders as the
@@ -107,6 +108,7 @@ class _CustomTextFieldState extends State<CustomTextField> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     // Password fields need a toggleable suffix; everything else can
     // delegate straight to the shared premium FormField.
     if (widget.isPasswordField) {
@@ -138,7 +140,7 @@ class _CustomTextFieldState extends State<CustomTextField> {
                     : Icons.visibility_off_outlined,
                 size: 16,
               ),
-              label: Text(_obscureText ? 'Show' : 'Hide'),
+              label: Text(_obscureText ? l10n.show : l10n.hide),
               style: TextButton.styleFrom(
                 padding: const EdgeInsets.symmetric(horizontal: 8),
                 visualDensity: VisualDensity.compact,
@@ -212,11 +214,12 @@ class EmptyStateWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     return premium.EmptyState(
       icon: icon,
       title: title,
       subtitle: subtitle,
-      actionLabel: onRetry == null ? null : 'Retry',
+      actionLabel: onRetry == null ? null : l10n.retry,
       onAction: onRetry,
     );
   }

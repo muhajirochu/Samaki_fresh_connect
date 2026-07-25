@@ -116,7 +116,7 @@ class _FishCategoriesScreenState extends ConsumerState<FishCategoriesScreen> {
                         );
                       } else {
                         await service.updateCategory(
-                          cat!.slug,
+                          cat.slug,
                           displayName: nameCtl.text.trim(),
                           description: descCtl.text.trim(),
                           isActive: active,
@@ -125,13 +125,15 @@ class _FishCategoriesScreenState extends ConsumerState<FishCategoriesScreen> {
                       }
                       if (ctx.mounted) Navigator.of(ctx).pop(true);
                     } catch (e) {
-                      ScaffoldMessenger.of(ctx).showSnackBar(
-                        SnackBar(
-                          content: Text(l10n.errorGeneric(e.toString())),
-                          backgroundColor: AppColors.errorRed,
-                          behavior: SnackBarBehavior.floating,
-                        ),
-                      );
+                      if (ctx.mounted) {
+                        ScaffoldMessenger.of(ctx).showSnackBar(
+                          SnackBar(
+                            content: Text(l10n.errorGeneric(e.toString())),
+                            backgroundColor: AppColors.errorRed,
+                            behavior: SnackBarBehavior.floating,
+                          ),
+                        );
+                      }
                     }
                   },
                   icon: const Icon(Icons.save_rounded),

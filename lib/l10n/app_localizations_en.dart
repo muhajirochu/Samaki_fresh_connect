@@ -317,7 +317,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get quickActions => 'Quick Actions';
 
   @override
-  String get noImage => 'No Image';
+  String get noImage => 'No image';
 
   @override
   String expiresIn(String duration) {
@@ -337,7 +337,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get myProfile => 'My Profile';
 
   @override
-  String get editProfile => 'Edit profile';
+  String get editProfile => 'Edit Profile';
 
   @override
   String get accountInformation => 'Account Information';
@@ -1214,6 +1214,135 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get userModerationFailed =>
       'Couldn\'t update this buyer. Please try again.';
+
+  @override
+  String get listingDetails => 'Listing Details';
+
+  @override
+  String get notLoggedInSimple => 'Not logged in';
+
+  @override
+  String get loadingFreshCatch => 'Loading fresh catch...';
+
+  @override
+  String get loadingYourListings => 'Loading your listings...';
+
+  @override
+  String get loadingYourOrders => 'Loading your orders...';
+
+  @override
+  String get failedToLoadListings => 'Failed to load listings';
+
+  @override
+  String get failedToLoadOrders => 'Failed to load orders';
+
+  @override
+  String get failedToLoadUserData => 'Error loading user data';
+
+  @override
+  String get noListingsYet => 'No Listings Yet';
+
+  @override
+  String get createListingPrompt => 'Create a listing to start selling!';
+
+  @override
+  String get noOrdersYet => 'No Orders';
+
+  @override
+  String get orderTrackingExplanation =>
+      'Order tracking is for buyers and sellers.';
+
+  @override
+  String get noOrdersFound => 'No Orders Found';
+
+  @override
+  String get noOrdersPrompt => 'You haven\'t made any transactions yet.';
+
+  @override
+  String get show => 'Show';
+
+  @override
+  String get hide => 'Hide';
+
+  @override
+  String get deleteListingTitle => 'Delete listing?';
+
+  @override
+  String deleteListingBody(String fishType, String quantity) {
+    return 'This will permanently remove the $fishType listing ($quantity kg). Buyers will no longer see it on the marketplace.';
+  }
+
+  @override
+  String get deleteFailed => 'Delete failed';
+
+  @override
+  String get listingUpdated => 'Listing updated';
+
+  @override
+  String get updateFailed => 'Update failed';
+
+  @override
+  String get markedAsSold => 'Marked as sold';
+
+  @override
+  String get actionFailed => 'Action failed';
+
+  @override
+  String get noFishAvailable => 'No Fish Available';
+
+  @override
+  String get checkBackLater => 'Check back later for fresh catch!';
+
+  @override
+  String get errorLoadingListing => 'Error loading listing';
+
+  @override
+  String get errorLoadingOrder => 'Error loading order';
+
+  @override
+  String get listingNotFound => 'Listing not found';
+
+  @override
+  String get listingMayBeRemoved => 'This listing may have been removed.';
+
+  @override
+  String get orderNotFound => 'Order not found';
+
+  @override
+  String get orderMayBeDeleted => 'This order may have been deleted.';
+
+  @override
+  String couldNotLoadListing(String error) {
+    return 'Could not load listing: $error';
+  }
+
+  @override
+  String get orderPlacedSuccess => 'Order placed successfully!';
+
+  @override
+  String get profileUpdatedSuccess => 'Profile updated successfully';
+
+  @override
+  String errorWithMessage(String message) {
+    return 'Error: $message';
+  }
+
+  @override
+  String get noRatingsYet => 'No ratings yet';
+
+  @override
+  String reviewCount(int count) {
+    return '$count reviews';
+  }
+
+  @override
+  String get manageListingTooltip => 'Manage listing';
+
+  @override
+  String get switchThemeTooltip => 'Switch theme';
+
+  @override
+  String get allSettingsTooltip => 'All settings';
 
   @override
   String get searchOrders => 'Search orders';

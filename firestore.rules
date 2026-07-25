@@ -6,7 +6,7 @@ rules_version = '2';
 //   users/{uid}/wishlist/{id}      — buyer wishlist entries
 //   streetSellers/{sellerId}       — presence + location mirror (id == seller uid)
 //   fishListings/{listingId}       — marketplace listings
-//   orders/{orderId}               — order lifecycle
+//   orders/{orderId}               — order lifecycle (uses orderStatus, NOT status)
 //   notifications/{notifId}        — per-user + broadcast
 
 service cloud.firestore {
@@ -19,126 +19,154 @@ service cloud.firestore {
     function isSelf(uid) {
       return isSignedIn() && request.auth.uid == uid;
     }
-    // Admin custom claim set via Firebase Auth (still TODO — set on backend).
-    // Until then, admin operations are scoped by uid lists below.
+    // Admin custom claim set via Firebase Auth (Cloud Function). The
+    // email fallback lets the demo seed admin sign in before the
+    // claim is wired up; remove the email branch once the
+    // Cloud Function is live.
     function isAdmin() {
-      // Custom claim path — preferred once the backend sets the claim.
       return isSignedIn() && (
         request.auth.token.admin == true
-        // Fallback: admin demo accounts identified by email.
-        // Lets the demo admin sign in as the seeded admin user and
-        // exercise moderation flows even before the custom claim is
-        // wired up on the backend. Once a Cloud Function sets the
-        // claim, this branch can be removed.
         || request.auth.token.email == 'admin@samakifresh.com'
       );
     }
-    // Same admin check, but available on resources that aren't
-    // /users/{auth.uid} (so `getAfter(...)` and friends still see
-    // the auth context correctly).
-    function adminUid() {
-      return request.auth.uid;
-    }
     // Sellers & buyers are identified by role stored on users/{uid}.
-    // The `getAfter(...)` form avoids crashing when the user doc
-    // doesn't exist yet (e.g. first sign-in via demo fallback). When
-    // the doc is missing we treat the user as a buyer (the most
-    // permissive default) and rely on isAdmin() for privileged ops.
     function userRole() {
       return exists(/databases/$(database)/documents/users/$(request.auth.uid))
         ? get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role
         : 'buyer';
     }
     function isSeller() {
-      return isSignedIn() && userRole() in ['fisherman', 'street_seller', 'streetSeller'];
+      return isSignedIn() && userRole() == 'streetSeller';
     }
     function isBuyer() {
       return isSignedIn() && userRole() == 'buyer';
     }
+    // Seller must be approved and active to act on the marketplace.
+    function isActiveApprovedSeller() {
+      return isSeller()
+        && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.isApproved == true
+        && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.isActive == true;
+    }
+    // True when a user doc has the same value for a key in both
+    // pre- and post-update snapshots. Used to lock moderation
+    // fields on self-update.
+    function fieldUnchanged(field) {
+      return request.resource.data[field] == resource.data[field];
+    }
 
     // ---------- users/{userId} ----------
     match /users/{userId} {
-      // Anyone signed in can read basic profile info (needed for seller map, order details, etc.).
-      // Tighten to "isSelf || isSeller" once you add privacy requirements.
+      // Anyone signed in can read basic profile info (needed for
+      // seller map, order details, etc.). Tighten to "isSelf ||
+      // isAdmin" once you add privacy requirements.
       allow read: if isSignedIn();
 
-      // A user can create their own doc. Must carry their own uid as the doc id
-      // and must be marked as a buyer, fisherman, or street_seller.
+      // A user can create their own doc. Must carry their own uid
+      // as the doc id. Role is restricted to non-privileged
+      // values — admin must be provisioned by a Cloud Function so
+      // a fresh signup can't self-promote.
       allow create: if isSelf(userId)
         && request.resource.data.keys().hasAll(['userId', 'role'])
         && request.resource.data.userId == userId
-        && request.resource.data.role in ['buyer', 'fisherman', 'street_seller', 'admin'];
+        && request.resource.data.role in ['buyer', 'streetSeller'];
 
       // Updates fall into three buckets:
-      //   1. The user edits their own doc — allowed, but the `role`
-      //      field is locked (must match the previous value) so a
-      //      regular user can't self-promote.
+      //   1. The user edits their own doc — allowed, but the
+      //      `role`, `isApproved`, `isActive`, and the moderation
+      //      audit fields are all locked (must match the previous
+      //      value) so a regular user can't self-promote, stamp
+      //      a fake "approved" badge, or rewrite audit history.
       //   2. An admin edits any user doc — allowed in full, so
       //      moderation flows like suspend/reactivate/role-flip
       //      work without permission-denied surprises. Admin must
-      //      not be demoting themselves (a safety belt to keep the
-      //      panel from accidentally locking itself out).
+      //      not be demoting themselves (a safety belt to keep
+      //      the panel from accidentally locking itself out).
       //   3. Anyone else — denied.
       allow update: if isSelf(userId)
-        && request.resource.data.role == resource.data.role
+        && fieldUnchanged('role')
+        && fieldUnchanged('isApproved')
+        && fieldUnchanged('isActive')
+        && fieldUnchanged('approvedBy')
+        && fieldUnchanged('approvedAt')
+        && fieldUnchanged('totalListings')
+        && fieldUnchanged('totalOrders')
+        && fieldUnchanged('totalSales')
+        && fieldUnchanged('averageRating')
+        && fieldUnchanged('totalEarnings')
         || (isAdmin() && (
               // Admin updating a different user — full access.
               !isSelf(userId)
               // Admin updating themselves — only non-role fields.
-              || request.resource.data.role == resource.data.role
+              || fieldUnchanged('role')
            ));
 
-      allow delete: if isAdmin();
+      // Hard-deleting a user orphans their orders / listings /
+      // wishlist / streetSellers mirror and is rarely what an
+      // admin actually wants. Prefer isActive flips via the
+      // dedicated suspend/reactivate flows. Allow it only on
+      // explicit docs and only when the user is already inactive.
+      allow delete: if isAdmin()
+        && resource.data.isActive == false;
 
       // ----- wishlist subcollection -----
       match /wishlist/{entryId} {
-        // Only the owner can read/write their own wishlist.
         allow read, write: if isSelf(userId);
       }
 
-      // ----- recentSearches subcollection (per buyer_dashboard_service.dart) -----
+      // ----- recentSearches subcollection -----
       match /recentSearches/{searchId} {
         allow read, write: if isSelf(userId);
       }
     }
 
     // ---------- streetSellers/{sellerId} ----------
-    // Doc id == seller's auth uid (set by seller_location_tracker and seller_mirror_service).
-    // Sellers can only touch their own doc; buyers can read active sellers for the map.
+    // Doc id == seller's auth uid.
     match /streetSellers/{sellerId} {
       allow read: if isSignedIn();
 
-      allow create, update: if isSelf(sellerId);
+      allow create, update: if isSelf(sellerId)
+        // Mirror only mirrors fields the seller already owns.
+        && fieldUnchanged('sellerId');
 
       allow delete: if isSelf(sellerId) || isAdmin();
     }
 
     // ---------- fishListings/{listingId} ----------
     match /fishListings/{listingId} {
-      // Anyone signed in can read listings (the marketplace is open to buyers + sellers).
       allow read: if isSignedIn();
 
-      // Creating: only sellers (fisherman or street_seller) can create.
-      // The sellerId field MUST match the auth uid — prevents a seller writing
-      // a listing under another seller's id.
-      allow create: if isSeller()
+      // Creating: only an approved+active seller can post. The
+      // sellerId field MUST match the auth uid so a seller can't
+      // post under another seller's id. Status must start as
+      // `active` or `pending` — never `sold` or `inactive` on
+      // creation.
+      allow create: if isActiveApprovedSeller()
         && request.resource.data.sellerId == request.auth.uid
-        && request.resource.data.status in ['active', 'pending', 'sold', 'inactive'];
+        && request.resource.data.status in ['active', 'pending'];
 
-      // Updating: the listing owner OR an admin can update.
-      allow update: if (isSignedIn()
-                       && resource.data.sellerId == request.auth.uid)
-                       || isAdmin();
+      // Updating: the listing owner OR an admin can update, but
+      // suspended or unapproved sellers cannot keep editing live
+      // listings. The sellerId field is also locked so a seller
+      // can't reassign a listing to themselves under another uid.
+      allow update: if isAdmin()
+        || (isActiveApprovedSeller()
+            && resource.data.sellerId == request.auth.uid
+            && fieldUnchanged('sellerId'));
 
-      // Only the owner or an admin can delete a listing.
-      allow delete: if (isSignedIn()
-                        && resource.data.sellerId == request.auth.uid)
-                        || isAdmin();
+      // Deletion: only the listing owner (if still active+approved)
+      // or an admin can delete. Deletion of `sold` listings is
+      // forbidden for sellers so a buyer can't be left pointing
+      // at a deleted record.
+      allow delete: if isAdmin()
+        || (isActiveApprovedSeller()
+            && resource.data.sellerId == request.auth.uid
+            && resource.data.status in ['inactive']);
     }
 
     // ---------- orders/{orderId} ----------
     match /orders/{orderId} {
-      // Participants in the order can read it: the buyer, the seller, or an admin.
+      // Participants in the order can read it: the buyer, the
+      // seller, or an admin.
       allow read: if isSignedIn() && (
         resource.data.buyerId == request.auth.uid ||
         resource.data.streetSellerId == request.auth.uid ||
@@ -146,59 +174,75 @@ service cloud.firestore {
         isAdmin()
       );
 
-      // Creating: only a buyer can create, and the buyerId must be themselves.
+      // Creating: only a buyer can create, and the buyerId must
+      // be themselves. Status must start as `pending`.
       allow create: if isBuyer()
         && request.resource.data.buyerId == request.auth.uid
-        && request.resource.data.status in ['pending', 'confirmed', 'in_transit', 'delivered', 'cancelled'];
+        && request.resource.data.orderStatus == 'pending'
+        && fieldUnchanged('buyerId');
 
-      // Updating: only the involved parties can update, and only on permitted transitions.
-      allow update: if isSignedIn() && (
-        // Buyer can cancel a pending order
-        (resource.data.buyerId == request.auth.uid
-         && resource.data.status == 'pending'
-         && request.resource.data.status == 'cancelled')
-        // Seller can transition forward
-        || (resource.data.streetSellerId == request.auth.uid
-            && resource.data.status in ['pending', 'confirmed']
-            && request.resource.data.status in ['confirmed', 'in_transit', 'delivered'])
-        // Both sides can confirm receipt
+      // Updating: state-machine transitions. Reads and writes
+      // use orderStatus (NOT status). Permitted transitions:
+      //   pending -> confirmed   (seller only)
+      //   confirmed -> in_transit (seller only)
+      //   in_transit -> delivered (buyer confirms receipt)
+      //   pending -> cancelled   (buyer)
+      //   delivered -> cancelled (admin only — dispute path)
+      //   any -> cancelled       (admin only)
+      allow update: if isAdmin()
         || (resource.data.buyerId == request.auth.uid
-            && resource.data.status == 'in_transit'
-            && request.resource.data.status == 'delivered')
-        // Admin override
-        || isAdmin()
-      );
+            && (
+              // Buyer cancels a pending order.
+              (resource.data.orderStatus == 'pending'
+                && request.resource.data.orderStatus == 'cancelled')
+              // Buyer confirms receipt once in_transit.
+              || (resource.data.orderStatus == 'in_transit'
+                  && request.resource.data.orderStatus == 'delivered')
+            )
+            // Buyer cannot rewrite financial fields.
+            && fieldUnchanged('finalPrice')
+            && fieldUnchanged('originalPrice')
+            && fieldUnchanged('quantityKg')
+            && fieldUnchanged('buyerId')
+            && fieldUnchanged('streetSellerId')
+            && fieldUnchanged('fishermanId'))
+        || (resource.data.streetSellerId == request.auth.uid
+            && isActiveApprovedSeller()
+            && (
+              // Seller confirms a pending order.
+              (resource.data.orderStatus == 'pending'
+                && request.resource.data.orderStatus == 'confirmed')
+              // Seller marks the order in_transit after confirmation.
+              || (resource.data.orderStatus == 'confirmed'
+                  && request.resource.data.orderStatus == 'in_transit')
+            )
+            // Seller cannot rewrite the price / buyer / seller fields.
+            && fieldUnchanged('finalPrice')
+            && fieldUnchanged('originalPrice')
+            && fieldUnchanged('quantityKg')
+            && fieldUnchanged('buyerId')
+            && fieldUnchanged('streetSellerId'));
 
+      // Order history is preserved — only admin can hard-delete.
       allow delete: if isAdmin();
     }
 
     // ---------- notifications/{notifId} ----------
     match /notifications/{notifId} {
-      // Read: only the recipient (or an admin) can read.
       allow read: if isSignedIn() && (
         resource.data.userId == request.auth.uid || isAdmin()
       );
-
-      // Write: privileged. Currently the client can call writeNotification() with
-      // any userId — that is a known risk (see security review). For now we restrict
-      // to admin only. Replace with a Cloud Function (recommended) before relaxing.
-      //
-      // If you want a temporary client-side write for development, change to:
-      //   allow create: if isSignedIn() && request.resource.data.userId == request.auth.uid;
+      // Restricted to admin so a malicious client can't write
+      // notifications to arbitrary users. Swap to a Cloud Function
+      // for system-generated notifications.
       allow create: if isAdmin();
-
-      // Marking read: the recipient or an admin.
       allow update: if isSignedIn() && (
         resource.data.userId == request.auth.uid || isAdmin()
       );
-
       allow delete: if isAdmin();
     }
 
     // ---------- fishCategories/{categoryId} ----------
-    // Admin-managed taxonomy of fish types. Buyers and sellers
-    // can read the active list for the listing-type picker. Only
-    // admins can create / update / delete.
     match /fishCategories/{categoryId} {
       allow read: if isSignedIn();
       allow create, update, delete: if isAdmin();
@@ -211,7 +255,10 @@ service cloud.firestore {
     match /activityLogs/{logId} {
       allow read: if isAdmin()
         || (isSignedIn() && resource.data.actorUid == request.auth.uid);
-      allow create: if isAdmin();
+      // Require the writer to stamp their own uid so they can't
+      // impersonate another actor in the audit log.
+      allow create: if isAdmin()
+        && request.resource.data.actorUid == request.auth.uid;
       allow update, delete: if isAdmin();
     }
 

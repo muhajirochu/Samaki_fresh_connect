@@ -6,6 +6,7 @@
 // is a single entry in `kSupportedLocales` plus a translation file.
 
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
 import '../../config/theme_extensions.dart';
@@ -31,7 +32,7 @@ class LanguageSelectorScreen extends ConsumerWidget {
         leading: IconButton(
           icon: const Icon(Icons.arrow_back_rounded),
           tooltip: l10n.back,
-          onPressed: () => Navigator.of(context).maybePop(),
+          onPressed: () => context.pop(),
         ),
       ),
       body: SafeArea(
@@ -54,7 +55,7 @@ class LanguageSelectorScreen extends ConsumerWidget {
                   onTap: () async {
                     await notifier.setLocale(candidate);
                     if (context.mounted) {
-                      Navigator.of(context).maybePop();
+                      context.pop();
                     }
                   },
                 ),

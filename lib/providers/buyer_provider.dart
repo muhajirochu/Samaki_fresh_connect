@@ -93,10 +93,16 @@ final buyerFishFeedProvider = StreamProvider<List<FishItemModel>>((ref) {
   final session = ref.watch(currentBuyerSessionProvider);
   final lat = session?.user?.location?['latitude'] as double?;
   final lng = session?.user?.location?['longitude'] as double?;
-  if (lat != null && lng != null) {
-    return service.streamApprovedFishNear(lat, lng);
-  }
-  return service.streamApprovedFish();
+  final Stream<List<FishItemModel>> source = (lat != null && lng != null)
+      ? service.streamApprovedFishNear(lat, lng)
+      : service.streamApprovedFish();
+  // A malformed listing doc, missing index, or transient permission
+  // error must not crash the dashboard. Swallow the error so the
+  // stream keeps a usable (empty) state instead of stalling in an
+  // unrecoverable error branch.
+  return source.handleError((Object e, StackTrace s) {
+    AppLogger.warning('buyerFishFeedProvider error: $e');
+  });
 });
 
 // ── This buyer's active fish requests ────────────────────────────────────────
