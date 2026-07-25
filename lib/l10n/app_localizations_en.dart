@@ -1197,6 +1197,25 @@ class AppLocalizationsEn extends AppLocalizations {
   String get searchBuyers => 'Search buyers';
 
   @override
+  String get filterAll => 'All';
+
+  @override
+  String get filterActive => 'Active';
+
+  @override
+  String get noMatchingBuyers => 'No buyers match your search';
+
+  @override
+  String get userSuspended => 'Buyer suspended';
+
+  @override
+  String get userReactivated => 'Buyer reactivated';
+
+  @override
+  String get userModerationFailed =>
+      'Couldn\'t update this buyer. Please try again.';
+
+  @override
   String get searchOrders => 'Search orders';
 
   @override

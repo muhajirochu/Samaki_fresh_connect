@@ -101,8 +101,10 @@ void main() {
       await tester.pumpWidget(_wrap(buyers));
       await tester.pumpAndSettle();
 
+      final l10n = await AppLocalizations.delegate.load(const Locale('en'));
+
       // Tap Active chip.
-      await tester.tap(find.text('Active'));
+      await tester.tap(find.text(l10n.filterActive));
       await tester.pumpAndSettle();
 
       expect(find.text('Active Asha'), findsOneWidget);

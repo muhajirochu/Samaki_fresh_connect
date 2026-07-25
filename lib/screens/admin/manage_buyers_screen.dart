@@ -75,6 +75,18 @@ class _ManageBuyersScreenState extends ConsumerState<ManageBuyersScreen> {
               ),
             );
           }
+
+          // Sort: active buyers first (most recent), then suspended
+          // buyers at the bottom — matches the doc comment at the
+          // top of the file and keeps the moderation signal obvious
+          // when triaging abuse reports.
+          final sorted = [...filtered]..sort((a, b) {
+              if (a.isActive == b.isActive) {
+                return b.createdAt.compareTo(a.createdAt);
+              }
+              return a.isActive ? -1 : 1;
+            });
+
           return Column(
             children: [
               Padding(
@@ -97,14 +109,14 @@ class _ManageBuyersScreenState extends ConsumerState<ManageBuyersScreen> {
                       child: Row(
                         children: [
                           _BuyerStatusChip(
-                            label: 'All',
+                            label: l10n.filterAll,
                             selected: _statusFilter == 'all',
                             onTap: () =>
                                 setState(() => _statusFilter = 'all'),
                           ),
                           const SizedBox(width: AppSizes.paddingSM),
                           _BuyerStatusChip(
-                            label: 'Active',
+                            label: l10n.filterActive,
                             selected: _statusFilter == 'active',
                             onTap: () =>
                                 setState(() => _statusFilter = 'active'),
@@ -129,21 +141,64 @@ class _ManageBuyersScreenState extends ConsumerState<ManageBuyersScreen> {
                     await Future<void>.delayed(
                         const Duration(milliseconds: 300));
                   },
-                  child: ListView.separated(
-                    padding: const EdgeInsets.fromLTRB(
-                      AppSizes.paddingLG,
-                      0,
-                      AppSizes.paddingLG,
-                      AppSizes.paddingLG,
-                    ),
-                    itemCount: filtered.length,
-                    separatorBuilder: (_, __) =>
-                        const SizedBox(height: AppSizes.paddingMD),
-                    itemBuilder: (_, i) => _BuyerCard(
-                      buyer: filtered[i],
-                      key: ValueKey(filtered[i].userId),
-                    ),
-                  ),
+                  // AlwaysScrollable so the RefreshIndicator fires
+                  // even when the filtered list is empty or short —
+                  // the user can still pull-to-refresh after applying
+                  // a filter that hides everyone.
+                  child: sorted.isEmpty
+                      ? ListView(
+                          physics: const AlwaysScrollableScrollPhysics(),
+                          padding: const EdgeInsets.fromLTRB(
+                            AppSizes.paddingLG,
+                            AppSizes.paddingXL,
+                            AppSizes.paddingLG,
+                            AppSizes.paddingLG,
+                          ),
+                          children: [
+                            Center(
+                              child: Padding(
+                                padding:
+                                    const EdgeInsets.all(AppSizes.paddingXL),
+                                child: Column(
+                                  children: [
+                                    Icon(
+                                      Icons.search_off_rounded,
+                                      size: 48,
+                                      color: Theme.of(context)
+                                          .colorScheme
+                                          .onSurface
+                                          .withValues(alpha: 0.4),
+                                    ),
+                                    const SizedBox(height: AppSizes.paddingMD),
+                                    Text(
+                                      l10n.noMatchingBuyers,
+                                      textAlign: TextAlign.center,
+                                      style: Theme.of(context)
+                                          .textTheme
+                                          .titleMedium,
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          ],
+                        )
+                      : ListView.separated(
+                          physics: const AlwaysScrollableScrollPhysics(),
+                          padding: const EdgeInsets.fromLTRB(
+                            AppSizes.paddingLG,
+                            0,
+                            AppSizes.paddingLG,
+                            AppSizes.paddingLG,
+                          ),
+                          itemCount: sorted.length,
+                          separatorBuilder: (_, __) =>
+                              const SizedBox(height: AppSizes.paddingMD),
+                          itemBuilder: (_, i) => _BuyerCard(
+                            buyer: sorted[i],
+                            key: ValueKey(sorted[i].userId),
+                          ),
+                        ),
                 ),
               ),
             ],
@@ -250,10 +305,37 @@ class _BuyerCard extends ConsumerWidget {
                 // same navigator as the rest of the admin module.
                 context.push('/admin/users/${buyer.userId}');
               } else if (v == 'toggle') {
-                if (isSuspended) {
-                  await adminReactivateUser(ref, buyer.userId);
-                } else {
-                  await adminSuspendUser(ref, buyer.userId);
+                final messenger = ScaffoldMessenger.of(context);
+                final l10nAction = AppLocalizations.of(context);
+                try {
+                  if (isSuspended) {
+                    await adminReactivateUser(ref, buyer.userId);
+                    if (!context.mounted) return;
+                    messenger.showSnackBar(
+                      SnackBar(
+                        content: Text(l10nAction.userReactivated),
+                        behavior: SnackBarBehavior.floating,
+                      ),
+                    );
+                  } else {
+                    await adminSuspendUser(ref, buyer.userId);
+                    if (!context.mounted) return;
+                    messenger.showSnackBar(
+                      SnackBar(
+                        content: Text(l10nAction.userSuspended),
+                        behavior: SnackBarBehavior.floating,
+                      ),
+                    );
+                  }
+                } catch (_) {
+                  if (!context.mounted) return;
+                  messenger.showSnackBar(
+                    SnackBar(
+                      content: Text(l10nAction.userModerationFailed),
+                      backgroundColor: AppColors.errorRed,
+                      behavior: SnackBarBehavior.floating,
+                    ),
+                  );
                 }
               }
             },

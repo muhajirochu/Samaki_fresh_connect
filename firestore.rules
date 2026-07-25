@@ -69,15 +69,24 @@ service cloud.firestore {
         && request.resource.data.userId == userId
         && request.resource.data.role in ['buyer', 'fisherman', 'street_seller', 'admin'];
 
-      // Self-update is allowed, but the role field is locked down: only an admin
-      // (custom claim) or first-time assignment on create may set it.
+      // Updates fall into three buckets:
+      //   1. The user edits their own doc — allowed, but the `role`
+      //      field is locked (must match the previous value) so a
+      //      regular user can't self-promote.
+      //   2. An admin edits any user doc — allowed in full, so
+      //      moderation flows like suspend/reactivate/role-flip
+      //      work without permission-denied surprises. Admin must
+      //      not be demoting themselves (a safety belt to keep the
+      //      panel from accidentally locking itself out).
+      //   3. Anyone else — denied.
       allow update: if isSelf(userId)
-        && (
-          // If role is not changing, allow
-          request.resource.data.role == resource.data.role
-          // Or admin is overriding
-          || isAdmin()
-        );
+        && request.resource.data.role == resource.data.role
+        || (isAdmin() && (
+              // Admin updating a different user — full access.
+              !isSelf(userId)
+              // Admin updating themselves — only non-role fields.
+              || request.resource.data.role == resource.data.role
+           ));
 
       allow delete: if isAdmin();
 

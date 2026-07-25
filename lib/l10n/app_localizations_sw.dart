@@ -1195,6 +1195,26 @@ class AppLocalizationsSw extends AppLocalizations {
   String get searchBuyers => 'Tafuta wanunuzi';
 
   @override
+  String get filterAll => 'Wote';
+
+  @override
+  String get filterActive => 'Hai';
+
+  @override
+  String get noMatchingBuyers =>
+      'Hakuna wanunuzi wanaolingana na utafutaji wako';
+
+  @override
+  String get userSuspended => 'Mnunuzi amesimamishwa';
+
+  @override
+  String get userReactivated => 'Mnunuzi ameanzishwa tena';
+
+  @override
+  String get userModerationFailed =>
+      'Imeshindwa kusasisha mnunuzi huyu. Tafadhali jaribu tena.';
+
+  @override
   String get searchOrders => 'Tafuta maagizo';
 
   @override

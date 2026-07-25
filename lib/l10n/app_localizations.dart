@@ -2264,6 +2264,42 @@ abstract class AppLocalizations {
   /// **'Search buyers'**
   String get searchBuyers;
 
+  /// No description provided for @filterAll.
+  ///
+  /// In en, this message translates to:
+  /// **'All'**
+  String get filterAll;
+
+  /// No description provided for @filterActive.
+  ///
+  /// In en, this message translates to:
+  /// **'Active'**
+  String get filterActive;
+
+  /// No description provided for @noMatchingBuyers.
+  ///
+  /// In en, this message translates to:
+  /// **'No buyers match your search'**
+  String get noMatchingBuyers;
+
+  /// No description provided for @userSuspended.
+  ///
+  /// In en, this message translates to:
+  /// **'Buyer suspended'**
+  String get userSuspended;
+
+  /// No description provided for @userReactivated.
+  ///
+  /// In en, this message translates to:
+  /// **'Buyer reactivated'**
+  String get userReactivated;
+
+  /// No description provided for @userModerationFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t update this buyer. Please try again.'**
+  String get userModerationFailed;
+
   /// No description provided for @searchOrders.
   ///
   /// In en, this message translates to:
