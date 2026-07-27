@@ -145,13 +145,25 @@ class UserService {
   Stream<List<UserModel>> streamAllUsers() {
     if (!_isFirebaseAvailable) return Stream.value(<UserModel>[]);
     try {
+      // No `.orderBy(...)` — sorting in memory keeps the stream alive
+      // until the deployed `createdAt DESC` single-field index is
+      // available.
       return _firestore
           .collection('users')
-          .orderBy('createdAt', descending: true)
           .snapshots()
-          .map((snap) => snap.docs
-              .map((d) => UserModel.fromJson(d.data()))
-              .toList(growable: false));
+          .map((snap) {
+        final list = <UserModel>[];
+        for (final d in snap.docs) {
+          try {
+            list.add(UserModel.fromJson(d.data()));
+          } catch (e) {
+            AppLogger.warning(
+                'streamAllUsers: dropping malformed doc ${d.id}: $e');
+          }
+        }
+        list.sort((a, b) => b.createdAt.compareTo(a.createdAt));
+        return list;
+      });
     } catch (e) {
       AppLogger.error('Error streaming all users: $e');
       return Stream.value(<UserModel>[]);
@@ -164,14 +176,26 @@ class UserService {
   Stream<List<UserModel>> streamAllStreetSellers() {
     if (!_isFirebaseAvailable) return Stream.value(<UserModel>[]);
     try {
+      // No `.orderBy(...)` — sorting in memory keeps the stream alive
+      // until the deployed `(role, createdAt DESC)` composite index
+      // is available.
       return _firestore
           .collection('users')
           .where('role', isEqualTo: 'streetSeller')
-          .orderBy('createdAt', descending: true)
           .snapshots()
-          .map((snap) => snap.docs
-              .map((d) => UserModel.fromJson(d.data()))
-              .toList(growable: false));
+          .map((snap) {
+        final list = <UserModel>[];
+        for (final d in snap.docs) {
+          try {
+            list.add(UserModel.fromJson(d.data()));
+          } catch (e) {
+            AppLogger.warning(
+                'streamAllStreetSellers: dropping malformed doc ${d.id}: $e');
+          }
+        }
+        list.sort((a, b) => b.createdAt.compareTo(a.createdAt));
+        return list;
+      });
     } catch (e) {
       AppLogger.error('Error streaming street sellers: $e');
       return Stream.value(<UserModel>[]);
@@ -238,14 +262,26 @@ class UserService {
   Stream<List<UserModel>> streamAllBuyers() {
     if (!_isFirebaseAvailable) return Stream.value(<UserModel>[]);
     try {
+      // No `.orderBy(...)` — sorting in memory keeps the stream alive
+      // until the deployed `(role, createdAt DESC)` composite index
+      // is available.
       return _firestore
           .collection('users')
           .where('role', isEqualTo: 'buyer')
-          .orderBy('createdAt', descending: true)
           .snapshots()
-          .map((snap) => snap.docs
-              .map((d) => UserModel.fromJson(d.data()))
-              .toList(growable: false));
+          .map((snap) {
+        final list = <UserModel>[];
+        for (final d in snap.docs) {
+          try {
+            list.add(UserModel.fromJson(d.data()));
+          } catch (e) {
+            AppLogger.warning(
+                'streamAllBuyers: dropping malformed doc ${d.id}: $e');
+          }
+        }
+        list.sort((a, b) => b.createdAt.compareTo(a.createdAt));
+        return list;
+      });
     } catch (e) {
       AppLogger.error('Error streaming buyers: $e');
       return Stream.value(<UserModel>[]);
@@ -259,14 +295,26 @@ class UserService {
   Stream<List<UserModel>> streamAllSellersFull() {
     if (!_isFirebaseAvailable) return Stream.value(<UserModel>[]);
     try {
+      // No `.orderBy(...)` — sorting in memory keeps the stream alive
+      // until the deployed `(role, createdAt DESC)` composite index
+      // is available.
       return _firestore
           .collection('users')
           .where('role', isEqualTo: 'streetSeller')
-          .orderBy('createdAt', descending: true)
           .snapshots()
-          .map((snap) => snap.docs
-              .map((d) => UserModel.fromJson(d.data()))
-              .toList(growable: false));
+          .map((snap) {
+        final list = <UserModel>[];
+        for (final d in snap.docs) {
+          try {
+            list.add(UserModel.fromJson(d.data()));
+          } catch (e) {
+            AppLogger.warning(
+                'streamAllSellersFull: dropping malformed doc ${d.id}: $e');
+          }
+        }
+        list.sort((a, b) => b.createdAt.compareTo(a.createdAt));
+        return list;
+      });
     } catch (e) {
       AppLogger.error('Error streaming sellers full: $e');
       return Stream.value(<UserModel>[]);
@@ -346,15 +394,27 @@ class UserService {
   Stream<List<UserModel>> streamSellersByApproval(bool isApproved) {
     if (!_isFirebaseAvailable) return Stream.value(<UserModel>[]);
     try {
+      // No `.orderBy(...)` — sorting in memory keeps the stream alive
+      // until the deployed `(role, isApproved, createdAt DESC)`
+      // composite index is available.
       return _firestore
           .collection('users')
           .where('role', isEqualTo: 'streetSeller')
           .where('isApproved', isEqualTo: isApproved)
-          .orderBy('createdAt', descending: true)
           .snapshots()
-          .map((snap) => snap.docs
-              .map((d) => UserModel.fromJson(d.data()))
-              .toList(growable: false));
+          .map((snap) {
+        final list = <UserModel>[];
+        for (final d in snap.docs) {
+          try {
+            list.add(UserModel.fromJson(d.data()));
+          } catch (e) {
+            AppLogger.warning(
+                'streamSellersByApproval: dropping malformed doc ${d.id}: $e');
+          }
+        }
+        list.sort((a, b) => b.createdAt.compareTo(a.createdAt));
+        return list;
+      });
     } catch (e) {
       AppLogger.error(
         'Error streaming sellers by approval $isApproved: $e',
@@ -374,11 +434,19 @@ class UserService {
       final snap = await _firestore
           .collection('users')
           .where('role', isEqualTo: 'streetSeller')
-          .orderBy('createdAt', descending: true)
           .limit(500)
           .get();
-      return snap.docs
-          .map((d) => UserModel.fromJson(d.data()))
+      final list = <UserModel>[];
+      for (final d in snap.docs) {
+        try {
+          list.add(UserModel.fromJson(d.data()));
+        } catch (e) {
+          AppLogger.warning(
+              'searchSellers: dropping malformed doc ${d.id}: $e');
+        }
+      }
+      list.sort((a, b) => b.createdAt.compareTo(a.createdAt));
+      return list
           .where((u) =>
               u.fullName.toLowerCase().contains(q) ||
               u.email.toLowerCase().contains(q) ||
@@ -399,11 +467,19 @@ class UserService {
       final snap = await _firestore
           .collection('users')
           .where('role', isEqualTo: 'buyer')
-          .orderBy('createdAt', descending: true)
           .limit(500)
           .get();
-      return snap.docs
-          .map((d) => UserModel.fromJson(d.data()))
+      final list = <UserModel>[];
+      for (final d in snap.docs) {
+        try {
+          list.add(UserModel.fromJson(d.data()));
+        } catch (e) {
+          AppLogger.warning(
+              'searchBuyers: dropping malformed doc ${d.id}: $e');
+        }
+      }
+      list.sort((a, b) => b.createdAt.compareTo(a.createdAt));
+      return list
           .where((u) =>
               u.fullName.toLowerCase().contains(q) ||
               u.email.toLowerCase().contains(q) ||

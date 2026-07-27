@@ -51,12 +51,7 @@ class FishListingsScreen extends ConsumerWidget {
                 child: EmptyStateWidget(
                   icon: Icons.error_outline,
                   title: l10n.failedToLoadListings,
-                  // Show the actual error code (e.g. "permission-denied"
-                  // or "failed-precondition") so we can debug which
-                  // Firestore rule or index is missing.
-                  subtitle: error.toString().length > 200
-                      ? '${error.toString().substring(0, 200)}…'
-                      : error.toString(),
+                  subtitle: _describeListingError(error),
                   onRetry: () => ref.invalidate(activeListingsProvider),
                 ),
               ),
@@ -102,5 +97,26 @@ class FishListingsScreen extends ConsumerWidget {
         ),
       ),
     );
+  }
+
+  /// Translates the raw Firestore exception into a human-readable
+  /// hint. The full error string is appended (truncated) so admins
+  /// can still see the index URL or permission rule when needed.
+  static String _describeListingError(Object error) {
+    final raw = error.toString();
+    final short = raw.length > 200 ? '${raw.substring(0, 200)}…' : raw;
+    if (raw.contains('failed-precondition')) {
+      return 'Missing Firestore index — the data is loading fine but '
+          'Firestore refused the query. $short';
+    }
+    if (raw.contains('permission-denied')) {
+      return 'Your account is not allowed to read this collection. '
+          '$short';
+    }
+    if (raw.contains('unavailable')) {
+      return 'Network unavailable — check your connection and retry. '
+          '$short';
+    }
+    return short;
   }
 }
