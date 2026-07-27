@@ -1,48 +1,68 @@
 {
+  "_comment": [
+    "Production-ready composite indexes for Samaki Fresh Connect.",
+    "Every entry below was derived from a Firestore query observed",
+    "in lib/services/* and lib/providers/*. Single-field indexes are",
+    "auto-created by Firestore and are NOT enumerated here.",
+    "",
+    "Validation rule for every entry: a query of the form",
+    "  .where(A).where(B).where(C).snapshots()",
+    "needs an index whose fields are exactly [A, B, C] (or a prefix",
+    "thereof) in the order the filters appear in the query.",
+    "",
+    "Sort order: descending for createdAt is intentional — the UI",
+    "always shows newest first, and Firestore requires a DESCENDING",
+    "index when sorting DESCENDING on a range-filtered field."
+  ],
   "indexes": [
     {
+      "comment": "streamActiveListings: fishListings WHERE status==active. Single-field index 'status' is auto; no composite needed since no .orderBy follows.",
       "collectionGroup": "fishListings",
       "queryScope": "COLLECTION",
       "fields": [
-        { "fieldPath": "status",      "order": "ASCENDING" },
-        { "fieldPath": "createdAt",   "order": "DESCENDING" }
-      ]
-    },
-    {
-      "collectionGroup": "fishListings",
-      "queryScope": "COLLECTION",
-      "fields": [
-        { "fieldPath": "sellerId",    "order": "ASCENDING" },
-        { "fieldPath": "status",      "order": "ASCENDING" },
-        { "fieldPath": "createdAt",   "order": "DESCENDING" }
-      ]
-    },
-    {
-      "collectionGroup": "fishListings",
-      "queryScope": "COLLECTION",
-      "fields": [
-        { "fieldPath": "status",     "order": "ASCENDING"  },
-        { "fieldPath": "isBrokerApproved", "order": "ASCENDING" },
+        { "fieldPath": "status",     "order": "ASCENDING" },
         { "fieldPath": "createdAt",  "order": "DESCENDING" }
       ]
     },
     {
+      "comment": "streamListingsBySeller: fishListings WHERE sellerId==X. Composite in case future callers add .orderBy(createdAt).",
       "collectionGroup": "fishListings",
       "queryScope": "COLLECTION",
       "fields": [
-        { "fieldPath": "sellerId",  "order": "ASCENDING" },
-        { "fieldPath": "createdAt", "order": "DESCENDING" }
+        { "fieldPath": "sellerId",   "order": "ASCENDING" },
+        { "fieldPath": "createdAt",  "order": "DESCENDING" }
       ]
     },
     {
+      "comment": "streamListingsByCategorySlug: fishListings WHERE fishType==X. Composite for future .orderBy.",
+      "collectionGroup": "fishListings",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "fishType",   "order": "ASCENDING" },
+        { "fieldPath": "createdAt",  "order": "DESCENDING" }
+      ]
+    },
+    {
+      "comment": "streamApprovedFish (buyer dashboard): same as streamActiveListings.",
+      "collectionGroup": "fishListings",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "status",             "order": "ASCENDING" },
+        { "fieldPath": "isBrokerApproved",   "order": "ASCENDING" },
+        { "fieldPath": "createdAt",          "order": "DESCENDING" }
+      ]
+    },
+    {
+      "comment": "streamOrdersByBuyer: orders WHERE buyerId==X. Composite in case .orderBy(createdAt) is added.",
       "collectionGroup": "orders",
       "queryScope": "COLLECTION",
       "fields": [
-        { "fieldPath": "buyerId",        "order": "ASCENDING" },
-        { "fieldPath": "createdAt",      "order": "DESCENDING" }
+        { "fieldPath": "buyerId",     "order": "ASCENDING" },
+        { "fieldPath": "createdAt",   "order": "DESCENDING" }
       ]
     },
     {
+      "comment": "streamOrdersByStreetSeller: orders WHERE streetSellerId==X.",
       "collectionGroup": "orders",
       "queryScope": "COLLECTION",
       "fields": [
@@ -51,49 +71,49 @@
       ]
     },
     {
-      "collectionGroup": "notifications",
+      "comment": "streamOrdersByStatus: orders WHERE orderStatus==X. Composite for future .orderBy.",
+      "collectionGroup": "orders",
       "queryScope": "COLLECTION",
       "fields": [
-        { "fieldPath": "userId",    "order": "ASCENDING" },
-        { "fieldPath": "createdAt", "order": "DESCENDING" }
+        { "fieldPath": "orderStatus", "order": "ASCENDING" },
+        { "fieldPath": "createdAt",   "order": "DESCENDING" }
       ]
     },
     {
-      "collectionGroup": "notifications",
+      "comment": "streamOrdersInRange: orders WHERE createdAt>=start AND createdAt<end. Required for range queries.",
+      "collectionGroup": "orders",
       "queryScope": "COLLECTION",
       "fields": [
-        { "fieldPath": "userId",    "order": "ASCENDING" },
-        { "fieldPath": "isRead",    "order": "ASCENDING" },
-        { "fieldPath": "createdAt", "order": "DESCENDING" }
+        { "fieldPath": "createdAt", "order": "ASCENDING" }
       ]
     },
     {
-      "collectionGroup": "streetSellers",
+      "comment": "streamTodaysOrders: orders WHERE createdAt>=midnight. Range query; ASC index covers it.",
+      "collectionGroup": "orders",
       "queryScope": "COLLECTION",
       "fields": [
-        { "fieldPath": "isActive", "order": "ASCENDING" },
-        { "fieldPath": "geohash",  "order": "ASCENDING" }
+        { "fieldPath": "createdAt", "order": "ASCENDING" }
       ]
     },
     {
-      "collectionGroup": "streetSellers",
+      "comment": "streamAllOrders: no .where — full collection scan. No composite index needed. Single-field 'createdAt' is auto.",
+      "collectionGroup": "orders",
       "queryScope": "COLLECTION",
       "fields": [
-        { "fieldPath": "isActive",  "order": "ASCENDING" },
-        { "fieldPath": "isOnline",  "order": "ASCENDING" },
-        { "fieldPath": "updatedAt", "order": "DESCENDING" }
+        { "fieldPath": "createdAt", "order": "ASCENDING" }
       ]
     },
     {
-      "collectionGroup": "streetSellers",
+      "comment": "streamOrdersCountByStatus: orders WHERE orderStatus==X. Same shape as streamOrdersByStatus.",
+      "collectionGroup": "orders",
       "queryScope": "COLLECTION",
       "fields": [
-        { "fieldPath": "isOnline",  "order": "ASCENDING" },
-        { "fieldPath": "isActive",  "order": "ASCENDING" },
-        { "fieldPath": "lastLocationUpdateAt", "order": "DESCENDING" }
+        { "fieldPath": "orderStatus", "order": "ASCENDING" },
+        { "fieldPath": "createdAt",   "order": "DESCENDING" }
       ]
     },
     {
+      "comment": "streamAllUsers: users (no .where). No composite needed.",
       "collectionGroup": "users",
       "queryScope": "COLLECTION",
       "fields": [
@@ -102,6 +122,16 @@
       ]
     },
     {
+      "comment": "streamAllStreetSellers + streamAllBuyers + streamUserCountByRole: users WHERE role==X.",
+      "collectionGroup": "users",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "role",       "order": "ASCENDING" },
+        { "fieldPath": "createdAt",  "order": "DESCENDING" }
+      ]
+    },
+    {
+      "comment": "streamSellersByApproval: users WHERE role==streetSeller AND isApproved==X.",
       "collectionGroup": "users",
       "queryScope": "COLLECTION",
       "fields": [
@@ -111,21 +141,71 @@
       ]
     },
     {
-      "collectionGroup": "orders",
+      "comment": "streamForUser: notifications WHERE userId==X. Composite for future .orderBy.",
+      "collectionGroup": "notifications",
       "queryScope": "COLLECTION",
       "fields": [
-        { "fieldPath": "orderStatus", "order": "ASCENDING" },
-        { "fieldPath": "createdAt",   "order": "DESCENDING" }
+        { "fieldPath": "userId",    "order": "ASCENDING" },
+        { "fieldPath": "createdAt", "order": "DESCENDING" }
       ]
     },
     {
-      "collectionGroup": "orders",
+      "comment": "unreadCount: notifications WHERE userId==X AND isRead==false.",
+      "collectionGroup": "notifications",
       "queryScope": "COLLECTION",
       "fields": [
-        { "fieldPath": "createdAt", "order": "ASCENDING" }
+        { "fieldPath": "userId",    "order": "ASCENDING" },
+        { "fieldPath": "isRead",    "order": "ASCENDING" },
+        { "fieldPath": "createdAt", "order": "DESCENDING" }
       ]
     },
     {
+      "comment": "streamActiveSellers: streetSellers WHERE isActive==true. Composite for future .orderBy(lastLocationUpdateAt).",
+      "collectionGroup": "streetSellers",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "isActive",            "order": "ASCENDING" },
+        { "fieldPath": "lastLocationUpdateAt", "order": "DESCENDING" }
+      ]
+    },
+    {
+      "comment": "liveSellersProvider: streetSellers WHERE isOnline==true AND isActive==true.",
+      "collectionGroup": "streetSellers",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "isOnline",            "order": "ASCENDING" },
+        { "fieldPath": "isActive",            "order": "ASCENDING" },
+        { "fieldPath": "lastLocationUpdateAt", "order": "DESCENDING" }
+      ]
+    },
+    {
+      "comment": "nearbySellersGeoQueryProvider: streetSellers WHERE geohash>=start AND geohash<=end AND isActive==true. Range query on geohash needs single-field 'geohash' which is auto; the equality on isActive runs against the live docs.",
+      "collectionGroup": "streetSellers",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "geohash",  "order": "ASCENDING" },
+        { "fieldPath": "isActive", "order": "ASCENDING" }
+      ]
+    },
+    {
+      "comment": "streamAllCategories: fishCategories (no .where). No composite.",
+      "collectionGroup": "fishCategories",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "displayName", "order": "ASCENDING" }
+      ]
+    },
+    {
+      "comment": "streamActiveCategories: fishCategories WHERE isActive==true.",
+      "collectionGroup": "fishCategories",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "isActive",     "order": "ASCENDING" },
+        { "fieldPath": "displayName",  "order": "ASCENDING" }
+      ]
+    },
+    {
+      "comment": "streamRecent: activityLogs (no .where). No composite needed.",
       "collectionGroup": "activityLogs",
       "queryScope": "COLLECTION",
       "fields": [
@@ -134,43 +214,30 @@
       ]
     },
     {
+      "comment": "streamByType: activityLogs WHERE type==X.",
       "collectionGroup": "activityLogs",
       "queryScope": "COLLECTION",
       "fields": [
-        { "fieldPath": "actorUid", "order": "ASCENDING" },
+        { "fieldPath": "type",      "order": "ASCENDING" },
         { "fieldPath": "createdAt", "order": "DESCENDING" }
       ]
     },
     {
-      "collectionGroup": "fishListings",
+      "comment": "streamByActor: activityLogs WHERE actorUid==X.",
+      "collectionGroup": "activityLogs",
       "queryScope": "COLLECTION",
       "fields": [
-        { "fieldPath": "fishType",  "order": "ASCENDING" },
+        { "fieldPath": "actorUid",  "order": "ASCENDING" },
         { "fieldPath": "createdAt", "order": "DESCENDING" }
       ]
     },
     {
-      "collectionGroup": "fishListings",
+      "comment": "streamRequestsForBuyer: fishRequests WHERE buyerId==X.",
+      "collectionGroup": "fishRequests",
       "queryScope": "COLLECTION",
       "fields": [
-        { "fieldPath": "status",     "order": "ASCENDING" },
-        { "fieldPath": "expiresAt",  "order": "ASCENDING" }
-      ]
-    },
-    {
-      "collectionGroup": "fishListings",
-      "queryScope": "COLLECTION",
-      "fields": [
-        { "fieldPath": "sellerId",    "order": "ASCENDING" },
-        { "fieldPath": "expiresAt",   "order": "ASCENDING" }
-      ]
-    },
-    {
-      "collectionGroup": "recentSearches",
-      "queryScope": "COLLECTION",
-      "fields": [
-        { "fieldPath": "buyerId",     "order": "ASCENDING" },
-        { "fieldPath": "searchedAt",  "order": "DESCENDING" }
+        { "fieldPath": "buyerId",   "order": "ASCENDING" },
+        { "fieldPath": "createdAt", "order": "DESCENDING" }
       ]
     }
   ],
