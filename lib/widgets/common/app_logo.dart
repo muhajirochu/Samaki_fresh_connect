@@ -50,7 +50,10 @@ class AppLogo extends StatelessWidget {
 
     if (!withGlow) return SizedBox(width: size, height: size, child: img);
 
-    // Wrap in a sized box so the shadow doesn't affect layout.
+    // Use theme tokens so the glow reads correctly in both light
+    // and dark mode. Bright Blue + Teal Green on light, primary +
+    // accent on dark — same gradient family, theme-aware.
+    final cs = Theme.of(context).colorScheme;
     return SizedBox(
       width: size,
       height: size,
@@ -58,16 +61,16 @@ class AppLogo extends StatelessWidget {
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(r),
           boxShadow: [
-            // Outer cyan glow
+            // Outer brand glow
             BoxShadow(
-              color: const Color(0xFF00C8FF).withValues(alpha: 0.40),
+              color: cs.primary.withValues(alpha: 0.40),
               blurRadius: size * 0.55,
               spreadRadius: 0,
               offset: Offset(0, size * 0.06),
             ),
             // Depth shadow
             BoxShadow(
-              color: Colors.black.withValues(alpha: 0.28),
+              color: cs.shadow.withValues(alpha: 0.28),
               blurRadius: size * 0.35,
               spreadRadius: 0,
               offset: Offset(0, size * 0.10),
@@ -89,22 +92,25 @@ class _FallbackIcon extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
     return Container(
       width: size,
       height: size,
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(radius),
-        gradient: const LinearGradient(
+        // Brand gradient — primary → accent, read from the active
+        // theme so it tracks Material 3 surface tints automatically.
+        gradient: LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
-          colors: [Color(0xFF003D6B), Color(0xFF00A896)],
+          colors: [cs.primary, cs.secondary],
         ),
       ),
       alignment: Alignment.center,
       child: Icon(
         Icons.set_meal_rounded,
         size: size * 0.5,
-        color: Colors.white,
+        color: cs.onPrimary,
       ),
     );
   }

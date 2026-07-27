@@ -15,22 +15,25 @@ import 'theme_extensions.dart';
 ThemeData buildDarkTheme() {
   const tokens = AppColorTokens.dark;
 
-  final colorScheme = ColorScheme(
-    brightness: tokens.brightness,
-    primary: tokens.primary,
-    onPrimary: AppColors.white,
-    primaryContainer: const Color(0xFF1E3A8A),
-    onPrimaryContainer: const Color(0xFFDBE7FF),
-    secondary: tokens.accent,
-    onSecondary: const Color(0xFF003830),
-    secondaryContainer: const Color(0xFF115E59),
-    onSecondaryContainer: const Color(0xFFCCFBF1),
+  // Material 3 `ColorScheme.fromSeed` derives a full tonal palette
+  // from a single brand seed. The dark seed is the brighter
+  // Modern Blue (blue-500) so the generated tonals stay readable
+  // against the deep-navy background. We then override the bits the
+  // brand wants pinned (Elegant Green's teal cousin as secondary,
+  // specific surface tints) so the whole UI reads as one consistent
+  // palette.
+  final colorScheme = ColorScheme.fromSeed(
+    seedColor: AppColors.primaryBrightBlue,
+    brightness: Brightness.dark,
+    secondary: AppColors.accentTealGreen,
     tertiary: const Color(0xFF2DD4BF),
-    onTertiary: const Color(0xFF003830),
     error: tokens.error,
-    onError: const Color(0xFF3F0007),
     surface: tokens.surface,
+  ).copyWith(
+    onPrimary: AppColors.white,
+    onSecondary: const Color(0xFF003830),
     onSurface: tokens.textPrimary,
+    onError: const Color(0xFF3F0007),
     surfaceContainerHighest: tokens.surfaceAlt,
     surfaceContainerHigh: const Color(0xFF1F2A44),
     surfaceContainer: tokens.surface,

@@ -4,6 +4,14 @@
 // cards, Modern Blue primary (#2563EB), Elegant Green accent (#16A34A),
 // dark text, and soft shadows with rounded corners.
 //
+// The ColorScheme is derived from a Material 3 seed via
+// `ColorScheme.fromSeed(...)` so every Material widget — Button,
+// TextField, Card, AppBar, Chip, Switch, Slider, ProgressIndicator,
+// Tooltip, Dialog, Snackbar, NavigationBar, TabBar — picks up the
+// brand tonal palette automatically. We then override a few tokens
+// where the brand demands a specific colour (white-on-blue button
+// labels, navy outline, etc.).
+//
 // Every token flows from a single source of truth — `AppColorTokens.light`
 // — so widgets that read tokens outside of a `BuildContext` stay in
 // sync with widgets that read `Theme.of(context).colorScheme`.
@@ -24,25 +32,26 @@ ThemeData buildLightTheme() {
     textHint: tokens.textHint,
   );
 
-  final colorScheme = ColorScheme(
-    brightness: tokens.brightness,
-    primary: tokens.primary,
-    onPrimary: AppColors.white,
-    primaryContainer: const Color(0xFFDBE7FF),
-    onPrimaryContainer: const Color(0xFF0B2B6B),
-    secondary: tokens.accent,
-    onSecondary: AppColors.white,
-    secondaryContainer: const Color(0xFFD1FAE5),
-    onSecondaryContainer: const Color(0xFF064E3B),
+  // Material 3 `ColorScheme.fromSeed` derives a full tonal palette
+  // (primary, primaryContainer, onPrimaryContainer, surface tints, …)
+  // from a single brand seed. We then override the bits the brand
+  // wants pinned (Elegant Green as the secondary seed, etc.) so the
+  // whole UI reads as one consistent palette.
+  final colorScheme = ColorScheme.fromSeed(
+    seedColor: AppColors.primaryBlue,
+    brightness: Brightness.light,
+    secondary: AppColors.accentGreen,
     tertiary: const Color(0xFF14B8A6),
-    onTertiary: AppColors.white,
     error: tokens.error,
-    onError: AppColors.white,
     surface: tokens.surface,
+  ).copyWith(
+    onPrimary: AppColors.white,
+    onSecondary: AppColors.white,
     onSurface: tokens.textPrimary,
+    onError: AppColors.white,
     surfaceContainerHighest: tokens.surfaceAlt,
     surfaceContainerHigh: tokens.surfaceAlt,
-    surfaceContainer: tokens.surfaceAlt,
+    surfaceContainer: tokens.surface,
     surfaceContainerLow: const Color(0xFFFBFBFD),
     surfaceContainerLowest: AppColors.white,
     outline: tokens.border,

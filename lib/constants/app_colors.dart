@@ -16,19 +16,36 @@ import 'package:flutter/material.dart';
 class AppColors {
   // ── Brand: Light theme ─────────────────────────────────────────────────────
   // Modern Blue primary, Elegant Green accent — clean and premium.
-  static const Color primaryBlue = Color(0xFF2563EB);          // Modern Blue
-  static const Color primaryBlueDark = Color(0xFF1D4ED8);
-  static const Color primaryBlueLight = Color(0xFF60A5FA);
-  static const Color accentGreen = Color(0xFF16A34A);          // Elegant Green
-  static const Color accentGreenDark = Color(0xFF15803D);
-  static const Color accentGreenLight = Color(0xFF4ADE80);
+  // Picked from the official Tailwind CSS palette so the brand
+  // identity carries over to marketing surfaces.
+  static const Color primaryBlue = Color(0xFF2563EB);          // Modern Blue (blue-600)
+  static const Color primaryBlueDark = Color(0xFF1D4ED8);      // blue-700
+  static const Color primaryBlueLight = Color(0xFF60A5FA);     // blue-400
+  static const Color primaryBlueLightest = Color(0xFFDBE7FF);  // blue-100
+  static const Color primaryBlueDarkest = Color(0xFF0B2B6B);   // blue-950
+
+  static const Color accentGreen = Color(0xFF16A34A);          // Elegant Green (green-600)
+  static const Color accentGreenDark = Color(0xFF15803D);      // green-700
+  static const Color accentGreenLight = Color(0xFF4ADE80);     // green-400
+  static const Color accentGreenLightest = Color(0xFFD1FAE5);  // green-100
+  static const Color accentGreenDarkest = Color(0xFF064E3B);   // green-900
 
   // ── Brand: Dark theme ──────────────────────────────────────────────────────
   // Bright Blue primary, Teal Green accent — deep-navy enterprise feel.
-  static const Color primaryBrightBlue = Color(0xFF3B82F6);    // Bright Blue
+  static const Color primaryBrightBlue = Color(0xFF3B82F6);    // blue-500
   static const Color primaryBrightBlueLight = Color(0xFF60A5FA);
-  static const Color accentTealGreen = Color(0xFF14B8A6);      // Teal Green
-  static const Color accentTealGreenLight = Color(0xFF2DD4BF);
+  static const Color accentTealGreen = Color(0xFF14B8A6);      // teal-500
+  static const Color accentTealGreenLight = Color(0xFF2DD4BF);  // teal-400
+  static const Color accentTealGreenDarkest = Color(0xFF115E59); // teal-800
+
+  // ── Material 3 ColorScheme.fromSeed() reference values ────────────────────
+  // Use these with `ColorScheme.fromSeed(seedColor: ..., brightness: ...)`
+  // to auto-derive a full Material 3 tonal palette (primary,
+  // primaryContainer, onPrimaryContainer, surface tints, etc).
+  static const Color lightSeedColor = primaryBlue;   // blue-600
+  static const Color darkSeedColor = primaryBrightBlue;  // blue-500
+  static const Color lightSecondarySeed = accentGreen;  // green-600
+  static const Color darkSecondarySeed = accentTealGreen;  // teal-500
 
   // ── Dark-mode neutrals (Deep Navy + Blue-Gray) ─────────────────────────────
   // Deliberately not pure black — the deepest surface is a deep navy
@@ -98,6 +115,8 @@ class AppColors {
 
   // ── Gradients (read through theme tokens when possible) ────────────────────
   // Light: Modern Blue → Elegant Green (premium feel).
+  // Used by the login button, brand surfaces, hero cards, and the
+  // seller + buyer dashboards' greeting gradient.
   static const LinearGradient lightGradient = LinearGradient(
     begin: Alignment.topLeft,
     end: Alignment.bottomRight,
