@@ -11,7 +11,6 @@
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
-import '../../constants/app_colors.dart';
 import '../../constants/app_sizes.dart';
 import '../../models/enums/fish_type.dart';
 import '../../models/fish_item_model.dart';
@@ -428,9 +427,9 @@ class _LocationSourceBadge extends StatelessWidget {
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
     final (label, color) = switch (source) {
-      'gps' => ('GPS · Live', AppColors.successGreen),
-      'profile' => ('Imehifadhiwa', AppColors.infoBlue),
-      _ => ('Makadirio', AppColors.warningAmber),
+      'gps' => ('GPS · Live', cs.secondary),
+      'profile' => ('Imehifadhiwa', cs.primary),
+      _ => ('Makadirio', cs.tertiary),
     };
     return Container(
       padding: const EdgeInsets.symmetric(
@@ -514,8 +513,11 @@ class _VisibleSellersPill extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
     return Material(
-      color: AppColors.successGreen,
+      // Visible-sellers pill uses the secondary (Elegant Green) so
+      // it matches the "live / available" semantic across the app.
+      color: cs.secondary,
       elevation: 4,
       borderRadius: BorderRadius.circular(AppSizes.radiusLG),
       child: InkWell(
@@ -529,25 +531,25 @@ class _VisibleSellersPill extends StatelessWidget {
           child: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
-              const Icon(
+              Icon(
                 Icons.store_rounded,
                 size: 14,
-                color: Colors.white,
+                color: cs.onSecondary,
               ),
               const SizedBox(width: 6),
               Text(
                 '$count wauzaji wanaonekana',
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 12,
                   fontWeight: FontWeight.w700,
-                  color: Colors.white,
+                  color: cs.onSecondary,
                 ),
               ),
               const SizedBox(width: 4),
-              const Icon(
+              Icon(
                 Icons.expand_more_rounded,
                 size: 16,
-                color: Colors.white,
+                color: cs.onSecondary,
               ),
             ],
           ),
@@ -629,7 +631,7 @@ class _VisibleSellerRow extends StatelessWidget {
             height: 36,
             decoration: BoxDecoration(
               color: seller.seller.isOnline
-                  ? AppColors.successGreen.withValues(alpha: 0.15)
+                  ? cs.secondary.withValues(alpha: 0.15)
                   : cs.primary.withValues(alpha: 0.10),
               borderRadius: BorderRadius.circular(AppSizes.radiusMD),
             ),
@@ -637,7 +639,7 @@ class _VisibleSellerRow extends StatelessWidget {
               Icons.store_rounded,
               size: 18,
               color: seller.seller.isOnline
-                  ? AppColors.successGreen
+                  ? cs.secondary
                   : cs.primary,
             ),
           ),
@@ -665,8 +667,8 @@ class _VisibleSellerRow extends StatelessWidget {
                       Container(
                         width: 8,
                         height: 8,
-                        decoration: const BoxDecoration(
-                          color: AppColors.successGreen,
+                        decoration: BoxDecoration(
+                          color: cs.secondary,
                           shape: BoxShape.circle,
                         ),
                       ),

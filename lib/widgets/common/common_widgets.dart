@@ -26,6 +26,7 @@ class CustomButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
     // Legacy callers that pass an explicit ButtonStyle (usually to recolour
     // the button) still get the FilledButton they expect.
     if (style != null) {
@@ -33,12 +34,13 @@ class CustomButton extends StatelessWidget {
         onPressed: isLoading ? null : onPressed,
         style: style,
         child: isLoading
-            ? const SizedBox(
+            ? SizedBox(
                 height: 24,
                 width: 24,
                 child: CircularProgressIndicator(
                   strokeWidth: 2,
-                  valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                  valueColor:
+                      AlwaysStoppedAnimation<Color>(cs.onPrimary),
                 ),
               )
             : Row(

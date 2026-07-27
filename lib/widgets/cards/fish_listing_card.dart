@@ -1,7 +1,6 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import '../../config/theme_extensions.dart';
-import '../../constants/app_colors.dart';
 import '../../constants/app_sizes.dart';
 import '../../models/fish_listing_model.dart';
 import '../../models/enums/listing_status.dart';
@@ -41,8 +40,8 @@ class FishListingCard extends StatelessWidget {
             boxShadow: [
               BoxShadow(
                 color: isDark
-                    ? Colors.black.withValues(alpha: 0.30)
-                    : Colors.black.withValues(alpha: 0.06),
+                    ? cs.shadow.withValues(alpha: 0.50)
+                    : cs.shadow.withValues(alpha: 0.10),
                 blurRadius: 18,
                 offset: const Offset(0, 8),
               ),
@@ -194,16 +193,19 @@ class _StatusBadge extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
     Color color;
     switch (status) {
       case ListingStatus.active:
-        color = AppColors.successGreen;
+        // Live listings use the secondary (Elegant Green) so it
+        // matches the "available" semantic across the app.
+        color = cs.secondary;
         break;
       case ListingStatus.sold:
-        color = AppColors.infoBlue;
+        color = cs.primary;
         break;
       case ListingStatus.expired:
-        color = AppColors.errorRed;
+        color = cs.error;
         break;
     }
     return Container(
@@ -214,8 +216,8 @@ class _StatusBadge extends StatelessWidget {
       ),
       child: Text(
         status.displayName,
-        style: const TextStyle(
-          color: AppColors.white,
+        style: TextStyle(
+          color: cs.onPrimary,
           fontSize: 10,
           fontWeight: FontWeight.w600,
         ),

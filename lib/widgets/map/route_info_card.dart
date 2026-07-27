@@ -9,7 +9,6 @@
 import 'package:flutter/material.dart';
 
 import '../../config/theme_extensions.dart';
-import '../../constants/app_colors.dart';
 import '../../constants/app_sizes.dart';
 import '../../features/map/utils/gps_helper.dart';
 import '../../models/map_filter_model.dart';
@@ -73,11 +72,14 @@ class RouteInfoCard extends StatelessWidget {
                     width: 44,
                     height: 44,
                     decoration: BoxDecoration(
-                      color: AppColors.accentOrange.withValues(alpha: 0.12),
+                      // Tertiary (amber on light / teal on dark)
+                      // gives the route card a warm, distinct accent
+                      // that contrasts with the cool primary tiles.
+                      color: cs.tertiary.withValues(alpha: 0.12),
                       borderRadius: BorderRadius.circular(AppSizes.radiusMD),
                     ),
-                    child: const Icon(Icons.store_rounded,
-                        color: AppColors.accentOrange, size: 22),
+                    child: Icon(Icons.store_rounded,
+                        color: cs.tertiary, size: 22),
                   ),
                   const SizedBox(width: AppSizes.paddingMD),
                   Expanded(
@@ -133,7 +135,7 @@ class RouteInfoCard extends StatelessWidget {
                     value: route == null
                         ? '...'
                         : '${route!.distanceKm.toStringAsFixed(1)} km',
-                    color: AppColors.primaryBlue,
+                    color: cs.primary,
                   )),
                   const SizedBox(width: AppSizes.paddingSM),
                   Expanded(child: _MetricTile(
@@ -142,7 +144,9 @@ class RouteInfoCard extends StatelessWidget {
                     value: route == null
                         ? '...'
                         : _formatEta(route!.durationMinutes),
-                    color: AppColors.secondaryTeal,
+                    // ETA uses tertiary so the two metric tiles share
+                    // the brand palette without duplicating colours.
+                    color: cs.tertiary,
                   )),
                 ],
               ),
@@ -160,8 +164,8 @@ class RouteInfoCard extends StatelessWidget {
                 ),
                 child: Row(
                   children: [
-                    const Icon(Icons.set_meal_rounded,
-                        color: AppColors.primaryBlue, size: 20),
+                    Icon(Icons.set_meal_rounded,
+                        color: cs.primary, size: 20),
                     const SizedBox(width: AppSizes.paddingSM),
                     Expanded(
                       child: Text(
@@ -269,26 +273,29 @@ class _MetricTile extends StatelessWidget {
 class _FallbackBadge extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
+    // Fallback badge uses tertiary (amber/teal) so it visually pops
+    // against the cool primary/secondary metric tiles above it.
+    final cs = Theme.of(context).colorScheme;
     return Container(
       padding: const EdgeInsets.symmetric(
         horizontal: AppSizes.paddingSM,
         vertical: AppSizes.paddingXS,
       ),
       decoration: BoxDecoration(
-        color: AppColors.warningAmber.withValues(alpha: 0.15),
+        color: cs.tertiary.withValues(alpha: 0.15),
         borderRadius: BorderRadius.circular(AppSizes.radiusSM),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          const Icon(Icons.info_outline_rounded,
-              size: 14, color: AppColors.warningAmber),
+          Icon(Icons.info_outline_rounded,
+              size: 14, color: cs.tertiary),
           const SizedBox(width: 4),
           Expanded(
             child: Text(
               'Njia ya moja kwa moja (mtandao haupatikani)',
               style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                    color: AppColors.warningAmber,
+                    color: cs.tertiary,
                     fontWeight: FontWeight.w500,
                   ),
               maxLines: 1,
@@ -326,10 +333,10 @@ class _LiveStatusPill extends StatelessWidget {
           vertical: AppSizes.paddingXS,
         ),
         decoration: BoxDecoration(
-          color: AppColors.successGreen.withValues(alpha: 0.10),
+          color: cs.secondary.withValues(alpha: 0.10),
           borderRadius: BorderRadius.circular(AppSizes.radiusSM),
           border: Border.all(
-            color: AppColors.successGreen.withValues(alpha: 0.3),
+            color: cs.secondary.withValues(alpha: 0.3),
             width: 1,
           ),
         ),
@@ -339,8 +346,8 @@ class _LiveStatusPill extends StatelessWidget {
             Container(
               width: 8,
               height: 8,
-              decoration: const BoxDecoration(
-                color: AppColors.successGreen,
+              decoration: BoxDecoration(
+                color: cs.secondary,
                 shape: BoxShape.circle,
               ),
             ),
@@ -348,7 +355,7 @@ class _LiveStatusPill extends StatelessWidget {
             Text(
               'Online · live location',
               style: theme.textTheme.bodySmall?.copyWith(
-                color: AppColors.successGreen,
+                color: cs.secondary,
                 fontWeight: FontWeight.w700,
               ),
             ),
@@ -379,8 +386,8 @@ class _LiveStatusPill extends StatelessWidget {
           Container(
             width: 8,
             height: 8,
-            decoration: const BoxDecoration(
-              color: AppColors.gray500,
+            decoration: BoxDecoration(
+              color: cs.onSurface.withValues(alpha: 0.45),
               shape: BoxShape.circle,
             ),
           ),

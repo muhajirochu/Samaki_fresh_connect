@@ -8,7 +8,6 @@
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
-import '../../constants/app_colors.dart';
 import '../../constants/app_sizes.dart';
 import '../../l10n/app_localizations.dart';
 import '../../providers/admin_provider.dart';
@@ -78,22 +77,22 @@ class _LogList extends ConsumerWidget {
     }
   }
 
-  Color _colorFor(String type) {
+  Color _colorFor(String type, ColorScheme cs) {
     switch (type) {
       case 'login':
-        return AppColors.primaryBlue;
+        return cs.primary;
       case 'registration':
-        return AppColors.accentGreen;
+        return cs.secondary;
       case 'adminAction':
-        return AppColors.accentOrange;
+        return cs.tertiary;
       case 'disputeResolution':
-        return AppColors.errorRed;
+        return cs.error;
       case 'listingModeration':
-        return AppColors.secondaryTeal;
+        return cs.tertiary;
       case 'categoryChange':
-        return AppColors.primaryBlue;
+        return cs.primary;
       default:
-        return AppColors.primaryBlue;
+        return cs.primary;
     }
   }
 
@@ -128,7 +127,7 @@ class _LogList extends ConsumerWidget {
               const SizedBox(height: AppSizes.paddingSM),
           itemBuilder: (_, i) {
             final log = filtered[i];
-            final color = _colorFor(log.type);
+            final color = _colorFor(log.type, Theme.of(context).colorScheme);
             return Container(
               padding: const EdgeInsets.all(AppSizes.paddingMD),
               decoration: BoxDecoration(

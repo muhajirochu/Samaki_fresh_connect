@@ -10,7 +10,6 @@ import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
 import '../../config/theme_extensions.dart';
-import '../../constants/app_colors.dart';
 import '../../constants/app_sizes.dart';
 import '../../models/enums/fish_type.dart';
 import '../../providers/buyer_provider.dart';
@@ -167,24 +166,28 @@ class _PopularTile extends StatelessWidget {
                             vertical: 2,
                           ),
                           decoration: BoxDecoration(
+                            // Popular-fire badge uses the tertiary
+                            // (amber on light / teal on dark) so it
+                            // stands out against the cool primary
+                            // surface.
                             color:
-                                AppColors.accentOrange.withValues(alpha: 0.12),
+                                cs.tertiary.withValues(alpha: 0.12),
                             borderRadius:
                                 BorderRadius.circular(AppSizes.radiusSM),
                           ),
                           child: Row(
                             mainAxisSize: MainAxisSize.min,
                             children: [
-                              const Icon(
+                              Icon(
                                 Icons.local_fire_department_rounded,
-                                color: AppColors.accentOrange,
+                                color: cs.tertiary,
                                 size: 12,
                               ),
                               const SizedBox(width: 2),
                               Text(
                                 '$listingCount listings',
-                                style: const TextStyle(
-                                  color: AppColors.accentOrange,
+                                style: TextStyle(
+                                  color: cs.tertiary,
                                   fontSize: 10,
                                   fontWeight: FontWeight.w700,
                                 ),
@@ -202,7 +205,7 @@ class _PopularTile extends StatelessWidget {
                             .textTheme
                             .bodySmall
                             ?.copyWith(
-                              color: AppColors.primaryBlue,
+                              color: cs.primary,
                               fontWeight: FontWeight.w700,
                             ),
                         maxLines: 1,

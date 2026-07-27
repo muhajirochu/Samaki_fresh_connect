@@ -22,7 +22,6 @@ import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
 import '../../config/theme_extensions.dart';
-import '../../constants/app_colors.dart';
 import '../../constants/app_sizes.dart';
 import '../../l10n/app_localizations.dart';
 import '../../models/fish_item_model.dart';
@@ -257,6 +256,7 @@ class _MapCtaCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
     return Material(
       color: Colors.transparent,
       child: InkWell(
@@ -268,10 +268,7 @@ class _MapCtaCard extends StatelessWidget {
             borderRadius: BorderRadius.circular(AppSizes.radiusLG),
             boxShadow: [
               BoxShadow(
-                color: Theme.of(context)
-                    .colorScheme
-                    .primary
-                    .withValues(alpha: 0.25),
+                color: cs.primary.withValues(alpha: 0.25),
                 blurRadius: 12,
                 offset: const Offset(0, 4),
               ),
@@ -285,11 +282,15 @@ class _MapCtaCard extends StatelessWidget {
                   width: 48,
                   height: 48,
                   decoration: BoxDecoration(
-                    color: Colors.white.withValues(alpha: 0.2),
+                    // Translucent white wash on the icon container —
+                    // this sits ON TOP of the brand gradient, so the
+                    // foreground colour is `cs.onPrimary` to track
+                    // theme changes.
+                    color: cs.onPrimary.withValues(alpha: 0.20),
                     borderRadius: BorderRadius.circular(AppSizes.radiusMD),
                   ),
-                  child: const Icon(Icons.map_rounded,
-                      color: Colors.white, size: 28),
+                  child: Icon(Icons.map_rounded,
+                      color: cs.onPrimary, size: 28),
                 ),
                 const SizedBox(width: AppSizes.paddingMD),
                 Expanded(
@@ -300,7 +301,7 @@ class _MapCtaCard extends StatelessWidget {
                         'Fungua Ramani',
                         style:
                             Theme.of(context).textTheme.titleMedium?.copyWith(
-                                  color: Colors.white,
+                                  color: cs.onPrimary,
                                   fontWeight: FontWeight.w700,
                                 ),
                       ),
@@ -308,7 +309,7 @@ class _MapCtaCard extends StatelessWidget {
                       Text(
                         'Wauzaji karibu, njia, na muda unaotarajiwa',
                         style: TextStyle(
-                          color: Colors.white.withValues(alpha: 0.85),
+                          color: cs.onPrimary.withValues(alpha: 0.85),
                           fontSize: 12,
                         ),
                         maxLines: 2,
@@ -317,7 +318,7 @@ class _MapCtaCard extends StatelessWidget {
                     ],
                   ),
                 ),
-                const Icon(Icons.arrow_forward_rounded, color: Colors.white),
+                Icon(Icons.arrow_forward_rounded, color: cs.onPrimary),
               ],
             ),
           ),
@@ -364,11 +365,14 @@ class _RequestsCtaCard extends StatelessWidget {
                   width: 48,
                   height: 48,
                   decoration: BoxDecoration(
-                    color: AppColors.accentOrange.withValues(alpha: 0.12),
+                    // Accent amber tile on the active requests CTA —
+                    // uses tertiary so it contrasts with the primary
+                    // gradient above without sharing its colour.
+                    color: cs.tertiary.withValues(alpha: 0.12),
                     borderRadius: BorderRadius.circular(AppSizes.radiusMD),
                   ),
-                  child: const Icon(Icons.send_rounded,
-                      color: AppColors.accentOrange, size: 24),
+                  child: Icon(Icons.send_rounded,
+                      color: cs.tertiary, size: 24),
                 ),
                 const SizedBox(width: AppSizes.paddingMD),
                 Expanded(
@@ -398,13 +402,13 @@ class _RequestsCtaCard extends StatelessWidget {
                     padding:
                         const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                     decoration: BoxDecoration(
-                      color: AppColors.accentOrange,
+                      color: cs.tertiary,
                       borderRadius: BorderRadius.circular(10),
                     ),
                     child: Text(
                       '$activeCount',
-                      style: const TextStyle(
-                        color: Colors.white,
+                      style: TextStyle(
+                        color: cs.onTertiary,
                         fontWeight: FontWeight.w700,
                         fontSize: 12,
                       ),
@@ -578,13 +582,17 @@ class _SellerNearbyCard extends StatelessWidget {
   }
 
   Color _tintFor(String seed) {
+    // Stable colour per seller so the same seller always renders the
+    // same avatar tint even before the network image arrives. These
+    // are identifier hues that stay constant across themes — they
+    // are NOT theme tokens, they are seller identifiers.
     const palette = [
-      AppColors.primaryBlue,
-      AppColors.secondaryTeal,
-      AppColors.accentOrange,
-      AppColors.successGreen,
-      AppColors.infoBlue,
-      AppColors.warningAmber,
+      Color(0xFF2563EB), // Modern Blue
+      Color(0xFF14B8A6), // Teal
+      Color(0xFFF59E0B), // Amber
+      Color(0xFF16A34A), // Elegant Green
+      Color(0xFF3B82F6), // Bright Blue
+      Color(0xFFEF4444), // Red (warning/alert)
     ];
     final hash = seed.codeUnits.fold<int>(0, (a, b) => a + b);
     return palette[hash % palette.length];
@@ -636,8 +644,11 @@ class _SellerNearbyCard extends StatelessWidget {
                       Container(
                         width: 10,
                         height: 10,
-                        decoration: const BoxDecoration(
-                          color: AppColors.successGreen,
+                        decoration: BoxDecoration(
+                          // Live dot uses the secondary (Elegant
+                          // Green) so it tracks the active-status
+                          // semantic across light + dark.
+                          color: cs.secondary,
                           shape: BoxShape.circle,
                         ),
                       ),
@@ -653,8 +664,10 @@ class _SellerNearbyCard extends StatelessWidget {
                 const SizedBox(height: 2),
                 Row(
                   children: [
+                    // Star rating stays amber across themes — it's
+                    // the universal "rating" cue.
                     const Icon(Icons.star_rounded,
-                        color: AppColors.warningAmber, size: 14),
+                        color: Color(0xFFF59E0B), size: 14),
                     const SizedBox(width: 2),
                     Text(
                       seller.totalRatings == 0

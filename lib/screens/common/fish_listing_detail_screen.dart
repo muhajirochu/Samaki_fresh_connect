@@ -3,7 +3,6 @@ import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../config/route_paths.dart';
-import '../../constants/app_colors.dart';
 import '../../constants/app_sizes.dart';
 import '../../l10n/app_localizations.dart';
 import '../../models/user_model.dart';
@@ -40,13 +39,16 @@ class FishListingDetailScreen extends HookConsumerWidget {
         title: Text(l10n.listingDetails,
             style: const TextStyle(fontWeight: FontWeight.w600)),
         backgroundColor: Colors.transparent,
+        // AppBar foreground stays white-on-image so the back button
+        // remains legible against the colourful listing image. The
+        // scrim under the back button is a translucent black wash.
         foregroundColor: Colors.white,
         elevation: 0,
         leading: Padding(
           padding: const EdgeInsets.all(8.0),
           child: Container(
             decoration: BoxDecoration(
-              color: Colors.black.withValues(alpha: 0.3),
+              color: Colors.black.withValues(alpha: 0.30),
               shape: BoxShape.circle,
             ),
             child: IconButton(
@@ -140,7 +142,7 @@ class FishListingDetailScreen extends HookConsumerWidget {
                                 horizontal: 14, vertical: 8),
                             decoration: BoxDecoration(
                               color: listing.status == 'active'
-                                  ? AppColors.successGreen
+                                  ? cs.secondary
                                   : cs.onSurface.withValues(alpha: 0.55),
                               borderRadius: BorderRadius.circular(20),
                             ),
@@ -323,7 +325,7 @@ class _BuyButton extends HookConsumerWidget {
             messenger.showSnackBar(
               SnackBar(
                 content: Text(l10n.listingAlreadySold),
-                backgroundColor: AppColors.errorRed,
+                backgroundColor: cs.error,
                 behavior: SnackBarBehavior.floating,
               ),
             );
@@ -380,7 +382,7 @@ class _BuyButton extends HookConsumerWidget {
           messenger.showSnackBar(
             SnackBar(
               content: Text(l10n.orderPlacedSuccess),
-              backgroundColor: AppColors.successGreen,
+              backgroundColor: cs.secondary,
               behavior: SnackBarBehavior.floating,
             ),
           );
@@ -394,7 +396,7 @@ class _BuyButton extends HookConsumerWidget {
           messenger.showSnackBar(
             SnackBar(
               content: Text(l10n.errorWithMessage(e.toString())),
-              backgroundColor: AppColors.errorRed,
+              backgroundColor: cs.error,
               behavior: SnackBarBehavior.floating,
             ),
           );

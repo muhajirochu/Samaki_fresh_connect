@@ -9,7 +9,6 @@
 
 import 'package:flutter/material.dart';
 
-import '../../constants/app_colors.dart';
 import '../../constants/app_sizes.dart';
 
 class EmptyMapState extends StatelessWidget {
@@ -25,6 +24,7 @@ class EmptyMapState extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
     return Center(
       child: Padding(
         padding: const EdgeInsets.symmetric(
@@ -37,17 +37,17 @@ class EmptyMapState extends StatelessWidget {
             Container(
               padding: const EdgeInsets.all(AppSizes.paddingLG),
               decoration: BoxDecoration(
-                color: AppColors.gray100,
+                color: cs.surfaceContainerHighest,
                 shape: BoxShape.circle,
                 border: Border.all(
-                  color: AppColors.gray200,
+                  color: cs.outline.withValues(alpha: 0.4),
                   width: 1.5,
                 ),
               ),
-              child: const Icon(
+              child: Icon(
                 Icons.set_meal_rounded,
                 size: 56,
-                color: AppColors.gray400,
+                color: cs.onSurface.withValues(alpha: 0.45),
               ),
             ),
             const SizedBox(height: AppSizes.paddingMD),
@@ -55,7 +55,7 @@ class EmptyMapState extends StatelessWidget {
               'Hakuna samaki walio patikana',
               style: Theme.of(context).textTheme.titleMedium?.copyWith(
                     fontWeight: FontWeight.w700,
-                    color: AppColors.gray700,
+                    color: cs.onSurface.withValues(alpha: 0.85),
                   ),
               textAlign: TextAlign.center,
             ),
@@ -63,7 +63,7 @@ class EmptyMapState extends StatelessWidget {
             Text(
               _message,
               style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                    color: AppColors.gray600,
+                    color: cs.onSurface.withValues(alpha: 0.65),
                     height: 1.5,
                   ),
               textAlign: TextAlign.center,
@@ -75,8 +75,8 @@ class EmptyMapState extends StatelessWidget {
                 icon: const Icon(Icons.refresh_rounded, size: 18),
                 label: const Text('Onyesha aina zote'),
                 style: OutlinedButton.styleFrom(
-                  foregroundColor: AppColors.primaryBlue,
-                  side: const BorderSide(color: AppColors.primaryBlue),
+                  foregroundColor: cs.primary,
+                  side: BorderSide(color: cs.primary),
                   padding: const EdgeInsets.symmetric(
                     horizontal: AppSizes.paddingLG,
                     vertical: AppSizes.paddingSM,

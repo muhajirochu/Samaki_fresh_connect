@@ -11,7 +11,6 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
-import '../../constants/app_colors.dart';
 import '../../constants/app_sizes.dart';
 import '../../l10n/app_localizations.dart';
 import '../../models/user_model.dart';
@@ -257,7 +256,8 @@ class _SellerCard extends ConsumerWidget {
           ),
           TextButton(
             onPressed: () => Navigator.of(ctx).pop(true),
-            style: TextButton.styleFrom(foregroundColor: AppColors.errorRed),
+            style: TextButton.styleFrom(
+              foregroundColor: Theme.of(ctx).colorScheme.error),
             child: Text(l10n.suspendUserAction),
           ),
         ],
@@ -280,15 +280,20 @@ class _SellerCard extends ConsumerWidget {
     return Container(
       padding: const EdgeInsets.all(AppSizes.paddingMD),
       decoration: BoxDecoration(
+        // Suspended rows get a faint error tint so the admin can
+        // scan the list and spot them at a glance.
         color: isSuspended
-            ? AppColors.errorRed.withValues(alpha: 0.05)
+            ? cs.error.withValues(alpha: 0.05)
             : cs.surface,
         borderRadius: BorderRadius.circular(AppSizes.radiusLG),
         border: Border.all(
           color: isSuspended
-              ? AppColors.errorRed.withValues(alpha: 0.45)
+              ? cs.error.withValues(alpha: 0.45)
               : isPendingApproval
-                  ? AppColors.accentOrange.withValues(alpha: 0.45)
+                  // Pending-approval border uses tertiary (amber on
+                  // light / teal on dark) so it stands out without
+                  // looking like an error.
+                  ? cs.tertiary.withValues(alpha: 0.45)
                   : cs.outline.withValues(alpha: 0.25),
         ),
       ),
@@ -299,7 +304,7 @@ class _SellerCard extends ConsumerWidget {
             height: 48,
             decoration: BoxDecoration(
               color: isPendingApproval
-                  ? AppColors.accentOrange.withValues(alpha: 0.12)
+                  ? cs.tertiary.withValues(alpha: 0.12)
                   : cs.primary.withValues(alpha: 0.12),
               shape: BoxShape.circle,
             ),
@@ -308,7 +313,7 @@ class _SellerCard extends ConsumerWidget {
               initials,
               style: TextStyle(
                 color: isPendingApproval
-                    ? AppColors.accentOrange
+                    ? cs.tertiary
                     : cs.primary,
                 fontSize: 16,
                 fontWeight: FontWeight.w800,
@@ -337,13 +342,13 @@ class _SellerCard extends ConsumerWidget {
                 ),
                 const SizedBox(height: 4),
                 if (isSuspended)
-                  _Badge(text: l10n.suspendedBadge, color: AppColors.errorRed)
+                  _Badge(text: l10n.suspendedBadge, color: cs.error)
                 else if (isPendingApproval)
                   _Badge(
                       text: l10n.pendingApprovalBadge,
-                      color: AppColors.accentOrange)
+                      color: cs.tertiary)
                 else
-                  _Badge(text: l10n.approvedBadge, color: AppColors.accentGreen),
+                  _Badge(text: l10n.approvedBadge, color: cs.secondary),
               ],
             ),
           ),
@@ -383,8 +388,8 @@ class _SellerCard extends ConsumerWidget {
                 PopupMenuItem(
                   value: 'approve',
                   child: Row(children: [
-                    const Icon(Icons.verified_rounded,
-                        size: 18, color: AppColors.accentGreen),
+                    Icon(Icons.verified_rounded,
+                        size: 18, color: cs.secondary),
                     const SizedBox(width: 8),
                     Text(l10n.approveSeller),
                   ]),
@@ -393,8 +398,8 @@ class _SellerCard extends ConsumerWidget {
                 PopupMenuItem(
                   value: 'revoke',
                   child: Row(children: [
-                    const Icon(Icons.block_rounded,
-                        size: 18, color: AppColors.accentOrange),
+                    Icon(Icons.block_rounded,
+                        size: 18, color: cs.tertiary),
                     const SizedBox(width: 8),
                     Text(l10n.revokeApproval),
                   ]),
@@ -403,8 +408,8 @@ class _SellerCard extends ConsumerWidget {
                 PopupMenuItem(
                   value: 'suspend',
                   child: Row(children: [
-                    const Icon(Icons.lock_rounded,
-                        size: 18, color: AppColors.errorRed),
+                    Icon(Icons.lock_rounded,
+                        size: 18, color: cs.error),
                     const SizedBox(width: 8),
                     Text(l10n.suspendUserAction),
                   ]),
@@ -413,8 +418,8 @@ class _SellerCard extends ConsumerWidget {
                 PopupMenuItem(
                   value: 'reactivate',
                   child: Row(children: [
-                    const Icon(Icons.lock_open_rounded,
-                        size: 18, color: AppColors.accentGreen),
+                    Icon(Icons.lock_open_rounded,
+                        size: 18, color: cs.secondary),
                     const SizedBox(width: 8),
                     Text(l10n.reactivateUser),
                   ]),

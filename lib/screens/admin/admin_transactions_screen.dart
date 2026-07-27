@@ -8,7 +8,6 @@
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
-import '../../constants/app_colors.dart';
 import '../../constants/app_sizes.dart';
 import '../../l10n/app_localizations.dart';
 import '../../models/order_model.dart';
@@ -116,12 +115,14 @@ class _RevenueSummaryCard extends ConsumerWidget {
           Container(
             padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
-              color: Colors.white.withValues(alpha: 0.20),
+              // Translucent white wash — sits ON TOP of the primary
+              // gradient, so we read the foreground through onPrimary.
+              color: cs.onPrimary.withValues(alpha: 0.20),
               borderRadius: BorderRadius.circular(12),
             ),
-            child: const Icon(
+            child: Icon(
               Icons.account_balance_rounded,
-              color: Colors.white,
+              color: cs.onPrimary,
               size: 28,
             ),
           ),
@@ -132,8 +133,8 @@ class _RevenueSummaryCard extends ConsumerWidget {
               children: [
                 Text(
                   l10n.platformRevenue,
-                  style: const TextStyle(
-                    color: Colors.white,
+                  style: TextStyle(
+                    color: cs.onPrimary,
                     fontWeight: FontWeight.w600,
                     fontSize: 13,
                   ),
@@ -141,8 +142,8 @@ class _RevenueSummaryCard extends ConsumerWidget {
                 const SizedBox(height: 4),
                 Text(
                   _formatRevenue(revenue),
-                  style: const TextStyle(
-                    color: Colors.white,
+                  style: TextStyle(
+                    color: cs.onPrimary,
                     fontWeight: FontWeight.w800,
                     fontSize: 22,
                     letterSpacing: -0.4,
@@ -157,7 +158,7 @@ class _RevenueSummaryCard extends ConsumerWidget {
               Text(
                 l10n.ordersCount(totalOrders),
                 style: TextStyle(
-                  color: Colors.white.withValues(alpha: 0.85),
+                  color: cs.onPrimary.withValues(alpha: 0.85),
                   fontWeight: FontWeight.w600,
                   fontSize: 12,
                 ),
@@ -184,17 +185,18 @@ class _OrderRow extends StatelessWidget {
   const _OrderRow(this.order, {super.key});
 
   Color _statusColor(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
     switch (order.orderStatus) {
       case 'delivered':
-        return AppColors.accentGreen;
+        return cs.secondary;
       case 'cancelled':
-        return AppColors.errorRed;
+        return cs.error;
       case 'pending':
-        return AppColors.accentOrange;
+        return cs.tertiary;
       case 'inTransit':
-        return AppColors.infoBlue;
+        return cs.primary;
       default:
-        return Theme.of(context).colorScheme.outline;
+        return cs.outline;
     }
   }
 

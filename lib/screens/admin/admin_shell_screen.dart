@@ -11,7 +11,6 @@
 
 import 'package:flutter/material.dart';
 
-import '../../constants/app_colors.dart';
 import '../../l10n/app_localizations.dart';
 import 'admin_dashboard_screen.dart';
 import 'admin_settings_screen.dart';
@@ -59,32 +58,32 @@ class _AdminShellScreenState extends State<AdminShellScreen> {
         selectedIndex: _currentIndex,
         onDestinationSelected: (i) => setState(() => _currentIndex = i),
         backgroundColor: cs.surface,
-        indicatorColor: AppColors.primaryBlue.withValues(alpha: 0.15),
+        indicatorColor: cs.primary.withValues(alpha: 0.15),
         shadowColor: cs.shadow,
         elevation: 4,
         destinations: [
           NavigationDestination(
             icon: const Icon(Icons.dashboard_outlined),
-            selectedIcon: const Icon(Icons.dashboard_rounded,
-                color: AppColors.primaryBlue),
+            selectedIcon: Icon(Icons.dashboard_rounded,
+                color: cs.primary),
             label: l10n.home,
           ),
           NavigationDestination(
             icon: const Icon(Icons.list_alt_outlined),
-            selectedIcon: const Icon(Icons.list_alt_rounded,
-                color: AppColors.primaryBlue),
+            selectedIcon: Icon(Icons.list_alt_rounded,
+                color: cs.primary),
             label: l10n.allListings,
           ),
           NavigationDestination(
             icon: const Icon(Icons.category_outlined),
-            selectedIcon: const Icon(Icons.category_rounded,
-                color: AppColors.primaryBlue),
+            selectedIcon: Icon(Icons.category_rounded,
+                color: cs.primary),
             label: l10n.manageCategories,
           ),
           NavigationDestination(
             icon: const Icon(Icons.settings_outlined),
-            selectedIcon: const Icon(Icons.settings_rounded,
-                color: AppColors.primaryBlue),
+            selectedIcon: Icon(Icons.settings_rounded,
+                color: cs.primary),
             label: l10n.settings,
           ),
         ],

@@ -15,7 +15,6 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../config/theme_extensions.dart';
-import '../../constants/app_colors.dart';
 import '../../constants/app_sizes.dart';
 import '../../models/enums/user_role.dart';
 import '../../providers/auth_provider.dart';
@@ -190,7 +189,10 @@ class ProfileScreen extends ConsumerWidget {
                             child: _QuickAction(
                               icon: Icons.favorite_rounded,
                               label: l10n.wishlist,
-                              color: AppColors.secondaryTeal,
+                              // Wishlist uses tertiary (amber/teal)
+                              // so it visually differs from the
+                              // primary-coloured "My Orders" tile.
+                              color: cs.tertiary,
                               onTap: () => context.push('/buyer/wishlist'),
                             ),
                           ),
@@ -199,7 +201,11 @@ class ProfileScreen extends ConsumerWidget {
                             child: _QuickAction(
                               icon: Icons.notifications_rounded,
                               label: l10n.notifications,
-                              color: AppColors.accentOrange,
+                              // Notifications also uses tertiary so
+                              // the three quick-action tiles share
+                              // the brand palette without duplicating
+                              // colours.
+                              color: cs.tertiary,
                               onTap: () => context.push('/buyer/notifications'),
                             ),
                           ),
@@ -286,9 +292,9 @@ class ProfileScreen extends ConsumerWidget {
                         icon: const Icon(Icons.logout_rounded, size: 18),
                         label: Text(l10n.logout),
                         style: OutlinedButton.styleFrom(
-                          foregroundColor: AppColors.errorRed,
+                          foregroundColor: cs.error,
                           side: BorderSide(
-                              color: AppColors.errorRed.withValues(alpha: 0.5)),
+                              color: cs.error.withValues(alpha: 0.5)),
                           minimumSize: const Size.fromHeight(52),
                           shape: RoundedRectangleBorder(
                             borderRadius:

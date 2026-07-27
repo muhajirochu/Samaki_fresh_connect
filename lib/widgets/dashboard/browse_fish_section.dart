@@ -14,7 +14,6 @@ import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
 import '../../config/theme_extensions.dart';
-import '../../constants/app_colors.dart';
 import '../../constants/app_sizes.dart';
 import '../../models/fish_item_model.dart';
 import '../../providers/buyer_provider.dart';
@@ -116,8 +115,8 @@ class BrowseFishCard extends StatelessWidget {
           boxShadow: [
             BoxShadow(
               color: isDark
-                  ? Colors.black.withValues(alpha: 0.30)
-                  : Colors.black.withValues(alpha: 0.06),
+                  ? cs.shadow.withValues(alpha: 0.50)
+                  : cs.shadow.withValues(alpha: 0.10),
               blurRadius: 14,
               offset: const Offset(0, 6),
             ),
@@ -179,7 +178,7 @@ class BrowseFishCard extends StatelessWidget {
                         .textTheme
                         .bodySmall
                         ?.copyWith(
-                          color: AppColors.primaryBlue,
+                          color: cs.primary,
                           fontWeight: FontWeight.w700,
                         ),
                   ),
@@ -263,6 +262,9 @@ class _DistanceChip extends StatelessWidget {
         vertical: 3,
       ),
       decoration: BoxDecoration(
+        // Chip floats over arbitrary photos, so a constant
+        // translucent black scrim gives legible foreground on any
+        // image regardless of theme.
         color: Colors.black.withValues(alpha: 0.60),
         borderRadius: BorderRadius.circular(AppSizes.radiusSM),
       ),

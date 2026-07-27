@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import '../../constants/app_colors.dart';
 import '../../constants/app_sizes.dart';
 import '../../models/order_model.dart';
 import '../../models/enums/order_status.dart';
@@ -15,7 +14,7 @@ class OrderCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final status = OrderStatusExtension.fromString(order.orderStatus);
-    final statusColor = _colorForStatus(status);
+    final statusColor = _colorForStatus(status, Theme.of(context).colorScheme);
     final cs = Theme.of(context).colorScheme;
 
     return PremiumCard(
@@ -117,24 +116,26 @@ class OrderCard extends StatelessWidget {
   String _shortId(String id) =>
       id.length > 8 ? id.substring(0, 8).toUpperCase() : id.toUpperCase();
 
-  Color _colorForStatus(OrderStatus status) {
+  Color _colorForStatus(OrderStatus status, ColorScheme cs) {
     switch (status) {
       case OrderStatus.placed:
-        return AppColors.warningAmber;
+        return cs.tertiary;
       case OrderStatus.assigned:
-        return AppColors.infoBlue;
+        return cs.primary;
       case OrderStatus.negotiating:
-        return Colors.purple;
+        // Purple is a distinct negotiation cue — kept as raw hex so
+        // it reads the same in both themes. Not a theme token.
+        return const Color(0xFF8B5CF6);
       case OrderStatus.pickedUp:
-        return AppColors.accentOrange;
+        return cs.tertiary;
       case OrderStatus.inTransit:
-        return AppColors.primaryBlue;
+        return cs.primary;
       case OrderStatus.delivered:
-        return AppColors.secondaryTeal;
+        return cs.tertiary;
       case OrderStatus.completed:
-        return AppColors.successGreen;
+        return cs.secondary;
       case OrderStatus.cancelled:
-        return AppColors.errorRed;
+        return cs.error;
     }
   }
 }

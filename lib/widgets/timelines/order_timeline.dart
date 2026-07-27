@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import '../../config/theme_extensions.dart';
-import '../../constants/app_colors.dart';
 import '../../constants/app_sizes.dart';
 import '../../models/enums/order_status.dart';
 import '../../utils/formatters.dart';
@@ -116,14 +115,20 @@ class _TimelineNode extends StatelessWidget {
                 height: 24,
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
+                  // Completed steps use the theme primary so the
+                  // "done" portion of the timeline reads as brand
+                  // colour; pending steps use the muted border so
+                  // they stay neutral on either theme.
                   color:
-                      isCompleted ? AppColors.primaryBlue : pendingColor,
+                      isCompleted ? cs.primary : pendingColor,
                   border: isCurrent
-                      ? Border.all(color: AppColors.secondaryTeal, width: 3)
+                      // Active step uses tertiary so it visually pops
+                      // against the primary-coloured completed steps.
+                      ? Border.all(color: cs.tertiary, width: 3)
                       : null,
                 ),
                 child: isCompleted
-                    ? const Icon(Icons.check, size: 14, color: Colors.white)
+                    ? Icon(Icons.check, size: 14, color: cs.onPrimary)
                     : null,
               ),
               if (!isLast)
@@ -131,7 +136,7 @@ class _TimelineNode extends StatelessWidget {
                   child: Container(
                     width: 2,
                     color:
-                        isCompleted ? AppColors.primaryBlue : pendingColor,
+                        isCompleted ? cs.primary : pendingColor,
                   ),
                 ),
             ],

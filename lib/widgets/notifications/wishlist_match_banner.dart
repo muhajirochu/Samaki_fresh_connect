@@ -5,7 +5,6 @@
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
-import '../../constants/app_colors.dart';
 import '../../providers/notification_provider.dart';
 
 class WishlistMatchBanner extends ConsumerWidget {
@@ -13,12 +12,9 @@ class WishlistMatchBanner extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    // The snackbar background is intentionally a brand success-green
-    // (not a theme surface token) — it must read as a notification
-    // regardless of theme, and the foreground text is a fixed white
-    // for contrast on the green swatch.
-    const successBackground = AppColors.successGreen;
-    const foreground = Colors.white;
+    // The snackbar uses the theme's secondary (Elegant Green on light,
+    // Teal Green on dark) as the success background. The foreground
+    // is `onSecondary` so contrast stays correct on either theme.
 
     // Watching the stream causes the widget to rebuild on every event;
     // the post-frame callback surfaces the banner once per change.
@@ -29,13 +25,14 @@ class WishlistMatchBanner extends ConsumerWidget {
         if (match == null) return;
         WidgetsBinding.instance.addPostFrameCallback((_) {
           if (!context.mounted) return;
+          final cs = Theme.of(context).colorScheme;
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text(
                 '🐟 ${match.item.displayName} sasa inapatikana karibu nawe!',
-                style: const TextStyle(color: foreground),
+                style: TextStyle(color: cs.onSecondary),
               ),
-              backgroundColor: successBackground,
+              backgroundColor: cs.secondary,
               behavior: SnackBarBehavior.floating,
               duration: const Duration(seconds: 4),
             ),

@@ -17,7 +17,6 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
-import '../../constants/app_colors.dart';
 import '../../constants/app_sizes.dart';
 import '../../l10n/app_localizations.dart';
 import '../../providers/buyer_provider.dart';
@@ -29,6 +28,7 @@ class DashboardSummaryHeader extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context);
+    final cs = Theme.of(context).colorScheme;
 
     // Read each stream independently so a single missing permission
     // (e.g. buyer session still resolving) doesn't kill the whole
@@ -84,7 +84,7 @@ class DashboardSummaryHeader extends ConsumerWidget {
             label: l10n.fishAvailableNearbyTile,
             value: '$fishCount',
             subtitle: l10n.fishAvailableSubtitle,
-            accent: AppColors.primaryBlue,
+            accent: cs.primary,
             onTap: () {
               context.push('/buyer/map');
             },
@@ -97,7 +97,7 @@ class DashboardSummaryHeader extends ConsumerWidget {
             label: l10n.activeRequestsTile,
             value: '$activeRequests',
             subtitle: l10n.activeRequestsSubtitle,
-            accent: AppColors.secondaryTeal,
+            accent: cs.tertiary,
             onTap: () {
               context.push('/buyer/requests');
             },
@@ -114,7 +114,7 @@ class DashboardSummaryHeader extends ConsumerWidget {
             subtitle: nearestSeller?.fullName.split(' ').first != null
                 ? l10n.nearestSellerSubtitle
                 : null,
-            accent: AppColors.accentOrange,
+            accent: cs.secondary,
             onTap: () {
               if (nearestSeller != null) {
                 context.push(

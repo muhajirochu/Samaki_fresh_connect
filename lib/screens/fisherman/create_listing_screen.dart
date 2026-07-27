@@ -4,7 +4,6 @@ import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:image_picker/image_picker.dart';
-import '../../constants/app_colors.dart';
 import '../../constants/app_sizes.dart';
 import '../../constants/app_strings.dart';
 import '../../features/map/services/gps_service.dart' show GpsFailure;
@@ -98,7 +97,7 @@ class CreateListingScreen extends HookConsumerWidget {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text(l10n.imageUploadFailed(e.toString())),
-              backgroundColor: AppColors.errorRed,
+              backgroundColor: Theme.of(context).colorScheme.error,
             ),
           );
         }
@@ -131,7 +130,7 @@ class CreateListingScreen extends HookConsumerWidget {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text(l10n.cameraImageFailed(e.toString())),
-              backgroundColor: AppColors.errorRed,
+              backgroundColor: Theme.of(context).colorScheme.error,
             ),
           );
         }
@@ -175,7 +174,8 @@ class CreateListingScreen extends HookConsumerWidget {
                     _SourceButton(
                       icon: Icons.photo_library_rounded,
                       label: 'Gallery',
-                      color: AppColors.primaryBlue,
+                      // Primary action colour, theme-aware.
+                      color: Theme.of(context).colorScheme.primary,
                       onTap: () {
                         Navigator.pop(context);
                         pickImages();
@@ -184,7 +184,10 @@ class CreateListingScreen extends HookConsumerWidget {
                     _SourceButton(
                       icon: Icons.camera_alt_rounded,
                       label: 'Camera',
-                      color: AppColors.accentGreen,
+                      // Secondary action colour (Elegant Green /
+                      // Teal), so the two source buttons share the
+                      // brand gradient.
+                      color: Theme.of(context).colorScheme.secondary,
                       onTap: () {
                         Navigator.pop(context);
                         pickFromCamera();
@@ -242,7 +245,7 @@ class CreateListingScreen extends HookConsumerWidget {
                             '(${loc.latitude.toStringAsFixed(4)}, '
                             '${loc.longitude.toStringAsFixed(4)})',
                   ),
-                  backgroundColor: AppColors.successGreen,
+                  backgroundColor: Theme.of(context).colorScheme.secondary,
                 ),
               );
             }
@@ -260,7 +263,7 @@ class CreateListingScreen extends HookConsumerWidget {
               ScaffoldMessenger.of(context).showSnackBar(
                 SnackBar(
                   content: Text(msg),
-                  backgroundColor: AppColors.errorRed,
+                  backgroundColor: Theme.of(context).colorScheme.error,
                 ),
               );
             }
@@ -333,7 +336,7 @@ class CreateListingScreen extends HookConsumerWidget {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text(l10n.listingCreatedSuccessfully),
-              backgroundColor: AppColors.successGreen,
+              backgroundColor: Theme.of(context).colorScheme.secondary,
             ),
           );
           context.pop();
@@ -345,7 +348,7 @@ class CreateListingScreen extends HookConsumerWidget {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text(l10n.errorGeneric(e.toString())),
-              backgroundColor: AppColors.errorRed,
+              backgroundColor: Theme.of(context).colorScheme.error,
             ),
           );
         }
@@ -706,18 +709,18 @@ class _PickedImageThumb extends StatelessWidget {
                 width: 26,
                 height: 26,
                 decoration: BoxDecoration(
-                  color: AppColors.errorRed,
+                  color: cs.error,
                   shape: BoxShape.circle,
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.black.withValues(alpha: 0.20),
+                      color: cs.shadow.withValues(alpha: 0.32),
                       blurRadius: 4,
                       offset: const Offset(0, 2),
                     ),
                   ],
                 ),
                 child: const Icon(Icons.close_rounded,
-                    color: Colors.white, size: 16),
+                    color: Colors.white, size: 16), // on cs.error — stays white for contrast
               ),
             ),
           ),
@@ -752,13 +755,15 @@ class _ShopLocationTile extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.all(AppSizes.paddingMD),
         decoration: BoxDecoration(
+          // Captured-location state uses the secondary (Elegant Green)
+          // so it matches the "live / set" semantic across the app.
           color: hasLocation
-              ? AppColors.successGreen.withValues(alpha: 0.06)
+              ? cs.secondary.withValues(alpha: 0.06)
               : cs.primary.withValues(alpha: 0.05),
           borderRadius: BorderRadius.circular(AppSizes.radiusLG),
           border: Border.all(
             color: hasLocation
-                ? AppColors.successGreen.withValues(alpha: 0.4)
+                ? cs.secondary.withValues(alpha: 0.4)
                 : cs.primary.withValues(alpha: 0.3),
             width: 1.5,
           ),
@@ -770,7 +775,7 @@ class _ShopLocationTile extends StatelessWidget {
               height: 48,
               decoration: BoxDecoration(
                 color: hasLocation
-                    ? AppColors.successGreen.withValues(alpha: 0.15)
+                    ? cs.secondary.withValues(alpha: 0.15)
                     : cs.primary.withValues(alpha: 0.12),
                 borderRadius: BorderRadius.circular(AppSizes.radiusMD),
               ),
@@ -785,7 +790,7 @@ class _ShopLocationTile extends StatelessWidget {
                           ? Icons.check_circle_rounded
                           : Icons.my_location_rounded,
                       color: hasLocation
-                          ? AppColors.successGreen
+                          ? cs.secondary
                           : cs.primary,
                       size: 24,
                     ),
@@ -800,7 +805,7 @@ class _ShopLocationTile extends StatelessWidget {
                     style: Theme.of(context).textTheme.titleSmall?.copyWith(
                           fontWeight: FontWeight.w700,
                           color: hasLocation
-                              ? AppColors.successGreen
+                              ? cs.secondary
                               : cs.onSurface,
                         ),
                   ),
