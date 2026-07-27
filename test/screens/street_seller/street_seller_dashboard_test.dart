@@ -74,10 +74,12 @@ GoRouter _router() {
       ),
       GoRoute(
         path: '/listings',
+        name: 'listings',
         builder: (_, __) => const Scaffold(body: Text('listings-route')),
       ),
       GoRoute(
         path: '/listings/mine',
+        name: 'listingsMine',
         builder: (_, __) => const Scaffold(body: Text('mine-route')),
       ),
     ],

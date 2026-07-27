@@ -15,6 +15,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../constants/app_colors.dart';
 import '../../constants/app_sizes.dart';
+import '../../config/route_paths.dart';
 import '../../config/theme_extensions.dart';
 import '../../l10n/app_localizations.dart';
 import '../../providers/auth_provider.dart';
@@ -142,28 +143,32 @@ class StreetSellerDashboardScreen extends ConsumerWidget {
                       subtitle: l10n.buyStockSubtitle,
                       icon: Icons.shopping_cart_rounded,
                       accent: AppColors.primaryBlue,
-                      onTap: () => context.push('/listings'),
+                      onTap: () =>
+                          context.pushNamed(AppRouteNames.listings),
                     ),
                     _ActionCard(
                       title: l10n.myOrders,
                       subtitle: l10n.myOrdersSubtitle,
                       icon: Icons.receipt_long_rounded,
                       accent: AppColors.infoBlue,
-                      onTap: () => context.push('/orders'),
+                      onTap: () =>
+                          context.pushNamed(AppRouteNames.orders),
                     ),
                     _ActionCard(
                       title: l10n.sellStock,
                       subtitle: l10n.sellStockSubtitle,
                       icon: Icons.add_business_rounded,
                       accent: AppColors.accentGreen,
-                      onTap: () => context.push('/listings/create'),
+                      onTap: () =>
+                          context.pushNamed(AppRouteNames.listingsCreate),
                     ),
                     _ActionCard(
                       title: l10n.myListings,
                       subtitle: l10n.myListingsSubtitle,
                       icon: Icons.format_list_bulleted_rounded,
                       accent: AppColors.primaryBlue,
-                      onTap: () => context.push('/listings/mine'),
+                      onTap: () =>
+                          context.pushNamed(AppRouteNames.listingsMine),
                     ),
                   ]),
                 ),
@@ -176,7 +181,7 @@ class StreetSellerDashboardScreen extends ConsumerWidget {
         },
       ),
       floatingActionButton: FloatingActionButton.extended(
-        onPressed: () => context.push('/listings/create'),
+        onPressed: () => context.pushNamed(AppRouteNames.listingsCreate),
         backgroundColor: AppColors.primaryBlue,
         foregroundColor: Theme.of(context).colorScheme.onPrimary,
         elevation: 4,
