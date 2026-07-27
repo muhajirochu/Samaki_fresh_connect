@@ -71,22 +71,32 @@ class ActivityLogService {
   Stream<List<ActivityLogModel>> streamRecent({int limit = 25}) {
     if (!_isAvailable) return Stream.value(<ActivityLogModel>[]);
     try {
+      // No `.orderBy(...)` — sorting in memory keeps the stream alive
+      // until the deployed single-field `createdAt DESC` index is
+      // available.
       return _firestore
           .collection(_collection)
-          .orderBy('createdAt', descending: true)
           .limit(limit)
           .snapshots()
-          .map((snap) => snap.docs
-              .map((d) {
-                // Coerce server-timestamp back to DateTime on read.
-                final data = d.data();
-                final ts = data['createdAt'];
-                if (ts is Timestamp) {
-                  data['createdAt'] = ts.toDate().toIso8601String();
-                }
-                return ActivityLogModel.fromJson(data);
-              })
-              .toList(growable: false));
+          .map((snap) {
+        final list = <ActivityLogModel>[];
+        for (final d in snap.docs) {
+          try {
+            final data = Map<String, dynamic>.from(d.data());
+            // Coerce server-timestamp back to DateTime on read.
+            final ts = data['createdAt'];
+            if (ts is Timestamp) {
+              data['createdAt'] = ts.toDate().toIso8601String();
+            }
+            list.add(ActivityLogModel.fromJson(data));
+          } catch (e) {
+            AppLogger.warning(
+                'streamRecent: dropping malformed doc ${d.id}: $e');
+          }
+        }
+        list.sort((a, b) => b.createdAt.compareTo(a.createdAt));
+        return list;
+      });
     } catch (e) {
       AppLogger.error('Error streaming recent activity: $e');
       return Stream.value(<ActivityLogModel>[]);
@@ -98,21 +108,31 @@ class ActivityLogService {
   Stream<List<ActivityLogModel>> streamByType(String type) {
     if (!_isAvailable) return Stream.value(<ActivityLogModel>[]);
     try {
+      // No `.orderBy(...)` — sorting in memory keeps the stream alive
+      // until the deployed `(type, createdAt DESC)` composite index
+      // is available.
       return _firestore
           .collection(_collection)
           .where('type', isEqualTo: type)
-          .orderBy('createdAt', descending: true)
           .snapshots()
-          .map((snap) => snap.docs
-              .map((d) {
-                final data = d.data();
-                final ts = data['createdAt'];
-                if (ts is Timestamp) {
-                  data['createdAt'] = ts.toDate().toIso8601String();
-                }
-                return ActivityLogModel.fromJson(data);
-              })
-              .toList(growable: false));
+          .map((snap) {
+        final list = <ActivityLogModel>[];
+        for (final d in snap.docs) {
+          try {
+            final data = Map<String, dynamic>.from(d.data());
+            final ts = data['createdAt'];
+            if (ts is Timestamp) {
+              data['createdAt'] = ts.toDate().toIso8601String();
+            }
+            list.add(ActivityLogModel.fromJson(data));
+          } catch (e) {
+            AppLogger.warning(
+                'streamByType: dropping malformed doc ${d.id}: $e');
+          }
+        }
+        list.sort((a, b) => b.createdAt.compareTo(a.createdAt));
+        return list;
+      });
     } catch (e) {
       AppLogger.error('Error streaming activity by type $type: $e');
       return Stream.value(<ActivityLogModel>[]);
@@ -123,21 +143,31 @@ class ActivityLogService {
   Stream<List<ActivityLogModel>> streamByActor(String actorUid) {
     if (!_isAvailable) return Stream.value(<ActivityLogModel>[]);
     try {
+      // No `.orderBy(...)` — sorting in memory keeps the stream alive
+      // until the deployed `(actorUid, createdAt DESC)` composite
+      // index is available.
       return _firestore
           .collection(_collection)
           .where('actorUid', isEqualTo: actorUid)
-          .orderBy('createdAt', descending: true)
           .snapshots()
-          .map((snap) => snap.docs
-              .map((d) {
-                final data = d.data();
-                final ts = data['createdAt'];
-                if (ts is Timestamp) {
-                  data['createdAt'] = ts.toDate().toIso8601String();
-                }
-                return ActivityLogModel.fromJson(data);
-              })
-              .toList(growable: false));
+          .map((snap) {
+        final list = <ActivityLogModel>[];
+        for (final d in snap.docs) {
+          try {
+            final data = Map<String, dynamic>.from(d.data());
+            final ts = data['createdAt'];
+            if (ts is Timestamp) {
+              data['createdAt'] = ts.toDate().toIso8601String();
+            }
+            list.add(ActivityLogModel.fromJson(data));
+          } catch (e) {
+            AppLogger.warning(
+                'streamByActor: dropping malformed doc ${d.id}: $e');
+          }
+        }
+        list.sort((a, b) => b.createdAt.compareTo(a.createdAt));
+        return list;
+      });
     } catch (e) {
       AppLogger.error('Error streaming activity by actor: $e');
       return Stream.value(<ActivityLogModel>[]);

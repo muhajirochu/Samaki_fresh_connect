@@ -28,13 +28,25 @@ class FishCategoryService {
   Stream<List<FishCategoryModel>> streamAllCategories() {
     if (!_isAvailable) return Stream.value(<FishCategoryModel>[]);
     try {
+      // No `.orderBy(...)` — sorting in memory keeps the stream alive
+      // until the deployed single-field `displayName` index is
+      // available.
       return _firestore
           .collection(_collection)
-          .orderBy('displayName')
           .snapshots()
-          .map((snap) => snap.docs
-              .map((d) => FishCategoryModel.fromJson(d.data()))
-              .toList(growable: false));
+          .map((snap) {
+        final list = <FishCategoryModel>[];
+        for (final d in snap.docs) {
+          try {
+            list.add(FishCategoryModel.fromJson(d.data()));
+          } catch (e) {
+            AppLogger.warning(
+                'streamAllCategories: dropping malformed doc ${d.id}: $e');
+          }
+        }
+        list.sort((a, b) => a.displayName.compareTo(b.displayName));
+        return list;
+      });
     } catch (e) {
       AppLogger.error('Error streaming all categories: $e');
       return Stream.value(<FishCategoryModel>[]);
@@ -47,14 +59,26 @@ class FishCategoryService {
   Stream<List<FishCategoryModel>> streamActiveCategories() {
     if (!_isAvailable) return Stream.value(<FishCategoryModel>[]);
     try {
+      // No `.orderBy(...)` — sorting in memory keeps the stream alive
+      // until the deployed `(isActive, displayName)` composite index
+      // is available.
       return _firestore
           .collection(_collection)
           .where('isActive', isEqualTo: true)
-          .orderBy('displayName')
           .snapshots()
-          .map((snap) => snap.docs
-              .map((d) => FishCategoryModel.fromJson(d.data()))
-              .toList(growable: false));
+          .map((snap) {
+        final list = <FishCategoryModel>[];
+        for (final d in snap.docs) {
+          try {
+            list.add(FishCategoryModel.fromJson(d.data()));
+          } catch (e) {
+            AppLogger.warning(
+                'streamActiveCategories: dropping malformed doc ${d.id}: $e');
+          }
+        }
+        list.sort((a, b) => a.displayName.compareTo(b.displayName));
+        return list;
+      });
     } catch (e) {
       AppLogger.error('Error streaming active categories: $e');
       return Stream.value(<FishCategoryModel>[]);

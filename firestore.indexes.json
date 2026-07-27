@@ -148,6 +148,30 @@
         { "fieldPath": "fishType",  "order": "ASCENDING" },
         { "fieldPath": "createdAt", "order": "DESCENDING" }
       ]
+    },
+    {
+      "collectionGroup": "fishListings",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "status",     "order": "ASCENDING" },
+        { "fieldPath": "expiresAt",  "order": "ASCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "fishListings",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "sellerId",    "order": "ASCENDING" },
+        { "fieldPath": "expiresAt",   "order": "ASCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "recentSearches",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "buyerId",     "order": "ASCENDING" },
+        { "fieldPath": "searchedAt",  "order": "DESCENDING" }
+      ]
     }
   ],
   "fieldOverrides": []

@@ -138,13 +138,27 @@ class NotificationService {
   /// Stream of all notifications for [userId], newest first.
   Stream<List<NotificationItem>> streamForUser(String userId) {
     if (!_isAvailable) return Stream.value(const []);
+    // No `.orderBy(...)` — sorting in memory keeps the stream alive
+    // until the deployed `(userId, createdAt DESC)` composite index
+    // is available.
     return _firestore
         .collection(_collection)
         .where('userId', isEqualTo: userId)
-        .orderBy('createdAt', descending: true)
         .limit(50)
         .snapshots()
-        .map((snap) => snap.docs.map(_fromDoc).toList());
+        .map((snap) {
+      final list = <NotificationItem>[];
+      for (final d in snap.docs) {
+        try {
+          list.add(_fromDoc(d));
+        } catch (e) {
+          AppLogger.warning(
+              'streamForUser: dropping malformed doc ${d.id}: $e');
+        }
+      }
+      list.sort((a, b) => b.createdAt.compareTo(a.createdAt));
+      return list;
+    });
   }
 
   /// Live count of unread items. Cheap stream — Firestore filters server-side.

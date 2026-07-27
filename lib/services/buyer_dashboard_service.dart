@@ -183,14 +183,27 @@ class BuyerDashboardService {
 
   Stream<List<Map<String, dynamic>>> streamRecentSearches(String buyerId) {
     if (!_isAvailable) return Stream.value(const []);
+    // No `.orderBy(...)` — sorting in memory keeps the stream alive
+    // even when the (buyerId, searchedAt) composite index isn't
+    // deployed yet.
     return _firestore
         .collection('users')
         .doc(buyerId)
         .collection('recentSearches')
-        .orderBy('searchedAt', descending: true)
         .limit(10)
         .snapshots()
-        .map((snap) => snap.docs.map((d) => d.data()).toList());
+        .map((snap) {
+      final list = snap.docs.map((d) => d.data()).toList();
+      list.sort((a, b) {
+        final aTs = a['searchedAt'];
+        final bTs = b['searchedAt'];
+        if (aTs == null && bTs == null) return 0;
+        if (aTs == null) return 1;
+        if (bTs == null) return -1;
+        return (bTs as Comparable).compareTo(aTs);
+      });
+      return list;
+    });
   }
 
   // ── Geo helper (duplicated from StreetSellerModel.distanceKmFrom so we can

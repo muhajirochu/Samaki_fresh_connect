@@ -162,10 +162,15 @@ class FishListingService {
   Stream<List<FishListingModel>> streamActiveListings() {
     if (!_isAvailable) return Stream.value([]);
     AppLogger.debug('streamActiveListings: subscribing to fishListings');
+    // No `.orderBy(...)` here — Firestore would require a composite
+    // `(status, createdAt)` index to honour it, and a freshly
+    // provisioned project that hasn't run `firebase deploy
+    // --only firestore:indexes` would fail the whole stream with
+    // `failed-precondition`. Sorting in memory below already gives
+    // us the same ordering and tolerates missing indexes.
     return _firestore
         .collection(_collection)
         .where('status', isEqualTo: 'active')
-        .orderBy('createdAt', descending: true)
         .limit(_maxActiveListings)
         .snapshots()
         .map((snap) {
@@ -200,10 +205,13 @@ class FishListingService {
   /// doesn't drag down the seller dashboard render time.
   Stream<List<FishListingModel>> streamListingsBySeller(String sellerId) {
     if (!_isAvailable) return Stream.value([]);
+    // No `.orderBy(...)` here — same rationale as streamActiveListings
+    // above. Without the composite `(sellerId, createdAt)` index
+    // deployed, the query fails with `failed-precondition`. We sort
+    // in memory instead.
     return _firestore
         .collection(_collection)
         .where('sellerId', isEqualTo: sellerId)
-        .orderBy('createdAt', descending: true)
         .limit(_maxActiveListings)
         .snapshots()
         .map((snap) {
@@ -243,21 +251,31 @@ class FishListingService {
   Stream<List<FishListingModel>> streamAllListings() {
     if (!_isAvailable) return Stream.value([]);
     try {
+      // No `.orderBy(...)` — sorting in memory keeps the stream alive
+      // until the deployed (createdAt DESC) single-field index is
+      // available.
       return _firestore
           .collection(_collection)
-          .orderBy('createdAt', descending: true)
           .limit(_maxActiveListings)
           .snapshots()
           .map((snap) {
-        final list = snap.docs.map((d) {
-          final raw = d.data();
-          // Fall back to the document id when `listingId` is missing
-          // (legacy documents that predate the rename).
-          if ((raw['listingId'] as String?)?.isEmpty ?? true) {
-            raw['listingId'] = d.id;
+        final list = <FishListingModel>[];
+        for (final d in snap.docs) {
+          try {
+            final raw = Map<String, dynamic>.from(d.data());
+            // Fall back to the document id when `listingId` is
+            // missing (legacy documents that predate the rename).
+            if ((raw['listingId'] as String?)?.isEmpty ?? true) {
+              raw['listingId'] = d.id;
+            }
+            list.add(FishListingModel.fromJson(raw));
+          } catch (e) {
+            AppLogger.warning(
+                'streamAllListings: dropping malformed doc ${d.id}: $e');
           }
-          return FishListingModel.fromJson(raw);
-        }).toList(growable: false);
+        }
+        list.sort((a, b) => _dateOrZero(b.createdAt)
+            .compareTo(_dateOrZero(a.createdAt)));
         return list;
       });
     } catch (e) {
@@ -304,20 +322,29 @@ class FishListingService {
   Stream<List<FishListingModel>> streamListingsByCategorySlug(String slug) {
     if (!_isAvailable) return Stream.value(<FishListingModel>[]);
     try {
+      // No `.orderBy(...)` — see streamAllListings above.
       return _firestore
           .collection(_collection)
           .where('fishType', isEqualTo: slug)
-          .orderBy('createdAt', descending: true)
           .snapshots()
-          .map((snap) => snap.docs
-              .map((d) {
-                final raw = d.data();
-                if ((raw['listingId'] as String?)?.isEmpty ?? true) {
-                  raw['listingId'] = d.id;
-                }
-                return FishListingModel.fromJson(raw);
-              })
-              .toList(growable: false));
+          .map((snap) {
+        final list = <FishListingModel>[];
+        for (final d in snap.docs) {
+          try {
+            final raw = Map<String, dynamic>.from(d.data());
+            if ((raw['listingId'] as String?)?.isEmpty ?? true) {
+              raw['listingId'] = d.id;
+            }
+            list.add(FishListingModel.fromJson(raw));
+          } catch (e) {
+            AppLogger.warning(
+                'streamListingsByCategorySlug: dropping malformed doc ${d.id}: $e');
+          }
+        }
+        list.sort((a, b) => _dateOrZero(b.createdAt)
+            .compareTo(_dateOrZero(a.createdAt)));
+        return list;
+      });
     } catch (e) {
       AppLogger.error('Error streaming listings by category $slug: $e');
       return Stream.value(<FishListingModel>[]);

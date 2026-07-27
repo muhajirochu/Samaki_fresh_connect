@@ -114,13 +114,25 @@ class OrderService {
   Stream<List<OrderModel>> streamAllOrders() {
     if (!_isAvailable) return Stream.value(<OrderModel>[]);
     try {
+      // No `.orderBy(...)` — sorting in memory keeps the stream alive
+      // until the deployed single-field `createdAt DESC` index is
+      // available.
       return _firestore
           .collection(_collection)
-          .orderBy('createdAt', descending: true)
           .snapshots()
-          .map((snap) => snap.docs
-              .map((d) => OrderModel.fromJson(d.data()))
-              .toList(growable: false));
+          .map((snap) {
+        final list = <OrderModel>[];
+        for (final d in snap.docs) {
+          try {
+            list.add(OrderModel.fromJson(d.data()));
+          } catch (e) {
+            AppLogger.warning(
+                'streamAllOrders: dropping malformed doc ${d.id}: $e');
+          }
+        }
+        list.sort((a, b) => b.createdAt.compareTo(a.createdAt));
+        return list;
+      });
     } catch (e) {
       AppLogger.error('Error streaming all orders: $e');
       return Stream.value(<OrderModel>[]);
@@ -142,11 +154,20 @@ class OrderService {
       return _firestore
           .collection(_collection)
           .where('createdAt', isGreaterThanOrEqualTo: midnight)
-          .orderBy('createdAt', descending: true)
           .snapshots()
-          .map((snap) => snap.docs
-              .map((d) => OrderModel.fromJson(d.data()))
-              .toList(growable: false));
+          .map((snap) {
+        final list = <OrderModel>[];
+        for (final d in snap.docs) {
+          try {
+            list.add(OrderModel.fromJson(d.data()));
+          } catch (e) {
+            AppLogger.warning(
+                "streamTodaysOrders: dropping malformed doc ${d.id}: $e");
+          }
+        }
+        list.sort((a, b) => b.createdAt.compareTo(a.createdAt));
+        return list;
+      });
     } catch (e) {
       AppLogger.error("Error streaming today's orders: $e");
       return Stream.value(<OrderModel>[]);
@@ -156,20 +177,29 @@ class OrderService {
   /// Stream orders filtered by their [orderStatus] field. Used by
   /// the admin Orders Management screen to drive the
   /// Pending / Completed / Cancelled / All tabs.
-  ///
-  /// Note: this query relies on the `orderStatus + createdAt`
-  /// composite index in `firestore.indexes.json`.
   Stream<List<OrderModel>> streamOrdersByStatus(String orderStatus) {
     if (!_isAvailable) return Stream.value(<OrderModel>[]);
     try {
+      // No `.orderBy(...)` — sorting in memory keeps the stream alive
+      // until the deployed `(orderStatus, createdAt DESC)` composite
+      // index is available.
       return _firestore
           .collection(_collection)
           .where('orderStatus', isEqualTo: orderStatus)
-          .orderBy('createdAt', descending: true)
           .snapshots()
-          .map((snap) => snap.docs
-              .map((d) => OrderModel.fromJson(d.data()))
-              .toList(growable: false));
+          .map((snap) {
+        final list = <OrderModel>[];
+        for (final d in snap.docs) {
+          try {
+            list.add(OrderModel.fromJson(d.data()));
+          } catch (e) {
+            AppLogger.warning(
+                'streamOrdersByStatus: dropping malformed doc ${d.id}: $e');
+          }
+        }
+        list.sort((a, b) => b.createdAt.compareTo(a.createdAt));
+        return list;
+      });
     } catch (e) {
       AppLogger.error('Error streaming orders by status $orderStatus: $e');
       return Stream.value(<OrderModel>[]);
@@ -182,15 +212,27 @@ class OrderService {
   Stream<List<OrderModel>> streamOrdersInRange(DateTime start, DateTime end) {
     if (!_isAvailable) return Stream.value(<OrderModel>[]);
     try {
+      // No `.orderBy(...)` — sorting in memory keeps the stream alive
+      // until the deployed `(createdAt ASC)` composite index is
+      // available.
       return _firestore
           .collection(_collection)
           .where('createdAt', isGreaterThanOrEqualTo: start)
           .where('createdAt', isLessThan: end)
-          .orderBy('createdAt', descending: true)
           .snapshots()
-          .map((snap) => snap.docs
-              .map((d) => OrderModel.fromJson(d.data()))
-              .toList(growable: false));
+          .map((snap) {
+        final list = <OrderModel>[];
+        for (final d in snap.docs) {
+          try {
+            list.add(OrderModel.fromJson(d.data()));
+          } catch (e) {
+            AppLogger.warning(
+                'streamOrdersInRange: dropping malformed doc ${d.id}: $e');
+          }
+        }
+        list.sort((a, b) => b.createdAt.compareTo(a.createdAt));
+        return list;
+      });
     } catch (e) {
       AppLogger.error('Error streaming orders in range: $e');
       return Stream.value(<OrderModel>[]);
@@ -239,16 +281,24 @@ class OrderService {
     if (q.isEmpty) return <OrderModel>[];
     return _firestore
         .collection(_collection)
-        .orderBy('createdAt', descending: true)
         .limit(500)
         .get()
-        .then((snap) => snap.docs
-            .map((d) => OrderModel.fromJson(d.data()))
-            .where((o) =>
-                o.orderId.toLowerCase().contains(q) ||
-                o.buyerId.toLowerCase().contains(q) ||
-                (o.streetSellerId?.toLowerCase().contains(q) ?? false))
-            .toList(growable: false));
+        .then((snap) {
+      final list = <OrderModel>[];
+      for (final d in snap.docs) {
+        try {
+          list.add(OrderModel.fromJson(d.data()));
+        } catch (e) {
+          AppLogger.warning(
+              'searchOrders: dropping malformed doc ${d.id}: $e');
+        }
+      }
+      list.sort((a, b) => b.createdAt.compareTo(a.createdAt));
+      return list.where((o) =>
+          o.orderId.toLowerCase().contains(q) ||
+          o.buyerId.toLowerCase().contains(q) ||
+          (o.streetSellerId?.toLowerCase().contains(q) ?? false)).toList();
+    });
   }
 
   /// Admin-side dispute resolution. Sets `disputeAction` and
