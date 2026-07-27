@@ -1320,6 +1320,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get orderPlacedSuccess => 'Order placed successfully!';
 
   @override
+  String get listingAlreadySold =>
+      'This listing is no longer available — another buyer just purchased it.';
+
+  @override
   String get profileUpdatedSuccess => 'Profile updated successfully';
 
   @override

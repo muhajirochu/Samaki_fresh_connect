@@ -578,6 +578,7 @@
         }
     },
     "orderPlacedSuccess": "Agizo limewekwa!",
+    "listingAlreadySold": "Orodha hii haipatikani tena — mnunuzi mwingine amenunua samaki huyu.",
     "profileUpdatedSuccess": "Wasifu umesasishwa",
     "errorWithMessage": "Hitilafu: {message}",
     "@errorWithMessage": {

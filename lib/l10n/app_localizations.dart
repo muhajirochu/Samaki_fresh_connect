@@ -2498,6 +2498,12 @@ abstract class AppLocalizations {
   /// **'Order placed successfully!'**
   String get orderPlacedSuccess;
 
+  /// No description provided for @listingAlreadySold.
+  ///
+  /// In en, this message translates to:
+  /// **'This listing is no longer available — another buyer just purchased it.'**
+  String get listingAlreadySold;
+
   /// No description provided for @profileUpdatedSuccess.
   ///
   /// In en, this message translates to:

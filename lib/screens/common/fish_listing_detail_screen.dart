@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import '../../config/route_paths.dart';
 import '../../constants/app_colors.dart';
 import '../../constants/app_sizes.dart';
 import '../../l10n/app_localizations.dart';
@@ -11,12 +12,14 @@ import '../../models/fish_listing_model.dart';
 import '../../models/order_model.dart';
 import '../../models/enums/order_status.dart';
 import '../../models/enums/order_path.dart';
+import '../../providers/admin_provider.dart';
 import '../../providers/auth_provider.dart';
 import '../../providers/listing_provider.dart';
 import '../../providers/order_provider.dart';
+import '../../utils/formatters.dart';
+import '../../utils/logger.dart';
 import '../../widgets/common/common_widgets.dart';
 import '../../widgets/common/premium_components.dart';
-import '../../utils/formatters.dart';
 
 class FishListingDetailScreen extends HookConsumerWidget {
   final String listingId;
@@ -303,13 +306,37 @@ class _BuyButton extends HookConsumerWidget {
       if (currentUser == null) return;
       isLoading.value = true;
 
+      final l10n = AppLocalizations.of(context);
+      final messenger = ScaffoldMessenger.of(context);
+
       try {
+        final listingService = ref.read(fishListingServiceProvider);
         final orderService = ref.read(orderServiceProvider);
 
+        // 1) Atomically mark the listing sold first. If this returns
+        // false, another buyer already grabbed it — show an error
+        // and bail without creating a phantom order.
+        final sold = await listingService.tryMarkAsSold(listing.listingId);
+        if (!sold) {
+          isLoading.value = false;
+          if (context.mounted) {
+            messenger.showSnackBar(
+              SnackBar(
+                content: Text(l10n.listingAlreadySold),
+                backgroundColor: AppColors.errorRed,
+                behavior: SnackBarBehavior.floating,
+              ),
+            );
+          }
+          return;
+        }
+
+        // 2) Create the order. If this fails, undo the sell flag so
+        // the listing is buyable again.
         final order = OrderModel(
           orderId: '', // Service sets this
           orderPath: OrderPath.directFromDalali.name,
-          buyerId: currentUser!.userId, // Can be buyer or street seller
+          buyerId: currentUser!.userId,
           streetSellerId: currentUser!.role == UserRole.streetSeller
               ? currentUser!.userId
               : null,
@@ -323,35 +350,53 @@ class _BuyButton extends HookConsumerWidget {
           createdAt: DateTime.now(),
         );
 
-        final orderId = await orderService.createOrder(order);
-
-        // Deduct quantity instead of marking as sold — the fish stays
-        // visible to other buyers until stock reaches 0.
-        final listingService = ref.read(fishListingServiceProvider);
-        final remainingQty = listing.quantityKg - listing.quantityKg; // full purchase
-        if (remainingQty <= 0) {
-          await listingService.markAsSold(listing.listingId);
-        } else {
-          await listingService.updateListing(listing.listingId, {
-            'quantityKg': remainingQty,
-          });
+        String orderId;
+        try {
+          orderId = await orderService.createOrder(order);
+        } catch (e) {
+          // Order creation failed — restore the listing so other buyers
+          // can still see it.
+          try {
+            await listingService.updateListing(listing.listingId, {
+              'status': 'active',
+            });
+          } catch (restoreError) {
+            AppLogger.error(
+                'Failed to restore listing after order error: $restoreError');
+          }
+          rethrow;
         }
 
+        // 3) Invalidate the seller's listings provider so the
+        // dashboard / My Listings re-renders immediately rather than
+        // waiting for the next Firestore snapshot event.
+        ref.invalidate(sellerListingsProvider(listing.sellerId));
+        ref.invalidate(activeListingsProvider);
+        ref.invalidate(adminAllListingsProvider);
+        ref.invalidate(buyerOrdersProvider(currentUser!.userId));
+        ref.invalidate(streetSellerOrdersProvider(listing.sellerId));
+
         if (context.mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Order placed successfully!'),
+          messenger.showSnackBar(
+            SnackBar(
+              content: Text(l10n.orderPlacedSuccess),
               backgroundColor: AppColors.successGreen,
+              behavior: SnackBarBehavior.floating,
             ),
           );
-          context.pushReplacement('/orders/$orderId');
+          context.pushReplacementNamed(
+            AppRouteNames.orderDetail,
+            pathParameters: {'id': orderId},
+          );
         }
       } catch (e) {
         if (context.mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
+          messenger.showSnackBar(
             SnackBar(
-                content: Text('Error: $e'),
-                backgroundColor: AppColors.errorRed),
+              content: Text(l10n.errorWithMessage(e.toString())),
+              backgroundColor: AppColors.errorRed,
+              behavior: SnackBarBehavior.floating,
+            ),
           );
         }
       } finally {

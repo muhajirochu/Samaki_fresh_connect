@@ -1319,6 +1319,10 @@ class AppLocalizationsSw extends AppLocalizations {
   String get orderPlacedSuccess => 'Agizo limewekwa!';
 
   @override
+  String get listingAlreadySold =>
+      'Orodha hii haipatikani tena — mnunuzi mwingine amenunua samaki huyu.';
+
+  @override
   String get profileUpdatedSuccess => 'Wasifu umesasishwa';
 
   @override

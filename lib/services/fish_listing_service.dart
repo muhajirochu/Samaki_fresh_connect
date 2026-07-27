@@ -381,7 +381,52 @@ class FishListingService {
     }
   }
 
+  /// Atomically flip a listing from `active` to `sold`. Uses a
+  /// Firestore `runTransaction` so two simultaneous purchases can't
+  /// both succeed — only the first caller wins and the rest receive
+  /// `false`. The transaction also re-checks the live status under
+  /// Firestore's lock so a listing already marked `sold` cannot be
+  /// purchased again.
+  ///
+  /// Returns `true` on success, `false` if the listing was no longer
+  /// `active` at the moment of the write (e.g. another buyer won the
+  /// race, or the seller manually flipped the status).
+  Future<bool> tryMarkAsSold(String listingId) async {
+    if (!_isAvailable) return false;
+    try {
+      final result = await _firestore.runTransaction<bool>((txn) async {
+        final ref = _firestore.collection(_collection).doc(listingId);
+        final snap = await txn.get(ref);
+        if (!snap.exists) return false;
+        final data = snap.data();
+        if (data == null) return false;
+        final status = data['status'] as String?;
+        if (status != 'active') return false;
+        txn.update(ref, {
+          'status': 'sold',
+          'soldAt': FieldValue.serverTimestamp(),
+        });
+        return true;
+      });
+      if (result) {
+        AppLogger.info('Listing $listingId marked as sold (atomic)');
+      } else {
+        AppLogger.warning(
+            'tryMarkAsSold: $listingId was no longer active');
+      }
+      return result;
+    } catch (e) {
+      AppLogger.error('tryMarkAsSold error for $listingId: $e');
+      rethrow;
+    }
+  }
+
   /// Mark listing as sold
+  ///
+  /// Deprecated: callers should prefer [tryMarkAsSold] so concurrent
+  /// purchases can't double-mark the same row. Kept for compatibility
+  /// with the legacy "Mark as sold" admin button.
+  // ignore: deprecated_member_use
   Future<void> markAsSold(String listingId) async {
     await updateListing(listingId, {
       'status': 'sold',
