@@ -173,6 +173,14 @@ class FishListingService {
           snap.docs.map((d) => FishListingModel.fromJson(d.data())).toList();
       list.sort((a, b) => b.createdAt.compareTo(a.createdAt));
       return list;
+    })
+        // Surface errors so the UI flips to AsyncError instead of
+        // getting stuck in a permanent loading state when Firestore
+        // rejects the query (permission-denied, missing index,
+        // malformed doc, etc.).
+        .handleError((Object e, StackTrace s) {
+      AppLogger.error('streamActiveListings error: $e');
+      throw e;
     });
   }
 
@@ -192,6 +200,9 @@ class FishListingService {
           snap.docs.map((d) => FishListingModel.fromJson(d.data())).toList();
       list.sort((a, b) => b.createdAt.compareTo(a.createdAt));
       return list;
+    }).handleError((Object e, StackTrace s) {
+      AppLogger.error('streamListingsBySeller error: $e');
+      throw e;
     });
   }
 

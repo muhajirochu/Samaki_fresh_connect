@@ -35,38 +35,99 @@ class MyListingsScreen extends ConsumerWidget {
         foregroundColor: Theme.of(context).colorScheme.onSurface,
         centerTitle: true,
       ),
-      body: userAsync.when(
-        loading: () => const LoadingIndicator(),
-        error: (e, _) => EmptyStateWidget(
-          icon: Icons.error_rounded,
-          title: l10n.failedToLoadUserData,
-          subtitle: e.toString(),
-        ),
-        data: (user) {
-          if (user == null) return const SizedBox.shrink();
-          final provider = sellerListingsProvider(user.userId);
-          final listingsAsync = ref.watch(provider);
-          return listingsAsync.when(
-            loading: () =>
-                LoadingIndicator(message: l10n.loadingYourListings),
-            error: (error, _) => EmptyStateWidget(
-              icon: Icons.error_outline_rounded,
-              title: l10n.failedToLoadListings,
-              subtitle: error.toString(),
-              onRetry: () => ref.refresh(provider),
-            ),
-            data: (listings) {
-              if (listings.isEmpty) {
-                return EmptyStateWidget(
-                  icon: Icons.inventory_2_rounded,
-                  title: l10n.noListingsYet,
-                  subtitle: l10n.createListingPrompt,
-                  onRetry: () => ref.refresh(provider),
-                );
-              }
-              return RefreshIndicator(
-                onRefresh: () async => ref.refresh(provider),
-                child: ListView.separated(
+      body: RefreshIndicator(
+        onRefresh: () async {
+          // re-subscribe to the current user stream + listings so the
+          // screen rebuilds with the freshest data. ref.invalidate
+          // marks the provider dirty; the next read re-subscribes.
+          ref.invalidate(currentUserStreamProvider);
+          final user = ref.read(currentUserStreamProvider).valueOrNull;
+          if (user != null) {
+            ref.invalidate(sellerListingsProvider(user.userId));
+          }
+          await Future<void>.delayed(const Duration(milliseconds: 400));
+        },
+        child: userAsync.when(
+          loading: () => ListView(
+            physics: const AlwaysScrollableScrollPhysics(),
+            children: const [
+              SizedBox(
+                height: 320,
+                child: LoadingIndicator(),
+              ),
+            ],
+          ),
+          error: (e, _) => ListView(
+            physics: const AlwaysScrollableScrollPhysics(),
+            padding: const EdgeInsets.all(AppSizes.paddingLG),
+            children: [
+              SizedBox(
+                height: 320,
+                child: EmptyStateWidget(
+                  icon: Icons.error_rounded,
+                  title: l10n.failedToLoadUserData,
+                  subtitle: e.toString(),
+                  onRetry: () => ref.invalidate(currentUserStreamProvider),
+                ),
+              ),
+            ],
+          ),
+          data: (user) {
+            if (user == null) {
+              return ListView(
+                physics: const AlwaysScrollableScrollPhysics(),
+                children: const [
+                  SizedBox(height: 320, child: SizedBox.shrink()),
+                ],
+              );
+            }
+            final provider = sellerListingsProvider(user.userId);
+            final listingsAsync = ref.watch(provider);
+            return listingsAsync.when(
+              loading: () => ListView(
+                physics: const AlwaysScrollableScrollPhysics(),
+                children: [
+                  SizedBox(
+                    height: 320,
+                    child: LoadingIndicator(message: l10n.loadingYourListings),
+                  ),
+                ],
+              ),
+              error: (error, _) => ListView(
+                physics: const AlwaysScrollableScrollPhysics(),
+                padding: const EdgeInsets.all(AppSizes.paddingLG),
+                children: [
+                  SizedBox(
+                    height: 320,
+                    child: EmptyStateWidget(
+                      icon: Icons.error_outline_rounded,
+                      title: l10n.failedToLoadListings,
+                      subtitle: error.toString(),
+                      onRetry: () => ref.invalidate(provider),
+                    ),
+                  ),
+                ],
+              ),
+              data: (listings) {
+                if (listings.isEmpty) {
+                  return ListView(
+                    physics: const AlwaysScrollableScrollPhysics(),
+                    padding: const EdgeInsets.all(AppSizes.paddingLG),
+                    children: [
+                      SizedBox(
+                        height: 320,
+                        child: EmptyStateWidget(
+                          icon: Icons.inventory_2_rounded,
+                          title: l10n.noListingsYet,
+                          subtitle: l10n.createListingPrompt,
+                          onRetry: () => ref.invalidate(provider),
+                        ),
+                      ),
+                    ],
+                  );
+                }
+                return ListView.separated(
+                  physics: const AlwaysScrollableScrollPhysics(),
                   padding: const EdgeInsets.all(AppSizes.paddingLG),
                   itemCount: listings.length,
                   separatorBuilder: (_, __) =>
@@ -75,11 +136,11 @@ class MyListingsScreen extends ConsumerWidget {
                     final listing = listings[index];
                     return _ManageableListingCard(listing: listing);
                   },
-                ),
-              );
-            },
-          );
-        },
+                );
+              },
+            );
+          },
+        ),
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () => context.pushNamed(AppRouteNames.listingsCreate),

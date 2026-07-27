@@ -24,28 +24,60 @@ class FishListingsScreen extends ConsumerWidget {
         backgroundColor: cs.primary,
         foregroundColor: cs.onPrimary,
       ),
-      body: listingsAsync.when(
-        loading: () =>
-            LoadingIndicator(message: l10n.loadingFreshCatch),
-        error: (error, stack) => EmptyStateWidget(
-          icon: Icons.error_outline,
-          title: l10n.failedToLoadListings,
-          subtitle: error.toString(),
-          onRetry: () => ref.refresh(activeListingsProvider),
-        ),
-        data: (listings) {
-          if (listings.isEmpty) {
-            return EmptyStateWidget(
-              icon: Icons.set_meal_outlined,
-              title: l10n.noFishAvailable,
-              subtitle: l10n.checkBackLater,
-              onRetry: () => ref.refresh(activeListingsProvider),
-            );
-          }
+      body: RefreshIndicator(
+        onRefresh: () async {
+          // ref.invalidate re-subscribes the StreamProvider so the
+          // screen re-renders with a fresh snapshot. Await one frame
+          // so the spinner has time to appear.
+          ref.invalidate(activeListingsProvider);
+          await Future<void>.delayed(const Duration(milliseconds: 400));
+        },
+        child: listingsAsync.when(
+          loading: () => ListView(
+            physics: const AlwaysScrollableScrollPhysics(),
+            children: [
+              SizedBox(
+                height: 320,
+                child: LoadingIndicator(message: l10n.loadingFreshCatch),
+              ),
+            ],
+          ),
+          error: (error, stack) => ListView(
+            physics: const AlwaysScrollableScrollPhysics(),
+            padding: const EdgeInsets.all(AppSizes.paddingLG),
+            children: [
+              SizedBox(
+                height: 320,
+                child: EmptyStateWidget(
+                  icon: Icons.error_outline,
+                  title: l10n.failedToLoadListings,
+                  subtitle: error.toString(),
+                  onRetry: () => ref.invalidate(activeListingsProvider),
+                ),
+              ),
+            ],
+          ),
+          data: (listings) {
+            if (listings.isEmpty) {
+              return ListView(
+                physics: const AlwaysScrollableScrollPhysics(),
+                padding: const EdgeInsets.all(AppSizes.paddingLG),
+                children: [
+                  SizedBox(
+                    height: 320,
+                    child: EmptyStateWidget(
+                      icon: Icons.set_meal_outlined,
+                      title: l10n.noFishAvailable,
+                      subtitle: l10n.checkBackLater,
+                      onRetry: () => ref.invalidate(activeListingsProvider),
+                    ),
+                  ),
+                ],
+              );
+            }
 
-          return RefreshIndicator(
-            onRefresh: () async => ref.refresh(activeListingsProvider),
-            child: ListView.separated(
+            return ListView.separated(
+              physics: const AlwaysScrollableScrollPhysics(),
               padding: const EdgeInsets.all(AppSizes.paddingLG),
               itemCount: listings.length,
               separatorBuilder: (context, index) =>
@@ -60,9 +92,9 @@ class FishListingsScreen extends ConsumerWidget {
                   ),
                 );
               },
-            ),
-          );
-        },
+            );
+          },
+        ),
       ),
     );
   }
