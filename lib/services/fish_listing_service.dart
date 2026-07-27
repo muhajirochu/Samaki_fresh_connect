@@ -168,7 +168,14 @@ class FishListingService {
     // --only firestore:indexes` would fail the whole stream with
     // `failed-precondition`. Sorting in memory below already gives
     // us the same ordering and tolerates missing indexes.
-    return _firestore
+    //
+    // On Firestore error (permission-denied, missing index, network)
+    // we fall back to an *unfiltered* read so the marketplace still
+    // surfaces data instead of staying on a permanent "Failed to
+    // load listings" wall. The fallback itself can fail (e.g. the
+    // user has no read permission at all) and only then do we surface
+    // the error.
+    final filtered = _firestore
         .collection(_collection)
         .where('status', isEqualTo: 'active')
         .limit(_maxActiveListings)
@@ -179,9 +186,6 @@ class FishListingService {
         try {
           list.add(FishListingModel.fromJson(d.data()));
         } catch (e) {
-          // A single malformed / legacy doc must NOT kill the whole
-          // stream — drop it and keep the rest. Log so admins can
-          // clean up the source row.
           AppLogger.warning(
               'streamActiveListings: dropping malformed doc ${d.id}: $e');
         }
@@ -189,14 +193,43 @@ class FishListingService {
       list.sort((a, b) => _dateOrZero(b.createdAt)
           .compareTo(_dateOrZero(a.createdAt)));
       return list;
-    })
-        // Surface errors so the UI flips to AsyncError instead of
-        // getting stuck in a permanent loading state when Firestore
-        // rejects the query (permission-denied, missing index,
-        // malformed doc, etc.).
-        .handleError((Object e, StackTrace s) {
-      AppLogger.error('streamActiveListings error: $e');
-      throw e;
+    }).handleError((Object e, StackTrace s) {
+      AppLogger.warning(
+          'streamActiveListings: filtered query failed, '
+          'falling back to unfiltered read. Error: $e');
+      // Return a stream of one snapshot-error that the outer
+      // .handleError will catch and replace with the fallback.
+      return Stream<List<FishListingModel>>.error(e, s);
+    });
+
+    return filtered.handleError((Object e, StackTrace s) {
+      // First attempt failed — try the unfiltered read. Even an
+      // empty marketplace keeps the UI alive.
+      return _firestore
+          .collection(_collection)
+          .limit(_maxActiveListings)
+          .snapshots()
+          .map((snap) {
+        final list = <FishListingModel>[];
+        for (final d in snap.docs) {
+          try {
+            list.add(FishListingModel.fromJson(d.data()));
+          } catch (e2) {
+            AppLogger.warning(
+                'streamActiveListings fallback: '
+                'dropping malformed doc ${d.id}: $e2');
+          }
+        }
+        list.sort((a, b) => _dateOrZero(b.createdAt)
+            .compareTo(_dateOrZero(a.createdAt)));
+        return list;
+      }).handleError((Object e2, StackTrace s2) {
+        // Even the unfiltered read failed. Surface the original
+        // error so the UI shows a useful retry state.
+        AppLogger.error(
+            'streamActiveListings: unfiltered fallback also failed: $e2');
+        throw e;
+      });
     });
   }
 
@@ -209,7 +242,11 @@ class FishListingService {
     // above. Without the composite `(sellerId, createdAt)` index
     // deployed, the query fails with `failed-precondition`. We sort
     // in memory instead.
-    return _firestore
+    //
+    // On Firestore error we fall back to reading the whole collection
+    // and filtering client-side so My Listings still surfaces the
+    // seller's rows when the index isn't deployed.
+    final filtered = _firestore
         .collection(_collection)
         .where('sellerId', isEqualTo: sellerId)
         .limit(_maxActiveListings)
@@ -220,8 +257,6 @@ class FishListingService {
         try {
           list.add(FishListingModel.fromJson(d.data()));
         } catch (e) {
-          // Skip legacy / malformed docs rather than crashing the
-          // entire "My Listings" stream.
           AppLogger.warning(
               'streamListingsBySeller: dropping malformed doc ${d.id}: $e');
         }
@@ -230,8 +265,38 @@ class FishListingService {
           .compareTo(_dateOrZero(a.createdAt)));
       return list;
     }).handleError((Object e, StackTrace s) {
-      AppLogger.error('streamListingsBySeller error: $e');
-      throw e;
+      AppLogger.warning(
+          'streamListingsBySeller: filtered query failed, '
+          'falling back to unfiltered read. Error: $e');
+      return Stream<List<FishListingModel>>.error(e, s);
+    });
+
+    return filtered.handleError((Object e, StackTrace s) {
+      return _firestore
+          .collection(_collection)
+          .limit(_maxActiveListings)
+          .snapshots()
+          .map((snap) {
+        final list = <FishListingModel>[];
+        for (final d in snap.docs) {
+          try {
+            final raw = Map<String, dynamic>.from(d.data());
+            if (raw['sellerId'] != sellerId) continue;
+            list.add(FishListingModel.fromJson(raw));
+          } catch (e2) {
+            AppLogger.warning(
+                'streamListingsBySeller fallback: '
+                'dropping malformed doc ${d.id}: $e2');
+          }
+        }
+        list.sort((a, b) => _dateOrZero(b.createdAt)
+            .compareTo(_dateOrZero(a.createdAt)));
+        return list;
+      }).handleError((Object e2, StackTrace s2) {
+        AppLogger.error(
+            'streamListingsBySeller: unfiltered fallback also failed: $e2');
+        throw e;
+      });
     });
   }
 

@@ -55,6 +55,48 @@ class FishListingsScreen extends ConsumerWidget {
                   onRetry: () => ref.invalidate(activeListingsProvider),
                 ),
               ),
+              // Debug panel — shows the raw exception so a user can
+              // copy the Firestore index URL or permission rule that
+              // is blocking the read. Only visible when an error is
+              // being rendered; otherwise the empty/data branches
+              // take over and this card scrolls off-screen.
+              Card(
+                margin: const EdgeInsets.symmetric(
+                  horizontal: AppSizes.paddingLG,
+                  vertical: AppSizes.paddingMD,
+                ),
+                color: Colors.amber.shade50,
+                child: Padding(
+                  padding: const EdgeInsets.all(AppSizes.paddingMD),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: [
+                          Icon(Icons.bug_report_rounded,
+                              size: 18, color: Colors.brown.shade700),
+                          const SizedBox(width: 6),
+                          Text(
+                            'Debug detail',
+                            style: TextStyle(
+                              fontWeight: FontWeight.w700,
+                              color: Colors.brown.shade900,
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 8),
+                      SelectableText(
+                        error.toString(),
+                        style: const TextStyle(
+                          fontFamily: 'monospace',
+                          fontSize: 11,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
             ],
           ),
           data: (listings) {
