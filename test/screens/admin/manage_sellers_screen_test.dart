@@ -102,18 +102,48 @@ void main() {
   );
 
   testWidgets(
-    'Manage Sellers — sellers render with their names',
+    'Manage Sellers — pending seller renders by default',
+    (tester) async {
+      tester.view.physicalSize = const Size(900, 1800);
+      tester.view.devicePixelRatio = 2.0;
+      addTearDown(tester.view.resetPhysicalSize);
+
+      // The screen now opens on the 'pending' filter so admins see
+      // the queue of newly-registered sellers first. Mirror that
+      // here: one pending seller + one approved, both visible only
+      // after the user flips to 'all'.
+      final sellers = [
+        _seller(id: 's1', name: 'Asha Seller', email: 'asha@test.com',
+            approved: false),
+        _seller(id: 's2', name: 'Halima Seller', email: 'halima@test.com'),
+      ];
+
+      await tester.pumpWidget(_wrapWithSellers(sellers));
+      await tester.pumpAndSettle();
+
+      expect(find.text('Asha Seller'), findsOneWidget);
+      expect(find.text('Halima Seller'), findsNothing,
+          reason: 'Halima is approved; default filter is pending');
+    },
+  );
+
+  testWidgets(
+    'Manage Sellers — flipping to All shows both pending and approved',
     (tester) async {
       tester.view.physicalSize = const Size(900, 1800);
       tester.view.devicePixelRatio = 2.0;
       addTearDown(tester.view.resetPhysicalSize);
 
       final sellers = [
-        _seller(id: 's1', name: 'Asha Seller', email: 'asha@test.com'),
+        _seller(id: 's1', name: 'Asha Seller', email: 'asha@test.com',
+            approved: false),
         _seller(id: 's2', name: 'Halima Seller', email: 'halima@test.com'),
       ];
-
       await tester.pumpWidget(_wrapWithSellers(sellers));
+      await tester.pumpAndSettle();
+
+      // Tap the 'All' chip.
+      await tester.tap(find.text('All'));
       await tester.pumpAndSettle();
 
       expect(find.text('Asha Seller'), findsOneWidget);
@@ -122,17 +152,21 @@ void main() {
   );
 
   testWidgets(
-    'Manage Sellers — search bar filters by name',
+    'Manage Sellers — search bar filters by name on All chip',
     (tester) async {
       tester.view.physicalSize = const Size(900, 1800);
       tester.view.devicePixelRatio = 2.0;
       addTearDown(tester.view.resetPhysicalSize);
 
       final sellers = [
-        _seller(id: 's1', name: 'Asha Seller', email: 'asha@test.com'),
+        _seller(id: 's1', name: 'Asha Seller', email: 'asha@test.com',
+            approved: false),
         _seller(id: 's2', name: 'Halima Seller', email: 'halima@test.com'),
       ];
       await tester.pumpWidget(_wrapWithSellers(sellers));
+      await tester.pumpAndSettle();
+
+      await tester.tap(find.text('All'));
       await tester.pumpAndSettle();
 
       await tester.enterText(find.byType(TextField).first, 'Halima');
@@ -150,12 +184,16 @@ void main() {
       tester.view.devicePixelRatio = 2.0;
       addTearDown(tester.view.resetPhysicalSize);
 
+      // A suspended-but-still-pending seller: not approved AND not
+      // active. The default 'pending' filter (`!isApproved`)
+      // matches them, so they show up immediately.
       final sellers = [
         _seller(
           id: 's1',
           name: 'Suspended Salma',
           email: 'salma@test.com',
           active: false,
+          approved: false,
         ),
       ];
       await tester.pumpWidget(_wrapWithSellers(sellers));

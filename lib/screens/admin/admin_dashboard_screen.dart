@@ -99,6 +99,15 @@ class AdminDashboardScreen extends ConsumerWidget {
                     ),
                     const SizedBox(height: AppSizes.paddingMD),
                     _ActionTile(
+                      icon: Icons.storefront_rounded,
+                      title: l10n.manageStreetSellers,
+                      subtitle: l10n.manageStreetSellersSubtitle,
+                      onTap: () => context.push('/admin/sellers'),
+                      color: AppColors.primaryBlue,
+                      trailing: _PendingBadge(),
+                    ),
+                    const SizedBox(height: AppSizes.paddingMD),
+                    _ActionTile(
                       icon: Icons.list_alt_rounded,
                       title: l10n.allListings,
                       subtitle: l10n.adminAllListingsSubtitle,
@@ -530,6 +539,7 @@ class _ActionTile extends StatelessWidget {
   final String subtitle;
   final VoidCallback onTap;
   final Color color;
+  final Widget? trailing;
 
   const _ActionTile({
     required this.icon,
@@ -537,6 +547,7 @@ class _ActionTile extends StatelessWidget {
     required this.subtitle,
     required this.onTap,
     required this.color,
+    this.trailing,
   });
 
   @override
@@ -586,9 +597,45 @@ class _ActionTile extends StatelessWidget {
                 ],
               ),
             ),
+            if (trailing != null) ...[
+              trailing!,
+              const SizedBox(width: AppSizes.paddingSM),
+            ],
             Icon(Icons.chevron_right_rounded,
                 color: cs.onSurface.withValues(alpha: 0.45)),
           ],
+        ),
+      ),
+    );
+  }
+}
+/// Small badge rendered on the "Manage Sellers" tile. Reflects
+/// [adminPendingSellersCountProvider] — the live count of newly
+/// registered street sellers awaiting approval. Hidden when the
+/// count is zero so the dashboard stays clean.
+class _PendingBadge extends ConsumerWidget {
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final pendingAsync = ref.watch(adminPendingSellersCountProvider);
+    final count = pendingAsync.valueOrNull ?? 0;
+    if (count == 0) return const SizedBox.shrink();
+    return Container(
+      padding: const EdgeInsets.symmetric(
+        horizontal: AppSizes.paddingSM,
+        vertical: 4,
+      ),
+      decoration: BoxDecoration(
+        color: AppColors.accentOrange,
+        borderRadius: BorderRadius.circular(12),
+      ),
+      constraints: const BoxConstraints(minWidth: 22, minHeight: 22),
+      alignment: Alignment.center,
+      child: Text(
+        count > 99 ? '99+' : '$count',
+        style: const TextStyle(
+          color: AppColors.white,
+          fontSize: 12,
+          fontWeight: FontWeight.w800,
         ),
       ),
     );

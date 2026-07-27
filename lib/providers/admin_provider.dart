@@ -226,6 +226,26 @@ final adminAllSellersProvider = StreamProvider<List<UserModel>>((ref) {
   return service.streamAllSellersFull();
 });
 
+/// Live count of street sellers awaiting admin approval. Drives the
+/// badge on the admin dashboard's "Manage Sellers" tile so new
+/// registrations are visible the moment they happen.
+///
+/// Counts `role == 'streetSeller' AND isApproved == false AND
+/// isActive == true`. Suspended sellers are excluded so the badge
+/// reflects only sellers who are ready to be approved or rejected.
+final adminPendingSellersCountProvider = StreamProvider<int>((ref) {
+  return ref.watch(adminAllSellersProvider).when(
+        data: (sellers) {
+          final count = sellers
+              .where((s) => s.role.name == 'streetSeller' && !s.isApproved && s.isActive)
+              .length;
+          return Stream.value(count);
+        },
+        loading: () => Stream.value(0),
+        error: (_, __) => Stream.value(0),
+      );
+});
+
 final adminAllBuyersProvider = StreamProvider<List<UserModel>>((ref) {
   final service = ref.watch(adminUserServiceProvider);
   return service.streamAllBuyers();
