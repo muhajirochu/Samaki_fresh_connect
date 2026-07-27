@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:samakifresh_connect/models/order_model.dart';
 import '../../config/route_paths.dart';
 import '../../constants/app_sizes.dart';
 import '../../l10n/app_localizations.dart';
@@ -29,57 +28,107 @@ class MyOrdersScreen extends ConsumerWidget {
         foregroundColor: cs.onSurface,
         centerTitle: true,
       ),
-      body: userAsync.when(
-        loading: () => const LoadingIndicator(),
-        error: (e, _) => EmptyStateWidget(
-          icon: Icons.error_rounded,
-          title: l10n.failedToLoadUserData,
-          subtitle: e.toString(),
-        ),
-        data: (user) {
-          if (user == null) return const SizedBox.shrink();
-
-          // Select the right provider based on role
-          late final StreamProvider<List<OrderModel>> provider;
-          if (user.role.name == 'buyer') {
-            provider = buyerOrdersProvider(user.userId);
-          } else if (user.role.name == 'streetSeller') {
-            provider = streetSellerOrdersProvider(user.userId);
-          } else {
-            return EmptyStateWidget(
-              icon: Icons.receipt_long_rounded,
-              title: l10n.noOrdersYet,
-              subtitle: l10n.orderTrackingExplanation,
-            );
+      body: RefreshIndicator(
+        onRefresh: () async {
+          // Re-subscribe both buyer and seller streams so the
+          // combined list re-renders from scratch.
+          ref.invalidate(currentUserStreamProvider);
+          final user = ref.read(currentUserStreamProvider).valueOrNull;
+          if (user != null) {
+            ref.invalidate(ordersForUserProvider(user.userId));
           }
+          await Future<void>.delayed(const Duration(milliseconds: 400));
+        },
+        child: userAsync.when(
+          loading: () => ListView(
+            physics: const AlwaysScrollableScrollPhysics(),
+            children: const [
+              SizedBox(
+                height: 320,
+                child: LoadingIndicator(),
+              ),
+            ],
+          ),
+          error: (e, _) => ListView(
+            physics: const AlwaysScrollableScrollPhysics(),
+            padding: const EdgeInsets.all(AppSizes.paddingLG),
+            children: [
+              SizedBox(
+                height: 320,
+                child: EmptyStateWidget(
+                  icon: Icons.error_rounded,
+                  title: l10n.failedToLoadUserData,
+                  subtitle: e.toString(),
+                  onRetry: () => ref.invalidate(currentUserStreamProvider),
+                ),
+              ),
+            ],
+          ),
+          data: (user) {
+            if (user == null) {
+              return ListView(
+                physics: const AlwaysScrollableScrollPhysics(),
+                children: const [
+                  SizedBox(height: 320, child: SizedBox.shrink()),
+                ],
+              );
+            }
 
-          final ordersAsync = ref.watch(provider);
-
-          return ordersAsync.when(
-            loading: () =>
-                LoadingIndicator(message: l10n.loadingYourOrders),
-            error: (error, _) => EmptyStateWidget(
-              icon: Icons.error_outline_rounded,
-              title: l10n.failedToLoadOrders,
-              subtitle: error.toString(),
-              onRetry: () => ref.refresh(provider),
-            ),
-            data: (orders) {
-              if (orders.isEmpty) {
-                return EmptyStateWidget(
-                  icon: Icons.receipt_long_rounded,
-                  title: l10n.noOrdersFound,
-                  subtitle: l10n.noOrdersPrompt,
-                  onRetry: () => ref.refresh(provider),
-                );
-              }
-
-              return RefreshIndicator(
-                onRefresh: () async => ref.refresh(provider),
-                child: ListView.separated(
+            // A street seller who also buys from other sellers used
+            // to see "No Orders Found" because we filtered by role.
+            // ordersForUserProvider merges buyer-side + seller-side
+            // streams so the user sees every order they participate
+            // in regardless of which side they joined on.
+            final provider = ordersForUserProvider(user.userId);
+            final ordersAsync = ref.watch(provider);
+            return ordersAsync.when(
+              loading: () => ListView(
+                physics: const AlwaysScrollableScrollPhysics(),
+                children: [
+                  SizedBox(
+                    height: 320,
+                    child: LoadingIndicator(message: l10n.loadingYourOrders),
+                  ),
+                ],
+              ),
+              error: (error, _) => ListView(
+                physics: const AlwaysScrollableScrollPhysics(),
+                padding: const EdgeInsets.all(AppSizes.paddingLG),
+                children: [
+                  SizedBox(
+                    height: 320,
+                    child: EmptyStateWidget(
+                      icon: Icons.error_outline_rounded,
+                      title: l10n.failedToLoadOrders,
+                      subtitle: error.toString(),
+                      onRetry: () => ref.invalidate(provider),
+                    ),
+                  ),
+                ],
+              ),
+              data: (orders) {
+                if (orders.isEmpty) {
+                  return ListView(
+                    physics: const AlwaysScrollableScrollPhysics(),
+                    padding: const EdgeInsets.all(AppSizes.paddingLG),
+                    children: [
+                      SizedBox(
+                        height: 320,
+                        child: EmptyStateWidget(
+                          icon: Icons.receipt_long_rounded,
+                          title: l10n.noOrdersFound,
+                          subtitle: l10n.noOrdersPrompt,
+                          onRetry: () => ref.invalidate(provider),
+                        ),
+                      ),
+                    ],
+                  );
+                }
+                return ListView.separated(
+                  physics: const AlwaysScrollableScrollPhysics(),
                   padding: const EdgeInsets.all(AppSizes.paddingLG),
                   itemCount: orders.length,
-                  separatorBuilder: (context, index) =>
+                  separatorBuilder: (_, __) =>
                       const SizedBox(height: AppSizes.paddingMD),
                   itemBuilder: (context, index) {
                     final order = orders[index];
@@ -91,11 +140,11 @@ class MyOrdersScreen extends ConsumerWidget {
                       ),
                     );
                   },
-                ),
-              );
-            },
-          );
-        },
+                );
+              },
+            );
+          },
+        ),
       ),
     );
   }

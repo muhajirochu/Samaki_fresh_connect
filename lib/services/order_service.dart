@@ -34,7 +34,17 @@ class OrderService {
         .where('buyerId', isEqualTo: buyerId)
         .snapshots()
         .map((snap) {
-      final list = snap.docs.map((d) => OrderModel.fromJson(d.data())).toList();
+      final list = <OrderModel>[];
+      for (final d in snap.docs) {
+        try {
+          list.add(OrderModel.fromJson(d.data()));
+        } catch (e) {
+          // A malformed order doc must not kill the whole "My
+          // Orders" feed — drop it and keep the rest.
+          AppLogger.warning(
+              'streamOrdersByBuyer: dropping malformed doc ${d.id}: $e');
+        }
+      }
       list.sort((a, b) => b.createdAt.compareTo(a.createdAt));
       return list;
     });
@@ -48,7 +58,15 @@ class OrderService {
         .where('streetSellerId', isEqualTo: sellerId)
         .snapshots()
         .map((snap) {
-      final list = snap.docs.map((d) => OrderModel.fromJson(d.data())).toList();
+      final list = <OrderModel>[];
+      for (final d in snap.docs) {
+        try {
+          list.add(OrderModel.fromJson(d.data()));
+        } catch (e) {
+          AppLogger.warning(
+              'streamOrdersByStreetSeller: dropping malformed doc ${d.id}: $e');
+        }
+      }
       list.sort((a, b) => b.createdAt.compareTo(a.createdAt));
       return list;
     });
