@@ -120,6 +120,7 @@ class _SendRequestSheetState extends ConsumerState<SendRequestSheet> {
 
       if (mounted) {
         Navigator.of(context).pop();
+        final cs = Theme.of(context).colorScheme;
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(
@@ -130,7 +131,7 @@ class _SendRequestSheetState extends ConsumerState<SendRequestSheet> {
             behavior: SnackBarBehavior.floating,
             action: SnackBarAction(
               label: 'Ona',
-              textColor: Colors.white,
+              textColor: cs.onPrimary,
               onPressed: () {},
             ),
           ),
@@ -145,9 +146,10 @@ class _SendRequestSheetState extends ConsumerState<SendRequestSheet> {
   Widget build(BuildContext context) {
     final seller = widget.selectedSeller;
     final theme = Theme.of(context);
+    final cs = Theme.of(context).colorScheme;
 
     return Material(
-      color: AppColors.white,
+      color: cs.surface,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(
           top: Radius.circular(AppSizes.radiusXL),
@@ -173,7 +175,7 @@ class _SendRequestSheetState extends ConsumerState<SendRequestSheet> {
                     width: 40,
                     height: 4,
                     decoration: BoxDecoration(
-                      color: AppColors.gray300,
+                      color: cs.onSurface.withValues(alpha: 0.18),
                       borderRadius: BorderRadius.circular(2),
                     ),
                   ),
@@ -185,11 +187,10 @@ class _SendRequestSheetState extends ConsumerState<SendRequestSheet> {
                       width: 44,
                       height: 44,
                       decoration: BoxDecoration(
-                        color: AppColors.primaryBlue.withValues(alpha: 0.1),
+                        color: cs.primary.withValues(alpha: 0.10),
                         borderRadius: BorderRadius.circular(AppSizes.radiusMD),
                       ),
-                      child: const Icon(Icons.send_rounded,
-                          color: AppColors.primaryBlue),
+                      child: Icon(Icons.send_rounded, color: cs.primary),
                     ),
                     const SizedBox(width: AppSizes.paddingMD),
                     Expanded(
@@ -206,7 +207,7 @@ class _SendRequestSheetState extends ConsumerState<SendRequestSheet> {
                             Text(
                               'Kwa: ${seller.seller.fullName}',
                               style: theme.textTheme.bodySmall?.copyWith(
-                                color: AppColors.gray600,
+                                color: cs.onSurface.withValues(alpha: 0.70),
                               ),
                             ),
                         ],
@@ -221,7 +222,7 @@ class _SendRequestSheetState extends ConsumerState<SendRequestSheet> {
                   'Aina ya samaki',
                   style: theme.textTheme.bodyMedium?.copyWith(
                     fontWeight: FontWeight.w600,
-                    color: AppColors.gray700,
+                    color: cs.onSurface.withValues(alpha: 0.80),
                   ),
                 ),
                 const SizedBox(height: AppSizes.paddingXS),
@@ -230,7 +231,7 @@ class _SendRequestSheetState extends ConsumerState<SendRequestSheet> {
                   isExpanded: true,
                   decoration: InputDecoration(
                     filled: true,
-                    fillColor: AppColors.gray100,
+                    fillColor: cs.surfaceContainerHighest,
                     border: OutlineInputBorder(
                       borderRadius:
                           BorderRadius.circular(AppSizes.radiusMD),
@@ -259,7 +260,7 @@ class _SendRequestSheetState extends ConsumerState<SendRequestSheet> {
                     decoration: InputDecoration(
                       hintText: 'Andika jina la samaki',
                       filled: true,
-                      fillColor: AppColors.gray100,
+                      fillColor: cs.surfaceContainerHighest,
                       border: OutlineInputBorder(
                         borderRadius:
                             BorderRadius.circular(AppSizes.radiusMD),
@@ -279,7 +280,7 @@ class _SendRequestSheetState extends ConsumerState<SendRequestSheet> {
                       'Kiasi (kg)',
                       style: theme.textTheme.bodyMedium?.copyWith(
                         fontWeight: FontWeight.w600,
-                        color: AppColors.gray700,
+                        color: cs.onSurface.withValues(alpha: 0.80),
                       ),
                     ),
                     Container(
@@ -288,14 +289,14 @@ class _SendRequestSheetState extends ConsumerState<SendRequestSheet> {
                         vertical: 2,
                       ),
                       decoration: BoxDecoration(
-                        color: AppColors.primaryBlue.withValues(alpha: 0.1),
+                        color: cs.primary.withValues(alpha: 0.10),
                         borderRadius:
                             BorderRadius.circular(AppSizes.radiusSM),
                       ),
                       child: Text(
                         '${_quantityKg.toStringAsFixed(1)} kg',
-                        style: const TextStyle(
-                          color: AppColors.primaryBlue,
+                        style: TextStyle(
+                          color: cs.primary,
                           fontWeight: FontWeight.w700,
                         ),
                       ),
@@ -308,7 +309,7 @@ class _SendRequestSheetState extends ConsumerState<SendRequestSheet> {
                   max: 20.0,
                   divisions: 39,
                   label: '${_quantityKg.toStringAsFixed(1)} kg',
-                  activeColor: AppColors.primaryBlue,
+                  activeColor: cs.primary,
                   onChanged: (v) => setState(() => _quantityKg = v),
                 ),
                 Row(
@@ -326,7 +327,7 @@ class _SendRequestSheetState extends ConsumerState<SendRequestSheet> {
                         decoration: InputDecoration(
                           hintText: 'Weka kiasi',
                           filled: true,
-                          fillColor: AppColors.gray100,
+                          fillColor: cs.surfaceContainerHighest,
                           border: OutlineInputBorder(
                             borderRadius:
                                 BorderRadius.circular(AppSizes.radiusMD),
@@ -356,7 +357,7 @@ class _SendRequestSheetState extends ConsumerState<SendRequestSheet> {
                   'Maelezo mengine',
                   style: theme.textTheme.bodyMedium?.copyWith(
                     fontWeight: FontWeight.w600,
-                    color: AppColors.gray700,
+                    color: cs.onSurface.withValues(alpha: 0.80),
                   ),
                 ),
                 const SizedBox(height: AppSizes.paddingXS),
@@ -367,7 +368,7 @@ class _SendRequestSheetState extends ConsumerState<SendRequestSheet> {
                     hintText:
                         'Mfano: nataka fresh sana, nitalipia kesho asubuhi...',
                     filled: true,
-                    fillColor: AppColors.gray100,
+                    fillColor: cs.surfaceContainerHighest,
                     border: OutlineInputBorder(
                       borderRadius:
                           BorderRadius.circular(AppSizes.radiusMD),
@@ -385,12 +386,12 @@ class _SendRequestSheetState extends ConsumerState<SendRequestSheet> {
                   child: FilledButton.icon(
                     onPressed: _submitting ? null : _submit,
                     icon: _submitting
-                        ? const SizedBox(
+                        ? SizedBox(
                             width: 18,
                             height: 18,
                             child: CircularProgressIndicator(
                               strokeWidth: 2,
-                              color: Colors.white,
+                              color: cs.onPrimary,
                             ),
                           )
                         : const Icon(Icons.send_rounded),
@@ -398,7 +399,7 @@ class _SendRequestSheetState extends ConsumerState<SendRequestSheet> {
                         ? 'Inatuma...'
                         : 'Tuma Ombi'),
                     style: FilledButton.styleFrom(
-                      backgroundColor: AppColors.primaryBlue,
+                      backgroundColor: cs.primary,
                       shape: RoundedRectangleBorder(
                         borderRadius:
                             BorderRadius.circular(AppSizes.radiusLG),

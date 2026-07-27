@@ -21,7 +21,6 @@
 import 'package:flutter/material.dart';
 
 import '../../config/theme_extensions.dart';
-import '../../constants/app_colors.dart';
 import '../../constants/app_sizes.dart';
 
 /// Soft rounded surface card with a brand-tinted shadow. Use this for
@@ -61,9 +60,12 @@ class PremiumCard extends StatelessWidget {
         boxShadow: elevated
             ? [
                 BoxShadow(
+                  // Theme-aware shadow — slightly darker in dark mode
+                  // so the card reads as raised against the deep navy
+                  // background.
                   color: isDark
-                      ? Colors.black.withValues(alpha: 0.30)
-                      : Colors.black.withValues(alpha: 0.06),
+                      ? cs.shadow.withValues(alpha: 0.50)
+                      : cs.shadow.withValues(alpha: 0.10),
                   blurRadius: 18,
                   offset: const Offset(0, 8),
                 ),
@@ -117,6 +119,7 @@ class GlassCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final glass = GlassStyle.of(context);
+    final cs = Theme.of(context).colorScheme;
     final panel = Container(
       decoration: BoxDecoration(
         gradient: glass.highlight,
@@ -125,7 +128,9 @@ class GlassCard extends StatelessWidget {
         border: Border.all(color: glass.border, width: 0.8),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.18),
+            // Theme-aware shadow on glass card — slightly stronger so
+            // the frosted panel reads as elevated on either theme.
+            color: cs.shadow.withValues(alpha: 0.32),
             blurRadius: 24,
             offset: const Offset(0, 12),
           ),
@@ -228,19 +233,22 @@ class _GradientButtonState extends State<GradientButton> {
           child: InkWell(
             onTap: widget.isLoading ? null : widget.onPressed,
             borderRadius: radius,
-            splashColor: Colors.white.withValues(alpha: 0.10),
-            highlightColor: Colors.white.withValues(alpha: 0.06),
+            // Theme-aware splash/highlight (white-on-brand stays white,
+            // but read through onPrimary so a future theme override
+            // propagates here).
+            splashColor: cs.onPrimary.withValues(alpha: 0.10),
+            highlightColor: cs.onPrimary.withValues(alpha: 0.06),
             child: Center(
               child: Padding(
                 padding: widget.padding,
                 child: widget.isLoading
-                    ? const SizedBox(
+                    ? SizedBox(
                         width: 22,
                         height: 22,
                         child: CircularProgressIndicator(
                           strokeWidth: 2.4,
                           valueColor:
-                              AlwaysStoppedAnimation<Color>(Colors.white),
+                              AlwaysStoppedAnimation<Color>(cs.onPrimary),
                         ),
                       )
                     : Row(
@@ -251,7 +259,7 @@ class _GradientButtonState extends State<GradientButton> {
                         children: [
                           if (widget.prefixIcon != null) ...[
                             Icon(widget.prefixIcon,
-                                color: Colors.white, size: 20),
+                                color: cs.onPrimary, size: 20),
                             const SizedBox(width: AppSizes.paddingSM),
                           ],
                           Flexible(
@@ -260,8 +268,8 @@ class _GradientButtonState extends State<GradientButton> {
                               textAlign: TextAlign.center,
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis,
-                              style: const TextStyle(
-                                color: Colors.white,
+                              style: TextStyle(
+                                color: cs.onPrimary,
                                 fontSize: AppSizes.fontMD,
                                 fontWeight: FontWeight.w700,
                                 letterSpacing: 0.2,
@@ -725,7 +733,7 @@ class EmptyState extends StatelessWidget {
 class BannerHeader extends StatelessWidget {
   final String title;
   final String? subtitle;
-  final Gradient gradient;
+  final Gradient? gradient;
   final IconData? trailingIcon;
   final VoidCallback? onTrailingTap;
   final double height;
@@ -735,11 +743,7 @@ class BannerHeader extends StatelessWidget {
     super.key,
     required this.title,
     this.subtitle,
-    this.gradient = const LinearGradient(
-      begin: Alignment.topLeft,
-      end: Alignment.bottomRight,
-      colors: [AppColors.primaryBlue, AppColors.accentGreen],
-    ),
+    this.gradient,
     this.trailingIcon,
     this.onTrailingTap,
     this.height = 140,
@@ -748,17 +752,22 @@ class BannerHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    final gradients = AppGradients.of(context);
+    final brandGradient = gradient ?? gradients.brand;
+
     return Container(
       height: height,
       decoration: BoxDecoration(
-        gradient: gradient,
+        gradient: brandGradient,
         borderRadius: const BorderRadius.only(
           bottomLeft: Radius.circular(AppSizes.radiusXL),
           bottomRight: Radius.circular(AppSizes.radiusXL),
         ),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.20),
+            // Theme-aware shadow — reads correctly on either surface.
+            color: cs.shadow.withValues(alpha: 0.36),
             blurRadius: 18,
             offset: const Offset(0, 6),
           ),
@@ -777,8 +786,8 @@ class BannerHeader extends StatelessWidget {
                 shape: BoxShape.circle,
                 gradient: RadialGradient(
                   colors: [
-                    Colors.white.withValues(alpha: 0.18),
-                    Colors.white.withValues(alpha: 0),
+                    cs.onPrimary.withValues(alpha: 0.18),
+                    cs.onPrimary.withValues(alpha: 0),
                   ],
                 ),
               ),
@@ -795,8 +804,8 @@ class BannerHeader extends StatelessWidget {
                 shape: BoxShape.circle,
                 gradient: RadialGradient(
                   colors: [
-                    Colors.white.withValues(alpha: 0.10),
-                    Colors.white.withValues(alpha: 0),
+                    cs.onPrimary.withValues(alpha: 0.10),
+                    cs.onPrimary.withValues(alpha: 0),
                   ],
                 ),
               ),
@@ -820,8 +829,8 @@ class BannerHeader extends StatelessWidget {
                       children: [
                         Text(
                           title,
-                          style: const TextStyle(
-                            color: Colors.white,
+                          style: TextStyle(
+                            color: cs.onPrimary,
                             fontSize: AppSizes.fontXXL,
                             fontWeight: FontWeight.w800,
                             letterSpacing: -0.5,
@@ -833,7 +842,7 @@ class BannerHeader extends StatelessWidget {
                           Text(
                             subtitle!,
                             style: TextStyle(
-                              color: Colors.white.withValues(alpha: 0.85),
+                              color: cs.onPrimary.withValues(alpha: 0.85),
                               fontSize: AppSizes.fontSM,
                               height: 1.4,
                             ),
@@ -847,11 +856,11 @@ class BannerHeader extends StatelessWidget {
                   if (trailingIcon != null) ...[
                     const SizedBox(width: AppSizes.paddingSM),
                     Material(
-                      color: Colors.white.withValues(alpha: 0.18),
+                      color: cs.onPrimary.withValues(alpha: 0.18),
                       shape: const CircleBorder(),
                       child: IconButton(
                         onPressed: onTrailingTap,
-                        icon: Icon(trailingIcon, color: Colors.white),
+                        icon: Icon(trailingIcon, color: cs.onPrimary),
                       ),
                     ),
                   ],

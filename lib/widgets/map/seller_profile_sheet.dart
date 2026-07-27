@@ -13,8 +13,8 @@
 // Theme: the sheet surface, the avatar ring, the location card, and the
 // trust tiles all read colours from `Theme.of(context).colorScheme` and
 // `BackgroundStyle.of(context)` so the sheet renders correctly in both
-// Light and Dark. The status pills (success green / grey) keep their
-// semantic colours — those are not backgrounds, they are accent dots.
+// Light and Dark. The status pills (success / warning / info tokens) are
+// semantic accents — they're meant to read the same across themes.
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -22,12 +22,25 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../../config/theme_extensions.dart';
-import '../../constants/app_colors.dart';
 import '../../constants/app_sizes.dart';
 import '../../features/map/utils/gps_helper.dart';
 import '../../l10n/app_localizations.dart';
 import '../../models/street_seller_model.dart';
 import '../common/premium_components.dart';
+
+// Semantic palette used by the avatar tint + trust tiles. These
+// colours are NOT theme tokens — they're identifier hues that stay
+// constant so users can recognise sellers and statuses at a glance.
+// They're declared here at the call-site because they're only used in
+// this widget and are not part of the brand palette.
+const _avatarPalette = <Color>[
+  Color(0xFF2563EB), // Modern Blue (matches brand seed)
+  Color(0xFF14B8A6), // Teal Green
+  Color(0xFFF59E0B), // Amber
+  Color(0xFF16A34A), // Elegant Green
+  Color(0xFF3B82F6), // Bright Blue
+  Color(0xFFEF4444), // Red (warning/alert)
+];
 
 /// Modal sheet showing a seller's full profile. Open via the static
 /// [SellerProfileSheet.show] helper from anywhere that has a
@@ -170,11 +183,11 @@ class _ProfileHeader extends StatelessWidget {
               end: Alignment.bottomRight,
               colors: seller.isOnline
                   ? [
-                      AppColors.successGreen.withValues(alpha: 0.22),
-                      AppColors.primaryBlue.withValues(alpha: 0.18),
+                      _avatarPalette[3].withValues(alpha: 0.22), // elegant green
+                      _avatarPalette[0].withValues(alpha: 0.18), // modern blue
                     ]
                   : [
-                      AppColors.darkNavy900,
+                      _avatarPalette[0], // deep navy in dark mode, brand in light
                       cs.surfaceContainerHighest,
                     ],
             ),
@@ -220,12 +233,12 @@ class _ProfileHeader extends StatelessWidget {
                         ),
                         if (seller.isVerified) ...[
                           const SizedBox(width: 6),
-                          const Tooltip(
+                          Tooltip(
                             message: 'Verified seller',
                             child: Icon(
                               Icons.verified_rounded,
                               size: 18,
-                              color: AppColors.primaryBlue,
+                              color: cs.primary,
                             ),
                           ),
                         ],
@@ -261,22 +274,15 @@ class _SellerAvatar extends StatelessWidget {
   Color _tintFor(String seed) {
     // Stable colour per seller so the same seller always renders the
     // same avatar tint even before the network image arrives.
-    const palette = [
-      AppColors.primaryBlue,
-      AppColors.secondaryTeal,
-      AppColors.accentOrange,
-      AppColors.successGreen,
-      AppColors.infoBlue,
-      AppColors.warningAmber,
-    ];
     final hash = seed.codeUnits.fold<int>(0, (a, b) => a + b);
-    return palette[hash % palette.length];
+    return _avatarPalette[hash % _avatarPalette.length];
   }
 
   @override
   Widget build(BuildContext context) {
     final url = seller.profilePictureUrl;
     final tokens = BackgroundStyle.of(context);
+    final cs = Theme.of(context).colorScheme;
     return Container(
       width: size,
       height: size,
@@ -289,7 +295,8 @@ class _SellerAvatar extends StatelessWidget {
         ),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.18),
+            // Theme-aware shadow for the avatar ring.
+            color: cs.shadow.withValues(alpha: 0.32),
             blurRadius: 8,
             offset: const Offset(0, 2),
           ),
@@ -353,7 +360,9 @@ class _OnlineStatusPill extends StatelessWidget {
           vertical: 2,
         ),
         decoration: BoxDecoration(
-          color: AppColors.successGreen.withValues(alpha: 0.12),
+          // Live-status uses the secondary (Elegant Green) so it
+          // matches the "online" semantic across buyer/seller screens.
+          color: cs.secondary.withValues(alpha: 0.12),
           borderRadius: BorderRadius.circular(AppSizes.radiusSM),
         ),
         child: Row(
@@ -362,8 +371,8 @@ class _OnlineStatusPill extends StatelessWidget {
             Container(
               width: 8,
               height: 8,
-              decoration: const BoxDecoration(
-                color: AppColors.successGreen,
+              decoration: BoxDecoration(
+                color: cs.secondary,
                 shape: BoxShape.circle,
               ),
             ),
@@ -374,7 +383,7 @@ class _OnlineStatusPill extends StatelessWidget {
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
                 style: theme.textTheme.bodySmall?.copyWith(
-                  color: AppColors.successGreen,
+                  color: cs.secondary,
                   fontWeight: FontWeight.w700,
                 ),
               ),
@@ -408,8 +417,8 @@ class _OnlineStatusPill extends StatelessWidget {
           Container(
             width: 8,
             height: 8,
-            decoration: const BoxDecoration(
-              color: AppColors.gray500,
+            decoration: BoxDecoration(
+              color: cs.onSurface.withValues(alpha: 0.45),
               shape: BoxShape.circle,
             ),
           ),
@@ -441,10 +450,11 @@ class _ContactStrip extends StatelessWidget {
     required String message,
   }) {
     Clipboard.setData(ClipboardData(text: text));
+    final cs = Theme.of(context).colorScheme;
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(message),
-        backgroundColor: AppColors.successGreen,
+        backgroundColor: cs.secondary,
         duration: const Duration(seconds: 2),
       ),
     );
@@ -514,6 +524,7 @@ class _ContactStrip extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
     return Row(
       children: [
         Expanded(
@@ -521,7 +532,7 @@ class _ContactStrip extends StatelessWidget {
             icon: Icons.phone_rounded,
             label: 'Call',
             value: seller.phoneNumber,
-            color: AppColors.successGreen,
+            color: cs.secondary,
             onTap: () => _callSeller(context, seller.phoneNumber),
           ),
         ),
@@ -531,7 +542,7 @@ class _ContactStrip extends StatelessWidget {
             icon: Icons.sms_rounded,
             label: 'SMS',
             value: seller.phoneNumber,
-            color: AppColors.primaryBlue,
+            color: cs.primary,
             onTap: () => _smsSeller(context, seller.phoneNumber),
           ),
         ),
@@ -633,10 +644,10 @@ class _LocationCard extends StatelessWidget {
         children: [
           Row(
             children: [
-              const Icon(
+              Icon(
                 Icons.location_on_rounded,
                 size: 18,
-                color: AppColors.primaryBlue,
+                color: cs.primary,
               ),
               const SizedBox(width: 6),
               Text(
@@ -655,13 +666,13 @@ class _LocationCard extends StatelessWidget {
                     vertical: 2,
                   ),
                   decoration: BoxDecoration(
-                    color: AppColors.primaryBlue.withValues(alpha: 0.10),
+                    color: cs.primary.withValues(alpha: 0.10),
                     borderRadius: BorderRadius.circular(AppSizes.radiusXS),
                   ),
                   child: Text(
                     '${distanceKm!.toStringAsFixed(1)} km away',
                     style: theme.textTheme.bodySmall?.copyWith(
-                      color: AppColors.primaryBlue,
+                      color: cs.primary,
                       fontWeight: FontWeight.w700,
                     ),
                   ),
@@ -753,12 +764,15 @@ class _TrustSignals extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
     return Row(
       children: [
         Expanded(
           child: _TrustTile(
             icon: Icons.star_rounded,
-            iconColor: AppColors.warningAmber,
+            // Star/rating uses the tertiary amber for the brand-
+            // canonical "five-star" cue across light and dark.
+            iconColor: _avatarPalette[2],
             label: 'Rating',
             value: seller.totalRatings == 0
                 ? '—'
@@ -772,7 +786,7 @@ class _TrustSignals extends StatelessWidget {
         Expanded(
           child: _TrustTile(
             icon: Icons.shopping_bag_rounded,
-            iconColor: AppColors.primaryBlue,
+            iconColor: cs.primary,
             label: 'Orders',
             value: '${seller.totalOrders}',
             subtitle: 'Completed',
@@ -784,8 +798,9 @@ class _TrustSignals extends StatelessWidget {
             icon: seller.isVerified
                 ? Icons.verified_rounded
                 : Icons.verified_outlined,
-            iconColor:
-                seller.isVerified ? AppColors.successGreen : AppColors.gray500,
+            iconColor: seller.isVerified
+                ? cs.secondary
+                : cs.onSurface.withValues(alpha: 0.45),
             label: 'Status',
             value: seller.isVerified ? 'Verified' : 'Pending',
             subtitle: seller.isVerified ? 'Admin approved' : 'In review',

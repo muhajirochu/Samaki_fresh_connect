@@ -19,7 +19,6 @@ import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
 import '../../config/theme_extensions.dart';
-import '../../constants/app_colors.dart';
 import '../../constants/app_sizes.dart';
 import '../../l10n/app_localizations.dart';
 import '../../providers/admin_provider.dart';
@@ -35,6 +34,7 @@ class AdminDashboardScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context);
     final userAsync = ref.watch(currentUserStreamProvider);
+    final cs = Theme.of(context).colorScheme;
 
     return Scaffold(
       backgroundColor: Theme.of(context).scaffoldBackgroundColor,
@@ -95,7 +95,7 @@ class AdminDashboardScreen extends ConsumerWidget {
                       title: l10n.manageBuyers,
                       subtitle: l10n.manageBuyersSubtitle,
                       onTap: () => context.push('/admin/buyers'),
-                      color: AppColors.accentGreen,
+                      color: cs.secondary,
                     ),
                     const SizedBox(height: AppSizes.paddingMD),
                     _ActionTile(
@@ -103,7 +103,7 @@ class AdminDashboardScreen extends ConsumerWidget {
                       title: l10n.manageStreetSellers,
                       subtitle: l10n.manageStreetSellersSubtitle,
                       onTap: () => context.push('/admin/sellers'),
-                      color: AppColors.primaryBlue,
+                      color: cs.primary,
                       trailing: _PendingBadge(),
                     ),
                     const SizedBox(height: AppSizes.paddingMD),
@@ -112,7 +112,7 @@ class AdminDashboardScreen extends ConsumerWidget {
                       title: l10n.allListings,
                       subtitle: l10n.adminAllListingsSubtitle,
                       onTap: () => context.push('/admin/listings'),
-                      color: AppColors.secondaryTeal,
+                      color: cs.tertiary,
                     ),
                     const SizedBox(height: AppSizes.paddingMD),
                     _ActionTile(
@@ -120,7 +120,7 @@ class AdminDashboardScreen extends ConsumerWidget {
                       title: l10n.transactionsTitle,
                       subtitle: l10n.transactionsScreenSubtitle,
                       onTap: () => context.push('/admin/transactions'),
-                      color: AppColors.successGreen,
+                      color: cs.secondary,
                     ),
                     const SizedBox(height: AppSizes.paddingMD),
                     _ActionTile(
@@ -128,7 +128,7 @@ class AdminDashboardScreen extends ConsumerWidget {
                       title: l10n.reportsTab,
                       subtitle: l10n.reportsSales,
                       onTap: () => context.push('/admin/reports'),
-                      color: AppColors.primaryBlue,
+                      color: cs.primary,
                     ),
                     const SizedBox(height: AppSizes.paddingMD),
                     _ActionTile(
@@ -136,7 +136,7 @@ class AdminDashboardScreen extends ConsumerWidget {
                       title: l10n.logsTitle,
                       subtitle: l10n.logsSubtitle,
                       onTap: () => context.push('/admin/logs'),
-                      color: AppColors.accentOrange,
+                      color: cs.tertiary,
                     ),
                     const SizedBox(height: AppSizes.paddingMD),
                   ]),
@@ -241,8 +241,8 @@ class _AdminGreetingHeader extends StatelessWidget {
                 shape: BoxShape.circle,
                 gradient: RadialGradient(
                   colors: [
-                    Colors.white.withValues(alpha: 0.18),
-                    Colors.white.withValues(alpha: 0),
+                    cs.onPrimary.withValues(alpha: 0.18),
+                    cs.onPrimary.withValues(alpha: 0),
                   ],
                 ),
               ),
@@ -310,7 +310,7 @@ class _TotalSellersCard extends ConsumerWidget {
       title: l10n.totalSellers,
       value: count.toString(),
       icon: Icons.storefront_rounded,
-      color: AppColors.primaryBlue,
+      color: Theme.of(context).colorScheme.primary,
     );
   }
 }
@@ -324,7 +324,7 @@ class _TotalBuyersCard extends ConsumerWidget {
       title: l10n.totalBuyers,
       value: count.toString(),
       icon: Icons.shopping_bag_rounded,
-      color: AppColors.accentGreen,
+      color: Theme.of(context).colorScheme.secondary,
     );
   }
 }
@@ -338,7 +338,7 @@ class _TotalListingsCard extends ConsumerWidget {
       title: l10n.totalListings,
       value: count.toString(),
       icon: Icons.inventory_2_rounded,
-      color: AppColors.secondaryTeal,
+      color: Theme.of(context).colorScheme.tertiary,
     );
   }
 }
@@ -352,7 +352,7 @@ class _ActiveListingsCard extends ConsumerWidget {
       title: l10n.activeListings,
       value: count.toString(),
       icon: Icons.check_circle_rounded,
-      color: AppColors.infoBlue,
+      color: Theme.of(context).colorScheme.primary,
     );
   }
 }
@@ -470,7 +470,7 @@ class _RecentActivityStrip extends ConsumerWidget {
                   ListTile(
                     dense: true,
                     leading: Icon(_iconForType(log.type),
-                        color: _colorForType(log.type)),
+                        color: _colorForType(log.type, cs)),
                     title: Text(log.title,
                         style: tt.bodyMedium
                             ?.copyWith(fontWeight: FontWeight.w600)),
@@ -515,18 +515,18 @@ class _RecentActivityStrip extends ConsumerWidget {
     }
   }
 
-  Color _colorForType(String type) {
+  Color _colorForType(String type, ColorScheme cs) {
     switch (type) {
       case 'login':
-        return AppColors.primaryBlue;
+        return cs.primary;
       case 'registration':
-        return AppColors.accentGreen;
+        return cs.secondary;
       case 'adminAction':
-        return AppColors.accentOrange;
+        return cs.tertiary;
       case 'disputeResolution':
-        return AppColors.errorRed;
+        return cs.error;
       default:
-        return AppColors.primaryBlue;
+        return cs.primary;
     }
   }
 }
@@ -619,21 +619,25 @@ class _PendingBadge extends ConsumerWidget {
     final pendingAsync = ref.watch(adminPendingSellersCountProvider);
     final count = pendingAsync.valueOrNull ?? 0;
     if (count == 0) return const SizedBox.shrink();
+    final cs = Theme.of(context).colorScheme;
     return Container(
       padding: const EdgeInsets.symmetric(
         horizontal: AppSizes.paddingSM,
         vertical: 4,
       ),
       decoration: BoxDecoration(
-        color: AppColors.accentOrange,
+        // Pending badge uses tertiary (warning amber on light, teal on
+        // dark) so it stands out against the secondary-tile icons
+        // around it without inheriting the primary accent.
+        color: cs.tertiary,
         borderRadius: BorderRadius.circular(12),
       ),
       constraints: const BoxConstraints(minWidth: 22, minHeight: 22),
       alignment: Alignment.center,
       child: Text(
         count > 99 ? '99+' : '$count',
-        style: const TextStyle(
-          color: AppColors.white,
+        style: TextStyle(
+          color: cs.onTertiary,
           fontSize: 12,
           fontWeight: FontWeight.w800,
         ),

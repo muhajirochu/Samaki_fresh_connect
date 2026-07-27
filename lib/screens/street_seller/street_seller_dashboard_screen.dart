@@ -13,7 +13,6 @@ import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
-import '../../constants/app_colors.dart';
 import '../../constants/app_sizes.dart';
 import '../../config/route_paths.dart';
 import '../../config/theme_extensions.dart';
@@ -37,6 +36,7 @@ class StreetSellerDashboardScreen extends ConsumerWidget {
     ref.watch(sellerMirrorBootstrapProvider);
 
     final l10n = AppLocalizations.of(context);
+    final cs = Theme.of(context).colorScheme;
 
     final userAsync = ref.watch(currentUserStreamProvider);
     final listingsAsync = userAsync.maybeWhen(
@@ -93,7 +93,7 @@ class StreetSellerDashboardScreen extends ConsumerWidget {
                           value:
                               '${activeListings.where((l) => l.status == 'active').length}',
                           icon: Icons.inventory_2_rounded,
-                          accent: AppColors.primaryBlue,
+                          accent: cs.primary,
                         ),
                       ),
                       const SizedBox(width: AppSizes.paddingMD),
@@ -102,7 +102,7 @@ class StreetSellerDashboardScreen extends ConsumerWidget {
                           title: l10n.totalStock,
                           value: Formatters.formatQuantity(totalStockKg),
                           icon: Icons.scale_rounded,
-                          accent: AppColors.accentGreen,
+                          accent: cs.secondary,
                         ),
                       ),
                     ],
@@ -142,7 +142,7 @@ class StreetSellerDashboardScreen extends ConsumerWidget {
                       title: l10n.buyStock,
                       subtitle: l10n.buyStockSubtitle,
                       icon: Icons.shopping_cart_rounded,
-                      accent: AppColors.primaryBlue,
+                      accent: cs.primary,
                       onTap: () =>
                           context.pushNamed(AppRouteNames.listings),
                     ),
@@ -150,7 +150,7 @@ class StreetSellerDashboardScreen extends ConsumerWidget {
                       title: l10n.myOrders,
                       subtitle: l10n.myOrdersSubtitle,
                       icon: Icons.receipt_long_rounded,
-                      accent: AppColors.infoBlue,
+                      accent: cs.tertiary,
                       onTap: () =>
                           context.pushNamed(AppRouteNames.orders),
                     ),
@@ -158,7 +158,7 @@ class StreetSellerDashboardScreen extends ConsumerWidget {
                       title: l10n.sellStock,
                       subtitle: l10n.sellStockSubtitle,
                       icon: Icons.add_business_rounded,
-                      accent: AppColors.accentGreen,
+                      accent: cs.secondary,
                       onTap: () =>
                           context.pushNamed(AppRouteNames.listingsCreate),
                     ),
@@ -166,7 +166,7 @@ class StreetSellerDashboardScreen extends ConsumerWidget {
                       title: l10n.myListings,
                       subtitle: l10n.myListingsSubtitle,
                       icon: Icons.format_list_bulleted_rounded,
-                      accent: AppColors.primaryBlue,
+                      accent: cs.primary,
                       onTap: () =>
                           context.pushNamed(AppRouteNames.listingsMine),
                     ),
@@ -182,8 +182,8 @@ class StreetSellerDashboardScreen extends ConsumerWidget {
       ),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () => context.pushNamed(AppRouteNames.listingsCreate),
-        backgroundColor: AppColors.primaryBlue,
-        foregroundColor: Theme.of(context).colorScheme.onPrimary,
+        backgroundColor: cs.primary,
+        foregroundColor: cs.onPrimary,
         elevation: 4,
         icon: const Icon(Icons.add_rounded),
         label: Text(l10n.sellStock,
@@ -368,6 +368,7 @@ class _OnlineToggleButton extends ConsumerWidget {
     final tracker = ref.watch(sellerLocationTrackerProvider);
     final isOnline = status == SellerTrackerStatus.online;
     final isBusy = status == SellerTrackerStatus.waitingForPermission;
+    final cs = Theme.of(context).colorScheme;
 
     final (label, icon) = switch (status) {
       SellerTrackerStatus.online => (
@@ -392,8 +393,8 @@ class _OnlineToggleButton extends ConsumerWidget {
       padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 8),
       child: Material(
         color: isOnline
-            ? AppColors.accentGreen
-            : Colors.white.withValues(alpha: 0.18),
+            ? cs.secondary
+            : cs.onPrimary.withValues(alpha: 0.18),
         borderRadius: BorderRadius.circular(20),
         child: InkWell(
           borderRadius: BorderRadius.circular(20),
@@ -421,7 +422,7 @@ class _OnlineToggleButton extends ConsumerWidget {
                           content: Text(
                             tracker.errorMessage ?? l10n.callFailed,
                           ),
-                          backgroundColor: AppColors.errorRed,
+                          backgroundColor: cs.error,
                           behavior: SnackBarBehavior.floating,
                         ),
                       );
@@ -429,7 +430,7 @@ class _OnlineToggleButton extends ConsumerWidget {
                       messenger.showSnackBar(
                         SnackBar(
                           content: Text(l10n.youAreNowOnline),
-                          backgroundColor: AppColors.accentGreen,
+                          backgroundColor: cs.secondary,
                           behavior: SnackBarBehavior.floating,
                         ),
                       );
@@ -445,12 +446,12 @@ class _OnlineToggleButton extends ConsumerWidget {
                 if (isOnline)
                   const _PulsingDot()
                 else
-                  Icon(icon, color: Colors.white, size: 14),
+                  Icon(icon, color: cs.onPrimary, size: 14),
                 const SizedBox(width: 6),
                 Text(
                   label,
-                  style: const TextStyle(
-                    color: Colors.white,
+                  style: TextStyle(
+                    color: cs.onPrimary,
                     fontWeight: FontWeight.w700,
                     fontSize: 12,
                   ),
@@ -538,6 +539,7 @@ class _SellerGreetingHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
     return Container(
       decoration: BoxDecoration(
         gradient: AppGradients.of(context).brand,
@@ -547,10 +549,7 @@ class _SellerGreetingHeader extends StatelessWidget {
         ),
         boxShadow: [
           BoxShadow(
-            color: Theme.of(context)
-                .colorScheme
-                .primary
-                .withValues(alpha: 0.20),
+            color: cs.primary.withValues(alpha: 0.20),
             blurRadius: 18,
             offset: const Offset(0, 8),
           ),
@@ -569,8 +568,8 @@ class _SellerGreetingHeader extends StatelessWidget {
                 shape: BoxShape.circle,
                 gradient: RadialGradient(
                   colors: [
-                    Colors.white.withValues(alpha: 0.18),
-                    Colors.white.withValues(alpha: 0),
+                    cs.onPrimary.withValues(alpha: 0.18),
+                    cs.onPrimary.withValues(alpha: 0),
                   ],
                 ),
               ),
@@ -587,8 +586,8 @@ class _SellerGreetingHeader extends StatelessWidget {
                 shape: BoxShape.circle,
                 gradient: RadialGradient(
                   colors: [
-                    Colors.white.withValues(alpha: 0.10),
-                    Colors.white.withValues(alpha: 0),
+                    cs.onPrimary.withValues(alpha: 0.10),
+                    cs.onPrimary.withValues(alpha: 0),
                   ],
                 ),
               ),
@@ -608,8 +607,8 @@ class _SellerGreetingHeader extends StatelessWidget {
                 Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Icon(Icons.storefront_rounded,
-                        color: Colors.white, size: 28),
+                    Icon(Icons.storefront_rounded,
+                        color: cs.onPrimary, size: 28),
                     const SizedBox(width: 10),
                     Expanded(
                       child: Text(
@@ -617,8 +616,8 @@ class _SellerGreetingHeader extends StatelessWidget {
                         maxLines: 2,
                         softWrap: true,
                         overflow: TextOverflow.ellipsis,
-                        style: const TextStyle(
-                          color: Colors.white,
+                        style: TextStyle(
+                          color: cs.onPrimary,
                           fontSize: 22,
                           fontWeight: FontWeight.w700,
                           letterSpacing: -0.3,
@@ -632,7 +631,7 @@ class _SellerGreetingHeader extends StatelessWidget {
                 Text(
                   subtitle,
                   style: TextStyle(
-                    color: Colors.white.withValues(alpha: 0.85),
+                    color: cs.onPrimary.withValues(alpha: 0.85),
                     fontSize: 14,
                   ),
                 ),

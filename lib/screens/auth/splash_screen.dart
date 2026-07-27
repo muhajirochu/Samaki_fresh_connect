@@ -5,6 +5,17 @@ import '../../constants/app_colors.dart';
 import '../../providers/auth_provider.dart';
 import '../../widgets/common/app_logo.dart';
 
+// Splash-specific brand colours. Read at build-time so they survive
+// even before `Theme.of(context)` is fully resolved (the route
+// handler resolves the splash with a minimal `MaterialApp`).
+const _splashBackground = Color(0xFF0B1220);          // deep navy
+const _splashMid = Color(0xFF001E45);                 // mid navy
+const _splashNear = Color(0xFF003567);                // near-blue
+const _splashHalo = Color(0xFF3B82F6);                // bright blue halo
+const _splashHaloDeep = Color(0xFF2563EB);            // brand blue
+const _splashBrandTextTint = Color(0xFFAADFFF);       // cyan tint
+const _splashChipTint = Color(0xFF7DD3FC);            // light cyan
+
 /// Premium brand splash for Samaki Fresh Connect.
 ///
 /// Lightweight version: previously this screen ran three simultaneous
@@ -85,16 +96,16 @@ class _SplashScreenState extends ConsumerState<SplashScreen>
     final double haloSize = iconSize * 1.9;
 
     return Scaffold(
-      backgroundColor: AppColors.darkNavy900,
+      backgroundColor: _splashBackground,
       body: DecoratedBox(
         decoration: const BoxDecoration(
           gradient: RadialGradient(
             center: Alignment(0.0, -0.3),
             radius: 1.4,
             colors: [
-              Color(0xFF003567),
-              Color(0xFF001E45),
-              AppColors.darkNavy900,
+              _splashNear,
+              _splashMid,
+              _splashBackground,
             ],
           ),
         ),
@@ -121,9 +132,9 @@ class _SplashScreenState extends ConsumerState<SplashScreen>
                         shape: BoxShape.circle,
                         gradient: RadialGradient(
                           colors: [
-                            AppColors.primaryBrightBlue
+                            _splashHalo
                                 .withValues(alpha: 0.10 + t * 0.10),
-                            AppColors.primaryBlue
+                            _splashHaloDeep
                                 .withValues(alpha: t * 0.10),
                             Colors.transparent,
                           ],
@@ -165,7 +176,7 @@ class _BrandName extends StatelessWidget {
       shaderCallback: (r) => const LinearGradient(
         begin: Alignment.topLeft,
         end: Alignment.bottomRight,
-        colors: [AppColors.white, Color(0xFFAADFFF)],
+        colors: [AppColors.white, _splashBrandTextTint],
       ).createShader(r),
       blendMode: BlendMode.srcIn,
       child: const Text(
@@ -213,7 +224,7 @@ class _Chip extends StatelessWidget {
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
-        Icon(icon, size: 12, color: const Color(0xFF7DD3FC)),
+        Icon(icon, size: 12, color: _splashChipTint),
         const SizedBox(width: 4),
         Text(
           label,

@@ -13,7 +13,6 @@
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
-import '../../constants/app_colors.dart';
 import '../../constants/app_sizes.dart';
 import '../../l10n/app_localizations.dart';
 import '../../models/order_model.dart';
@@ -153,7 +152,7 @@ class _MetricRow extends StatelessWidget {
           ),
           Text(_formatRevenue(revenue),
               style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                    color: AppColors.accentGreen,
+                    color: Theme.of(context).colorScheme.secondary,
                     fontWeight: FontWeight.w800,
                   )),
         ],
@@ -285,20 +284,21 @@ class _SellersTab extends ConsumerWidget {
           const SizedBox(height: AppSizes.paddingSM),
       itemBuilder: (_, i) {
         final s = top[i];
+        final cs = Theme.of(context).colorScheme;
         return ListTile(
           leading: CircleAvatar(
-            backgroundColor: AppColors.primaryBlue.withValues(alpha: 0.15),
+            backgroundColor: cs.primary.withValues(alpha: 0.15),
             child: Text('#${i + 1}',
-                style: const TextStyle(
-                  color: AppColors.primaryBlue,
+                style: TextStyle(
+                  color: cs.primary,
                   fontWeight: FontWeight.w800,
                 )),
           ),
           title: Text(s.fullName),
           subtitle: Text(s.email),
           trailing: Text(_formatRevenue(s.totalSales),
-              style: const TextStyle(
-                color: AppColors.accentGreen,
+              style: TextStyle(
+                color: cs.secondary,
                 fontWeight: FontWeight.w800,
               )),
         );
@@ -338,12 +338,13 @@ class _BuyersTab extends ConsumerWidget {
       itemBuilder: (_, i) {
         final b = top[i];
         final count = byBuyer[b.userId] ?? 0;
+        final cs = Theme.of(context).colorScheme;
         return ListTile(
           leading: CircleAvatar(
-            backgroundColor: AppColors.accentGreen.withValues(alpha: 0.15),
+            backgroundColor: cs.secondary.withValues(alpha: 0.15),
             child: Text('#${i + 1}',
-                style: const TextStyle(
-                  color: AppColors.accentGreen,
+                style: TextStyle(
+                  color: cs.secondary,
                   fontWeight: FontWeight.w800,
                 )),
           ),
@@ -437,7 +438,7 @@ class _TotalOrdersCard extends ConsumerWidget {
       title: l10n.totalOrders,
       value: count.toString(),
       icon: Icons.receipt_long_rounded,
-      color: AppColors.primaryBlue,
+      color: Theme.of(context).colorScheme.primary,
     );
   }
 }
@@ -451,7 +452,7 @@ class _PendingOrdersCard extends ConsumerWidget {
       title: l10n.pendingOrders,
       value: count.toString(),
       icon: Icons.hourglass_top_rounded,
-      color: AppColors.accentOrange,
+      color: Theme.of(context).colorScheme.tertiary,
     );
   }
 }
@@ -465,7 +466,7 @@ class _CompletedOrdersCard extends ConsumerWidget {
       title: l10n.completedOrders,
       value: count.toString(),
       icon: Icons.check_circle_rounded,
-      color: AppColors.accentGreen,
+      color: Theme.of(context).colorScheme.secondary,
     );
   }
 }
@@ -479,7 +480,7 @@ class _CancelledOrdersCard extends ConsumerWidget {
       title: l10n.cancelledOrders,
       value: count.toString(),
       icon: Icons.cancel_rounded,
-      color: AppColors.errorRed,
+      color: Theme.of(context).colorScheme.error,
     );
   }
 }
@@ -496,7 +497,7 @@ class _DailySalesCard extends ConsumerWidget {
       title: l10n.dailySales,
       value: 'TZS ${(revenue / 1000).toStringAsFixed(0)}K',
       icon: Icons.today_rounded,
-      color: AppColors.successGreen,
+      color: Theme.of(context).colorScheme.secondary,
     );
   }
 }
@@ -513,7 +514,7 @@ class _WeeklySalesCard extends ConsumerWidget {
       title: l10n.weeklySales,
       value: 'TZS ${(revenue / 1000).toStringAsFixed(0)}K',
       icon: Icons.date_range_rounded,
-      color: AppColors.primaryBlue,
+      color: Theme.of(context).colorScheme.primary,
     );
   }
 }
@@ -530,7 +531,7 @@ class _MonthlySalesCard extends ConsumerWidget {
       title: l10n.monthlySales,
       value: 'TZS ${(revenue / 1000).toStringAsFixed(0)}K',
       icon: Icons.calendar_month_rounded,
-      color: AppColors.accentOrange,
+      color: Theme.of(context).colorScheme.tertiary,
     );
   }
 }
@@ -544,7 +545,7 @@ class _PlatformRevenueCard extends ConsumerWidget {
       title: l10n.platformRevenue,
       value: 'TZS ${(revenue / 1000).toStringAsFixed(0)}K',
       icon: Icons.account_balance_rounded,
-      color: AppColors.accentGreen,
+      color: Theme.of(context).colorScheme.secondary,
     );
   }
 }

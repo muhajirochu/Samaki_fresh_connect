@@ -4,7 +4,6 @@ import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import '../../config/theme_extensions.dart';
-import '../../constants/app_colors.dart';
 import '../../l10n/app_localizations.dart';
 import '../../utils/validators.dart';
 import '../../utils/error_handler.dart';
@@ -38,6 +37,12 @@ class DemoAccount {
 // Demo accounts shown on the login screen as quick-fill buttons.
 // Street seller demo accounts were intentionally removed — real
 // sellers must register themselves through the registration flow.
+//
+// The accent colours are intentionally NOT theme tokens — they're
+// role identifiers that should look the same regardless of light/dark
+// mode (green = buyer, red = admin) so users can spot the role at a
+// glance. The values are kept here at the call-site instead of in
+// AppColors because they're only meaningful on the login screen.
 const List<DemoAccount> demoAccounts = [
   DemoAccount(
     email: 'buyer@samakifresh.com',
@@ -123,7 +128,9 @@ class _HeroHeader extends StatelessWidget {
         ),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.18),
+            // Theme-aware shadow — slightly stronger in dark mode so
+            // the gradient header reads as elevated on either theme.
+            color: cs.shadow.withValues(alpha: 0.32),
             blurRadius: 18,
             offset: const Offset(0, 8),
           ),
@@ -149,7 +156,7 @@ class _HeroHeader extends StatelessWidget {
                       Text(
                         'SamakiFresh',
                         style: tt.titleLarge?.copyWith(
-                          color: AppColors.white,
+                          color: cs.onPrimary,
                           fontWeight: FontWeight.w800,
                           letterSpacing: -0.3,
                         ),
@@ -157,7 +164,7 @@ class _HeroHeader extends StatelessWidget {
                       Text(
                         'CONNECT',
                         style: tt.bodySmall?.copyWith(
-                          color: AppColors.white.withValues(alpha: 0.75),
+                          color: cs.onPrimary.withValues(alpha: 0.75),
                           fontWeight: FontWeight.w300,
                           letterSpacing: 3,
                         ),
@@ -179,7 +186,7 @@ class _HeroHeader extends StatelessWidget {
                     Text(
                       'Welcome back',
                       style: tt.headlineSmall?.copyWith(
-                        color: AppColors.white,
+                        color: cs.onPrimary,
                         fontWeight: FontWeight.w700,
                         letterSpacing: -0.5,
                       ),
@@ -188,7 +195,7 @@ class _HeroHeader extends StatelessWidget {
                     Text(
                       'Sign in to continue to your dashboard',
                       style: tt.bodyMedium?.copyWith(
-                        color: AppColors.white.withValues(alpha: 0.80),
+                        color: cs.onPrimary.withValues(alpha: 0.80),
                       ),
                     ),
                   ],
@@ -201,7 +208,7 @@ class _HeroHeader extends StatelessWidget {
               margin: const EdgeInsets.symmetric(horizontal: 24),
               padding: const EdgeInsets.all(4),
               decoration: BoxDecoration(
-                color: AppColors.white.withValues(alpha: 0.15),
+                color: cs.onPrimary.withValues(alpha: 0.15),
                 borderRadius: BorderRadius.circular(14),
               ),
               child: Row(
@@ -210,11 +217,16 @@ class _HeroHeader extends StatelessWidget {
                     child: Container(
                       padding: const EdgeInsets.symmetric(vertical: 10),
                       decoration: BoxDecoration(
-                        color: AppColors.white,
+                        // The "selected" tab pill needs to read
+                        // against the gradient background. White is the
+                        // correct contrast colour regardless of theme
+                        // because the pill sits ON TOP of the brand
+                        // gradient, not on the surface.
+                        color: cs.onPrimary,
                         borderRadius: BorderRadius.circular(10),
                         boxShadow: [
                           BoxShadow(
-                            color: Colors.black.withValues(alpha: 0.10),
+                            color: cs.shadow.withValues(alpha: 0.18),
                             blurRadius: 8,
                             offset: const Offset(0, 2),
                           ),
@@ -240,8 +252,8 @@ class _HeroHeader extends StatelessWidget {
                         alignment: Alignment.center,
                         child: Text(
                           l10n.signup,
-                          style: const TextStyle(
-                            color: AppColors.white,
+                          style: TextStyle(
+                            color: cs.onPrimary,
                             fontWeight: FontWeight.w500,
                             fontSize: 15,
                           ),

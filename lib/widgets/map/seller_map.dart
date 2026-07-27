@@ -22,11 +22,18 @@ import 'package:flutter_map/flutter_map.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:latlong2/latlong.dart' hide Path;
 
-import '../../constants/app_colors.dart';
 import '../../models/map_filter_model.dart';
 import '../../services/location_service.dart';
 import '../../services/routing_service.dart';
 import '../../utils/logger.dart';
+
+// Live-presence + selection colours. These are deliberately kept as
+// raw constants (not theme tokens) because they're semantic identifiers
+// that need to read the same on every theme: green = live, amber =
+// selected, grey = offline. Only the marker shadow tracks the theme.
+const _liveColor = Color(0xFF16A34A);    // Elegant Green
+const _offlineColor = Color(0xFF94A3B8); // grey-400
+const _selectedColor = Color(0xFFF59E0B); // amber-500
 
 class SellerMap extends ConsumerStatefulWidget {
   final List<SellerWithFish> sellers;
@@ -128,8 +135,8 @@ class _SellerMapState extends ConsumerState<SellerMap> {
                 points: widget.activeRoute!.points,
                 strokeWidth: 5,
                 color: widget.activeRoute!.source == RouteSource.osrm
-                    ? AppColors.primaryBlue
-                    : AppColors.accentOrange,
+                    ? _liveColor
+                    : _selectedColor,
                 borderColor: Colors.white,
                 borderStrokeWidth: 2,
                 pattern: widget.activeRoute!.source == RouteSource.osrm
@@ -182,13 +189,14 @@ class _BuyerMarker extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
+    final cs = Theme.of(context).colorScheme;
     return Container(
       decoration: BoxDecoration(
         color: Colors.white,
         shape: BoxShape.circle,
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: isDark ? 0.40 : 0.18),
+            color: cs.shadow.withValues(alpha: isDark ? 0.60 : 0.30),
             blurRadius: 6,
             offset: const Offset(0, 2),
           ),
@@ -196,8 +204,8 @@ class _BuyerMarker extends StatelessWidget {
       ),
       padding: const EdgeInsets.all(4),
       child: Container(
-        decoration: const BoxDecoration(
-          color: AppColors.primaryBlue,
+        decoration: BoxDecoration(
+          color: cs.primary,
           shape: BoxShape.circle,
         ),
         child: const Icon(Icons.person_pin_circle,
@@ -221,12 +229,13 @@ class _SellerMarker extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     // Base color depends on live-presence. Selected state upgrades the
-    // outer ring to orange (existing behaviour).
+    // outer ring to amber (existing behaviour).
     final isOnline = _isRecentlyOnline(seller);
-    final baseColor = isOnline ? AppColors.successGreen : AppColors.gray500;
-    final ringColor = isSelected ? AppColors.accentOrange : baseColor;
+    final baseColor = isOnline ? _liveColor : _offlineColor;
+    final ringColor = isSelected ? _selectedColor : baseColor;
     final dotSize = isSelected ? 38.0 : 32.0;
     final isDark = Theme.of(context).brightness == Brightness.dark;
+    final cs = Theme.of(context).colorScheme;
     return GestureDetector(
       behavior: HitTestBehavior.opaque,
       onTap: onTap,
@@ -242,7 +251,7 @@ class _SellerMarker extends StatelessWidget {
                   width: dotSize + 16,
                   height: dotSize + 16,
                   decoration: BoxDecoration(
-                    color: AppColors.successGreen.withValues(alpha: 0.18),
+                    color: _liveColor.withValues(alpha: 0.18),
                     shape: BoxShape.circle,
                   ),
                 ),
@@ -255,7 +264,10 @@ class _SellerMarker extends StatelessWidget {
                   shape: BoxShape.circle,
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.black.withValues(alpha: isDark ? 0.50 : 0.22),
+                      // Theme-aware marker shadow — slightly stronger
+                      // in dark mode so the pin still reads as raised
+                      // against the OSM tiles.
+                      color: cs.shadow.withValues(alpha: isDark ? 0.70 : 0.35),
                       blurRadius: 6,
                       offset: const Offset(0, 2),
                     ),

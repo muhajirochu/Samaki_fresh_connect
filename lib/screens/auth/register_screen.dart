@@ -7,7 +7,6 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:image_picker/image_picker.dart';
 import '../../config/theme_extensions.dart';
-import '../../constants/app_colors.dart';
 import '../../models/enums/user_role.dart';
 import '../../models/user_model.dart';
 import '../../providers/auth_provider.dart';
@@ -23,6 +22,15 @@ import '../../widgets/common/premium_components.dart';
 
 const _buyerTypes = ['Individual/Household', 'Restaurant', 'Hotel', 'Retail'];
 const _deliveryTimes = ['Morning', 'Afternoon', 'Evening', 'Anytime'];
+
+// Role accent colours used by the role-selector cards on the
+// registration screen. These are role identifiers (orange = street
+// seller, green = buyer) so they stay constant across themes — the
+// user should be able to recognise the role at a glance regardless
+// of light/dark mode. They're declared at the call-site rather than
+// in AppColors because they're only meaningful here.
+const _streetSellerAccent = Color(0xFFE65100);
+const _buyerAccent = Color(0xFF2E8B57);
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Route helper
@@ -544,7 +552,7 @@ class _StreetSellerFields extends HookWidget {
         const _SectionHeader(
             label: 'Street Seller Details',
             icon: Icons.storefront_rounded,
-            color: Color(0xFFE65100)),
+            color: _streetSellerAccent),
         const SizedBox(height: 12),
         const _FieldLabel('Transport Type'),
         const SizedBox(height: 10),
@@ -597,7 +605,7 @@ class _BuyerFields extends HookWidget {
         const _SectionHeader(
             label: 'Buyer Details',
             icon: Icons.shopping_bag_rounded,
-            color: Color(0xFF2E8B57)),
+            color: _buyerAccent),
         const SizedBox(height: 12),
         const _FieldLabel('Buyer Type'),
         const SizedBox(height: 6),
@@ -677,6 +685,7 @@ class _Header extends StatelessWidget {
   Widget build(BuildContext context) {
     final top = MediaQuery.of(context).padding.top;
     final tt = Theme.of(context).textTheme;
+    final cs = Theme.of(context).colorScheme;
     return Container(
       decoration: BoxDecoration(
         gradient: gradient,
@@ -686,7 +695,9 @@ class _Header extends StatelessWidget {
         ),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.18),
+            // Theme-aware shadow so the gradient header reads as
+            // elevated on either theme.
+            color: cs.shadow.withValues(alpha: 0.32),
             blurRadius: 18,
             offset: const Offset(0, 8),
           ),
@@ -696,8 +707,8 @@ class _Header extends StatelessWidget {
       child: Row(
         children: [
           IconButton(
-            icon: const Icon(Icons.arrow_back_ios_new_rounded,
-                color: AppColors.white, size: 20),
+            icon: Icon(Icons.arrow_back_ios_new_rounded,
+                color: cs.onPrimary, size: 20),
             onPressed: onBack,
           ),
           const SizedBox(width: 4),
@@ -712,7 +723,7 @@ class _Header extends StatelessWidget {
               Text(
                 'Create Account',
                 style: tt.titleLarge?.copyWith(
-                  color: AppColors.white,
+                  color: cs.onPrimary,
                   fontWeight: FontWeight.w800,
                   letterSpacing: -0.3,
                 ),
@@ -720,7 +731,7 @@ class _Header extends StatelessWidget {
               Text(
                 "Join Zanzibar's fish supply network",
                 style: tt.bodySmall?.copyWith(
-                  color: AppColors.white.withValues(alpha: 0.75),
+                  color: cs.onPrimary.withValues(alpha: 0.75),
                 ),
               ),
             ],
@@ -839,9 +850,9 @@ class _RoleSelector extends StatelessWidget {
       UserRole.streetSeller,
       'Street Seller',
       Icons.storefront_rounded,
-      Color(0xFFE65100)
+      _streetSellerAccent
     ),
-    (UserRole.buyer, 'Buyer', Icons.shopping_bag_rounded, Color(0xFF2E8B57)),
+    (UserRole.buyer, 'Buyer', Icons.shopping_bag_rounded, _buyerAccent),
   ];
 
   @override
@@ -887,7 +898,14 @@ class _RoleSelector extends StatelessWidget {
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       Icon(icon,
-                          color: isSelected ? AppColors.white : color,
+                          // Selected pill sits on the role accent
+                          // colour, so the icon should be the accent's
+                          // on-colour. We use a fixed white here
+                          // because the role accents stay constant
+                          // across themes.
+                          color: isSelected
+                              ? Colors.white
+                              : color,
                           size: 28),
                       const SizedBox(height: 6),
                       Text(
@@ -896,7 +914,7 @@ class _RoleSelector extends StatelessWidget {
                           fontSize: 12,
                           fontWeight: FontWeight.w700,
                           color: isSelected
-                              ? AppColors.white
+                              ? Colors.white
                               : cs.onSurface.withValues(alpha: 0.85),
                         ),
                         textAlign: TextAlign.center,
@@ -971,8 +989,8 @@ class _ProfilePhotoPicker extends StatelessWidget {
                   border: Border.all(
                       color: cs.surface, width: 2),
                 ),
-                child: const Icon(Icons.camera_alt_rounded,
-                    color: AppColors.white, size: 16),
+                child: Icon(Icons.camera_alt_rounded,
+                    color: cs.onPrimary, size: 16),
               ),
             ),
           ],
@@ -1063,7 +1081,7 @@ class _TransportPicker extends HookWidget {
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
     final value = useValueListenable(valueNotifier);
-    const accentColor = Color(0xFFE65100);
+    const accentColor = _streetSellerAccent;
     return fw.FormField<String>(
       initialValue: valueNotifier.value,
       validator: validator,

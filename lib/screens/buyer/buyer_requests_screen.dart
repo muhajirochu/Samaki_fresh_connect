@@ -6,7 +6,6 @@
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
-import '../../constants/app_colors.dart';
 import '../../constants/app_sizes.dart';
 import '../../models/fish_request_model.dart';
 import '../../providers/buyer_provider.dart';
@@ -41,6 +40,7 @@ class _BuyerRequestsScreenState extends ConsumerState<BuyerRequestsScreen>
     // the active-only provider would have hidden the recently-cancelled
     // items that the user wants to confirm.
     final session = ref.watch(currentBuyerSessionProvider);
+    final cs = Theme.of(context).colorScheme;
     if (session == null) {
       return Scaffold(
         appBar: AppBar(title: const Text('Maombi Yangu')),
@@ -54,14 +54,14 @@ class _BuyerRequestsScreenState extends ConsumerState<BuyerRequestsScreen>
       appBar: AppBar(
         title: const Text('Maombi Yangu',
             style: TextStyle(fontWeight: FontWeight.w600)),
-        backgroundColor: AppColors.primaryBlue,
-        foregroundColor: Colors.white,
+        backgroundColor: cs.primary,
+        foregroundColor: cs.onPrimary,
         elevation: 0,
         bottom: TabBar(
           controller: _tab,
-          indicatorColor: Colors.white,
-          labelColor: Colors.white,
-          unselectedLabelColor: Colors.white70,
+          indicatorColor: cs.onPrimary,
+          labelColor: cs.onPrimary,
+          unselectedLabelColor: cs.onPrimary.withValues(alpha: 0.70),
           tabs: const [
             Tab(text: 'Active'),
             Tab(text: 'History'),
@@ -103,6 +103,7 @@ class _RequestsList extends ConsumerWidget {
   const _RequestsList({required this.requests, required this.isActive});
 
   Future<void> _cancel(BuildContext context, WidgetRef ref, String id) async {
+    final cs = Theme.of(context).colorScheme;
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
@@ -121,7 +122,7 @@ class _RequestsList extends ConsumerWidget {
           FilledButton(
             onPressed: () => Navigator.of(ctx).pop(true),
             style: FilledButton.styleFrom(
-              backgroundColor: AppColors.errorRed,
+              backgroundColor: cs.error,
             ),
             child: const Text('Cancel request'),
           ),
@@ -135,9 +136,9 @@ class _RequestsList extends ConsumerWidget {
         .read(buyerDashboardControllerProvider.notifier)
         .cancelFishRequest(id);
     messenger.showSnackBar(
-      const SnackBar(
-        content: Text('Request cancelled'),
-        backgroundColor: AppColors.successGreen,
+      SnackBar(
+        content: const Text('Request cancelled'),
+        backgroundColor: cs.secondary,
         behavior: SnackBarBehavior.floating,
       ),
     );
@@ -145,6 +146,7 @@ class _RequestsList extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final cs = Theme.of(context).colorScheme;
     if (requests.isEmpty) {
       return Center(
         child: Padding(
@@ -155,17 +157,17 @@ class _RequestsList extends ConsumerWidget {
               Container(
                 padding: const EdgeInsets.all(AppSizes.paddingLG),
                 decoration: BoxDecoration(
-                  color: AppColors.gray100,
+                  color: cs.surfaceContainerHighest,
                   shape: BoxShape.circle,
                   border:
-                      Border.all(color: AppColors.gray200, width: 1.5),
+                      Border.all(color: cs.outline.withValues(alpha: 0.4), width: 1.5),
                 ),
                 child: Icon(
                   isActive
                       ? Icons.send_rounded
                       : Icons.history_rounded,
                   size: 56,
-                  color: AppColors.gray400,
+                  color: cs.onSurface.withValues(alpha: 0.45),
                 ),
               ),
               const SizedBox(height: AppSizes.paddingMD),
@@ -173,7 +175,7 @@ class _RequestsList extends ConsumerWidget {
                 isActive ? 'No active requests' : 'No history yet',
                 style: Theme.of(context).textTheme.titleMedium?.copyWith(
                       fontWeight: FontWeight.w700,
-                      color: AppColors.gray700,
+                      color: cs.onSurface.withValues(alpha: 0.85),
                     ),
               ),
               const SizedBox(height: AppSizes.paddingSM),
@@ -182,8 +184,9 @@ class _RequestsList extends ConsumerWidget {
                     ? 'Send a request from the map and sellers will see it.'
                     : 'Past accepted, cancelled and completed requests will appear here.',
                 textAlign: TextAlign.center,
-                style: const TextStyle(
-                    color: AppColors.gray600, height: 1.4),
+                style: TextStyle(
+                    color: cs.onSurface.withValues(alpha: 0.65),
+                    height: 1.4),
               ),
             ],
           ),
@@ -208,12 +211,13 @@ class _RequestTile extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final (statusColor, statusLabel) = _statusVisuals(request.status);
+    final cs = Theme.of(context).colorScheme;
+    final (statusColor, statusLabel) = _statusVisuals(request.status, cs);
     final cancellable =
         request.status == FishRequestStatus.open ||
             request.status == FishRequestStatus.offered;
     return Material(
-      color: AppColors.white,
+      color: cs.surface,
       borderRadius: BorderRadius.circular(AppSizes.radiusLG),
       child: Padding(
         padding: const EdgeInsets.all(AppSizes.paddingMD),
@@ -245,8 +249,9 @@ class _RequestTile extends ConsumerWidget {
                       Text(
                         '${request.quantityKg.toStringAsFixed(1)} kg · '
                         '${_relativeTime(request.createdAt)}',
-                        style: const TextStyle(
-                            color: AppColors.gray600, fontSize: 12),
+                        style: TextStyle(
+                            color: cs.onSurface.withValues(alpha: 0.65),
+                            fontSize: 12),
                       ),
                     ],
                   ),
@@ -272,21 +277,22 @@ class _RequestTile extends ConsumerWidget {
               const SizedBox(height: AppSizes.paddingSM),
               Text(
                 request.notes!,
-                style: const TextStyle(
-                    color: AppColors.gray700, fontSize: 13),
+                style: TextStyle(
+                    color: cs.onSurface.withValues(alpha: 0.80),
+                    fontSize: 13),
               ),
             ],
             if (request.offersCount > 0) ...[
               const SizedBox(height: AppSizes.paddingSM),
               Row(
                 children: [
-                  const Icon(Icons.chat_bubble_outline_rounded,
-                      size: 14, color: AppColors.infoBlue),
+                  Icon(Icons.chat_bubble_outline_rounded,
+                      size: 14, color: cs.primary),
                   const SizedBox(width: 4),
                   Text(
                     '${request.offersCount} offer${request.offersCount == 1 ? '' : 's'}',
-                    style: const TextStyle(
-                      color: AppColors.infoBlue,
+                    style: TextStyle(
+                      color: cs.primary,
                       fontSize: 12,
                       fontWeight: FontWeight.w600,
                     ),
@@ -296,16 +302,16 @@ class _RequestTile extends ConsumerWidget {
             ],
             if (cancellable) ...[
               const SizedBox(height: AppSizes.paddingSM),
-              const Divider(height: 1, color: AppColors.gray100),
+              Divider(height: 1, color: cs.outlineVariant),
               Align(
                 alignment: Alignment.centerRight,
                 child: TextButton.icon(
                   onPressed: () => onCancel(context, ref, request.requestId),
-                  icon: const Icon(Icons.cancel_outlined,
-                      color: AppColors.errorRed, size: 18),
-                  label: const Text(
+                  icon: Icon(Icons.cancel_outlined,
+                      color: cs.error, size: 18),
+                  label: Text(
                     'Cancel request',
-                    style: TextStyle(color: AppColors.errorRed),
+                    style: TextStyle(color: cs.error),
                   ),
                 ),
               ),
@@ -316,20 +322,23 @@ class _RequestTile extends ConsumerWidget {
     );
   }
 
-  (Color, String) _statusVisuals(FishRequestStatus s) {
+  (Color, String) _statusVisuals(FishRequestStatus s, ColorScheme cs) {
+    // Status colours intentionally use semantic tokens from the
+    // ColorScheme so they read correctly across light + dark. The
+    // labels stay localisable strings, defined inline.
     switch (s) {
       case FishRequestStatus.open:
-        return (AppColors.infoBlue, 'Open');
+        return (cs.primary, 'Open');
       case FishRequestStatus.offered:
-        return (AppColors.accentOrange, 'Offers');
+        return (cs.tertiary, 'Offers');
       case FishRequestStatus.accepted:
-        return (AppColors.successGreen, 'Accepted');
+        return (cs.secondary, 'Accepted');
       case FishRequestStatus.fulfilled:
-        return (AppColors.successGreen, 'Done');
+        return (cs.secondary, 'Done');
       case FishRequestStatus.cancelled:
-        return (AppColors.errorRed, 'Cancelled');
+        return (cs.error, 'Cancelled');
       case FishRequestStatus.expired:
-        return (AppColors.gray500, 'Expired');
+        return (cs.onSurface.withValues(alpha: 0.50), 'Expired');
     }
   }
 
