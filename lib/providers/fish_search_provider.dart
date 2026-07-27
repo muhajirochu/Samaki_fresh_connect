@@ -82,8 +82,10 @@ bool listingMatchesSearchQuery(FishListingModel listing, String q) {
 bool listingIsSearchable(FishListingModel listing, {DateTime? now}) {
   if (listing.status.toLowerCase() != 'active') return false;
   if (listing.quantityKg <= 0) return false;
+  // Legacy listings may lack expiresAt — treat as non-expiring so
+  // they still surface in the search feed.
   final cutoff = now ?? DateTime.now();
-  if (listing.expiresAt.isBefore(cutoff)) {
+  if (listing.expiresAt != null && listing.expiresAt!.isBefore(cutoff)) {
     return false;
   }
   return true;

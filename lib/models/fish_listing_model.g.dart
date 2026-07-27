@@ -9,19 +9,21 @@ part of 'fish_listing_model.dart';
 _$FishListingModelImpl _$$FishListingModelImplFromJson(
         Map<String, dynamic> json) =>
     _$FishListingModelImpl(
-      listingId: json['listingId'] as String,
-      sellerId: json['sellerId'] as String,
-      fishType: json['fishType'] as String,
-      quantityKg: (json['quantityKg'] as num).toDouble(),
-      pricePerKg: (json['pricePerKg'] as num).toDouble(),
-      totalPrice: (json['totalPrice'] as num).toDouble(),
-      imageUrls:
-          (json['imageUrls'] as List<dynamic>).map((e) => e as String).toList(),
+      listingId: json['listingId'] as String? ?? '',
+      sellerId: json['sellerId'] as String? ?? '',
+      fishType: json['fishType'] as String? ?? '',
+      quantityKg: (json['quantityKg'] as num?)?.toDouble() ?? 0.0,
+      pricePerKg: (json['pricePerKg'] as num?)?.toDouble() ?? 0.0,
+      totalPrice: (json['totalPrice'] as num?)?.toDouble() ?? 0.0,
+      imageUrls: (json['imageUrls'] as List<dynamic>?)
+              ?.map((e) => e as String)
+              .toList() ??
+          const <String>[],
       location: json['location'] as Map<String, dynamic>?,
-      status: json['status'] as String,
+      status: json['status'] as String? ?? 'active',
       description: json['description'] as String?,
-      createdAt: const TimestampConverter().fromJson(json['createdAt']),
-      expiresAt: const TimestampConverter().fromJson(json['expiresAt']),
+      createdAt: const OptionalTimestampConverter().fromJson(json['createdAt']),
+      expiresAt: const OptionalTimestampConverter().fromJson(json['expiresAt']),
       soldAt: const OptionalTimestampConverter().fromJson(json['soldAt']),
     );
 
@@ -38,7 +40,9 @@ Map<String, dynamic> _$$FishListingModelImplToJson(
       'location': instance.location,
       'status': instance.status,
       'description': instance.description,
-      'createdAt': const TimestampConverter().toJson(instance.createdAt),
-      'expiresAt': const TimestampConverter().toJson(instance.expiresAt),
+      'createdAt':
+          const OptionalTimestampConverter().toJson(instance.createdAt),
+      'expiresAt':
+          const OptionalTimestampConverter().toJson(instance.expiresAt),
       'soldAt': const OptionalTimestampConverter().toJson(instance.soldAt),
     };

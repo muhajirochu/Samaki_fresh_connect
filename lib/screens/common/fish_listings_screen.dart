@@ -51,7 +51,12 @@ class FishListingsScreen extends ConsumerWidget {
                 child: EmptyStateWidget(
                   icon: Icons.error_outline,
                   title: l10n.failedToLoadListings,
-                  subtitle: error.toString(),
+                  // Show the actual error code (e.g. "permission-denied"
+                  // or "failed-precondition") so we can debug which
+                  // Firestore rule or index is missing.
+                  subtitle: error.toString().length > 200
+                      ? '${error.toString().substring(0, 200)}…'
+                      : error.toString(),
                   onRetry: () => ref.invalidate(activeListingsProvider),
                 ),
               ),

@@ -17,7 +17,8 @@ class FishListingCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final status = ListingStatusExtension.fromString(listing.status);
-    final isExpired = listing.expiresAt.isBefore(DateTime.now());
+    final isExpired = listing.expiresAt != null &&
+        listing.expiresAt!.isBefore(DateTime.now());
     final tokens = BackgroundStyle.of(context);
     final cs = Theme.of(context).colorScheme;
     final isDark = Theme.of(context).brightness == Brightness.dark;

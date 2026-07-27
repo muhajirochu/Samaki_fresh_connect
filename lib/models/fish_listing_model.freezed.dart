@@ -20,6 +20,11 @@ FishListingModel _$FishListingModelFromJson(Map<String, dynamic> json) {
 
 /// @nodoc
 mixin _$FishListingModel {
+// listingId / sellerId / createdAt / expiresAt all fall back to
+// safe defaults so legacy Firestore documents written before
+// these fields were introduced still deserialize — otherwise a
+// single old row would crash the entire marketplace stream and
+// the seller dashboard would lock on "Failed to load".
   String get listingId => throw _privateConstructorUsedError;
   String get sellerId => throw _privateConstructorUsedError;
   String get fishType => throw _privateConstructorUsedError;
@@ -29,11 +34,18 @@ mixin _$FishListingModel {
   List<String> get imageUrls => throw _privateConstructorUsedError;
   Map<String, dynamic>? get location => throw _privateConstructorUsedError;
   String get status => throw _privateConstructorUsedError;
-  String? get description => throw _privateConstructorUsedError;
-  @TimestampConverter()
-  DateTime get createdAt => throw _privateConstructorUsedError;
-  @TimestampConverter()
-  DateTime get expiresAt => throw _privateConstructorUsedError;
+  String? get description =>
+      throw _privateConstructorUsedError; // `createdAt` and `expiresAt` are now nullable to tolerate legacy
+// Firestore documents written before these fields existed.
+// Sort / expiry logic across the codebase falls back to
+// `DateTime.fromMillisecondsSinceEpoch(0)` so the row still
+// surfaces instead of crashing the marketplace stream.
+// Use the *optional* converter so `null` propagates instead of
+// silently being replaced with `DateTime.now()`.
+  @OptionalTimestampConverter()
+  DateTime? get createdAt => throw _privateConstructorUsedError;
+  @OptionalTimestampConverter()
+  DateTime? get expiresAt => throw _privateConstructorUsedError;
   @OptionalTimestampConverter()
   DateTime? get soldAt => throw _privateConstructorUsedError;
 
@@ -64,8 +76,8 @@ abstract class $FishListingModelCopyWith<$Res> {
       Map<String, dynamic>? location,
       String status,
       String? description,
-      @TimestampConverter() DateTime createdAt,
-      @TimestampConverter() DateTime expiresAt,
+      @OptionalTimestampConverter() DateTime? createdAt,
+      @OptionalTimestampConverter() DateTime? expiresAt,
       @OptionalTimestampConverter() DateTime? soldAt});
 }
 
@@ -94,8 +106,8 @@ class _$FishListingModelCopyWithImpl<$Res, $Val extends FishListingModel>
     Object? location = freezed,
     Object? status = null,
     Object? description = freezed,
-    Object? createdAt = null,
-    Object? expiresAt = null,
+    Object? createdAt = freezed,
+    Object? expiresAt = freezed,
     Object? soldAt = freezed,
   }) {
     return _then(_value.copyWith(
@@ -139,14 +151,14 @@ class _$FishListingModelCopyWithImpl<$Res, $Val extends FishListingModel>
           ? _value.description
           : description // ignore: cast_nullable_to_non_nullable
               as String?,
-      createdAt: null == createdAt
+      createdAt: freezed == createdAt
           ? _value.createdAt
           : createdAt // ignore: cast_nullable_to_non_nullable
-              as DateTime,
-      expiresAt: null == expiresAt
+              as DateTime?,
+      expiresAt: freezed == expiresAt
           ? _value.expiresAt
           : expiresAt // ignore: cast_nullable_to_non_nullable
-              as DateTime,
+              as DateTime?,
       soldAt: freezed == soldAt
           ? _value.soldAt
           : soldAt // ignore: cast_nullable_to_non_nullable
@@ -174,8 +186,8 @@ abstract class _$$FishListingModelImplCopyWith<$Res>
       Map<String, dynamic>? location,
       String status,
       String? description,
-      @TimestampConverter() DateTime createdAt,
-      @TimestampConverter() DateTime expiresAt,
+      @OptionalTimestampConverter() DateTime? createdAt,
+      @OptionalTimestampConverter() DateTime? expiresAt,
       @OptionalTimestampConverter() DateTime? soldAt});
 }
 
@@ -202,8 +214,8 @@ class __$$FishListingModelImplCopyWithImpl<$Res>
     Object? location = freezed,
     Object? status = null,
     Object? description = freezed,
-    Object? createdAt = null,
-    Object? expiresAt = null,
+    Object? createdAt = freezed,
+    Object? expiresAt = freezed,
     Object? soldAt = freezed,
   }) {
     return _then(_$FishListingModelImpl(
@@ -247,14 +259,14 @@ class __$$FishListingModelImplCopyWithImpl<$Res>
           ? _value.description
           : description // ignore: cast_nullable_to_non_nullable
               as String?,
-      createdAt: null == createdAt
+      createdAt: freezed == createdAt
           ? _value.createdAt
           : createdAt // ignore: cast_nullable_to_non_nullable
-              as DateTime,
-      expiresAt: null == expiresAt
+              as DateTime?,
+      expiresAt: freezed == expiresAt
           ? _value.expiresAt
           : expiresAt // ignore: cast_nullable_to_non_nullable
-              as DateTime,
+              as DateTime?,
       soldAt: freezed == soldAt
           ? _value.soldAt
           : soldAt // ignore: cast_nullable_to_non_nullable
@@ -267,18 +279,18 @@ class __$$FishListingModelImplCopyWithImpl<$Res>
 @JsonSerializable()
 class _$FishListingModelImpl implements _FishListingModel {
   const _$FishListingModelImpl(
-      {required this.listingId,
-      required this.sellerId,
-      required this.fishType,
-      required this.quantityKg,
-      required this.pricePerKg,
-      required this.totalPrice,
-      required final List<String> imageUrls,
+      {this.listingId = '',
+      this.sellerId = '',
+      this.fishType = '',
+      this.quantityKg = 0.0,
+      this.pricePerKg = 0.0,
+      this.totalPrice = 0.0,
+      final List<String> imageUrls = const <String>[],
       final Map<String, dynamic>? location,
-      required this.status,
+      this.status = 'active',
       this.description,
-      @TimestampConverter() required this.createdAt,
-      @TimestampConverter() required this.expiresAt,
+      @OptionalTimestampConverter() this.createdAt,
+      @OptionalTimestampConverter() this.expiresAt,
       @OptionalTimestampConverter() this.soldAt})
       : _imageUrls = imageUrls,
         _location = location;
@@ -286,20 +298,32 @@ class _$FishListingModelImpl implements _FishListingModel {
   factory _$FishListingModelImpl.fromJson(Map<String, dynamic> json) =>
       _$$FishListingModelImplFromJson(json);
 
+// listingId / sellerId / createdAt / expiresAt all fall back to
+// safe defaults so legacy Firestore documents written before
+// these fields were introduced still deserialize — otherwise a
+// single old row would crash the entire marketplace stream and
+// the seller dashboard would lock on "Failed to load".
   @override
+  @JsonKey()
   final String listingId;
   @override
+  @JsonKey()
   final String sellerId;
   @override
+  @JsonKey()
   final String fishType;
   @override
+  @JsonKey()
   final double quantityKg;
   @override
+  @JsonKey()
   final double pricePerKg;
   @override
+  @JsonKey()
   final double totalPrice;
   final List<String> _imageUrls;
   @override
+  @JsonKey()
   List<String> get imageUrls {
     if (_imageUrls is EqualUnmodifiableListView) return _imageUrls;
     // ignore: implicit_dynamic_type
@@ -317,15 +341,23 @@ class _$FishListingModelImpl implements _FishListingModel {
   }
 
   @override
+  @JsonKey()
   final String status;
   @override
   final String? description;
+// `createdAt` and `expiresAt` are now nullable to tolerate legacy
+// Firestore documents written before these fields existed.
+// Sort / expiry logic across the codebase falls back to
+// `DateTime.fromMillisecondsSinceEpoch(0)` so the row still
+// surfaces instead of crashing the marketplace stream.
+// Use the *optional* converter so `null` propagates instead of
+// silently being replaced with `DateTime.now()`.
   @override
-  @TimestampConverter()
-  final DateTime createdAt;
+  @OptionalTimestampConverter()
+  final DateTime? createdAt;
   @override
-  @TimestampConverter()
-  final DateTime expiresAt;
+  @OptionalTimestampConverter()
+  final DateTime? expiresAt;
   @override
   @OptionalTimestampConverter()
   final DateTime? soldAt;
@@ -402,24 +434,29 @@ class _$FishListingModelImpl implements _FishListingModel {
 
 abstract class _FishListingModel implements FishListingModel {
   const factory _FishListingModel(
-          {required final String listingId,
-          required final String sellerId,
-          required final String fishType,
-          required final double quantityKg,
-          required final double pricePerKg,
-          required final double totalPrice,
-          required final List<String> imageUrls,
+          {final String listingId,
+          final String sellerId,
+          final String fishType,
+          final double quantityKg,
+          final double pricePerKg,
+          final double totalPrice,
+          final List<String> imageUrls,
           final Map<String, dynamic>? location,
-          required final String status,
+          final String status,
           final String? description,
-          @TimestampConverter() required final DateTime createdAt,
-          @TimestampConverter() required final DateTime expiresAt,
+          @OptionalTimestampConverter() final DateTime? createdAt,
+          @OptionalTimestampConverter() final DateTime? expiresAt,
           @OptionalTimestampConverter() final DateTime? soldAt}) =
       _$FishListingModelImpl;
 
   factory _FishListingModel.fromJson(Map<String, dynamic> json) =
       _$FishListingModelImpl.fromJson;
 
+// listingId / sellerId / createdAt / expiresAt all fall back to
+// safe defaults so legacy Firestore documents written before
+// these fields were introduced still deserialize — otherwise a
+// single old row would crash the entire marketplace stream and
+// the seller dashboard would lock on "Failed to load".
   @override
   String get listingId;
   @override
@@ -439,13 +476,20 @@ abstract class _FishListingModel implements FishListingModel {
   @override
   String get status;
   @override
-  String? get description;
+  String?
+      get description; // `createdAt` and `expiresAt` are now nullable to tolerate legacy
+// Firestore documents written before these fields existed.
+// Sort / expiry logic across the codebase falls back to
+// `DateTime.fromMillisecondsSinceEpoch(0)` so the row still
+// surfaces instead of crashing the marketplace stream.
+// Use the *optional* converter so `null` propagates instead of
+// silently being replaced with `DateTime.now()`.
   @override
-  @TimestampConverter()
-  DateTime get createdAt;
+  @OptionalTimestampConverter()
+  DateTime? get createdAt;
   @override
-  @TimestampConverter()
-  DateTime get expiresAt;
+  @OptionalTimestampConverter()
+  DateTime? get expiresAt;
   @override
   @OptionalTimestampConverter()
   DateTime? get soldAt;

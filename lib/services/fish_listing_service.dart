@@ -169,9 +169,20 @@ class FishListingService {
         .limit(_maxActiveListings)
         .snapshots()
         .map((snap) {
-      final list =
-          snap.docs.map((d) => FishListingModel.fromJson(d.data())).toList();
-      list.sort((a, b) => b.createdAt.compareTo(a.createdAt));
+      final list = <FishListingModel>[];
+      for (final d in snap.docs) {
+        try {
+          list.add(FishListingModel.fromJson(d.data()));
+        } catch (e) {
+          // A single malformed / legacy doc must NOT kill the whole
+          // stream — drop it and keep the rest. Log so admins can
+          // clean up the source row.
+          AppLogger.warning(
+              'streamActiveListings: dropping malformed doc ${d.id}: $e');
+        }
+      }
+      list.sort((a, b) => _dateOrZero(b.createdAt)
+          .compareTo(_dateOrZero(a.createdAt)));
       return list;
     })
         // Surface errors so the UI flips to AsyncError instead of
@@ -196,15 +207,30 @@ class FishListingService {
         .limit(_maxActiveListings)
         .snapshots()
         .map((snap) {
-      final list =
-          snap.docs.map((d) => FishListingModel.fromJson(d.data())).toList();
-      list.sort((a, b) => b.createdAt.compareTo(a.createdAt));
+      final list = <FishListingModel>[];
+      for (final d in snap.docs) {
+        try {
+          list.add(FishListingModel.fromJson(d.data()));
+        } catch (e) {
+          // Skip legacy / malformed docs rather than crashing the
+          // entire "My Listings" stream.
+          AppLogger.warning(
+              'streamListingsBySeller: dropping malformed doc ${d.id}: $e');
+        }
+      }
+      list.sort((a, b) => _dateOrZero(b.createdAt)
+          .compareTo(_dateOrZero(a.createdAt)));
       return list;
     }).handleError((Object e, StackTrace s) {
       AppLogger.error('streamListingsBySeller error: $e');
       throw e;
     });
   }
+
+  /// Returns the date or epoch-0 if null — keeps sort callbacks
+  /// total-order-friendly for legacy listings missing `createdAt`.
+  static DateTime _dateOrZero(DateTime? d) =>
+      d ?? DateTime.fromMillisecondsSinceEpoch(0);
 
   /// Stream every listing in the system (admin moderation view).
   /// Includes sold, expired and inactive listings so the admin can
