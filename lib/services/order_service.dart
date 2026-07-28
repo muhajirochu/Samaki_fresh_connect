@@ -110,6 +110,67 @@ class OrderService {
     });
   }
 
+  /// Seller accepts a buyer's pending order AND atomically marks the
+  /// associated listing as sold. Both writes are seller-owned (the
+  /// order has `streetSellerId == request.auth.uid`, the listing has
+  /// `sellerId == request.auth.uid`), so the Firestore rules permit
+  /// each write. A `WriteBatch` keeps them atomic — if either fails,
+  /// neither is committed, so a partially-confirmed order can never
+  /// be observed (the listing would still be `active`).
+  Future<void> confirmOrderAndMarkListingSold({
+    required String orderId,
+    required String listingId,
+  }) async {
+    if (!_isAvailable) return;
+    try {
+      final batch = _firestore.batch();
+      final orderRef = _firestore.collection(_collection).doc(orderId);
+      batch.update(orderRef, {
+        'orderStatus': 'confirmed',
+        'confirmedAt': FieldValue.serverTimestamp(),
+      });
+      // fishListings is a different collection from `orders`; we
+      // hard-code the path here rather than threading the service
+      // reference through the constructor to keep the batch atomic
+      // on a single `commit()`.
+      final listingRef = FirebaseFirestore.instance
+          .collection('fishListings')
+          .doc(listingId);
+      batch.update(listingRef, {
+        'status': 'sold',
+        'soldAt': FieldValue.serverTimestamp(),
+      });
+      await batch.commit();
+      AppLogger.info(
+          'Confirmed order $orderId + sold listing $listingId (atomic)');
+    } catch (e) {
+      AppLogger.error(
+          'confirmOrderAndMarkListingSold failed for order $orderId: $e');
+      rethrow;
+    }
+  }
+
+  /// Seller rejects a buyer's pending order. The order transitions
+  /// `pending → cancelled` and the listing is left untouched (it
+  /// stays `active` so other buyers can still place orders against
+  /// it). The Firestore rule at match /orders/{orderId} allows the
+  /// seller to perform this transition when the same `fieldUnchanged`
+  /// guards as the `pending → confirmed` path apply.
+  Future<void> rejectPendingOrder(String orderId) async {
+    if (!_isAvailable) return;
+    try {
+      await _firestore.collection(_collection).doc(orderId).update({
+        'orderStatus': 'cancelled',
+        'cancelledAt': FieldValue.serverTimestamp(),
+        'cancelledBy': 'seller',
+      });
+      AppLogger.info('Seller rejected pending order $orderId');
+    } catch (e) {
+      AppLogger.error('rejectPendingOrder failed for $orderId: $e');
+      rethrow;
+    }
+  }
+
   /// Confirm pickup
   Future<void> confirmPickup(String orderId) async {
     await updateOrderStatus(orderId, 'pickedUp', extraFields: {

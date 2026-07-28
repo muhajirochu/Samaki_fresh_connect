@@ -16,7 +16,6 @@ import '../../providers/auth_provider.dart';
 import '../../providers/listing_provider.dart';
 import '../../providers/order_provider.dart';
 import '../../utils/formatters.dart';
-import '../../utils/logger.dart';
 import '../../widgets/common/common_widgets.dart';
 import '../../widgets/common/premium_components.dart';
 
@@ -312,29 +311,19 @@ class _BuyButton extends HookConsumerWidget {
       final messenger = ScaffoldMessenger.of(context);
 
       try {
-        final listingService = ref.read(fishListingServiceProvider);
         final orderService = ref.read(orderServiceProvider);
 
-        // 1) Atomically mark the listing sold first. If this returns
-        // false, another buyer already grabbed it — show an error
-        // and bail without creating a phantom order.
-        final sold = await listingService.tryMarkAsSold(listing.listingId);
-        if (!sold) {
-          isLoading.value = false;
-          if (context.mounted) {
-            messenger.showSnackBar(
-              SnackBar(
-                content: Text(l10n.listingAlreadySold),
-                backgroundColor: cs.error,
-                behavior: SnackBarBehavior.floating,
-              ),
-            );
-          }
-          return;
-        }
-
-        // 2) Create the order. If this fails, undo the sell flag so
-        // the listing is buyable again.
+        // Buyer creates a pending order. The Firestore rules at
+        // `firestore.rules` match /orders/{orderId} require
+        // `orderStatus == 'pending'` on create, and they let the
+        // buyer write that order — but the buyer is NOT allowed to
+        // flip the listing's `status` (that would require seller
+        // ownership). So the listing stays `active` until the seller
+        // confirms; the seller's confirmation path in
+        // `OrderService.confirmOrderAndMarkListingSold` atomically
+        // transitions the order to `confirmed` AND the listing to
+        // `sold`. If two buyers race, both orders stay `pending`
+        // and the seller manually picks one.
         final order = OrderModel(
           orderId: '', // Service sets this
           orderPath: OrderPath.directFromDalali.name,
@@ -346,31 +335,16 @@ class _BuyButton extends HookConsumerWidget {
           originalPrice: listing.totalPrice,
           finalPrice: listing.totalPrice * 1.07,
           quantityKg: listing.quantityKg,
-          orderStatus: OrderStatus.placed.name,
+          orderStatus: OrderStatus.pending.name,
           pickupConfirmed: false,
           deliveryConfirmed: false,
           createdAt: DateTime.now(),
         );
 
-        String orderId;
-        try {
-          orderId = await orderService.createOrder(order);
-        } catch (e) {
-          // Order creation failed — restore the listing so other buyers
-          // can still see it.
-          try {
-            await listingService.updateListing(listing.listingId, {
-              'status': 'active',
-            });
-          } catch (restoreError) {
-            AppLogger.error(
-                'Failed to restore listing after order error: $restoreError');
-          }
-          rethrow;
-        }
+        final orderId = await orderService.createOrder(order);
 
-        // 3) Invalidate the seller's listings provider so the
-        // dashboard / My Listings re-renders immediately rather than
+        // Invalidate the relevant providers so the seller dashboard
+        // and buyer orders feed re-render immediately rather than
         // waiting for the next Firestore snapshot event.
         ref.invalidate(sellerListingsProvider(listing.sellerId));
         ref.invalidate(activeListingsProvider);

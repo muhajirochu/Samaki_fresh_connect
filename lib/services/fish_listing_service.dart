@@ -5,6 +5,7 @@ import 'package:geolocator/geolocator.dart';
 import '../models/fish_listing_model.dart';
 import '../models/user_model.dart';
 import '../utils/logger.dart';
+import '../utils/zanzibar_bounds.dart';
 
 // Inline geohash encoder (precision 7 ~ 153 m cell, Base32 alphabet).
 // Matches what `geohash_service.dart` does so all our geo writes are
@@ -58,9 +59,11 @@ class FishListingService {
   // is missing `latitude`/`longitude`. To avoid that we ALWAYS write geo
   // fields on create — preferring the seller's last-known position and
   // falling back to a sensible Zanzibar default so the listing still
-  // surfaces somewhere on the map.
-  static const double _fallbackLat = -6.1629; // Stone Town
-  static const double _fallbackLng = 39.2026;
+  // surfaces somewhere on the map. The fallback is sourced from
+  // `ZanzibarBounds` so the listing-create path and the buyer location
+  // service share a single source of truth.
+  static const double _fallbackLat = ZanzibarBounds.stoneTownLat;
+  static const double _fallbackLng = ZanzibarBounds.stoneTownLng;
 
   /// Create a new fish listing. `sellerLocation` is the seller's
   /// last-known position (from their `users/` doc); we read GPS once if
@@ -129,18 +132,32 @@ class FishListingService {
 
   /// Best-effort coordinate resolution. Always returns *something* so the
   /// listing is never invisibly dropped by the buyer's geo filter.
+  ///
+  /// Every tier is gated by [ZanzibarBounds.isValidZanzibarCoord] — a
+  /// live fix, profile, or GPS read outside Zanzibar is treated as a
+  /// failed read and the resolver falls through to the next tier. The
+  /// final Stone Town return guarantees the listing still surfaces on
+  /// the map even when the device's GPS is wildly wrong.
   Future<(double, double)> _resolveCoords({
     UserModel? seller,
     Position? live,
   }) async {
-    if (live != null) return (live.latitude, live.longitude);
+    if (live != null &&
+        ZanzibarBounds.isValidZanzibarCoord(live.latitude, live.longitude)) {
+      return (live.latitude, live.longitude);
+    }
     final loc = seller?.location;
     if (loc != null &&
         loc['latitude'] is num &&
         loc['longitude'] is num) {
-      return (
-        (loc['latitude'] as num).toDouble(),
-        (loc['longitude'] as num).toDouble(),
+      final plat = (loc['latitude'] as num).toDouble();
+      final plng = (loc['longitude'] as num).toDouble();
+      if (ZanzibarBounds.isValidZanzibarCoord(plat, plng)) {
+        return (plat, plng);
+      }
+      AppLogger.warning(
+        'Seller profile location outside Zanzibar ($plat, $plng) — '
+        'rejecting and falling through to live GPS.',
       );
     }
     // Last-ditch GPS read with a tight timeout. If that fails too we
@@ -158,7 +175,13 @@ class FishListingService {
             desiredAccuracy: LocationAccuracy.medium,
             timeLimit: const Duration(seconds: 5),
           );
-          return (p.latitude, p.longitude);
+          if (ZanzibarBounds.isValidZanzibarCoord(p.latitude, p.longitude)) {
+            return (p.latitude, p.longitude);
+          }
+          AppLogger.warning(
+            'Live GPS read outside Zanzibar '
+            '(${p.latitude}, ${p.longitude}) — falling back to Stone Town.',
+          );
         }
       }
     } catch (e) {

@@ -3,9 +3,15 @@
 // service-disabled fallbacks.
 //
 // Resolution order for the buyer's coordinates:
-//   1. Live GPS fix (geolocator).
-//   2. The buyer's saved `location` field on the user doc (Zanzibar
-//      centroid as a last-resort default so the map always renders).
+//   1. Live GPS fix (geolocator) — accepted only if coords fall
+//      inside the Zanzibar bounding boxes (Unguja or Pemba). Fixes
+//      outside Zanzibar are rejected so a device whose GPS thinks
+//      it's in Mountain View or Lagos can never poison the map or
+//      the geohash query.
+//   2. The buyer's saved `location` field on the user doc — same
+//      Zanzibar gate applied (a stale profile with junk coords is
+//      just as bad as a bad GPS read).
+//   3. Stone Town (the canonical Zanzibar fallback).
 
 import 'package:geolocator/geolocator.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
@@ -13,6 +19,7 @@ import 'package:permission_handler/permission_handler.dart';
 
 import '../models/user_model.dart';
 import '../utils/logger.dart';
+import '../utils/zanzibar_bounds.dart';
 import '../providers/buyer_provider.dart';
 
 class BuyerLocation {
@@ -32,8 +39,8 @@ class BuyerLocation {
 class LocationService {
   /// Zanzibar (Stone Town) — used only when both GPS and the profile fail.
   static const BuyerLocation _fallback = BuyerLocation(
-    latitude: -6.1629,
-    longitude: 39.2026,
+    latitude: ZanzibarBounds.stoneTownLat,
+    longitude: ZanzibarBounds.stoneTownLng,
     source: 'fallback',
   );
 
@@ -58,11 +65,21 @@ class LocationService {
             desiredAccuracy: LocationAccuracy.high,
             timeLimit: const Duration(seconds: 8),
           );
-          return BuyerLocation(
-            latitude: pos.latitude,
-            longitude: pos.longitude,
-            source: 'gps',
-            accuracyMeters: pos.accuracy,
+          // Reject fixes outside Zanzibar. A device whose GPS
+          // thinks it's in Mountain View (or anywhere outside the
+          // islands) gets the same treatment as a failed read — we
+          // keep falling through to the next tier.
+          if (ZanzibarBounds.isValidZanzibarCoord(pos.latitude, pos.longitude)) {
+            return BuyerLocation(
+              latitude: pos.latitude,
+              longitude: pos.longitude,
+              source: 'gps',
+              accuracyMeters: pos.accuracy,
+            );
+          }
+          AppLogger.warning(
+            'GPS fix outside Zanzibar (${pos.latitude}, ${pos.longitude}) — '
+            'rejecting and falling through to profile.',
           );
         }
       }
@@ -70,13 +87,22 @@ class LocationService {
       AppLogger.warning('GPS lookup failed, falling back: $e');
     }
 
-    // 2. Saved profile location.
+    // 2. Saved profile location — same Zanzibar gate. A stale profile
+    // with junk coords is just as bad as a bad GPS read.
     final loc = buyer?.location;
     if (loc != null && loc['latitude'] is num && loc['longitude'] is num) {
-      return BuyerLocation(
-        latitude: (loc['latitude'] as num).toDouble(),
-        longitude: (loc['longitude'] as num).toDouble(),
-        source: 'profile',
+      final plat = (loc['latitude'] as num).toDouble();
+      final plng = (loc['longitude'] as num).toDouble();
+      if (ZanzibarBounds.isValidZanzibarCoord(plat, plng)) {
+        return BuyerLocation(
+          latitude: plat,
+          longitude: plng,
+          source: 'profile',
+        );
+      }
+      AppLogger.warning(
+        'Profile location outside Zanzibar ($plat, $plng) — '
+        'rejecting and falling through to Stone Town.',
       );
     }
 

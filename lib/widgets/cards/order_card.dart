@@ -118,6 +118,11 @@ class OrderCard extends StatelessWidget {
 
   Color _colorForStatus(OrderStatus status, ColorScheme cs) {
     switch (status) {
+      case OrderStatus.pending:
+        // Buyer has placed the order; awaiting seller confirmation.
+        // Same colour family as `placed` so the two first-step
+        // states read as related stages on the card.
+        return cs.tertiary;
       case OrderStatus.placed:
         return cs.tertiary;
       case OrderStatus.assigned:

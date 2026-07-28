@@ -345,8 +345,10 @@ service cloud.firestore {
       // can perform is listed explicitly:
       //   buyer can cancel a pending order, or confirm receipt on
       //          an in_transit order.
-      //   seller (streetSeller) can confirm a pending order, or
-      //          mark it in_transit after confirmation.
+      //   seller (streetSeller) can confirm a pending order, mark
+      //          it in_transit after confirmation, or REJECT a
+      //          pending order (so two buyers racing on the same
+      //          listing can be resolved by the seller picking one).
       //   admin can do anything.
       // In every participant branch the immutable financial /
       // participant fields are locked, and `orderId` is locked.
@@ -377,6 +379,12 @@ service cloud.firestore {
               // Seller marks the order in_transit after confirmation.
               || (resource.data.orderStatus == 'confirmed'
                   && request.resource.data.orderStatus == 'in_transit')
+              // Seller rejects a pending order (e.g. they chose a
+              // different buyer's order). The listing is left
+              // untouched (stays `active`) so other buyers can
+              // still place orders against it.
+              || (resource.data.orderStatus == 'pending'
+                  && request.resource.data.orderStatus == 'cancelled')
             )
             && fieldUnchanged('orderId')
             && fieldUnchanged('finalPrice')

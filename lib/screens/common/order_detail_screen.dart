@@ -6,6 +6,7 @@ import '../../l10n/app_localizations.dart';
 import '../../models/enums/order_status.dart';
 import '../../providers/order_provider.dart';
 import '../../providers/auth_provider.dart';
+import '../../providers/listing_provider.dart';
 import '../../widgets/common/common_widgets.dart';
 import '../../widgets/common/premium_components.dart';
 import '../../widgets/timelines/order_timeline.dart';
@@ -166,8 +167,11 @@ class OrderDetailScreen extends ConsumerWidget {
                     status != OrderStatus.completed)
                   _OrderActions(
                     orderId: order.orderId,
+                    listingId: order.listingId,
                     status: status,
                     isDalali: currentUser?.role.name == 'dalali',
+                    isStreetSeller: order.streetSellerId != null &&
+                        currentUser?.userId == order.streetSellerId,
                   ),
               ],
             ),
@@ -180,17 +184,116 @@ class OrderDetailScreen extends ConsumerWidget {
 
 class _OrderActions extends ConsumerWidget {
   final String orderId;
+  final String listingId;
   final OrderStatus status;
   final bool isDalali;
+  final bool isStreetSeller;
 
   const _OrderActions({
     required this.orderId,
+    required this.listingId,
     required this.status,
     required this.isDalali,
+    required this.isStreetSeller,
   });
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    // Seller-facing branch: a street seller with the order's
+    // `streetSellerId == currentUser.userId` sees Confirm / Reject
+    // buttons for a buyer-placed pending order. Confirm writes
+    // both the order (→ confirmed) and the listing (→ sold) in a
+    // single batch — see [OrderService.confirmOrderAndMarkListingSold].
+    if (status == OrderStatus.pending && isStreetSeller) {
+      return Row(
+        children: [
+          Expanded(
+            child: CustomButton(
+              label: 'Confirm Order',
+              style: _actionStyle(),
+              onPressed: () async {
+                try {
+                  await ref
+                      .read(orderServiceProvider)
+                      .confirmOrderAndMarkListingSold(
+                        orderId: orderId,
+                        listingId: listingId,
+                      );
+                  ref.invalidate(orderDetailProvider(orderId));
+                  ref.invalidate(activeListingsProvider);
+                  if (context.mounted) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text('Order confirmed; listing marked sold.'),
+                        behavior: SnackBarBehavior.floating,
+                      ),
+                    );
+                  }
+                } catch (e) {
+                  if (context.mounted) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text('Failed to confirm: $e'),
+                        backgroundColor: Theme.of(context).colorScheme.error,
+                        behavior: SnackBarBehavior.floating,
+                      ),
+                    );
+                  }
+                }
+              },
+            ),
+          ),
+          const SizedBox(width: AppSizes.paddingMD),
+          Expanded(
+            child: OutlinedButton(
+              style: OutlinedButton.styleFrom(
+                padding: const EdgeInsets.symmetric(vertical: 16),
+                shape: RoundedRectangleBorder(
+                  borderRadius:
+                      BorderRadius.circular(AppSizes.radiusLG),
+                ),
+                textStyle: const TextStyle(
+                  fontWeight: FontWeight.w700,
+                  fontSize: 16,
+                ),
+                side: BorderSide(
+                  color: Theme.of(context).colorScheme.error,
+                  width: 1.5,
+                ),
+              ),
+              onPressed: () async {
+                try {
+                  await ref
+                      .read(orderServiceProvider)
+                      .rejectPendingOrder(orderId);
+                  ref.invalidate(orderDetailProvider(orderId));
+                  if (context.mounted) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text('Order rejected.'),
+                        behavior: SnackBarBehavior.floating,
+                      ),
+                    );
+                  }
+                } catch (e) {
+                  if (context.mounted) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text('Failed to reject: $e'),
+                        backgroundColor: Theme.of(context).colorScheme.error,
+                        behavior: SnackBarBehavior.floating,
+                      ),
+                    );
+                  }
+                }
+              },
+              child: const Text('Reject'),
+            ),
+          ),
+        ],
+      );
+    }
+
     if (status == OrderStatus.placed && isDalali) {
       return CustomButton(
         label: 'Assign Delivery',

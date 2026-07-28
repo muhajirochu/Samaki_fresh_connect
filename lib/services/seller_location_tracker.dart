@@ -23,6 +23,7 @@ import 'package:geolocator/geolocator.dart';
 
 import '../models/street_seller_model.dart';
 import '../utils/logger.dart';
+import '../utils/zanzibar_bounds.dart';
 import 'geohash_service.dart';
 
 enum SellerTrackerStatus {
@@ -178,6 +179,19 @@ class SellerLocationTracker extends ChangeNotifier {
       final staleEnough = _lastWriteAt == null ||
           DateTime.now().difference(_lastWriteAt!) >= _maxWriteInterval;
       if (!movedEnough && !staleEnough) return;
+    }
+    // Reject fixes outside Zanzibar. A momentary GPS glitch (lost
+    // signal, VPN, an emulator anchored to a faraway landmark) can
+    // produce a coordinate that is provably wrong for the Zanzibar
+    // marketplace. Skipping the write keeps the last good fix; the
+    // heartbeat will re-emit it on the next tick so `lastSeen`
+    // doesn't go stale.
+    if (!ZanzibarBounds.isValidZanzibarCoord(pos.latitude, pos.longitude)) {
+      AppLogger.warning(
+        'Seller GPS fix outside Zanzibar (${pos.latitude}, ${pos.longitude}) '
+        '— skipping write, keeping last good fix.',
+      );
+      return;
     }
     await _writeFix(pos);
   }

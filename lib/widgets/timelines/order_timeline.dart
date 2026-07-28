@@ -19,8 +19,12 @@ class OrderTimeline extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
-    // Define the generic happy path
+    // Define the generic happy path. `pending` is the buyer's
+    // initial state on create; we collapse it with `placed` so the
+    // timeline renders the same first node for both flavors of
+    // "first step".
     final steps = [
+      OrderStatus.pending,
       OrderStatus.placed,
       OrderStatus.assigned,
       OrderStatus.pickedUp,
