@@ -159,7 +159,11 @@ class SamakiFreshApp extends ConsumerWidget {
           ),
         );
       },
-      routerConfig: appRouter,
+      // The router is built inside the Riverpod scope so it can
+      // wire `refreshListenable` to the auth-state notifier.
+      // `routerProvider` never re-emits, so this instance is
+      // stable across theme/locale rebuilds.
+      routerConfig: ref.watch(routerProvider),
     );
   }
 }

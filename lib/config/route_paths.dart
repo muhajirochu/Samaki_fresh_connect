@@ -5,7 +5,13 @@
 /// [AppRoutes] (template strings) and [AppRouteNames] (typed route
 /// names) — keep the rest of the codebase go_router-only and prevent
 /// typos in the rare places where the path needs to be interpolated.
+///
+/// [AppRoutesExtensions.dashboardFor] is the single source of truth
+/// for the `UserRole → dashboard path` mapping, used by the auth
+/// redirect, the splash, and every sign-in surface.
 library;
+
+import '../models/enums/user_role.dart';
 
 class AppRoutes {
   const AppRoutes._();
@@ -63,6 +69,37 @@ class AppRoutes {
   static const adminOrderDetailPath = '/admin/orders/:orderId';
   static String adminUserProfile(String userId) => '/admin/users/$userId';
   static String adminOrderDetail(String orderId) => '/admin/orders/$orderId';
+
+  // ── Notifications (role-aware) ─────────────────────────────────────
+  // The TopAppBar's notifications bell already routes admins and
+  // street sellers to `/admin/notifications` and
+  // `/seller/notifications` respectively. Both paths have a real
+  // GoRoute below so tapping the bell no longer falls into the
+  // "Page not found" errorBuilder.
+  static const adminNotifications = '/admin/notifications';
+  static const sellerNotifications = '/seller/notifications';
+
+  // ── Catch-all for unknown URLs ────────────────────────────────────────
+  // Any path that doesn't match a registered route bounces here and
+  // is redirected to `/login`. Keeps users out of the "Page not
+  // found" errorBuilder.
+  static const catchAll = '/:pathMatch(.*)';
+}
+
+/// Pure role → dashboard-path mapping. Used by the auth redirect,
+/// splash, login and register screens so the mapping exists in
+/// exactly one place.
+extension AppRoutesExtensions on AppRoutes {
+  static String dashboardFor(UserRole role) {
+    switch (role) {
+      case UserRole.buyer:
+        return AppRoutes.dashboardBuyer;
+      case UserRole.streetSeller:
+        return AppRoutes.dashboardStreetSeller;
+      case UserRole.admin:
+        return AppRoutes.dashboardAdmin;
+    }
+  }
 }
 
 /// Route *names* used with `context.goNamed(...)` /
@@ -118,4 +155,8 @@ class AppRouteNames {
   static const adminSettings = 'adminSettings';
   static const adminUserProfile = 'adminUserProfile';
   static const adminOrderDetail = 'adminOrderDetail';
+
+  // Notifications
+  static const adminNotifications = 'adminNotifications';
+  static const sellerNotifications = 'sellerNotifications';
 }

@@ -608,13 +608,11 @@ class _AccountActionsCard extends ConsumerWidget {
     );
     if (shouldSignOut != true) return;
     if (!context.mounted) return;
-    setMockUser(null);
-    ref.invalidate(authStateProvider);
-    ref.invalidate(currentUserProvider);
-    ref.invalidate(currentUserStreamProvider);
-    ref.invalidate(currentUserDataProvider);
-    await ref.read(authServiceProvider).signOut();
-    if (context.mounted) context.go('/login');
+    // Single source of truth — delegates to the AuthController
+    // notifier. The router's redirect picks up the auth-state flip
+    // via authRefreshProvider and lands the user on /login; no
+    // imperative context.go here.
+    await ref.read(authControllerProvider.notifier).signOut();
   }
 
   @override

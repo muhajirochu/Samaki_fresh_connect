@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import '../../config/route_paths.dart';
 import '../../constants/app_colors.dart';
 import '../../providers/auth_provider.dart';
 import '../../widgets/common/app_logo.dart';
@@ -74,20 +75,13 @@ class _SplashScreenState extends ConsumerState<SplashScreen>
       try {
         final userModel = await ref.read(currentUserDataProvider.future);
         if (userModel != null && mounted) {
-          context.go(_routeForRole(userModel.role.name));
+          context.go(AppRoutesExtensions.dashboardFor(userModel.role));
           return;
         }
       } catch (_) {}
     }
-    if (mounted) context.go('/login');
+    if (mounted) context.go(AppRoutes.login);
   }
-
-  String _routeForRole(String role) => switch (role) {
-        'buyer' => '/dashboard/buyer',
-        'streetSeller' => '/dashboard/street_seller',
-        'admin' => '/dashboard/admin',
-        _ => '/login',
-      };
 
   @override
   Widget build(BuildContext context) {

@@ -280,15 +280,14 @@ class ProfileScreen extends ConsumerWidget {
                       ),
                       const SizedBox(height: AppSizes.paddingXXL),
                       OutlinedButton.icon(
-                        onPressed: () async {
-                          setMockUser(null);
-                          ref.invalidate(authStateProvider);
-                          ref.invalidate(currentUserProvider);
-                          ref.invalidate(currentUserStreamProvider);
-                          ref.invalidate(currentUserDataProvider);
-                          await ref.read(authServiceProvider).signOut();
-                          if (context.mounted) context.go('/login');
-                        },
+                        // Single source of truth — delegates to the
+                        // AuthController notifier. The router's
+                        // redirect picks up the auth-state flip via
+                        // authRefreshProvider and lands the user
+                        // on /login; no imperative context.go here.
+                        onPressed: () => ref
+                            .read(authControllerProvider.notifier)
+                            .signOut(),
                         icon: const Icon(Icons.logout_rounded, size: 18),
                         label: Text(l10n.logout),
                         style: OutlinedButton.styleFrom(

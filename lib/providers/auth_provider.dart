@@ -1,4 +1,5 @@
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/foundation.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import '../models/user_model.dart';
 import '../models/enums/user_role.dart';
@@ -151,6 +152,91 @@ final mockUserTickProvider = Provider<int>((ref) {
 final mockUserTickListenerProvider = StateProvider<int>(
   (_) => mockUserTickSeed,
 );
+
+// ── Auth refresh listenable ──────────────────────────────────────────────────
+//
+// `appRouter.refreshListenable` needs a `Listenable` that ticks
+// whenever auth state flips (sign-in / sign-out / role swap /
+// account swap) so the redirect rule re-runs without an explicit
+// navigation event.
+//
+// This is a *plain* Provider<ChangeNotifier>, NOT a
+// ChangeNotifierProvider — a ChangeNotifierProvider would rebuild
+// the listener itself on every notifyListeners, which would
+// re-create the router and reset navigation. A plain Provider
+// exposes the same ChangeNotifier instance for the lifetime of
+// the container so it can safely drive refreshListenable.
+class AuthRefreshNotifier extends ChangeNotifier {
+  // `notifyListeners()` is deferred to a microtask so it does not
+  // fire while Riverpod is still iterating its dependency graph
+  // (which causes `ConcurrentModificationError` on
+  // `_HashMap<ProviderElementBase, ...>` inside the
+  // `visitAncestors` rebuild loop). The re-entrancy guard
+  // collapses bursts of state flips into a single notification.
+  bool _scheduled = false;
+
+  AuthRefreshNotifier(Ref ref) {
+    // Re-run the redirect on every Firebase auth flip, every
+    // current-user stream emission, and every demo-user swap.
+    // The subscriptions keep those providers alive from app start
+    // — that is what makes the redirect reactive.
+    ref.listen<AsyncValue<User?>>(authStateProvider, (_, __) {
+      _scheduleNotify();
+    });
+    ref.listen<AsyncValue<UserModel?>>(
+      currentUserStreamProvider,
+      (_, __) {
+        _scheduleNotify();
+      },
+    );
+    ref.listen<int>(mockUserTickProvider, (_, __) {
+      _scheduleNotify();
+    });
+  }
+
+  void _scheduleNotify() {
+    if (_scheduled) return;
+    _scheduled = true;
+    Future<void>.microtask(() {
+      _scheduled = false;
+      notifyListeners();
+    });
+  }
+}
+
+final authRefreshProvider = Provider<AuthRefreshNotifier>((ref) {
+  final notifier = AuthRefreshNotifier(ref);
+  ref.onDispose(notifier.dispose);
+  return notifier;
+});
+
+// ── AuthController (Notifier) — single source of truth for sign-out ──────────
+//
+// `authControllerProvider.notifier.signOut()` is the only sanctioned
+// way for widgets to log the user out. It centralises the
+// `setMockUser(null)` + provider invalidations + Firebase
+// `signOut()` sequence so callers don't have to remember the
+// fragile dance. Navigation is intentionally *not* triggered here —
+// the router's redirect picks up the auth-state flip via
+// [authRefreshProvider] and sends the user to `/login`.
+class AuthController extends Notifier<void> {
+  @override
+  void build() {}
+
+  Future<void> signOut() async {
+    setMockUser(null);                       // bumps mock tick -> refresh notifier fires
+    ref.invalidate(authStateProvider);
+    ref.invalidate(currentUserProvider);
+    ref.invalidate(currentUserStreamProvider);
+    ref.invalidate(currentUserDataProvider);
+    // `AuthService.signOut()` is a no-op when Firebase is not
+    // initialised (so tests / cold-start race windows don't throw).
+    await ref.read(authServiceProvider).signOut();
+  }
+}
+
+final authControllerProvider =
+    NotifierProvider<AuthController, void>(AuthController.new);
 
 // Mock Firebase User implementation for offline/demo support
 class MockFirebaseUser implements User {

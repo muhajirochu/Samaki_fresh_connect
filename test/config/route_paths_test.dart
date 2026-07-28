@@ -8,9 +8,13 @@
 //   * Typos in a path string that break the GoRouter table.
 //   * Builders / GoRoute names that no longer match the constant in
 //     route_paths.dart — which would crash deep links.
+//   * The `AppRoutesExtensions.dashboardFor(role)` helper
+//     drifting away from `AppRoutes.dashboard*` constants.
 
 import 'package:flutter_test/flutter_test.dart';
+
 import 'package:samakifresh_connect/config/route_paths.dart';
+import 'package:samakifresh_connect/models/enums/user_role.dart';
 
 void main() {
   group('AppRoutes', () {
@@ -56,6 +60,49 @@ void main() {
       expect(AppRoutes.adminReports, startsWith('/admin/'));
       expect(AppRoutes.adminLogs, startsWith('/admin/'));
       expect(AppRoutes.adminSettings, startsWith('/admin/'));
+    });
+
+    test('notifications bell paths exist (admin and seller)', () {
+      // `TopAppBar.notificationsPathFor(role)` routes admins and
+      // street sellers here; the GoRoute table must have matching
+      // entries or tapping the bell lands on "Page not found".
+      expect(AppRoutes.adminNotifications, '/admin/notifications');
+      expect(AppRoutes.sellerNotifications, '/seller/notifications');
+      expect(AppRoutes.adminNotifications, startsWith('/admin/'));
+    });
+
+    test('catch-all path is a valid go_router wildcard', () {
+      expect(AppRoutes.catchAll, startsWith('/:'));
+      // go_router's pathMatch uses (.*) to swallow the rest.
+      expect(AppRoutes.catchAll, contains('(.*)'));
+    });
+  });
+
+  group('AppRoutesExtensions.dashboardFor', () {
+    test('maps every UserRole to the matching dashboard path', () {
+      expect(
+        AppRoutesExtensions.dashboardFor(UserRole.buyer),
+        AppRoutes.dashboardBuyer,
+      );
+      expect(
+        AppRoutesExtensions.dashboardFor(UserRole.streetSeller),
+        AppRoutes.dashboardStreetSeller,
+      );
+      expect(
+        AppRoutesExtensions.dashboardFor(UserRole.admin),
+        AppRoutes.dashboardAdmin,
+      );
+    });
+
+    test('the helper agrees with the dashboard path constants', () {
+      // Belt-and-braces — if anyone ever renames a dashboard
+      // constant without updating the helper, this catches it.
+      expect(AppRoutesExtensions.dashboardFor(UserRole.buyer),
+          '/dashboard/buyer');
+      expect(AppRoutesExtensions.dashboardFor(UserRole.streetSeller),
+          '/dashboard/street_seller');
+      expect(AppRoutesExtensions.dashboardFor(UserRole.admin),
+          '/dashboard/admin');
     });
   });
 

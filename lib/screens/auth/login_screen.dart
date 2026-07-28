@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
+import '../../config/route_paths.dart';
 import '../../config/theme_extensions.dart';
 import '../../l10n/app_localizations.dart';
 import '../../utils/validators.dart';
@@ -63,16 +64,10 @@ const List<DemoAccount> demoAccounts = [
 ];
 
 // ── Route helper ──────────────────────────────────────────────────────────────
-String _routeForRole(UserRole role) {
-  switch (role) {
-    case UserRole.buyer:
-      return '/dashboard/buyer';
-    case UserRole.streetSeller:
-      return '/dashboard/street_seller';
-    case UserRole.admin:
-      return '/dashboard/admin';
-  }
-}
+// The role → dashboard-path mapping now lives in
+// `lib/config/route_paths.dart` (`AppRoutesExtensions.dashboardFor`).
+// Call sites below use it directly so the mapping has exactly one
+// definition across the codebase.
 
 class LoginScreen extends HookConsumerWidget {
   const LoginScreen({super.key});
@@ -320,8 +315,15 @@ class _SignInTab extends HookConsumerWidget {
         ref.invalidate(currentUserProvider);
         ref.invalidate(currentUserStreamProvider);
         ref.invalidate(currentUserDataProvider);
-        isLoading.value = false;
-        if (context.mounted) context.go(_routeForRole(demo.role));
+        // Note: do NOT touch `isLoading.value` here — the auth-state
+        // flip above triggers the router's redirect (via
+        // authRefreshProvider), which calls `context.go(...)` and
+        // unmounts this widget. The `isLoading` ValueNotifier will be
+        // disposed along with the widget tree. Touching it after
+        // unmount throws "ValueNotifier was used after being disposed".
+        if (context.mounted) {
+          context.go(AppRoutesExtensions.dashboardFor(demo.role));
+        }
         return;
       }
 
@@ -346,7 +348,9 @@ class _SignInTab extends HookConsumerWidget {
                 subtitle: userData.email,
               );
             } catch (_) {/* swallow — audit-only */}
-            if (context.mounted) context.go(_routeForRole(userData.role));
+            if (context.mounted) {
+              context.go(AppRoutesExtensions.dashboardFor(userData.role));
+            }
           } else if (context.mounted) {
             _showSnack(context, 'Failed to fetch user data. Try again.',
                 isError: true);
@@ -357,7 +361,12 @@ class _SignInTab extends HookConsumerWidget {
           _showSnack(context, ErrorHandler.getErrorMessage(e), isError: true);
         }
       } finally {
-        isLoading.value = false;
+        // Guard against use-after-dispose: if navigation already
+        // happened (success path) the widget tree is gone. Same
+        // ValueNotifier-after-dispose issue as the demo branch above.
+        if (context.mounted) {
+          isLoading.value = false;
+        }
       }
     }
 
@@ -574,7 +583,9 @@ class _DemoCard extends HookConsumerWidget {
       ref.invalidate(currentUserStreamProvider);
       ref.invalidate(currentUserDataProvider);
 
-      if (context.mounted) context.go(_routeForRole(demo.role));
+      if (context.mounted) {
+        context.go(AppRoutesExtensions.dashboardFor(demo.role));
+      }
     }
 
     return Padding(

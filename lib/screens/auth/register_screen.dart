@@ -6,6 +6,7 @@ import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:image_picker/image_picker.dart';
+import '../../config/route_paths.dart';
 import '../../config/theme_extensions.dart';
 import '../../models/enums/user_role.dart';
 import '../../models/user_model.dart';
@@ -35,16 +36,10 @@ const _buyerAccent = Color(0xFF2E8B57);
 // ─────────────────────────────────────────────────────────────────────────────
 // Route helper
 // ─────────────────────────────────────────────────────────────────────────────
-String _routeForRole(UserRole role) {
-  switch (role) {
-    case UserRole.buyer:
-      return '/dashboard/buyer';
-    case UserRole.streetSeller:
-      return '/dashboard/street_seller';
-    case UserRole.admin:
-      return '/dashboard/admin';
-  }
-}
+// The role → dashboard-path mapping now lives in
+// `lib/config/route_paths.dart` (`AppRoutesExtensions.dashboardFor`).
+// Call sites below use it directly so the mapping has exactly one
+// definition across the codebase.
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Main Screen
@@ -201,7 +196,7 @@ class RegisterScreen extends HookConsumerWidget {
         AppLogger.info('Registration complete for: ${user.uid}');
         if (context.mounted) {
           _snack(context, 'Welcome to SamakiFresh!');
-          context.go(_routeForRole(role));
+          context.go(AppRoutesExtensions.dashboardFor(role));
         }
       } catch (e) {
         AppLogger.error('Registration error: $e');
@@ -209,7 +204,13 @@ class RegisterScreen extends HookConsumerWidget {
           _snack(context, ErrorHandler.getErrorMessage(e), isError: true);
         }
       } finally {
-        isLoading.value = false;
+        // Guard against use-after-dispose: if navigation already
+        // happened (success path) the widget tree is gone. The
+        // `isLoading` ValueNotifier was created via `useState` and
+        // is disposed along with the widget.
+        if (context.mounted) {
+          isLoading.value = false;
+        }
       }
     }
 
@@ -229,7 +230,7 @@ class RegisterScreen extends HookConsumerWidget {
       body: Column(
         children: [
           // ── Header ──────────────────────────────────────────────────────────
-          _Header(onBack: () => context.go('/login'), gradient: gradients.hero),
+          _Header(onBack: () => context.go(AppRoutes.login), gradient: gradients.hero),
 
           // ── Form ────────────────────────────────────────────────────────────
           Expanded(
@@ -456,7 +457,7 @@ class RegisterScreen extends HookConsumerWidget {
                   const SizedBox(height: 16),
                   Center(
                     child: TextButton(
-                      onPressed: () => context.go('/login'),
+                      onPressed: () => context.go(AppRoutes.login),
                       child: RichText(
                         text: TextSpan(
                           text: 'Already have an account? ',
