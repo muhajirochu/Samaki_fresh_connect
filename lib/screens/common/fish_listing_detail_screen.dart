@@ -6,7 +6,6 @@ import '../../config/route_paths.dart';
 import '../../constants/app_sizes.dart';
 import '../../l10n/app_localizations.dart';
 import '../../models/user_model.dart';
-import '../../models/enums/user_role.dart';
 import '../../models/fish_listing_model.dart';
 import '../../models/order_model.dart';
 import '../../models/enums/order_status.dart';
@@ -328,9 +327,19 @@ class _BuyButton extends HookConsumerWidget {
           orderId: '', // Service sets this
           orderPath: OrderPath.directFromDalali.name,
           buyerId: currentUser!.userId,
-          streetSellerId: currentUser!.role == UserRole.streetSeller
-              ? currentUser!.userId
-              : null,
+          // Stamp the order with the LISTING'S seller — that's who
+          // needs to see this order in their queue and who will
+          // confirm the order. The previous role-check
+          // (`currentUser!.role == UserRole.streetSeller`) only
+          // worked for street-seller-bought-from-street-seller
+          // flows; in the (common) buyer-from-seller case it
+          // resolved to `null`, so the seller's
+          // `streamOrdersByStreetSeller` query (filtered by
+          // `streetSellerId == sellerId`) silently missed every
+          // order. Buyers can also act as sellers — see the
+          // `currentUser.role == streetSeller` branch — so this is
+          // a per-listing decision, not a per-user decision.
+          streetSellerId: listing.sellerId,
           listingId: listing.listingId,
           originalPrice: listing.totalPrice,
           finalPrice: listing.totalPrice * 1.07,
