@@ -299,30 +299,49 @@ class _SignInTab extends HookConsumerWidget {
 
       if (demo != null) {
         AppLogger.info('Demo login: ${demo.email}');
-        await Future.delayed(const Duration(milliseconds: 500));
-        final now = DateTime.now();
-        setMockUser(UserModel(
-          userId: 'demo_${demo.role.name}',
-          email: demo.email,
-          fullName: demo.name,
-          phoneNumber: '0700000000',
-          role: demo.role,
-          isActive: true,
-          createdAt: now,
-          updatedAt: now,
-        ));
-        ref.invalidate(authStateProvider);
-        ref.invalidate(currentUserProvider);
-        ref.invalidate(currentUserStreamProvider);
-        ref.invalidate(currentUserDataProvider);
-        // Note: do NOT touch `isLoading.value` here — the auth-state
-        // flip above triggers the router's redirect (via
-        // authRefreshProvider), which calls `context.go(...)` and
-        // unmounts this widget. The `isLoading` ValueNotifier will be
-        // disposed along with the widget tree. Touching it after
-        // unmount throws "ValueNotifier was used after being disposed".
-        if (context.mounted) {
-          context.go(AppRoutesExtensions.dashboardFor(demo.role));
+        // Demo accounts are real Firebase Auth accounts — the
+        // seeder provisions them on every cold start (see
+        // DemoSeeder.seedDemoAccounts). We must sign in via
+        // Firebase Auth, not just stamp a mock user locally, so the
+        // Firestore rules see `request.auth != null` and admit the
+        // demo session. The previous `setMockUser(...)` shortcut
+        // worked for the buyer because the buyer's queries are
+        // role-agnostic read-only, but for the admin it left
+        // `request.auth == null` and every collection read got
+        // PERMISSION_DENIED.
+        try {
+          final fbUser = await authService.signIn(
+            email: demo.email,
+            password: demo.password,
+          );
+          if (fbUser == null) {
+            throw StateError('Demo sign-in returned no user');
+          }
+          // Real Firebase Auth session is now established — clear
+          // any leftover mock user from a prior session so the auth
+          // state listener (which now sees a real auth event) wins.
+          setMockUser(null);
+          ref.invalidate(authStateProvider);
+          ref.invalidate(currentUserProvider);
+          ref.invalidate(currentUserStreamProvider);
+          ref.invalidate(currentUserDataProvider);
+          if (context.mounted) {
+            context.go(AppRoutesExtensions.dashboardFor(demo.role));
+          }
+        } catch (e) {
+          AppLogger.error('Demo sign-in failed for ${demo.email}: $e');
+          if (context.mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text(
+                  'Demo sign-in failed: $e\n'
+                  'Check that Firebase Auth is reachable and the '
+                  'demo accounts were seeded.',
+                ),
+                backgroundColor: Theme.of(context).colorScheme.error,
+              ),
+            );
+          }
         }
         return;
       }

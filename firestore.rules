@@ -61,16 +61,26 @@ service cloud.firestore {
       return isSignedIn() && request.auth.uid == uid;
     }
 
-    /// Admin recognition. Two paths:
+    /// Admin recognition. Three paths:
     ///   1. The `admin: true` custom claim set by a Cloud Function
     ///      after the Cloud Function verifies the admin invite.
-    ///   2. The seeded demo admin email `admin@samakifresh.com`.
-    ///      Remove this branch before production launch — the
-    ///      Cloud Function path is the only one we want.
+    ///   2. The seeded demo admin user doc — the seeder writes
+    ///      `role: 'admin'` on `users/{uid}`. This is what the
+    ///      in-app demo login flow relies on.
+    ///   3. The auth token's email identity matches the seeded
+    ///      admin address. This is a fallback for any client that
+    ///      bypasses the user-doc role check; the previous code
+    ///      read `request.auth.token.email`, which is NOT a real
+    ///      Firebase Auth claim — Firebase puts the verified email
+    ///      under `request.auth.token.firebase.identities.email`.
+    ///      The user-doc path (#2) is the canonical one; the
+    ///      identity check (#3) is kept only as a redundant
+    ///      safety net.
     function isAdmin() {
       return isSignedIn() && (
         request.auth.token.admin == true
-        || request.auth.token.email == 'admin@samakifresh.com'
+        || userRole() == 'admin'
+        || request.auth.token.firebase.identities.email == 'admin@samakifresh.com'
       );
     }
 
