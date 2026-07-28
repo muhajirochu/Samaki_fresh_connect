@@ -32,9 +32,8 @@ fresh fish listings.
 lib/
 ├── config/          # Theme + GoRouter wiring
 ├── constants/       # AppColors, AppSizes, AppStrings
-├── features/        # (reserved — currently empty after Phase 4 cleanup)
 ├── l10n/            # Generated AppLocalizations + .arb sources
-├── models/          # Domain models (Freezed) + enums
+├── models/          # Domain models (Freezed) + enums + Result<T,F>
 ├── providers/       # Riverpod providers (auth, listing, order, ...)
 ├── screens/         # Role-scoped screens (admin/auth/buyer/common/street_seller)
 ├── services/        # Firestore / Cloudinary / OSRM / geohash wrappers

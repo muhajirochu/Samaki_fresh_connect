@@ -36,7 +36,7 @@ subcollections** of `users/{uid}`:
   No anonymous sign-in, no OAuth / social login, no phone auth.
   Evidence: `AuthService.signUp` / `signIn` both call
   `FirebaseAuth.createUserWithEmailAndPassword` and
-  `signInWithEmailAndPassword` (`lib/services/auth_service.dart:40,64`).
+  `signInWithEmailAndPassword` (`lib/services/auth_service.dart:40,69`).
 - **Identity propagation:** every Firestore call uses
   `request.auth.uid`; the project does NOT use a separate backend
   identity layer.

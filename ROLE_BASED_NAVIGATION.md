@@ -1,6 +1,6 @@
 # Role-Based Navigation
 
-After a successful sign-in, `lib/config/routes.dart:50-93` redirects
+After a successful sign-in, `lib/config/routes.dart:49-92` redirects
 the user to the dashboard for their role. Roles are read from the
 `UserRole` enum (`lib/models/enums/user_role.dart`) and the
 `userRole` field on the signed-in user's Firestore doc.
@@ -20,7 +20,7 @@ live under `streetSeller`.
 
 ## Auth-route guard
 
-`lib/config/routes.dart:50` uses an inline redirect that:
+`lib/config/routes.dart:49` uses an inline redirect that:
 
 1. Bounces an unauthenticated user away from any protected path to
    `/login` (paths under `/splash`, `/login`, `/register` are the only
