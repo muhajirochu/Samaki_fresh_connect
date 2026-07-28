@@ -9,15 +9,26 @@ class OrderService {
 
   static const String _collection = 'orders';
 
-  /// Place a new order
+  /// Place a new order. Uses `doc(id).set(data)` with the id stamped
+  /// into the payload up front — the previous `add()` + `update()`
+  /// pattern wrote `orderId: ''` on create and then patched it in a
+  /// follow-up write; the buyer's UPDATE rule branch
+  /// (`fieldUnchanged('orderId')` on the
+  /// `pending → cancelled` / `in_transit → delivered` transitions)
+  /// rejected the second write as PERMISSION_DENIED because the
+  /// patch changed `orderId` without matching any allowed transition.
+  /// Stamping the id in one shot matches the listing-create pattern
+  /// at `FishListingService.createListing` and keeps the buyer
+  /// write to a single round-trip.
   Future<String> createOrder(OrderModel order) async {
     if (!_isAvailable) throw StateError('Firebase not available');
     try {
       AppLogger.info('Creating order for buyer: ${order.buyerId}');
+      final docRef = _firestore.collection(_collection).doc();
       final data = order.toJson();
+      data['orderId'] = docRef.id;
       data['createdAt'] = FieldValue.serverTimestamp();
-      final docRef = await _firestore.collection(_collection).add(data);
-      await docRef.update({'orderId': docRef.id});
+      await docRef.set(data);
       AppLogger.info('Order created: ${docRef.id}');
       return docRef.id;
     } catch (e) {
