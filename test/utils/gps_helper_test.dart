@@ -3,7 +3,7 @@
 // Pure functions only — no Flutter binding required.
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:samakifresh_connect/features/map/utils/gps_helper.dart';
+import 'package:samakifresh_connect/utils/gps_helper.dart';
 
 void main() {
   group('mpsToKmph', () {

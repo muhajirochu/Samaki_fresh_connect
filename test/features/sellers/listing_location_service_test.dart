@@ -7,7 +7,7 @@
 // the result it returns.
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:samakifresh_connect/features/map/services/gps_service.dart' show GpsFailure;
+import 'package:samakifresh_connect/services/gps_failure.dart';
 import 'package:samakifresh_connect/models/user_model.dart';
 import 'package:samakifresh_connect/services/fish_listing_service.dart';
 import 'package:samakifresh_connect/services/listing_location_service.dart';

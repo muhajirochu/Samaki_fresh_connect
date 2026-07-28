@@ -26,7 +26,6 @@ class AppRoutes {
   static const buyerNotifications = '/buyer/notifications';
   static const buyerWishlist = '/buyer/wishlist';
   static const buyerRequests = '/buyer/requests';
-  static const mapFoundation = '/map-foundation';
   static const buyerSellerTrackingPath = '/buyer/seller/:sellerId';
   static String buyerSellerTracking(String sellerId) =>
       '/buyer/seller/$sellerId';
@@ -90,7 +89,6 @@ class AppRouteNames {
   static const buyerWishlist = 'buyerWishlist';
   static const buyerRequests = 'buyerRequests';
   static const buyerSellerTracking = 'buyerSellerTracking';
-  static const mapFoundation = 'mapFoundation';
 
   // ── Listings ────────────────────────────────────────────────────
   static const listings = 'listings';

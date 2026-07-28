@@ -36,7 +36,6 @@ import '../screens/common/profile_screen.dart';
 import '../screens/common/edit_profile_screen.dart';
 import '../screens/common/settings_screen.dart';
 import '../screens/common/language_selector_screen.dart';
-import '../features/map/screens/map_screen.dart';
 import 'route_paths.dart';
 
 // GoRouter requires a listenable to re-evaluate redirect on auth change.
@@ -172,11 +171,6 @@ final appRouter = GoRouter(
         final q = state.uri.queryParameters['q'];
         return BuyerFishSearchScreen(initialQuery: q);
       },
-    ),
-    GoRoute(
-      path: AppRoutes.mapFoundation,
-      name: AppRouteNames.mapFoundation,
-      builder: (context, state) => const MapScreen(),
     ),
     GoRoute(
       path: AppRoutes.buyerNotifications,

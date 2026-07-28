@@ -14,8 +14,8 @@
 
 import 'package:geocoding/geocoding.dart' show placemarkFromCoordinates;
 
-import '../features/map/models/result.dart';
-import '../features/map/services/gps_service.dart' show GpsFailure;
+import '../models/result.dart';
+import 'gps_failure.dart';
 import '../utils/logger.dart';
 import 'fish_listing_service.dart';
 import 'location_service.dart' show BuyerLocation, LocationService;

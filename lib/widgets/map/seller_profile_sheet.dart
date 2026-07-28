@@ -23,7 +23,7 @@ import 'package:url_launcher/url_launcher.dart';
 
 import '../../config/theme_extensions.dart';
 import '../../constants/app_sizes.dart';
-import '../../features/map/utils/gps_helper.dart';
+import '../../utils/gps_helper.dart';
 import '../../l10n/app_localizations.dart';
 import '../../models/street_seller_model.dart';
 import '../common/premium_components.dart';

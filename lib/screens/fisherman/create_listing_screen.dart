@@ -6,7 +6,7 @@ import 'package:go_router/go_router.dart';
 import 'package:image_picker/image_picker.dart';
 import '../../constants/app_sizes.dart';
 import '../../constants/app_strings.dart';
-import '../../features/map/services/gps_service.dart' show GpsFailure;
+import '../../services/gps_failure.dart';
 import '../../l10n/app_localizations.dart';
 import '../../models/fish_listing_model.dart';
 import '../../models/enums/fish_type.dart';

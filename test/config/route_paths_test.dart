@@ -76,7 +76,6 @@ void main() {
         AppRouteNames.buyerWishlist,
         AppRouteNames.buyerRequests,
         AppRouteNames.buyerSellerTracking,
-        AppRouteNames.mapFoundation,
         AppRouteNames.listings,
         AppRouteNames.listingsCreate,
         AppRouteNames.listingsMine,

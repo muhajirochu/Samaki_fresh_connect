@@ -10,7 +10,7 @@ import 'package:flutter/material.dart';
 
 import '../../config/theme_extensions.dart';
 import '../../constants/app_sizes.dart';
-import '../../features/map/utils/gps_helper.dart';
+import '../../utils/gps_helper.dart';
 import '../../models/map_filter_model.dart';
 import '../../models/street_seller_model.dart';
 import '../../services/routing_service.dart';
