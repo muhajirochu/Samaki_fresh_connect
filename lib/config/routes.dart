@@ -26,7 +26,7 @@ import '../screens/admin/admin_reports_screen.dart';
 import '../screens/admin/admin_activity_logs_screen.dart';
 import '../screens/admin/admin_settings_screen.dart';
 import '../screens/common/fish_listings_screen.dart';
-import '../screens/fisherman/create_listing_screen.dart';
+import '../screens/street_seller/create_listing_screen.dart';
 import '../screens/common/fish_listing_detail_screen.dart';
 import '../screens/common/edit_listing_screen.dart';
 import '../screens/common/my_listings_screen.dart';
