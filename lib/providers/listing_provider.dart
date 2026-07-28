@@ -19,10 +19,6 @@ final cloudinaryServiceProvider = Provider<CloudinaryService>(
   (ref) => CloudinaryService(),
 );
 
-final locationServiceProvider = Provider<LocationService>(
-  (ref) => LocationService(),
-);
-
 final listingLocationServiceProvider = Provider<ListingLocationService>(
   (ref) => ListingLocationService(
     locationService: ref.watch(locationServiceProvider),
@@ -136,7 +132,13 @@ class ListingManagementController extends StateNotifier<AsyncValue<void>> {
     }
     state = const AsyncValue.loading();
     try {
-      await _service.markAsSold(listingId);
+      final ok = await _service.tryMarkAsSold(listingId);
+      if (!ok) {
+        state = const AsyncValue.data(null);
+        return const ListingActionResult.failure(
+          'Listing was already sold by another buyer',
+        );
+      }
       state = const AsyncValue.data(null);
       return const ListingActionResult.success();
     } catch (e, st) {

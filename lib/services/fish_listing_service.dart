@@ -509,19 +509,6 @@ class FishListingService {
     }
   }
 
-  /// Mark listing as sold
-  ///
-  /// Deprecated: callers should prefer [tryMarkAsSold] so concurrent
-  /// purchases can't double-mark the same row. Kept for compatibility
-  /// with the legacy "Mark as sold" admin button.
-  // ignore: deprecated_member_use
-  Future<void> markAsSold(String listingId) async {
-    await updateListing(listingId, {
-      'status': 'sold',
-      'soldAt': FieldValue.serverTimestamp(),
-    });
-  }
-
   /// Delete a listing
   Future<void> deleteListing(String listingId) async {
     if (!_isAvailable) return;

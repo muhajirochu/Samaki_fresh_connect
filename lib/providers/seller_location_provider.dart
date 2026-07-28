@@ -115,9 +115,6 @@ final liveSellersProvider = StreamProvider<List<StreetSellerModel>>((ref) {
   });
 });
 
-/// Live street sellers shown to buyers on the dashboard and map.
-final liveStreetSellersProvider = liveSellersProvider;
-
 /// Maximum number of sellers we materialise in memory at once. The
 /// buyer map + search only need the most recently active slice.
 const int _maxActiveSellers = 500;

@@ -4,17 +4,11 @@ import '../models/user_model.dart';
 import '../models/enums/user_role.dart';
 import '../services/auth_service.dart';
 import '../services/user_service.dart';
-import '../services/notification_service.dart';
 
 // ── Service Providers ─────────────────────────────────────────────────────────
 final authServiceProvider = Provider<AuthService>((ref) => AuthService());
 
 final userServiceProvider = Provider<UserService>((ref) => UserService());
-
-/// Overridden in main.dart with the already-initialized instance (BUG-04 fix).
-final notificationServiceProvider = Provider<NotificationService>(
-  (ref) => NotificationService(),
-);
 
 // Global offline mock user variable (shared across all ProviderContainers and GoRouter)
 // Set it via [setMockUser] (the public setter below) so every downstream

@@ -11,6 +11,7 @@ import 'providers/theme_provider.dart';
 import 'services/storage_service.dart';
 import 'services/notification_service.dart';
 import 'providers/auth_provider.dart';
+import 'providers/notification_provider.dart';
 import 'utils/logger.dart';
 import 'firebase_options.dart';
 import 'services/demo_seeder.dart';
