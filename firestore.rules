@@ -432,16 +432,21 @@ service cloud.firestore {
     }
 
     // ─────────────── activityLogs/{logId} ───────────────
-    // Append-only audit trail. Admins read everything and write
-    // on every privileged mutation. Individual users can read
-    // their own actor entries for transparency.
+    // Append-only audit trail. Admins read everything; the actor
+    // and an admin can read their own entries for transparency.
+    // Every signed-in user can write a self-attributed entry
+    // (login, listing-create, etc.) — but the actorUid MUST equal
+    // auth.uid so a user cannot forge an audit entry blaming
+    // someone else.
     match /activityLogs/{logId} {
       allow read: if isAdmin()
         || (isSignedIn() && resource.data.actorUid == request.auth.uid);
 
-      // The writer must stamp their own uid so they can't forge
-      // audit entries that blame someone else.
-      allow create: if isAdmin()
+      // Self-attributed create: actorUid must equal auth.uid, the
+      // entry must have a type + title, and may not be written as
+      // someone else's action. Admins can also create entries on
+      // behalf of the system (e.g. moderation actions).
+      allow create: if isSignedIn()
         && request.resource.data.actorUid == request.auth.uid
         && request.resource.data.type is string
         && request.resource.data.title is string;

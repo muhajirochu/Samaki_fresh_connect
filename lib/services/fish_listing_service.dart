@@ -92,14 +92,37 @@ class FishListingService {
       data['geo'] = GeoPoint(coords.$1, coords.$2);
       data['geohash'] = _encodeGeohash(coords.$1, coords.$2);
 
-      final docRef = await _firestore.collection(_collection).add(data);
-      // Update the doc with its own id
-      await docRef.update({'listingId': docRef.id});
+      // Allocate the doc id up front so the create payload already
+      // contains `listingId == docId` — the Firestore rule at
+      // firestore.rules (match /fishListings/{listingId}) requires
+      // that equality on create. Using `add()` + a follow-up
+      // `update({'listingId': id})` is two round-trips and the second
+      // write fails with PERMISSION_DENIED (the create-time equality
+      // check rejects the missing field on the first write). Single
+      // `set()` with the id stamped in succeeds atomically.
+      final docRef = _firestore.collection(_collection).doc();
+      data['listingId'] = docRef.id;
+      await docRef.set(data);
       AppLogger.info(
           'Listing created: ${docRef.id} at ${coords.$1},${coords.$2}');
       return docRef.id;
     } catch (e) {
       AppLogger.error('Error creating listing: $e');
+      // Translate Firestore's generic permission-denied into an
+      // actionable message for the seller UI. The rule at
+      // firestore.rules requires the seller to be approved+active
+      // (`isActiveApprovedSeller`) — a freshly-registered seller who
+      // hasn't been approved by an admin yet will hit this branch
+      // every time they try to post. The raw
+      // "PERMISSION_DENIED: Missing or insufficient permissions"
+      // string would only confuse them.
+      if (e is FirebaseException && e.code == 'permission-denied') {
+        throw StateError(
+          'Your seller account is pending admin approval. '
+          'You can post listings once an administrator approves '
+          'your account.',
+        );
+      }
       rethrow;
     }
   }

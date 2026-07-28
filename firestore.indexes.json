@@ -80,48 +80,6 @@
       ]
     },
     {
-      "comment": "streamOrdersInRange: orders WHERE createdAt>=start AND createdAt<end. Required for range queries.",
-      "collectionGroup": "orders",
-      "queryScope": "COLLECTION",
-      "fields": [
-        { "fieldPath": "createdAt", "order": "ASCENDING" }
-      ]
-    },
-    {
-      "comment": "streamTodaysOrders: orders WHERE createdAt>=midnight. Range query; ASC index covers it.",
-      "collectionGroup": "orders",
-      "queryScope": "COLLECTION",
-      "fields": [
-        { "fieldPath": "createdAt", "order": "ASCENDING" }
-      ]
-    },
-    {
-      "comment": "streamAllOrders: no .where — full collection scan. No composite index needed. Single-field 'createdAt' is auto.",
-      "collectionGroup": "orders",
-      "queryScope": "COLLECTION",
-      "fields": [
-        { "fieldPath": "createdAt", "order": "ASCENDING" }
-      ]
-    },
-    {
-      "comment": "streamOrdersCountByStatus: orders WHERE orderStatus==X. Same shape as streamOrdersByStatus.",
-      "collectionGroup": "orders",
-      "queryScope": "COLLECTION",
-      "fields": [
-        { "fieldPath": "orderStatus", "order": "ASCENDING" },
-        { "fieldPath": "createdAt",   "order": "DESCENDING" }
-      ]
-    },
-    {
-      "comment": "streamAllUsers: users (no .where). No composite needed.",
-      "collectionGroup": "users",
-      "queryScope": "COLLECTION",
-      "fields": [
-        { "fieldPath": "role",       "order": "ASCENDING" },
-        { "fieldPath": "createdAt",  "order": "DESCENDING" }
-      ]
-    },
-    {
       "comment": "streamAllStreetSellers + streamAllBuyers + streamUserCountByRole: users WHERE role==X.",
       "collectionGroup": "users",
       "queryScope": "COLLECTION",
@@ -188,29 +146,12 @@
       ]
     },
     {
-      "comment": "streamAllCategories: fishCategories (no .where). No composite.",
-      "collectionGroup": "fishCategories",
-      "queryScope": "COLLECTION",
-      "fields": [
-        { "fieldPath": "displayName", "order": "ASCENDING" }
-      ]
-    },
-    {
-      "comment": "streamActiveCategories: fishCategories WHERE isActive==true.",
+      "comment": "streamAllCategories / streamActiveCategories: fishCategories — the unfiltered read needs no composite, the WHERE isActive==true read is covered by the (isActive ASC, displayName ASC) composite below. displayName-only single-field is auto.",
       "collectionGroup": "fishCategories",
       "queryScope": "COLLECTION",
       "fields": [
         { "fieldPath": "isActive",     "order": "ASCENDING" },
         { "fieldPath": "displayName",  "order": "ASCENDING" }
-      ]
-    },
-    {
-      "comment": "streamRecent: activityLogs (no .where). No composite needed.",
-      "collectionGroup": "activityLogs",
-      "queryScope": "COLLECTION",
-      "fields": [
-        { "fieldPath": "type",      "order": "ASCENDING" },
-        { "fieldPath": "createdAt", "order": "DESCENDING" }
       ]
     },
     {
