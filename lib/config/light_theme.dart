@@ -26,7 +26,7 @@ import 'theme_extensions.dart';
 ThemeData buildLightTheme() {
   const tokens = AppColorTokens.light;
 
-  final textTheme = _buildTextTheme(
+  final textTheme = buildPoppinsTextTheme(
     textPrimary: tokens.textPrimary,
     textSecondary: tokens.textSecondary,
     textHint: tokens.textHint,
@@ -355,8 +355,10 @@ ThemeData buildLightTheme() {
 }
 
 // Shared Poppins-based text theme used by both light and dark
-// variants — only the colour tokens differ.
-TextTheme _buildTextTheme({
+// variants — only the colour tokens differ. Exported as
+// [buildPoppinsTextTheme] so [buildDarkTheme] can reuse it without
+// duplicating the 15 TextStyle entries.
+TextTheme buildPoppinsTextTheme({
   required Color textPrimary,
   required Color textSecondary,
   required Color textHint,

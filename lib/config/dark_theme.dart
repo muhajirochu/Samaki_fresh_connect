@@ -10,6 +10,7 @@ import 'package:google_fonts/google_fonts.dart';
 
 import '../constants/app_colors.dart';
 import '../constants/app_sizes.dart';
+import 'light_theme.dart' show buildPoppinsTextTheme;
 import 'theme_extensions.dart';
 
 ThemeData buildDarkTheme() {
@@ -44,7 +45,7 @@ ThemeData buildDarkTheme() {
     shadow: tokens.shadow,
   );
 
-  final textTheme = _buildDarkTextTheme(
+  final textTheme = buildPoppinsTextTheme(
     textPrimary: tokens.textPrimary,
     textSecondary: tokens.textSecondary,
     textHint: tokens.textHint,
@@ -345,98 +346,3 @@ ThemeData buildDarkTheme() {
   );
 }
 
-TextTheme _buildDarkTextTheme({
-  required Color textPrimary,
-  required Color textSecondary,
-  required Color textHint,
-}) {
-  return GoogleFonts.poppinsTextTheme().copyWith(
-    displayLarge: GoogleFonts.poppins(
-      fontSize: AppSizes.font4XL,
-      fontWeight: FontWeight.w700,
-      color: textPrimary,
-      letterSpacing: -0.5,
-      height: 1.15,
-    ),
-    displayMedium: GoogleFonts.poppins(
-      fontSize: AppSizes.font3XL,
-      fontWeight: FontWeight.w700,
-      color: textPrimary,
-      letterSpacing: -0.5,
-      height: 1.2,
-    ),
-    displaySmall: GoogleFonts.poppins(
-      fontSize: AppSizes.fontXXL,
-      fontWeight: FontWeight.w700,
-      color: textPrimary,
-      letterSpacing: -0.4,
-      height: 1.2,
-    ),
-    headlineLarge: GoogleFonts.poppins(
-      fontSize: AppSizes.fontXXL,
-      fontWeight: FontWeight.w600,
-      color: textPrimary,
-      letterSpacing: -0.3,
-    ),
-    headlineMedium: GoogleFonts.poppins(
-      fontSize: AppSizes.fontXL,
-      fontWeight: FontWeight.w600,
-      color: textPrimary,
-      letterSpacing: -0.2,
-    ),
-    headlineSmall: GoogleFonts.poppins(
-      fontSize: AppSizes.fontLG,
-      fontWeight: FontWeight.w600,
-      color: textPrimary,
-    ),
-    titleLarge: GoogleFonts.poppins(
-      fontSize: AppSizes.fontLG,
-      fontWeight: FontWeight.w600,
-      color: textPrimary,
-    ),
-    titleMedium: GoogleFonts.poppins(
-      fontSize: AppSizes.fontMD,
-      fontWeight: FontWeight.w600,
-      color: textPrimary,
-    ),
-    titleSmall: GoogleFonts.poppins(
-      fontSize: AppSizes.fontSM,
-      fontWeight: FontWeight.w600,
-      color: textPrimary,
-    ),
-    bodyLarge: GoogleFonts.poppins(
-      fontSize: AppSizes.fontMD,
-      fontWeight: FontWeight.normal,
-      color: textPrimary,
-      height: 1.5,
-    ),
-    bodyMedium: GoogleFonts.poppins(
-      fontSize: AppSizes.fontSM,
-      fontWeight: FontWeight.normal,
-      color: textSecondary,
-      height: 1.5,
-    ),
-    bodySmall: GoogleFonts.poppins(
-      fontSize: AppSizes.fontXS,
-      fontWeight: FontWeight.normal,
-      color: textSecondary,
-      height: 1.5,
-    ),
-    labelLarge: GoogleFonts.poppins(
-      fontSize: AppSizes.fontMD,
-      fontWeight: FontWeight.w600,
-      color: textPrimary,
-    ),
-    labelMedium: GoogleFonts.poppins(
-      fontSize: AppSizes.fontSM,
-      fontWeight: FontWeight.w500,
-      color: textPrimary,
-    ),
-    labelSmall: GoogleFonts.poppins(
-      fontSize: AppSizes.fontXS,
-      fontWeight: FontWeight.w500,
-      color: textHint,
-      letterSpacing: 0.2,
-    ),
-  );
-}

@@ -109,23 +109,6 @@ final currentUserStreamProvider = StreamProvider<UserModel?>((ref) {
   return userService.userStream(currentUser.uid);
 });
 
-// ── Mock user stream ───────────────────────────────────────────────────────
-//
-// A separate stream that pushes the current mockUser whenever
-// `setMockUser` is called. Wired into [currentUserStreamProvider]
-// so the demo / offline path rebuilds with the latest user data
-// every time the auth state changes.
-//
-// (Commented out — the dependency was not strictly needed once
-//  mockUserTickProvider was wired through main.dart's
-//  ProviderContainer.)
-// final _mockUserStreamProvider = StreamProvider<UserModel?>((ref) {
-//   final version = ref.watch(mockUserTickProvider);
-//   return Stream.value(mockUser).map((user) {
-//     return version >= 0 ? user : null;
-//   });
-// });
-
 // ── Current User Data — future provider (for splash, login flow) ──────────────
 final currentUserDataProvider = FutureProvider<UserModel?>((ref) async {
   ref.watch(mockUserTickProvider);

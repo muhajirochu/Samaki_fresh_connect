@@ -73,7 +73,7 @@ class _DashboardSearchBarState extends ConsumerState<DashboardSearchBar> {
     context.push('/buyer/search?q=${Uri.encodeQueryComponent(q)}');
   }
 
-  void _applySuggestion(String label, String? fishTypeValue) {
+  void _applySuggestion(String label) {
     _ctrl.text = label;
     _ctrl.selection = TextSelection.fromPosition(
       TextPosition(offset: label.length),
@@ -89,10 +89,6 @@ class _DashboardSearchBarState extends ConsumerState<DashboardSearchBar> {
     context.push(
       '/buyer/search?q=${Uri.encodeQueryComponent(label)}',
     );
-    // The fishType hint is preserved implicitly via the search query
-    // (the screen matches against the type enum name).
-    // ignore: unused_local_variable
-    final _ = fishTypeValue;
   }
 
   @override
@@ -188,7 +184,7 @@ class _DashboardSearchBarState extends ConsumerState<DashboardSearchBar> {
                       label: s.label,
                       imageUrl: s.imageUrl,
                       onTap: () =>
-                          _applySuggestion(s.label, s.fishTypeValue),
+                          _applySuggestion(s.label),
                     );
                   },
                 ),
