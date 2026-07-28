@@ -49,6 +49,13 @@ void main() async {
           options: DefaultFirebaseOptions.currentPlatform,
         );
         AppLogger.info('Firebase initialized successfully');
+      } on FirebaseException catch (e) {
+        if (e.code == 'duplicate-app') {
+          AppLogger.info('Firebase already initialized; skipping (duplicate-app).');
+        } else {
+          AppLogger.error('Firebase initialization error: $e');
+          // App continues in offline/demo mode
+        }
       } catch (e) {
         AppLogger.error('Firebase initialization error: $e');
         // App continues in offline/demo mode

@@ -3,15 +3,9 @@ import 'package:logger/logger.dart';
 
 class AppLogger {
   static final _logger = Logger(
-    // Only use PrettyPrinter in debug; silence in release (PERF-04 fix)
+    // Single-line output in debug; silence in release (PERF-04 fix)
     printer: kDebugMode
-        ? PrettyPrinter(
-            methodCount: 2,
-            errorMethodCount: 8,
-            lineLength: 120,
-            colors: true,
-            printEmojis: true,
-          )
+        ? SimplePrinter(colors: true, printTime: false)
         : SimplePrinter(colors: false, printTime: true),
     level: kDebugMode ? Level.trace : Level.warning,
   );

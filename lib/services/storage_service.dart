@@ -35,7 +35,6 @@ class StorageService {
   Future<void> setString(String key, String value) async {
     try {
       await _prefs.setString(key, value);
-      AppLogger.debug('Stored string: $key');
     } catch (e) {
       AppLogger.error('Error storing string: $e');
       rethrow;
@@ -55,7 +54,6 @@ class StorageService {
   Future<void> setInt(String key, int value) async {
     try {
       await _prefs.setInt(key, value);
-      AppLogger.debug('Stored int: $key');
     } catch (e) {
       AppLogger.error('Error storing int: $e');
       rethrow;
@@ -75,7 +73,6 @@ class StorageService {
   Future<void> setBool(String key, bool value) async {
     try {
       await _prefs.setBool(key, value);
-      AppLogger.debug('Stored bool: $key');
     } catch (e) {
       AppLogger.error('Error storing bool: $e');
       rethrow;
@@ -95,7 +92,6 @@ class StorageService {
   Future<void> setJson(String key, Map<String, dynamic> json) async {
     try {
       await _prefs.setString(key, jsonEncode(json));
-      AppLogger.debug('Stored JSON: $key');
     } catch (e) {
       AppLogger.error('Error storing JSON: $e');
       rethrow;
@@ -117,7 +113,6 @@ class StorageService {
   Future<void> remove(String key) async {
     try {
       await _prefs.remove(key);
-      AppLogger.debug('Removed: $key');
     } catch (e) {
       AppLogger.error('Error removing: $e');
       rethrow;

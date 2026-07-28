@@ -13,7 +13,7 @@ class UserService {
   Future<UserModel?> fetchUserById(String userId) async {
     if (!_isFirebaseAvailable) return null;
     try {
-      AppLogger.info('Fetching user data for: $userId');
+      AppLogger.debug('Fetching user data for: $userId');
 
       final doc = await _firestore.collection('users').doc(userId).get();
 
@@ -36,7 +36,7 @@ class UserService {
   Future<void> saveUser(UserModel user) async {
     if (!_isFirebaseAvailable) return;
     try {
-      AppLogger.info('Saving user data for: ${user.userId}');
+      AppLogger.debug('Saving user data for: ${user.userId}');
 
       await _firestore
           .collection('users')
@@ -70,7 +70,7 @@ class UserService {
   Future<void> updateUserRole(String userId, String newRole) async {
     if (!_isFirebaseAvailable) return;
     try {
-      AppLogger.info('Updating user role for: $userId to $newRole');
+      AppLogger.debug('Updating user role for: $userId to $newRole');
 
       await _firestore
           .collection('users')
@@ -91,7 +91,7 @@ class UserService {
   ) async {
     if (!_isFirebaseAvailable) return;
     try {
-      AppLogger.info('Updating profile for: $userId');
+      AppLogger.debug('Updating profile for: $userId');
       await _firestore.collection('users').doc(userId).update({
         ...fields,
         'updatedAt': DateTime.now().toIso8601String(),
@@ -117,7 +117,7 @@ class UserService {
   }) async {
     if (!_isFirebaseAvailable) return;
     try {
-      AppLogger.info('Updating location for user: $userId');
+      AppLogger.debug('Updating location for user: $userId');
       await _firestore.collection('users').doc(userId).update({
         'latitude': latitude,
         'longitude': longitude,
@@ -157,7 +157,7 @@ class UserService {
           try {
             list.add(UserModel.fromJson(d.data()));
           } catch (e) {
-            AppLogger.warning(
+            AppLogger.debug(
                 'streamAllUsers: dropping malformed doc ${d.id}: $e');
           }
         }
@@ -189,7 +189,7 @@ class UserService {
           try {
             list.add(UserModel.fromJson(d.data()));
           } catch (e) {
-            AppLogger.warning(
+            AppLogger.debug(
                 'streamAllStreetSellers: dropping malformed doc ${d.id}: $e');
           }
         }
@@ -275,7 +275,7 @@ class UserService {
           try {
             list.add(UserModel.fromJson(d.data()));
           } catch (e) {
-            AppLogger.warning(
+            AppLogger.debug(
                 'streamAllBuyers: dropping malformed doc ${d.id}: $e');
           }
         }
@@ -308,7 +308,7 @@ class UserService {
           try {
             list.add(UserModel.fromJson(d.data()));
           } catch (e) {
-            AppLogger.warning(
+            AppLogger.debug(
                 'streamAllSellersFull: dropping malformed doc ${d.id}: $e');
           }
         }
@@ -408,7 +408,7 @@ class UserService {
           try {
             list.add(UserModel.fromJson(d.data()));
           } catch (e) {
-            AppLogger.warning(
+            AppLogger.debug(
                 'streamSellersByApproval: dropping malformed doc ${d.id}: $e');
           }
         }
@@ -441,7 +441,7 @@ class UserService {
         try {
           list.add(UserModel.fromJson(d.data()));
         } catch (e) {
-          AppLogger.warning(
+          AppLogger.debug(
               'searchSellers: dropping malformed doc ${d.id}: $e');
         }
       }
@@ -474,7 +474,7 @@ class UserService {
         try {
           list.add(UserModel.fromJson(d.data()));
         } catch (e) {
-          AppLogger.warning(
+          AppLogger.debug(
               'searchBuyers: dropping malformed doc ${d.id}: $e');
         }
       }

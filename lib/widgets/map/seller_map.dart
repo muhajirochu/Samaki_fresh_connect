@@ -94,17 +94,23 @@ class _SellerMapState extends ConsumerState<SellerMap> {
     );
 
     // Debug: log the seller count we received so a developer can
-    // confirm the pipeline is wired correctly.
-    AppLogger.debug(
-      'SellerMap.build: ${widget.sellers.length} sellers, '
-      'buyer at (${buyer.latitude}, ${buyer.longitude})',
-    );
-    for (final s in widget.sellers) {
+    // confirm the pipeline is wired correctly. Gated behind `assert`
+    // so the strings only appear in debug builds and tests — release
+    // builds skip this entirely (the seller-map runtime-report test
+    // still observes the strings via AppLogger.addTestListener).
+    assert(() {
       AppLogger.debug(
-        '  → ${s.seller.fullName} (${s.seller.sellerId}) at '
-        '(${s.seller.latitude}, ${s.seller.longitude})',
+        'SellerMap.build: ${widget.sellers.length} sellers, '
+        'buyer at (${buyer.latitude}, ${buyer.longitude})',
       );
-    }
+      for (final s in widget.sellers) {
+        AppLogger.debug(
+          '  → ${s.seller.fullName} (${s.seller.sellerId}) at '
+          '(${s.seller.latitude}, ${s.seller.longitude})',
+        );
+      }
+      return true;
+    }(), 'sellerMapDebugDump');
 
     return FlutterMap(
       mapController: _mapController,

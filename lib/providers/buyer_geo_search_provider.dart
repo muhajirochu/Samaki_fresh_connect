@@ -177,12 +177,12 @@ Stream<List<NearbySellerWithFish>> _compose(
   late final List<StreamController<void>> pumps;
   late final List<ProviderSubscription<dynamic>> subs;
   late final StreamController<List<NearbySellerWithFish>> out;
-  late Timer debounce;
+  Timer? debounce;
 
   out = StreamController<List<NearbySellerWithFish>>.broadcast();
 
   void recompute() {
-    debounce.cancel();
+    debounce?.cancel();
     debounce = Timer(const Duration(milliseconds: 16), () {
       // Microtask: collect latest tick from each provider and emit.
       final sellers = ref.read(sellerProvider).valueOrNull ??
@@ -226,7 +226,7 @@ Stream<List<NearbySellerWithFish>> _compose(
   pumpFor(mapFilterControllerProvider);
 
   ref.onDispose(() {
-    debounce.cancel();
+    debounce?.cancel();
     for (final s in subs) {
       s.close();
     }

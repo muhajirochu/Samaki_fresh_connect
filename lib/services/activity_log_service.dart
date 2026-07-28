@@ -13,6 +13,7 @@
 // dependency.
 
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 
 import '../models/activity_log_model.dart';
@@ -53,12 +54,25 @@ class ActivityLogService {
         metadata: metadata,
         createdAt: DateTime.now(),
       );
-      // Server-timestamp the createdAt so reads sort correctly even
-      // when the client clock is off.
-      await docRef.set({
+      final payload = {
         ...entry.toJson(),
         'createdAt': FieldValue.serverTimestamp(),
-      });
+      };
+      // Diagnostic: surface the exact payload we are about to write
+      // so we can verify the rule precondition (actorUid ==
+      // auth.uid) is actually being satisfied. The rule at
+      // firestore.rules `match /activityLogs/{logId}` denies the
+      // write if these don't match — silent failure otherwise.
+      AppLogger.debug(
+        'ActivityLog write attempt: '
+        'authUid=${FirebaseAuth.instance.currentUser?.uid} '
+        'actorUid=$actorUid '
+        'type=$type '
+        'title=${title.substring(0, title.length.clamp(0, 40))}',
+      );
+      // Server-timestamp the createdAt so reads sort correctly even
+      // when the client clock is off.
+      await docRef.set(payload);
       return docRef.id;
     } catch (e) {
       AppLogger.warning('ActivityLog write failed: $e');
@@ -90,7 +104,7 @@ class ActivityLogService {
             }
             list.add(ActivityLogModel.fromJson(data));
           } catch (e) {
-            AppLogger.warning(
+            AppLogger.debug(
                 'streamRecent: dropping malformed doc ${d.id}: $e');
           }
         }
@@ -126,7 +140,7 @@ class ActivityLogService {
             }
             list.add(ActivityLogModel.fromJson(data));
           } catch (e) {
-            AppLogger.warning(
+            AppLogger.debug(
                 'streamByType: dropping malformed doc ${d.id}: $e');
           }
         }
@@ -161,7 +175,7 @@ class ActivityLogService {
             }
             list.add(ActivityLogModel.fromJson(data));
           } catch (e) {
-            AppLogger.warning(
+            AppLogger.debug(
                 'streamByActor: dropping malformed doc ${d.id}: $e');
           }
         }

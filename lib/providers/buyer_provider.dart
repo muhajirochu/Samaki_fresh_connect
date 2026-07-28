@@ -135,7 +135,10 @@ final buyerRecentSearchesProvider =
   final service = ref.watch(buyerDashboardServiceProvider);
   return service
       .streamRecentSearches(session.buyerId)
-      .map((raw) => raw.map(RecentSearch.fromMap).toList());
+      .map((raw) => raw.map(RecentSearch.fromMap).toList())
+      .handleError((Object e, StackTrace s) {
+    AppLogger.warning('buyerRecentSearchesProvider error: $e');
+  });
 });
 
 // ── Active street sellers (read-only) ─────────────────────────────────────────
@@ -184,7 +187,7 @@ final buyerDashboardProvider =
     final firstError = fish.error ?? requests.error ??
         searches.error ??
         sellers.error;
-    AppLogger.warning(
+    AppLogger.debug(
       'buyerDashboardProvider: at least one upstream stream errored: $firstError',
     );
     // We still try to render whatever data is available.

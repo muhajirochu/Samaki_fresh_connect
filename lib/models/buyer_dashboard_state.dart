@@ -4,9 +4,12 @@
 //      identity equality (e.g. two empty states should be `==`).
 //   2. Phase 1 doesn't need code generation for this file.
 
+import 'package:cloud_firestore/cloud_firestore.dart';
+
 import 'fish_item_model.dart';
 import 'fish_request_model.dart';
 import 'street_seller_model.dart';
+import '../utils/timestamp_converter.dart';
 
 class RecentSearch {
   final String query;
@@ -21,13 +24,14 @@ class RecentSearch {
 
   Map<String, dynamic> toMap() => {
         'query': query,
-        'searchedAt': searchedAt.toIso8601String(),
+        'searchedAt': Timestamp.fromDate(searchedAt),
         'resultCount': resultCount,
       };
 
   factory RecentSearch.fromMap(Map<String, dynamic> data) => RecentSearch(
         query: (data['query'] as String?) ?? '',
-        searchedAt: DateTime.tryParse((data['searchedAt'] as String?) ?? '') ??
+        searchedAt: const OptionalTimestampConverter()
+                .fromJson(data['searchedAt']) ??
             DateTime.now(),
         resultCount: (data['resultCount'] as num?)?.toInt() ?? 0,
       );

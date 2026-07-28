@@ -35,7 +35,7 @@ class AuthService {
   }) async {
     _ensureFirebaseAvailable();
     try {
-      AppLogger.info('Signing up user: $email');
+      AppLogger.debug('Signing up user: $email');
 
       final userCredential = await _firebaseAuth.createUserWithEmailAndPassword(
         email: email,
@@ -64,7 +64,7 @@ class AuthService {
   }) async {
     _ensureFirebaseAvailable();
     try {
-      AppLogger.info('Signing in user: $email');
+      AppLogger.debug('Signing in user: $email');
 
       final userCredential = await _firebaseAuth.signInWithEmailAndPassword(
         email: email,
@@ -87,7 +87,7 @@ class AuthService {
   Future<void> signOut() async {
     if (!_isFirebaseAvailable) return;
     try {
-      AppLogger.info('Signing out user');
+      AppLogger.debug('Signing out user');
       await _firebaseAuth.signOut();
       AppLogger.info('User signed out successfully');
     } catch (e) {
@@ -100,7 +100,7 @@ class AuthService {
   Future<void> sendPasswordResetEmail(String email) async {
     _ensureFirebaseAvailable();
     try {
-      AppLogger.info('Sending password reset email to: $email');
+      AppLogger.debug('Sending password reset email to: $email');
       await _firebaseAuth.sendPasswordResetEmail(email: email);
       AppLogger.info('Password reset email sent');
     } on FirebaseAuthException catch (e) {

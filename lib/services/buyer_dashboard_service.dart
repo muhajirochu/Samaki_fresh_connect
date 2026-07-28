@@ -46,17 +46,11 @@ class BuyerDashboardService {
     if (!_isAvailable) {
       return Stream.value(const <FishItemModel>[]);
     }
-    AppLogger.debug(
-      'streamApprovedFish: subscribing to fishListings where status=active',
-    );
     return _firestore
         .collection(_listingsCollection)
         .where('status', isEqualTo: 'active')
         .snapshots()
         .map((snap) {
-      AppLogger.debug(
-        'streamApprovedFish: snapshot size=${snap.docs.length}',
-      );
       final items = <FishItemModel>[];
       for (final d in snap.docs) {
         try {
@@ -67,10 +61,6 @@ class BuyerDashboardService {
               e, st);
         }
       }
-      AppLogger.debug(
-        'streamApprovedFish: returning ${items.length} buyable items '
-        'out of ${snap.docs.length} raw docs',
-      );
       items.sort((a, b) => b.createdAt.compareTo(a.createdAt));
       return items;
     });

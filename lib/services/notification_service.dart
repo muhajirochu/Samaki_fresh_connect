@@ -152,7 +152,7 @@ class NotificationService {
         try {
           list.add(_fromDoc(d));
         } catch (e) {
-          AppLogger.warning(
+          AppLogger.debug(
               'streamForUser: dropping malformed doc ${d.id}: $e');
         }
       }

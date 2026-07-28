@@ -10,7 +10,6 @@ import '../models/fish_item_model.dart';
 import '../models/street_seller_model.dart';
 import '../providers/buyer_provider.dart';
 import '../services/location_service.dart';
-import '../utils/logger.dart';
 
 /// A pair of (seller, matching fish items). The seller is the *place*;
 /// the items are what they currently have in stock that matches the
@@ -107,16 +106,6 @@ final sellersWithFishProvider = Provider<List<SellerWithFish>>((ref) {
   final sellers = sellersAsync.valueOrNull ?? const <StreetSellerModel>[];
   final fish = fishAsync.valueOrNull ?? const <FishItemModel>[];
 
-  // Debug: log if we get an empty sellers list so the developer can
-  // see *why* (loading vs. no data vs. session missing).
-  if (sellers.isEmpty) {
-    AppLogger.debug(
-      'sellersWithFishProvider: empty sellers. '
-      'asyncState=${sellersAsync.isLoading ? "loading" : sellersAsync.hasError ? "error" : "no-data"}, '
-      'fishCount=${fish.length}',
-    );
-  }
-
   final filterHasText = filter.fishType != null ||
       filter.searchQuery.trim().isNotEmpty;
 
@@ -139,11 +128,6 @@ final sellersWithFishProvider = Provider<List<SellerWithFish>>((ref) {
     if (filterHasText && matches.isEmpty) continue;
     result.add(SellerWithFish(seller: seller, matchingItems: matches));
   }
-
-  AppLogger.debug(
-    'sellersWithFishProvider: ${sellers.length} sellers loaded, '
-    '${result.length} will be shown after filter.',
-  );
 
   return result;
 });
