@@ -68,9 +68,16 @@ class _SendRequestSheetState extends ConsumerState<SendRequestSheet> {
   @override
   void initState() {
     super.initState();
-    _selectedType = widget.prefillFishType ??
-        widget.selectedSeller?.matchingItems.first.fishType ??
-        FishType.tuna;
+    // Pre-fill order: explicit prefilled type → first item in the
+    // seller's matchingItems (if any) → Tuna. The `isNotEmpty` guard
+    // matters because `matchingItems` can legitimately be empty when
+    // a seller has no fish matching the current filter — in that
+    // case `.first` would throw `Bad state: No element` and crash
+    // the bottom sheet during the first frame.
+    final firstItem = widget.selectedSeller?.matchingItems.isNotEmpty == true
+        ? widget.selectedSeller!.matchingItems.first.fishType
+        : null;
+    _selectedType = widget.prefillFishType ?? firstItem ?? FishType.tuna;
     _customNameCtrl = TextEditingController();
     _notesCtrl = TextEditingController();
   }
