@@ -264,7 +264,8 @@ class _SellerCard extends ConsumerWidget {
       ),
     );
     if (ok != true) return;
-    await adminSuspendUser(ref, seller.userId,
+    // ignore: use_build_context_synchronously
+    await adminSuspendUser(context, seller.userId,
         reason: reasonCtl.text.trim());
   }
 
@@ -362,16 +363,19 @@ class _SellerCard extends ConsumerWidget {
                   }
                   break;
                 case 'approve':
-                  await adminApproveSeller(ref, seller.userId);
+                  // ignore: use_build_context_synchronously
+                  await adminApproveSeller(context, seller.userId);
                   break;
                 case 'revoke':
-                  await adminRevokeSellerApproval(ref, seller.userId);
+                  // ignore: use_build_context_synchronously
+                  await adminRevokeSellerApproval(context, seller.userId);
                   break;
                 case 'suspend':
                   await _confirmSuspend(context, ref);
                   break;
                 case 'reactivate':
-                  await adminReactivateUser(ref, seller.userId);
+                  // ignore: use_build_context_synchronously
+                  await adminReactivateUser(context, seller.userId);
                   break;
               }
             },

@@ -8,6 +8,7 @@
 // Admin Settings). All counts update live because the underlying
 // Firestore queries use `.snapshots()`.
 
+import 'package:flutter/widgets.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
 import '../models/activity_log_model.dart';
@@ -305,17 +306,34 @@ final adminPlatformRevenueProvider = StreamProvider<double>((ref) {
 });
 
 // ── Mutation controllers ──────────────────────────────────────────
+//
+// These four helpers are fire-and-forget from the admin screens'
+// popup menus. The original signature took a `WidgetRef`, but
+// `WidgetRef` is bound to the widget's element and is unsafe to use
+// after an `await` if the widget unmounts in the meantime — Riverpod
+// throws "Cannot use 'ref' after the widget was disposed". The admin
+// dashboard rebuilds on every Firestore snapshot, so any pending
+// `await userService.approveSeller(...)` followed by `ref.invalidate`
+// was a race waiting to crash. Switching to a `ProviderContainer`
+// (captured from `ProviderScope.containerOf(context)`) gives us a
+// long-lived reference that survives the widget disposal.
+
+/// Capture the provider container for a context. Cheap; safe to call
+/// at the top of a popup-menu handler before any `await`.
+ProviderContainer _adminContainer(BuildContext context) =>
+    ProviderScope.containerOf(context, listen: false);
 
 /// Approve / revoke a seller. Caller must already be admin.
-Future<void> adminApproveSeller(WidgetRef ref, String sellerId) async {
-  final adminUid = ref.read(adminCurrentUidProvider);
+Future<void> adminApproveSeller(BuildContext context, String sellerId) async {
+  final container = _adminContainer(context);
+  final adminUid = container.read(adminCurrentUidProvider);
   if (adminUid == null) return;
-  final userService = ref.read(adminUserServiceProvider);
-  final logService = ref.read(adminActivityLogServiceProvider);
+  final userService = container.read(adminUserServiceProvider);
+  final logService = container.read(adminActivityLogServiceProvider);
   await userService.approveSeller(sellerId, adminUid);
-  ref.invalidate(adminAllSellersProvider);
-  ref.invalidate(adminAllUsersProvider);
-  ref.invalidate(adminUserCountsProvider);
+  container.invalidate(adminAllSellersProvider);
+  container.invalidate(adminAllUsersProvider);
+  container.invalidate(adminUserCountsProvider);
   await logService.write(
     type: 'adminAction',
     actorUid: adminUid,
@@ -327,14 +345,18 @@ Future<void> adminApproveSeller(WidgetRef ref, String sellerId) async {
   );
 }
 
-Future<void> adminRevokeSellerApproval(WidgetRef ref, String sellerId) async {
-  final adminUid = ref.read(adminCurrentUidProvider);
+Future<void> adminRevokeSellerApproval(
+  BuildContext context,
+  String sellerId,
+) async {
+  final container = _adminContainer(context);
+  final adminUid = container.read(adminCurrentUidProvider);
   if (adminUid == null) return;
-  final userService = ref.read(adminUserServiceProvider);
-  final logService = ref.read(adminActivityLogServiceProvider);
+  final userService = container.read(adminUserServiceProvider);
+  final logService = container.read(adminActivityLogServiceProvider);
   await userService.revokeSellerApproval(sellerId, adminUid);
-  ref.invalidate(adminAllSellersProvider);
-  ref.invalidate(adminAllUsersProvider);
+  container.invalidate(adminAllSellersProvider);
+  container.invalidate(adminAllUsersProvider);
   await logService.write(
     type: 'adminAction',
     actorUid: adminUid,
@@ -347,19 +369,20 @@ Future<void> adminRevokeSellerApproval(WidgetRef ref, String sellerId) async {
 }
 
 Future<void> adminSuspendUser(
-  WidgetRef ref,
+  BuildContext context,
   String userId, {
   String? reason,
 }) async {
-  final adminUid = ref.read(adminCurrentUidProvider);
+  final container = _adminContainer(context);
+  final adminUid = container.read(adminCurrentUidProvider);
   if (adminUid == null) return;
-  final userService = ref.read(adminUserServiceProvider);
-  final logService = ref.read(adminActivityLogServiceProvider);
+  final userService = container.read(adminUserServiceProvider);
+  final logService = container.read(adminActivityLogServiceProvider);
   await userService.suspendUser(userId, adminUid);
-  ref.invalidate(adminAllUsersProvider);
-  ref.invalidate(adminAllSellersProvider);
-  ref.invalidate(adminAllBuyersProvider);
-  ref.invalidate(adminUserCountsProvider);
+  container.invalidate(adminAllUsersProvider);
+  container.invalidate(adminAllSellersProvider);
+  container.invalidate(adminAllBuyersProvider);
+  container.invalidate(adminUserCountsProvider);
   await logService.write(
     type: 'adminAction',
     actorUid: adminUid,
@@ -376,16 +399,17 @@ Future<void> adminSuspendUser(
   );
 }
 
-Future<void> adminReactivateUser(WidgetRef ref, String userId) async {
-  final adminUid = ref.read(adminCurrentUidProvider);
+Future<void> adminReactivateUser(BuildContext context, String userId) async {
+  final container = _adminContainer(context);
+  final adminUid = container.read(adminCurrentUidProvider);
   if (adminUid == null) return;
-  final userService = ref.read(adminUserServiceProvider);
-  final logService = ref.read(adminActivityLogServiceProvider);
+  final userService = container.read(adminUserServiceProvider);
+  final logService = container.read(adminActivityLogServiceProvider);
   await userService.reactivateUser(userId, adminUid);
-  ref.invalidate(adminAllUsersProvider);
-  ref.invalidate(adminAllSellersProvider);
-  ref.invalidate(adminAllBuyersProvider);
-  ref.invalidate(adminUserCountsProvider);
+  container.invalidate(adminAllUsersProvider);
+  container.invalidate(adminAllSellersProvider);
+  container.invalidate(adminAllBuyersProvider);
+  container.invalidate(adminUserCountsProvider);
   await logService.write(
     type: 'adminAction',
     actorUid: adminUid,

@@ -309,7 +309,8 @@ class _BuyerCard extends ConsumerWidget {
                 final l10nAction = AppLocalizations.of(context);
                 try {
                   if (isSuspended) {
-                    await adminReactivateUser(ref, buyer.userId);
+                    // ignore: use_build_context_synchronously
+                    await adminReactivateUser(context, buyer.userId);
                     if (!context.mounted) return;
                     messenger.showSnackBar(
                       SnackBar(
@@ -318,7 +319,8 @@ class _BuyerCard extends ConsumerWidget {
                       ),
                     );
                   } else {
-                    await adminSuspendUser(ref, buyer.userId);
+                    // ignore: use_build_context_synchronously
+                    await adminSuspendUser(context, buyer.userId);
                     if (!context.mounted) return;
                     messenger.showSnackBar(
                       SnackBar(

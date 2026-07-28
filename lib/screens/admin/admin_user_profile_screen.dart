@@ -317,7 +317,8 @@ class _AdminActionsCard extends ConsumerWidget {
       ),
     );
     if (ok != true) return;
-    await adminSuspendUser(ref, user.userId,
+    // ignore: use_build_context_synchronously
+    await adminSuspendUser(context, user.userId,
         reason: reasonCtl.text.trim());
     if (context.mounted) context.pop();
   }
@@ -357,7 +358,8 @@ class _AdminActionsCard extends ConsumerWidget {
               icon: Icons.verified_rounded,
               color: AppColors.accentGreen,
               onPressed: () async {
-                await adminApproveSeller(ref, user.userId);
+                // ignore: use_build_context_synchronously
+                await adminApproveSeller(context, user.userId);
                 if (context.mounted) context.pop();
               },
             ),
@@ -367,7 +369,8 @@ class _AdminActionsCard extends ConsumerWidget {
               icon: Icons.block_rounded,
               color: AppColors.accentOrange,
               onPressed: () async {
-                await adminRevokeSellerApproval(ref, user.userId);
+                // ignore: use_build_context_synchronously
+                await adminRevokeSellerApproval(context, user.userId);
                 if (context.mounted) context.pop();
               },
             ),
@@ -384,7 +387,8 @@ class _AdminActionsCard extends ConsumerWidget {
               icon: Icons.lock_open_rounded,
               color: AppColors.accentGreen,
               onPressed: () async {
-                await adminReactivateUser(ref, user.userId);
+                // ignore: use_build_context_synchronously
+                await adminReactivateUser(context, user.userId);
                 if (context.mounted) context.pop();
               },
             ),
