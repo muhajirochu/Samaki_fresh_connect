@@ -128,24 +128,38 @@ class FishListingCard extends StatelessWidget {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Text(
-                          Formatters.formatCurrency(listing.totalPrice),
-                          style: Theme.of(context)
-                              .textTheme
-                              .titleMedium
-                              ?.copyWith(
-                                color: cs.primary,
-                                fontWeight: FontWeight.bold,
-                              ),
+                        // Both children are Flexible: a long price plus a
+                        // spelled-out Swahili relative time ("Dakika 5
+                        // zilizopita") exceeds the card width on a 360dp
+                        // phone and painted an overflow stripe.
+                        Flexible(
+                          child: Text(
+                            Formatters.formatCurrency(listing.totalPrice),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: Theme.of(context)
+                                .textTheme
+                                .titleMedium
+                                ?.copyWith(
+                                  color: cs.primary,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                          ),
                         ),
-                        Text(
-                          Formatters.formatRelativeTime(listing.createdAt),
-                          style: Theme.of(context)
-                              .textTheme
-                              .bodySmall
-                              ?.copyWith(
-                                color: cs.onSurface.withValues(alpha: 0.55),
-                              ),
+                        const SizedBox(width: AppSizes.paddingXS),
+                        Flexible(
+                          child: Text(
+                            Formatters.formatRelativeTime(listing.createdAt),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            textAlign: TextAlign.end,
+                            style: Theme.of(context)
+                                .textTheme
+                                .bodySmall
+                                ?.copyWith(
+                                  color: cs.onSurface.withValues(alpha: 0.55),
+                                ),
+                          ),
                         ),
                       ],
                     ),

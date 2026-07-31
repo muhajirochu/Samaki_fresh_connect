@@ -24,6 +24,18 @@ final streetSellerOrdersProvider =
   return service.streamOrdersByStreetSeller(sellerId);
 });
 
+/// Pending-order count for a street seller. Reuses the seller-side
+/// stream and filters client-side so we don't need a Firestore
+/// composite index. Backs the red badge on the seller dashboard's
+/// "My Orders" tile.
+final streetSellerPendingOrdersProvider =
+    StreamProvider.family<int, String>((ref, sellerId) {
+  final service = ref.watch(orderServiceProvider);
+  return service.streamOrdersByStreetSeller(sellerId).map(
+        (orders) => orders.where((o) => o.orderStatus == 'pending').length,
+      );
+});
+
 /// All orders the user participates in — as buyer OR as seller.
 ///
 /// Street sellers buy stock from other sellers (and vice versa), so a
@@ -42,6 +54,12 @@ final ordersForUserProvider =
   // Re-emit whenever either child emits. Combining the two lists
   // and de-duplicating by orderId keeps the UI stable as the two
   // snapshots land at different times.
+  //
+  // Emit as soon as ANY side has data — never wait for both. A
+  // street seller who has only sold (never bought) would otherwise
+  // stall on the buyer-side stream's first snapshot and the "My
+  // Orders" screen would spin forever, masking the seller-side
+  // orders that are already available.
   StreamController<List<OrderModel>>? controller;
   List<OrderModel>? lastBuyer;
   List<OrderModel>? lastSeller;
@@ -49,13 +67,18 @@ final ordersForUserProvider =
   void emit() {
     final b = lastBuyer;
     final s = lastSeller;
-    if (b == null || s == null) return;
+    // Only nothing → nothing. One side is enough.
+    if (b == null && s == null) return;
     final byId = <String, OrderModel>{};
-    for (final o in b) {
-      byId[o.orderId] = o;
+    if (b != null) {
+      for (final o in b) {
+        byId[o.orderId] = o;
+      }
     }
-    for (final o in s) {
-      byId[o.orderId] = o;
+    if (s != null) {
+      for (final o in s) {
+        byId[o.orderId] = o;
+      }
     }
     final merged = byId.values.toList()
       ..sort((a, b) => b.createdAt.compareTo(a.createdAt));

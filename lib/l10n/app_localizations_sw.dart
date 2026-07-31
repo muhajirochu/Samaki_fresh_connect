@@ -602,7 +602,7 @@ class AppLocalizationsSw extends AppLocalizations {
   String get filterByType => 'Chuja kwa aina ya samaki';
 
   @override
-  String distanceFromYou(Object distance) {
+  String distanceFromYou(String distance) {
     return '$distance km kutoka kwako';
   }
 
@@ -1319,6 +1319,14 @@ class AppLocalizationsSw extends AppLocalizations {
   String get orderPlacedSuccess => 'Agizo limewekwa!';
 
   @override
+  String get orderPlacedSellerTitle => 'Agizo jipya limewekwa';
+
+  @override
+  String orderPlacedSellerBody(String name) {
+    return '$name ameweka agizo kwenye orodha yako';
+  }
+
+  @override
   String get listingAlreadySold =>
       'Orodha hii haipatikani tena — mnunuzi mwingine amenunua samaki huyu.';
 
@@ -1568,4 +1576,121 @@ class AppLocalizationsSw extends AppLocalizations {
 
   @override
   String get goOnlineFailed => 'Imeshindwa kuwa online';
+
+  @override
+  String get dashboard => 'Dashibodi';
+
+  @override
+  String get myProducts => 'Bidhaa Zangu';
+
+  @override
+  String get messages => 'Ujumbe';
+
+  @override
+  String get cart => 'Kikapu';
+
+  @override
+  String get cartTitle => 'Kikapu Changu';
+
+  @override
+  String get cartEmptyTitle => 'Kikapu chako ni kitupu';
+
+  @override
+  String get cartEmptySubtitle =>
+      'Tafuta samaki na uwaongeze kwenye kikapu ili uwaagize wote kwa pamoja.';
+
+  @override
+  String get cartBrowseFish => 'Tafuta samaki';
+
+  @override
+  String get cartTotal => 'Jumla';
+
+  @override
+  String get cartCheckout => 'Agiza sasa';
+
+  @override
+  String get cartClear => 'Futa kikapu';
+
+  @override
+  String get cartClearConfirmTitle => 'Futa kikapu?';
+
+  @override
+  String get cartClearConfirmBody =>
+      'Hii itaondoa kila kitu kwenye kikapu chako. Haiwezi kurudishwa.';
+
+  @override
+  String get cartItemRemoved => 'Imeondolewa kwenye kikapu';
+
+  @override
+  String get cartAddedToCart => 'Imeongezwa kwenye kikapu';
+
+  @override
+  String get cartAlreadyInCart => 'Tayari ipo kwenye kikapu chako';
+
+  @override
+  String get addToCart => 'Weka kikapuni';
+
+  @override
+  String cartCheckoutSuccess(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Maagizo $count yamewekwa',
+      one: 'Agizo 1 limewekwa',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String cartCheckoutPartial(int placed, int total) {
+    return 'Vitu $placed kati ya $total vimeagizwa — vingine havipatikani tena';
+  }
+
+  @override
+  String get cartCheckoutFailed =>
+      'Imeshindwa kuweka agizo lako. Tafadhali jaribu tena.';
+
+  @override
+  String get cartUnavailable => 'Haipatikani tena';
+
+  @override
+  String cartPricePerKg(String price) {
+    return '$price/kg';
+  }
+
+  @override
+  String get contactsTitle => 'Ujumbe';
+
+  @override
+  String get contactsEmptyTitle => 'Bado hakuna wanunuzi';
+
+  @override
+  String get contactsEmptySubtitle =>
+      'Mtu akikuagizia, ataonekana hapa ili uweze kumpigia simu au kumtumia ujumbe.';
+
+  @override
+  String contactsOrderCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Maagizo $count',
+      one: 'Agizo 1',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get contactsCall => 'Piga simu';
+
+  @override
+  String get contactsSms => 'Tuma SMS';
+
+  @override
+  String get contactsNoPhone => 'Hakuna namba ya simu';
+
+  @override
+  String get contactsCallFailed => 'Imeshindwa kupiga simu';
+
+  @override
+  String get contactsSmsFailed => 'Imeshindwa kufungua ujumbe';
 }

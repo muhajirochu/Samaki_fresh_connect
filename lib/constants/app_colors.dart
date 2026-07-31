@@ -130,11 +130,22 @@ class AppColors {
     colors: [primaryBrightBlue, accentTealGreen],
   );
 
-  // Deep navy hero gradient used on splash/login and brand surfaces.
+  // Deep navy hero gradient used on splash/login and brand surfaces
+  // (dark theme).
   static const LinearGradient deepNavyGradient = LinearGradient(
     begin: Alignment.topLeft,
     end: Alignment.bottomRight,
     colors: [Color(0xFF0B1220), Color(0xFF1D4ED8)],
+  );
+
+  // Light-theme hero gradient — soft ocean teal/sky-blue so the
+  // light login screen reads as a sunny beach, not a dark cave.
+  // The colors mirror the dark hero so swapping themes still feels
+  // like the same brand.
+  static const LinearGradient oceanLightGradient = LinearGradient(
+    begin: Alignment.topLeft,
+    end: Alignment.bottomRight,
+    colors: [Color(0xFF5EEAD4), Color(0xFF0EA5E9)],
   );
 
   // Backwards-compatible alias used by some widgets.

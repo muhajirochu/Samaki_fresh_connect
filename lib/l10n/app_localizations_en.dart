@@ -604,7 +604,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get filterByType => 'Filter by fish type';
 
   @override
-  String distanceFromYou(Object distance) {
+  String distanceFromYou(String distance) {
     return '$distance km from you';
   }
 
@@ -1320,6 +1320,14 @@ class AppLocalizationsEn extends AppLocalizations {
   String get orderPlacedSuccess => 'Order placed successfully!';
 
   @override
+  String get orderPlacedSellerTitle => 'New order placed';
+
+  @override
+  String orderPlacedSellerBody(String name) {
+    return '$name just placed an order on one of your listings';
+  }
+
+  @override
   String get listingAlreadySold =>
       'This listing is no longer available — another buyer just purchased it.';
 
@@ -1566,4 +1574,121 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get goOnlineFailed => 'Imeshindwa kuwa online';
+
+  @override
+  String get dashboard => 'Dashboard';
+
+  @override
+  String get myProducts => 'My Products';
+
+  @override
+  String get messages => 'Messages';
+
+  @override
+  String get cart => 'Cart';
+
+  @override
+  String get cartTitle => 'My Cart';
+
+  @override
+  String get cartEmptyTitle => 'Your cart is empty';
+
+  @override
+  String get cartEmptySubtitle =>
+      'Browse fish and add them to your cart to order them all at once.';
+
+  @override
+  String get cartBrowseFish => 'Browse fish';
+
+  @override
+  String get cartTotal => 'Total';
+
+  @override
+  String get cartCheckout => 'Place order';
+
+  @override
+  String get cartClear => 'Clear cart';
+
+  @override
+  String get cartClearConfirmTitle => 'Clear cart?';
+
+  @override
+  String get cartClearConfirmBody =>
+      'This removes every item from your cart. It cannot be undone.';
+
+  @override
+  String get cartItemRemoved => 'Removed from cart';
+
+  @override
+  String get cartAddedToCart => 'Added to cart';
+
+  @override
+  String get cartAlreadyInCart => 'Already in your cart';
+
+  @override
+  String get addToCart => 'Add to cart';
+
+  @override
+  String cartCheckoutSuccess(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count orders placed',
+      one: '1 order placed',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String cartCheckoutPartial(int placed, int total) {
+    return '$placed of $total items ordered — the rest are no longer available';
+  }
+
+  @override
+  String get cartCheckoutFailed =>
+      'Could not place your order. Please try again.';
+
+  @override
+  String get cartUnavailable => 'No longer available';
+
+  @override
+  String cartPricePerKg(String price) {
+    return '$price/kg';
+  }
+
+  @override
+  String get contactsTitle => 'Messages';
+
+  @override
+  String get contactsEmptyTitle => 'No buyers yet';
+
+  @override
+  String get contactsEmptySubtitle =>
+      'When someone orders from you, they will show up here so you can call or text them.';
+
+  @override
+  String contactsOrderCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count orders',
+      one: '1 order',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get contactsCall => 'Call';
+
+  @override
+  String get contactsSms => 'SMS';
+
+  @override
+  String get contactsNoPhone => 'No phone number on file';
+
+  @override
+  String get contactsCallFailed => 'Could not start the call';
+
+  @override
+  String get contactsSmsFailed => 'Could not open messages';
 }

@@ -150,7 +150,7 @@ class AppGradients extends ThemeExtension<AppGradients> {
 
   static const AppGradients light = AppGradients(
     brand: AppColors.lightGradient,
-    hero: AppColors.deepNavyGradient,
+    hero: AppColors.oceanLightGradient,
   );
 
   static const AppGradients dark = AppGradients(

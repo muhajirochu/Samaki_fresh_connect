@@ -1206,7 +1206,7 @@ abstract class AppLocalizations {
   ///
   /// In en, this message translates to:
   /// **'{distance} km from you'**
-  String distanceFromYou(Object distance);
+  String distanceFromYou(String distance);
 
   /// No description provided for @selectRadius.
   ///
@@ -2498,6 +2498,18 @@ abstract class AppLocalizations {
   /// **'Order placed successfully!'**
   String get orderPlacedSuccess;
 
+  /// No description provided for @orderPlacedSellerTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'New order placed'**
+  String get orderPlacedSellerTitle;
+
+  /// No description provided for @orderPlacedSellerBody.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} just placed an order on one of your listings'**
+  String orderPlacedSellerBody(String name);
+
   /// No description provided for @listingAlreadySold.
   ///
   /// In en, this message translates to:
@@ -2953,6 +2965,192 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Imeshindwa kuwa online'**
   String get goOnlineFailed;
+
+  /// No description provided for @dashboard.
+  ///
+  /// In en, this message translates to:
+  /// **'Dashboard'**
+  String get dashboard;
+
+  /// No description provided for @myProducts.
+  ///
+  /// In en, this message translates to:
+  /// **'My Products'**
+  String get myProducts;
+
+  /// No description provided for @messages.
+  ///
+  /// In en, this message translates to:
+  /// **'Messages'**
+  String get messages;
+
+  /// No description provided for @cart.
+  ///
+  /// In en, this message translates to:
+  /// **'Cart'**
+  String get cart;
+
+  /// No description provided for @cartTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'My Cart'**
+  String get cartTitle;
+
+  /// No description provided for @cartEmptyTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Your cart is empty'**
+  String get cartEmptyTitle;
+
+  /// No description provided for @cartEmptySubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Browse fish and add them to your cart to order them all at once.'**
+  String get cartEmptySubtitle;
+
+  /// No description provided for @cartBrowseFish.
+  ///
+  /// In en, this message translates to:
+  /// **'Browse fish'**
+  String get cartBrowseFish;
+
+  /// No description provided for @cartTotal.
+  ///
+  /// In en, this message translates to:
+  /// **'Total'**
+  String get cartTotal;
+
+  /// No description provided for @cartCheckout.
+  ///
+  /// In en, this message translates to:
+  /// **'Place order'**
+  String get cartCheckout;
+
+  /// No description provided for @cartClear.
+  ///
+  /// In en, this message translates to:
+  /// **'Clear cart'**
+  String get cartClear;
+
+  /// No description provided for @cartClearConfirmTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Clear cart?'**
+  String get cartClearConfirmTitle;
+
+  /// No description provided for @cartClearConfirmBody.
+  ///
+  /// In en, this message translates to:
+  /// **'This removes every item from your cart. It cannot be undone.'**
+  String get cartClearConfirmBody;
+
+  /// No description provided for @cartItemRemoved.
+  ///
+  /// In en, this message translates to:
+  /// **'Removed from cart'**
+  String get cartItemRemoved;
+
+  /// No description provided for @cartAddedToCart.
+  ///
+  /// In en, this message translates to:
+  /// **'Added to cart'**
+  String get cartAddedToCart;
+
+  /// No description provided for @cartAlreadyInCart.
+  ///
+  /// In en, this message translates to:
+  /// **'Already in your cart'**
+  String get cartAlreadyInCart;
+
+  /// No description provided for @addToCart.
+  ///
+  /// In en, this message translates to:
+  /// **'Add to cart'**
+  String get addToCart;
+
+  /// No description provided for @cartCheckoutSuccess.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 order placed} other{{count} orders placed}}'**
+  String cartCheckoutSuccess(int count);
+
+  /// No description provided for @cartCheckoutPartial.
+  ///
+  /// In en, this message translates to:
+  /// **'{placed} of {total} items ordered — the rest are no longer available'**
+  String cartCheckoutPartial(int placed, int total);
+
+  /// No description provided for @cartCheckoutFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not place your order. Please try again.'**
+  String get cartCheckoutFailed;
+
+  /// No description provided for @cartUnavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'No longer available'**
+  String get cartUnavailable;
+
+  /// No description provided for @cartPricePerKg.
+  ///
+  /// In en, this message translates to:
+  /// **'{price}/kg'**
+  String cartPricePerKg(String price);
+
+  /// No description provided for @contactsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Messages'**
+  String get contactsTitle;
+
+  /// No description provided for @contactsEmptyTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'No buyers yet'**
+  String get contactsEmptyTitle;
+
+  /// No description provided for @contactsEmptySubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'When someone orders from you, they will show up here so you can call or text them.'**
+  String get contactsEmptySubtitle;
+
+  /// No description provided for @contactsOrderCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 order} other{{count} orders}}'**
+  String contactsOrderCount(int count);
+
+  /// No description provided for @contactsCall.
+  ///
+  /// In en, this message translates to:
+  /// **'Call'**
+  String get contactsCall;
+
+  /// No description provided for @contactsSms.
+  ///
+  /// In en, this message translates to:
+  /// **'SMS'**
+  String get contactsSms;
+
+  /// No description provided for @contactsNoPhone.
+  ///
+  /// In en, this message translates to:
+  /// **'No phone number on file'**
+  String get contactsNoPhone;
+
+  /// No description provided for @contactsCallFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not start the call'**
+  String get contactsCallFailed;
+
+  /// No description provided for @contactsSmsFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not open messages'**
+  String get contactsSmsFailed;
 }
 
 class _AppLocalizationsDelegate

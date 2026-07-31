@@ -187,7 +187,8 @@ class _WeeklyBars extends StatelessWidget {
       return total;
     }).toList();
 
-    final maxValue = dailyRevenue.fold<double>(0, (acc, v) => v > acc ? v : acc);
+    final maxValue =
+        dailyRevenue.fold<double>(0, (acc, v) => v > acc ? v : acc);
     final cs = Theme.of(context).colorScheme;
     return Container(
       padding: const EdgeInsets.all(AppSizes.paddingMD),
@@ -276,12 +277,12 @@ class _SellersTab extends ConsumerWidget {
     if (sellers.isEmpty) {
       return Center(child: Text(l10n.noStreetSellers));
     }
-    final top = [...sellers]..sort((a, b) => b.totalSales.compareTo(a.totalSales));
+    final top = [...sellers]
+      ..sort((a, b) => b.totalSales.compareTo(a.totalSales));
     return ListView.separated(
       padding: const EdgeInsets.all(AppSizes.paddingLG),
       itemCount: top.length,
-      separatorBuilder: (_, __) =>
-          const SizedBox(height: AppSizes.paddingSM),
+      separatorBuilder: (_, __) => const SizedBox(height: AppSizes.paddingSM),
       itemBuilder: (_, i) {
         final s = top[i];
         final cs = Theme.of(context).colorScheme;
@@ -325,16 +326,15 @@ class _BuyersTab extends ConsumerWidget {
       byBuyer[o.buyerId] = (byBuyer[o.buyerId] ?? 0) + 1;
     }
     final top = [...buyers]..sort((a, b) {
-      final ca = byBuyer[a.userId] ?? 0;
-      final cb = byBuyer[b.userId] ?? 0;
-      return cb.compareTo(ca);
-    });
+        final ca = byBuyer[a.userId] ?? 0;
+        final cb = byBuyer[b.userId] ?? 0;
+        return cb.compareTo(ca);
+      });
 
     return ListView.separated(
       padding: const EdgeInsets.all(AppSizes.paddingLG),
       itemCount: top.length,
-      separatorBuilder: (_, __) =>
-          const SizedBox(height: AppSizes.paddingSM),
+      separatorBuilder: (_, __) => const SizedBox(height: AppSizes.paddingSM),
       itemBuilder: (_, i) {
         final b = top[i];
         final count = byBuyer[b.userId] ?? 0;
@@ -401,7 +401,7 @@ class _OverviewTab extends StatelessWidget {
           crossAxisCount: 2,
           mainAxisSpacing: AppSizes.paddingMD,
           crossAxisSpacing: AppSizes.paddingMD,
-          childAspectRatio: 1.5,
+          childAspectRatio: 1.25,
           children: [
             _TotalOrdersCard(),
             _PendingOrdersCard(),
@@ -416,7 +416,10 @@ class _OverviewTab extends StatelessWidget {
           crossAxisCount: 2,
           mainAxisSpacing: AppSizes.paddingMD,
           crossAxisSpacing: AppSizes.paddingMD,
-          childAspectRatio: 1.6,
+          // Taller than the old 1.5/1.6: on a 360dp phone those ratios
+          // left ~101dp of height for a tile whose icon + value + label
+          // needs ~116dp, so every card overflowed on real hardware.
+          childAspectRatio: 1.25,
           children: [
             _DailySalesCard(),
             _WeeklySalesCard(),
@@ -588,30 +591,40 @@ class _StatCard extends StatelessWidget {
             ),
             child: Icon(icon, color: color, size: 22),
           ),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Text(
-                value,
-                style: tt.titleLarge?.copyWith(
-                  fontWeight: FontWeight.w800,
-                  color: cs.onSurface,
+          // Flexible + FittedBox: these tiles hold currency totals that
+          // can run long ("TZS 1,240,000"). On a narrow phone the fixed
+          // Column overflowed its aspect-ratio box; now the text block
+          // shrinks instead of breaking the card.
+          Flexible(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                FittedBox(
+                  fit: BoxFit.scaleDown,
+                  alignment: Alignment.centerLeft,
+                  child: Text(
+                    value,
+                    style: tt.titleLarge?.copyWith(
+                      fontWeight: FontWeight.w800,
+                      color: cs.onSurface,
+                    ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
                 ),
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-              ),
-              const SizedBox(height: 2),
-              Text(
-                title,
-                style: tt.bodySmall?.copyWith(
-                  color: cs.onSurface.withValues(alpha: 0.65),
-                  fontWeight: FontWeight.w500,
+                const SizedBox(height: 2),
+                Text(
+                  title,
+                  style: tt.bodySmall?.copyWith(
+                    color: cs.onSurface.withValues(alpha: 0.65),
+                    fontWeight: FontWeight.w500,
+                  ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
                 ),
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-              ),
-            ],
+              ],
+            ),
           ),
         ],
       ),

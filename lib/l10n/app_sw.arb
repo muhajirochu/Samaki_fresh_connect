@@ -1,6 +1,5 @@
 {
     "@@locale": "sw",
-
     "appTitle": "Samaki Fresh Connect",
     "welcome": "Karibu",
     "login": "Ingia",
@@ -16,7 +15,6 @@
     "orContinueWith": "Au endelea na",
     "alreadyHaveAccount": "Una akaunti tayari?",
     "dontHaveAccount": "Huna akaunti?",
-
     "submit": "Wasilisha",
     "save": "Hifadhi",
     "cancel": "Ghairi",
@@ -29,7 +27,6 @@
     "yes": "Ndiyo",
     "no": "Hapana",
     "ok": "Sawa",
-
     "settings": "Mipango",
     "appearance": "Muonekano",
     "language": "Lugha",
@@ -38,10 +35,9 @@
     "selectLanguage": "Chagua Lugha",
     "english": "English",
     "kiswahili": "Kiswahili",
-
     "home": "Mwanzo",
     "marketplace": "Soko",
-    "myListings": "Zabuni zangu",
+    "myListings": "Orodha Zangu",
     "profile": "Wasifu",
     "wishlist": "Orodha ya matumaini",
     "notifications": "Arifa",
@@ -51,21 +47,23 @@
     "noSellersHave": "Hakuna muuzaji wa \"{query}\" kwa sasa",
     "@noSellersHave": {
         "placeholders": {
-            "query": {"type": "String"}
+            "query": {
+                "type": "String"
+            }
         }
     },
     "noSellersHaveSubtitle": "Hakuna muuzaji anayebeba samaki wa aina hii kwa sasa. Jaribu jina lingine.",
-
     "loading": "Inapakia…",
     "loadingError": "Hitilafu: {error}",
     "@loadingError": {
         "placeholders": {
-            "error": {"type": "String"}
+            "error": {
+                "type": "String"
+            }
         }
     },
     "searchFailed": "Utafutaji umeshindwa",
     "notLoggedIn": "Hujaingia",
-
     "fishType": "Aina ya samaki",
     "quantity": "Kiasi (kg)",
     "price": "Bei kwa kilo",
@@ -78,7 +76,6 @@
     "passwordsDoNotMatch": "Maneno ya siri hayafanani",
     "emailInvalid": "Weka anwani sahihi ya barua pepe",
     "passwordTooShort": "Neno la siri lazima liwe angalau herufi 6",
-
     "postListing": "Tuma Zabuni",
     "sellStock": "Uza Samaki",
     "buyStock": "Nunua Samaki",
@@ -87,7 +84,6 @@
     "sellStockSubtitle": "Tuma zabuni",
     "myListingsSubtitle": "Simamia samaki wako",
     "buyStockSubtitle": "Vinjari soko",
-
     "fishAvailableNearby": "Samaki Waliopo Karibu",
     "activeListings": "Zabuni Hai",
     "totalStock": "Jumla ya Samaki",
@@ -98,7 +94,6 @@
     "starting": "Inaanza…",
     "youAreNowOnline": "Upo mtandaoni · unashiriki eneo",
     "youAreNowOffline": "Umetoka mtandaoni",
-
     "photosUpTo5": "Picha (hadi 5)",
     "addPhoto": "Ongeza Picha",
     "gallery": "Mkusanyiko",
@@ -111,58 +106,64 @@
     "shopLocationSetTo": "Eneo la duka limewekwa {label}",
     "@shopLocationSetTo": {
         "placeholders": {
-            "label": {"type": "String"}
+            "label": {
+                "type": "String"
+            }
         }
     },
-
     "imageUploadFailed": "Imeshindwa kusoma picha: {error}",
     "@imageUploadFailed": {
         "placeholders": {
-            "error": {"type": "String"}
+            "error": {
+                "type": "String"
+            }
         }
     },
     "cameraImageFailed": "Imeshindwa kusoma picha kutoka kamerasi: {error}",
     "@cameraImageFailed": {
         "placeholders": {
-            "error": {"type": "String"}
+            "error": {
+                "type": "String"
+            }
         }
     },
-
     "listingCreatedSuccessfully": "Zabuni imeundwa kwa mafanikio! 🐟",
     "errorGeneric": "Hitilafu: {error}",
     "@errorGeneric": {
         "placeholders": {
-            "error": {"type": "String"}
+            "error": {
+                "type": "String"
+            }
         }
     },
-
     "habari": "Habari, {name}! 🛒",
     "@habari": {
         "placeholders": {
-            "name": {"type": "String"}
+            "name": {
+                "type": "String"
+            }
         }
     },
     "yourStreetSellingHub": "Kituo chako cha kuuza barabarani",
     "quickActions": "Vitendo vya Haraka",
-
-    "noImage": "Hakuna Picha",
+    "noImage": "Hakuna picha",
     "expiresIn": "Inaisha baada ya {duration}",
     "@expiresIn": {
         "placeholders": {
-            "duration": {"type": "String"}
+            "duration": {
+                "type": "String"
+            }
         }
     },
     "active": "HAI",
     "sold": "IMEUZWA",
     "expired": "IMEPITA",
-
     "myProfile": "Wasifu Wangu",
-    "editProfile": "Hariri wasifu",
+    "editProfile": "Hariri Wasifu",
     "accountInformation": "Maelezo ya Akaunti",
     "signOut": "Toka",
     "signOutConfirmation": "Una uhakika unataka kutoka?",
     "noImageBroken": "Picha haikuweza kupakuliwa",
-
     "sendFishRequest": "Tuma ombi la samaki",
     "sendRequest": "Tuma Ombi",
     "callSeller": "Piga muuzaji",
@@ -178,73 +179,69 @@
     "sellersNearby": "{count, plural, =0{Hakuna wauzaji} =1{Muuzaji 1} other{Wauzaji {count}}} karibu",
     "@sellersNearby": {
         "placeholders": {
-            "count": {"type": "int"}
+            "count": {
+                "type": "int"
+            }
         }
     },
     "live": "Moja kwa moja",
     "onlineLiveLocation": "Mtandaoni · eneo la moja kwa moja",
-
     "account": "Akaunti",
     "search": "Tafuta",
-
     "demoAccounts": "Akaunti za Onyesho",
     "tryOutApp": "Jaribu programu mara moja kwa kutumia akaunti ya onyesho.",
-
     "myLocation": "Eneo Langu",
     "useGps": "Tumia GPS",
     "useSavedLocation": "Tumia eneo lililohifadhiwa",
     "distanceAway": "{distance} km mbali",
     "@distanceAway": {
         "placeholders": {
-            "distance": {"type": "String"}
+            "distance": {
+                "type": "String"
+            }
         }
     },
-
     "verificationRequired": "Uthibitisho wa akaunti unahitajika",
     "verificationMessage": "Tafadhali angalia barua pepe yako na uthibitishe akaunti yako kabla ya kuendelea.",
     "verifyNow": "Thibitisha Sasa",
-
     "noNotificationsYet": "Bado hakuna arifa",
     "noNotificationsSubtitle": "Tutakujulisha kitu kitakachotokea.",
-
     "noWishlistItems": "Orodha yako ya matumaini ni tupu",
     "noWishlistSubtitle": "Gusa moyo kwenye zabuni yoyote ya samaki kuihifadhi hapa.",
-
     "noActiveRequests": "Hakuna maombi hai ya samaki",
     "noActiveRequestsSubtitle": "Utapoweka ombi la samaki, litaonekana hapa.",
-
     "noListings": "Bado hakuna zabuni",
     "noListingsSubtitle": "Gusa kitufe cha + kuongeza zabuni yako ya kwanza.",
-
     "noOrders": "Bado hakuna maagizo",
     "noOrdersSubtitle": "Utakaponunua au kuuza samaki, maagizo yataonekana hapa.",
-
     "offlineState": "Muuzaji huyu kwa sasa yuko nje ya mtandao",
     "kmAway": "{km} km mbali",
     "@kmAway": {
         "placeholders": {
-            "km": {"type": "String"}
+            "km": {
+                "type": "String"
+            }
         }
     },
-
     "selectLanguageTitle": "Chagua Lugha",
     "selectLanguageDescription": "Programu nzima itabadilika mara moja. Chaguo lako linawekwa kwenye kifaa hiki.",
     "languageSaved": "Lugha imehifadhiwa",
-
     "settingsSaved": "Mipango imehifadhiwa",
     "changeFailed": "Imeshindwa kubadilisha {setting}: {error}",
     "@changeFailed": {
         "placeholders": {
-            "setting": {"type": "String"},
-            "error": {"type": "String"}
+            "setting": {
+                "type": "String"
+            },
+            "error": {
+                "type": "String"
+            }
         }
     },
-
     "commonError": "Kitu kilienda vibaya",
     "tryAgain": "Jaribu tena",
-
     "personalInformation": "Maelezo ya Kibinafsi",
-    "editListing": "Hariri Zabuni",
+    "editListing": "Hariri Orodha",
     "logoutConfirmationMessage": "Utarudishwa kwenye skrini ya kuingia.",
     "km": "km",
     "reorder": "Agiza tena",
@@ -277,7 +274,9 @@
     "distanceFromYou": "{distance} km kutoka kwako",
     "@distanceFromYou": {
         "placeholders": {
-            "distance": {"type": "Object"}
+            "distance": {
+                "type": "String"
+            }
         }
     },
     "selectRadius": "Chagua eneo la utafutaji",
@@ -309,7 +308,9 @@
     "sellersNearbyCount": "{count, plural, =0{Hakuna wauzaji karibu} =1{Muuzaji 1 karibu} other{Wauzaji {count} karibu}}",
     "@sellersNearbyCount": {
         "placeholders": {
-            "count": {"type": "int"}
+            "count": {
+                "type": "int"
+            }
         }
     },
     "receiving": "Inapokea",
@@ -391,7 +392,9 @@
     "orderId": "Agizo #{id}",
     "@orderId": {
         "placeholders": {
-            "id": {"type": "String"}
+            "id": {
+                "type": "String"
+            }
         }
     },
     "markAsCompleted": "Weka alama ya kukamilika",
@@ -405,33 +408,47 @@
     "quantityShortKg": "{qty} kg",
     "@quantityShortKg": {
         "placeholders": {
-            "qty": {"type": "String"}
+            "qty": {
+                "type": "String"
+            }
         }
     },
     "totalKg": "{qty} kg jumla",
     "@totalKg": {
         "placeholders": {
-            "qty": {"type": "String"}
+            "qty": {
+                "type": "String"
+            }
         }
     },
     "buyerOrderedItems": "{buyer} aliagiza {qty} kg",
     "@buyerOrderedItems": {
         "placeholders": {
-            "buyer": {"type": "String"},
-            "qty": {"type": "String"}
+            "buyer": {
+                "type": "String"
+            },
+            "qty": {
+                "type": "String"
+            }
         }
     },
     "pricePerKg": "TZS {price}/kg",
     "@pricePerKg": {
         "placeholders": {
-            "price": {"type": "String"}
+            "price": {
+                "type": "String"
+            }
         }
     },
     "priceRange": "TZS {min} – {max} / kg",
     "@priceRange": {
         "placeholders": {
-            "min": {"type": "String"},
-            "max": {"type": "String"}
+            "min": {
+                "type": "String"
+            },
+            "max": {
+                "type": "String"
+            }
         }
     },
     "setMyLocation": "Weka eneo langu",
@@ -451,7 +468,9 @@
     "hello": "Habari, {name}!",
     "@hello": {
         "placeholders": {
-            "name": {"type": "String"}
+            "name": {
+                "type": "String"
+            }
         }
     },
     "manageStreetSellers": "Simamia Wauzaji wa Barabarani",
@@ -468,11 +487,13 @@
     "noListingsFound": "Hakuna zabuni zilizopatikana",
     "noListingsFoundSubtitle": "Wanunuzi au wauzaji wanapounda zabuni, zitaonekana hapa.",
     "deleteListingConfirmationAdmin": "Futa kabisa zabuni hii? Hii haiwezi kubatilishwa.",
-    "listingDeleted": "Zabuni imefutwa",
+    "listingDeleted": "Orodha imefutwa",
     "listingsDeleted": "{count, plural, =0{Hakuna zabuni zilizofutwa} =1{Zabuni 1 imefutwa} other{Zabuni {count} zimefutwa}}",
     "@listingsDeleted": {
         "placeholders": {
-            "count": {"type": "int"}
+            "count": {
+                "type": "int"
+            }
         }
     },
     "selectMode": "Chagua",
@@ -483,21 +504,23 @@
     "deleteListingsConfirmationAdmin": "Futa kabisa zabuni {count}? Hii haiwezi kubatilishwa.",
     "@deleteListingsConfirmationAdmin": {
         "placeholders": {
-            "count": {"type": "int"}
+            "count": {
+                "type": "int"
+            }
         }
     },
     "selectedCount": "{count, plural, =0{Hakuna iliyochaguliwa} =1{1 imechaguliwa} other{Zimechaguliwa {count}}}",
     "@selectedCount": {
         "placeholders": {
-            "count": {"type": "int"}
+            "count": {
+                "type": "int"
+            }
         }
     },
     "appearanceLiveHint": "Uchaguzi wako unatumika papo hapo kwenye kila skrini na kuhifadhiwa kwa wakati ujao.",
     "adminDashboardSubtitle": "Muhtasari wa jukwaa na usimamizi",
     "totalSellers": "Wauzaji wa barabarani wote",
     "totalBuyers": "Wanunuzi wote",
-    "totalListings": "Zabuni zote",
-    "totalOrders": "Maagizo yote",
     "pendingOrders": "Maagizo yanayosubiri",
     "completedOrders": "Maagizo yaliyokamilika",
     "cancelledOrders": "Maagizo yaliyositishwa",
@@ -521,14 +544,7 @@
     "userSuspended": "Mnunuzi amesimamishwa",
     "userReactivated": "Mnunuzi ameanzishwa tena",
     "userModerationFailed": "Imeshindwa kusasisha mnunuzi huyu. Tafadhali jaribu tena.",
-
-    "marketplace": "Soko",
-    "myOrders": "Maagizo Yangu",
-    "myListings": "Orodha Zangu",
-    "editListing": "Hariri Orodha",
     "listingDetails": "Maelezo ya Orodha",
-    "orderDetails": "Maelezo ya Agizo",
-    "editProfile": "Hariri Wasifu",
     "notLoggedInSimple": "Hujaingia",
     "loadingFreshCatch": "Inapakia samaki fresh...",
     "loadingYourListings": "Inapakia orodha zako...",
@@ -542,22 +558,20 @@
     "orderTrackingExplanation": "Ufuatiliaji wa maagizo ni kwa wanunuzi na wauzaji.",
     "noOrdersFound": "Hakuna Maagizo Yaliyopatikana",
     "noOrdersPrompt": "Bado hujafanya miamala yoyote.",
-    "cancel": "Ghairi",
-    "delete": "Futa",
-    "edit": "Hariri",
-    "save": "Hifadhi",
-    "retry": "Jaribu tena",
     "show": "Onyesha",
     "hide": "Ficha",
     "deleteListingTitle": "Futa orodha?",
     "deleteListingBody": "Hii itafuta kabisa orodha ya {fishType} ({quantity} kg). Wanunuzi hawatakuona tena sokoni.",
     "@deleteListingBody": {
         "placeholders": {
-            "fishType": {"type": "String"},
-            "quantity": {"type": "String"}
+            "fishType": {
+                "type": "String"
+            },
+            "quantity": {
+                "type": "String"
+            }
         }
     },
-    "listingDeleted": "Orodha imefutwa",
     "deleteFailed": "Kufuta kumeshindwa",
     "listingUpdated": "Orodha imesasishwa",
     "updateFailed": "Kusasisha kumeshindwa",
@@ -574,24 +588,38 @@
     "couldNotLoadListing": "Imeshindwa kupakia orodha: {error}",
     "@couldNotLoadListing": {
         "placeholders": {
-            "error": {"type": "String"}
+            "error": {
+                "type": "String"
+            }
         }
     },
     "orderPlacedSuccess": "Agizo limewekwa!",
+    "orderPlacedSellerTitle": "Agizo jipya limewekwa",
+    "orderPlacedSellerBody": "{name} ameweka agizo kwenye orodha yako",
+    "@orderPlacedSellerBody": {
+        "placeholders": {
+            "name": {
+                "type": "String"
+            }
+        }
+    },
     "listingAlreadySold": "Orodha hii haipatikani tena — mnunuzi mwingine amenunua samaki huyu.",
     "profileUpdatedSuccess": "Wasifu umesasishwa",
     "errorWithMessage": "Hitilafu: {message}",
     "@errorWithMessage": {
         "placeholders": {
-            "message": {"type": "String"}
+            "message": {
+                "type": "String"
+            }
         }
     },
-    "noImage": "Hakuna picha",
     "noRatingsYet": "Bado hakuna tathmini",
     "reviewCount": "Tathmini {count}",
     "@reviewCount": {
         "placeholders": {
-            "count": {"type": "int"}
+            "count": {
+                "type": "int"
+            }
         }
     },
     "manageListingTooltip": "Simamia orodha",
@@ -663,22 +691,89 @@
     "revenueLabel": "TZS {amount}",
     "@revenueLabel": {
         "placeholders": {
-            "amount": {"type": "String"}
+            "amount": {
+                "type": "String"
+            }
         }
     },
     "revenueZero": "TZS 0",
     "kFormatter": "{value}K",
     "@kFormatter": {
         "placeholders": {
-            "value": {"type": "String"}
+            "value": {
+                "type": "String"
+            }
         }
     },
     "ordersCount": "{count, plural, =0{Hakuna maagizo} =1{Agizo 1} other{Maagizo {count}}}",
     "@ordersCount": {
         "placeholders": {
-            "count": {"type": "int"}
+            "count": {
+                "type": "int"
+            }
         }
-    }
-,
-    "goOnlineFailed": "Imeshindwa kuwa online"
+    },
+    "goOnlineFailed": "Imeshindwa kuwa online",
+    "dashboard": "Dashibodi",
+    "myProducts": "Bidhaa Zangu",
+    "messages": "Ujumbe",
+    "cart": "Kikapu",
+    "cartTitle": "Kikapu Changu",
+    "cartEmptyTitle": "Kikapu chako ni kitupu",
+    "cartEmptySubtitle": "Tafuta samaki na uwaongeze kwenye kikapu ili uwaagize wote kwa pamoja.",
+    "cartBrowseFish": "Tafuta samaki",
+    "cartTotal": "Jumla",
+    "cartCheckout": "Agiza sasa",
+    "cartClear": "Futa kikapu",
+    "cartClearConfirmTitle": "Futa kikapu?",
+    "cartClearConfirmBody": "Hii itaondoa kila kitu kwenye kikapu chako. Haiwezi kurudishwa.",
+    "cartItemRemoved": "Imeondolewa kwenye kikapu",
+    "cartAddedToCart": "Imeongezwa kwenye kikapu",
+    "cartAlreadyInCart": "Tayari ipo kwenye kikapu chako",
+    "addToCart": "Weka kikapuni",
+    "cartCheckoutSuccess": "{count, plural, =1{Agizo 1 limewekwa} other{Maagizo {count} yamewekwa}}",
+    "@cartCheckoutSuccess": {
+        "placeholders": {
+            "count": {
+                "type": "int"
+            }
+        }
+    },
+    "cartCheckoutPartial": "Vitu {placed} kati ya {total} vimeagizwa — vingine havipatikani tena",
+    "@cartCheckoutPartial": {
+        "placeholders": {
+            "placed": {
+                "type": "int"
+            },
+            "total": {
+                "type": "int"
+            }
+        }
+    },
+    "cartCheckoutFailed": "Imeshindwa kuweka agizo lako. Tafadhali jaribu tena.",
+    "cartUnavailable": "Haipatikani tena",
+    "cartPricePerKg": "{price}/kg",
+    "@cartPricePerKg": {
+        "placeholders": {
+            "price": {
+                "type": "String"
+            }
+        }
+    },
+    "contactsTitle": "Ujumbe",
+    "contactsEmptyTitle": "Bado hakuna wanunuzi",
+    "contactsEmptySubtitle": "Mtu akikuagizia, ataonekana hapa ili uweze kumpigia simu au kumtumia ujumbe.",
+    "contactsOrderCount": "{count, plural, =1{Agizo 1} other{Maagizo {count}}}",
+    "@contactsOrderCount": {
+        "placeholders": {
+            "count": {
+                "type": "int"
+            }
+        }
+    },
+    "contactsCall": "Piga simu",
+    "contactsSms": "Tuma SMS",
+    "contactsNoPhone": "Hakuna namba ya simu",
+    "contactsCallFailed": "Imeshindwa kupiga simu",
+    "contactsSmsFailed": "Imeshindwa kufungua ujumbe"
 }

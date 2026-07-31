@@ -32,6 +32,7 @@ class AppRoutes {
   static const buyerNotifications = '/buyer/notifications';
   static const buyerWishlist = '/buyer/wishlist';
   static const buyerRequests = '/buyer/requests';
+  static const buyerCart = '/buyer/cart';
   static const buyerSellerTrackingPath = '/buyer/seller/:sellerId';
   static String buyerSellerTracking(String sellerId) =>
       '/buyer/seller/$sellerId';
@@ -78,6 +79,7 @@ class AppRoutes {
   // "Page not found" errorBuilder.
   static const adminNotifications = '/admin/notifications';
   static const sellerNotifications = '/seller/notifications';
+  static const sellerContacts = '/seller/contacts';
 
   // ── Catch-all for unknown URLs ────────────────────────────────────────
   // Any path that doesn't match a registered route bounces here and
@@ -125,6 +127,7 @@ class AppRouteNames {
   static const buyerNotifications = 'buyerNotifications';
   static const buyerWishlist = 'buyerWishlist';
   static const buyerRequests = 'buyerRequests';
+  static const buyerCart = 'buyerCart';
   static const buyerSellerTracking = 'buyerSellerTracking';
 
   // ── Listings ────────────────────────────────────────────────────
@@ -159,4 +162,5 @@ class AppRouteNames {
   // Notifications
   static const adminNotifications = 'adminNotifications';
   static const sellerNotifications = 'sellerNotifications';
+  static const sellerContacts = 'sellerContacts';
 }

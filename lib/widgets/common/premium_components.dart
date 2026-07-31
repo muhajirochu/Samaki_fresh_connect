@@ -391,8 +391,7 @@ class _Dot extends StatefulWidget {
   State<_Dot> createState() => _DotState();
 }
 
-class _DotState extends State<_Dot>
-    with SingleTickerProviderStateMixin {
+class _DotState extends State<_Dot> with SingleTickerProviderStateMixin {
   late final AnimationController _ctrl;
 
   @override
@@ -441,7 +440,8 @@ class _DotState extends State<_Dot>
               Container(
                 width: 7,
                 height: 7,
-                decoration: BoxDecoration(color: widget.color, shape: BoxShape.circle),
+                decoration:
+                    BoxDecoration(color: widget.color, shape: BoxShape.circle),
               ),
             ],
           ),
@@ -655,7 +655,12 @@ class EmptyState extends StatelessWidget {
     final tt = Theme.of(context).textTheme;
 
     return Center(
-      child: Padding(
+      child: SingleChildScrollView(
+        // Scrollable, because callers drop this into fixed-height boxes
+        // (SizedBox(height: 320) placeholders in the listings/orders
+        // screens). On a 360x640 phone the 132dp halo + title + subtitle
+        // + button exceeds that box and overflowed; now it scrolls
+        // instead of painting stripes.
         padding: const EdgeInsets.all(AppSizes.paddingXL),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -693,6 +698,8 @@ class EmptyState extends StatelessWidget {
             const SizedBox(height: AppSizes.paddingLG),
             Text(
               title,
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
               style: tt.titleLarge?.copyWith(
                 fontWeight: FontWeight.w800,
                 letterSpacing: -0.3,
@@ -703,6 +710,11 @@ class EmptyState extends StatelessWidget {
               const SizedBox(height: AppSizes.paddingXS),
               Text(
                 subtitle!,
+                // Error callers pass a raw `e.toString()` here, which can
+                // be a paragraph. Cap it so a stack trace never grows the
+                // card unbounded.
+                maxLines: 4,
+                overflow: TextOverflow.ellipsis,
                 style: tt.bodyMedium?.copyWith(
                   color: cs.onSurface.withValues(alpha: 0.65),
                   height: 1.4,
@@ -825,10 +837,16 @@ class BannerHeader extends StatelessWidget {
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisSize: MainAxisSize.min,
                       mainAxisAlignment: MainAxisAlignment.end,
                       children: [
                         Text(
                           title,
+                          // The banner is a fixed 140dp tall. A long
+                          // Swahili title at 24px wrapped to three lines
+                          // and pushed the subtitle out of the box.
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
                           style: TextStyle(
                             color: cs.onPrimary,
                             fontSize: AppSizes.fontXXL,
@@ -839,15 +857,17 @@ class BannerHeader extends StatelessWidget {
                         ),
                         if (subtitle != null) ...[
                           const SizedBox(height: 6),
-                          Text(
-                            subtitle!,
-                            style: TextStyle(
-                              color: cs.onPrimary.withValues(alpha: 0.85),
-                              fontSize: AppSizes.fontSM,
-                              height: 1.4,
+                          Flexible(
+                            child: Text(
+                              subtitle!,
+                              style: TextStyle(
+                                color: cs.onPrimary.withValues(alpha: 0.85),
+                                fontSize: AppSizes.fontSM,
+                                height: 1.4,
+                              ),
+                              maxLines: 2,
+                              overflow: TextOverflow.ellipsis,
                             ),
-                            maxLines: 2,
-                            overflow: TextOverflow.ellipsis,
                           ),
                         ],
                       ],

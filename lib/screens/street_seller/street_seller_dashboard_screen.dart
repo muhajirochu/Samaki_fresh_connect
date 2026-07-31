@@ -19,6 +19,7 @@ import '../../config/theme_extensions.dart';
 import '../../l10n/app_localizations.dart';
 import '../../providers/auth_provider.dart';
 import '../../providers/listing_provider.dart';
+import '../../providers/order_provider.dart';
 import '../../providers/seller_location_provider.dart';
 import '../../services/seller_location_tracker.dart';
 import '../../services/seller_mirror_service.dart';
@@ -46,6 +47,16 @@ class StreetSellerDashboardScreen extends ConsumerWidget {
       orElse: () => const AsyncValue.data(<dynamic>[]),
     );
 
+    // Live count of pending orders for the "My Orders" badge.
+    // Updates without navigation as soon as a buyer places an order.
+    final pendingOrdersAsync = userAsync.maybeWhen(
+      data: (user) => user == null
+          ? const AsyncValue.data(0)
+          : ref.watch(streetSellerPendingOrdersProvider(user.userId)),
+      orElse: () => const AsyncValue.data(0),
+    );
+    final pendingOrders = pendingOrdersAsync.valueOrNull ?? 0;
+
     final activeListings = listingsAsync.valueOrNull ?? const [];
     final totalStockKg = activeListings
         .where((l) => l.status == 'active')
@@ -56,129 +67,134 @@ class StreetSellerDashboardScreen extends ConsumerWidget {
       // The new global TopAppBar carries the profile, notifications
       // and theme toggle so seller + buyer share the same chrome.
       appBar: const TopAppBar(),
-      body: userAsync.when(
-        loading: () => const Center(child: CircularProgressIndicator()),
-        error: (error, stack) =>
-            Center(child: Text(l10n.loadingError(error.toString()))),
-        data: (user) {
-          if (user == null) {
-            return Center(child: Text(l10n.notLoggedIn));
-          }
+      // top: false — the AppBar owns the status-bar inset. The bottom
+      // inset keeps the last grid row clear of the gesture nav pill on
+      // real phones; emulators rarely show one.
+      body: SafeArea(
+        top: false,
+        child: userAsync.when(
+          loading: () => const Center(child: CircularProgressIndicator()),
+          error: (error, stack) =>
+              Center(child: Text(l10n.loadingError(error.toString()))),
+          data: (user) {
+            if (user == null) {
+              return Center(child: Text(l10n.notLoggedIn));
+            }
 
-          return CustomScrollView(
-            slivers: [
-              // ── Brand gradient greeting header ───────────────────────────
-              SliverToBoxAdapter(
-                child: _SellerGreetingHeader(
-                  greeting: l10n.habari(user.fullName.split(' ').first),
-                  subtitle: l10n.yourStreetSellingHub,
-                  onlineToggle: _OnlineToggleButton(),
-                ),
-              ),
-
-              // ── Stats Row ────────────────────────────────────────────────
-              SliverToBoxAdapter(
-                child: Padding(
-                  padding: const EdgeInsets.fromLTRB(
-                    AppSizes.paddingLG,
-                    AppSizes.paddingLG,
-                    AppSizes.paddingLG,
-                    0,
+            return CustomScrollView(
+              slivers: [
+                // ── Brand gradient greeting header ───────────────────────────
+                SliverToBoxAdapter(
+                  child: _SellerGreetingHeader(
+                    greeting: l10n.habari(user.fullName.split(' ').first),
+                    subtitle: l10n.yourStreetSellingHub,
+                    onlineToggle: _OnlineToggleButton(),
                   ),
-                  child: Row(
-                    children: [
-                      Expanded(
-                        child: _StatCard(
-                          title: l10n.activeListings,
-                          value:
-                              '${activeListings.where((l) => l.status == 'active').length}',
-                          icon: Icons.inventory_2_rounded,
-                          accent: cs.primary,
+                ),
+
+                // ── Stats Row ────────────────────────────────────────────────
+                SliverToBoxAdapter(
+                  child: Padding(
+                    padding: const EdgeInsets.fromLTRB(
+                      AppSizes.paddingLG,
+                      AppSizes.paddingLG,
+                      AppSizes.paddingLG,
+                      0,
+                    ),
+                    child: Row(
+                      children: [
+                        Expanded(
+                          child: _StatCard(
+                            title: l10n.activeListings,
+                            value:
+                                '${activeListings.where((l) => l.status == 'active').length}',
+                            icon: Icons.inventory_2_rounded,
+                            accent: cs.primary,
+                          ),
                         ),
-                      ),
-                      const SizedBox(width: AppSizes.paddingMD),
-                      Expanded(
-                        child: _StatCard(
-                          title: l10n.totalStock,
-                          value: Formatters.formatQuantity(totalStockKg),
-                          icon: Icons.scale_rounded,
-                          accent: cs.secondary,
+                        const SizedBox(width: AppSizes.paddingMD),
+                        Expanded(
+                          child: _StatCard(
+                            title: l10n.totalStock,
+                            value: Formatters.formatQuantity(totalStockKg),
+                            icon: Icons.scale_rounded,
+                            accent: cs.secondary,
+                          ),
                         ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
                 ),
-              ),
 
-              // ── Quick Actions ────────────────────────────────────────────
-              SliverToBoxAdapter(
-                child: Padding(
-                  padding: const EdgeInsets.fromLTRB(
-                    AppSizes.paddingLG,
-                    AppSizes.paddingXL,
-                    AppSizes.paddingLG,
-                    AppSizes.paddingSM,
-                  ),
-                  child: SectionHeader(
-                    title: l10n.quickActions,
-                    leadingIcon: Icons.bolt_rounded,
+                // ── Quick Actions ────────────────────────────────────────────
+                SliverToBoxAdapter(
+                  child: Padding(
+                    padding: const EdgeInsets.fromLTRB(
+                      AppSizes.paddingLG,
+                      AppSizes.paddingXL,
+                      AppSizes.paddingLG,
+                      AppSizes.paddingSM,
+                    ),
+                    child: SectionHeader(
+                      title: l10n.quickActions,
+                      leadingIcon: Icons.bolt_rounded,
+                    ),
                   ),
                 ),
-              ),
-              SliverPadding(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: AppSizes.paddingLG,
-                ),
-                sliver: SliverGrid(
-                  gridDelegate:
-                      const SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: 2,
-                    crossAxisSpacing: AppSizes.paddingMD,
-                    mainAxisSpacing: AppSizes.paddingMD,
-                    childAspectRatio: 1.15,
+                SliverPadding(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: AppSizes.paddingLG,
                   ),
-                  delegate: SliverChildListDelegate([
-                    _ActionCard(
-                      title: l10n.buyStock,
-                      subtitle: l10n.buyStockSubtitle,
-                      icon: Icons.shopping_cart_rounded,
-                      accent: cs.primary,
-                      onTap: () =>
-                          context.pushNamed(AppRouteNames.listings),
+                  sliver: SliverGrid(
+                    gridDelegate:
+                        const SliverGridDelegateWithFixedCrossAxisCount(
+                      crossAxisCount: 2,
+                      crossAxisSpacing: AppSizes.paddingMD,
+                      mainAxisSpacing: AppSizes.paddingMD,
+                      childAspectRatio: 1.15,
                     ),
-                    _ActionCard(
-                      title: l10n.myOrders,
-                      subtitle: l10n.myOrdersSubtitle,
-                      icon: Icons.receipt_long_rounded,
-                      accent: cs.tertiary,
-                      onTap: () =>
-                          context.pushNamed(AppRouteNames.orders),
-                    ),
-                    _ActionCard(
-                      title: l10n.sellStock,
-                      subtitle: l10n.sellStockSubtitle,
-                      icon: Icons.add_business_rounded,
-                      accent: cs.secondary,
-                      onTap: () =>
-                          context.pushNamed(AppRouteNames.listingsCreate),
-                    ),
-                    _ActionCard(
-                      title: l10n.myListings,
-                      subtitle: l10n.myListingsSubtitle,
-                      icon: Icons.format_list_bulleted_rounded,
-                      accent: cs.primary,
-                      onTap: () =>
-                          context.pushNamed(AppRouteNames.listingsMine),
-                    ),
-                  ]),
+                    delegate: SliverChildListDelegate([
+                      _ActionCard(
+                        title: l10n.buyStock,
+                        subtitle: l10n.buyStockSubtitle,
+                        icon: Icons.shopping_cart_rounded,
+                        accent: cs.primary,
+                        onTap: () => context.pushNamed(AppRouteNames.listings),
+                      ),
+                      _ActionCard(
+                        title: l10n.myOrders,
+                        subtitle: l10n.myOrdersSubtitle,
+                        icon: Icons.receipt_long_rounded,
+                        accent: cs.tertiary,
+                        badgeCount: pendingOrders,
+                        onTap: () => context.pushNamed(AppRouteNames.orders),
+                      ),
+                      _ActionCard(
+                        title: l10n.sellStock,
+                        subtitle: l10n.sellStockSubtitle,
+                        icon: Icons.add_business_rounded,
+                        accent: cs.secondary,
+                        onTap: () =>
+                            context.pushNamed(AppRouteNames.listingsCreate),
+                      ),
+                      _ActionCard(
+                        title: l10n.myListings,
+                        subtitle: l10n.myListingsSubtitle,
+                        icon: Icons.format_list_bulleted_rounded,
+                        accent: cs.primary,
+                        onTap: () =>
+                            context.pushNamed(AppRouteNames.listingsMine),
+                      ),
+                    ]),
+                  ),
                 ),
-              ),
-              const SliverToBoxAdapter(
-                child: SizedBox(height: AppSizes.paddingXXL + 48),
-              ),
-            ],
-          );
-        },
+                const SliverToBoxAdapter(
+                  child: SizedBox(height: AppSizes.paddingXXL + 48),
+                ),
+              ],
+            );
+          },
+        ),
       ),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () => context.pushNamed(AppRouteNames.listingsCreate),
@@ -273,12 +289,17 @@ class _StatCard extends StatelessWidget {
 
 /// Action card — matches `_StatCard`'s surface treatment but with a
 /// centred icon and label so it reads as a tappable target.
+///
+/// Optional [badgeCount] overlays a small red count chip in the
+/// top-right when > 0 — used to surface pending-order counts on
+/// the "My Orders" tile without forcing the seller to navigate.
 class _ActionCard extends StatelessWidget {
   final String title;
   final String subtitle;
   final IconData icon;
   final Color accent;
   final VoidCallback onTap;
+  final int badgeCount;
 
   const _ActionCard({
     required this.title,
@@ -286,13 +307,14 @@ class _ActionCard extends StatelessWidget {
     required this.icon,
     required this.accent,
     required this.onTap,
+    this.badgeCount = 0,
   });
 
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
     final tt = Theme.of(context).textTheme;
-    return Material(
+    final card = Material(
       color: cs.surface,
       borderRadius: BorderRadius.circular(AppSizes.radiusLG),
       elevation: 0,
@@ -317,17 +339,18 @@ class _ActionCard extends StatelessWidget {
             ],
           ),
           child: Column(
+            mainAxisSize: MainAxisSize.min,
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Container(
-                padding: const EdgeInsets.all(AppSizes.paddingSM),
+                padding: const EdgeInsets.all(AppSizes.paddingXS),
                 decoration: BoxDecoration(
                   color: accent.withValues(alpha: 0.12),
                   borderRadius: BorderRadius.circular(14),
                 ),
-                child: Icon(icon, color: accent, size: 30),
+                child: Icon(icon, color: accent, size: 26),
               ),
-              const SizedBox(height: AppSizes.paddingSM),
+              const SizedBox(height: AppSizes.paddingXS),
               Text(
                 title,
                 maxLines: 1,
@@ -339,20 +362,70 @@ class _ActionCard extends StatelessWidget {
                 textAlign: TextAlign.center,
               ),
               const SizedBox(height: 2),
-              Text(
-                subtitle,
-                maxLines: 2,
-                overflow: TextOverflow.ellipsis,
-                style: tt.bodySmall?.copyWith(
-                  color: cs.onSurface.withValues(alpha: 0.60),
-                  fontSize: 11,
+              // Flexible, not a bare Text: on a 360dp phone the tile is
+              // ~150dp tall and a two-line Swahili subtitle is exactly
+              // what tips the column past its constraint. Letting this
+              // child shrink keeps the icon and title intact instead of
+              // painting overflow stripes across the card.
+              Flexible(
+                child: Text(
+                  subtitle,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                  style: tt.bodySmall?.copyWith(
+                    color: cs.onSurface.withValues(alpha: 0.60),
+                    fontSize: 11,
+                  ),
+                  textAlign: TextAlign.center,
                 ),
-                textAlign: TextAlign.center,
               ),
             ],
           ),
         ),
       ),
+    );
+
+    if (badgeCount <= 0) return card;
+
+    // Pending-order badge — small red count chip in the top-right.
+    // Mirrors the global TopAppBar bell's badge treatment so the
+    // seller recognises the signal immediately.
+    return Stack(
+      clipBehavior: Clip.none,
+      children: [
+        card,
+        Positioned(
+          top: -6,
+          right: -6,
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+            constraints: const BoxConstraints(minWidth: 20, minHeight: 20),
+            decoration: BoxDecoration(
+              color: cs.error,
+              borderRadius: BorderRadius.circular(10),
+              border: Border.all(color: cs.surface, width: 1.5),
+              boxShadow: [
+                BoxShadow(
+                  color: cs.shadow.withValues(alpha: 0.18),
+                  blurRadius: 6,
+                  offset: const Offset(0, 2),
+                ),
+              ],
+            ),
+            child: Center(
+              child: Text(
+                badgeCount > 9 ? '9+' : '$badgeCount',
+                style: TextStyle(
+                  color: cs.onError,
+                  fontSize: 11,
+                  fontWeight: FontWeight.w700,
+                  height: 1.1,
+                ),
+              ),
+            ),
+          ),
+        ),
+      ],
     );
   }
 }
@@ -372,29 +445,27 @@ class _OnlineToggleButton extends ConsumerWidget {
 
     final (label, icon) = switch (status) {
       SellerTrackerStatus.online => (
-        AppLocalizations.of(context).online,
-        Icons.radio_button_checked_rounded
-      ),
+          AppLocalizations.of(context).online,
+          Icons.radio_button_checked_rounded
+        ),
       SellerTrackerStatus.waitingForPermission => (
-        AppLocalizations.of(context).starting,
-        Icons.hourglass_top_rounded
-      ),
+          AppLocalizations.of(context).starting,
+          Icons.hourglass_top_rounded
+        ),
       SellerTrackerStatus.error => (
-        tracker.errorMessage ?? AppLocalizations.of(context).offline,
-        Icons.error_outline_rounded
-      ),
+          tracker.errorMessage ?? AppLocalizations.of(context).offline,
+          Icons.error_outline_rounded
+        ),
       SellerTrackerStatus.idle => (
-        AppLocalizations.of(context).offline,
-        Icons.radio_button_unchecked_rounded
-      ),
+          AppLocalizations.of(context).offline,
+          Icons.radio_button_unchecked_rounded
+        ),
     };
 
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 8),
       child: Material(
-        color: isOnline
-            ? cs.secondary
-            : cs.onPrimary.withValues(alpha: 0.18),
+        color: isOnline ? cs.secondary : cs.onPrimary.withValues(alpha: 0.18),
         borderRadius: BorderRadius.circular(20),
         child: InkWell(
           borderRadius: BorderRadius.circular(20),
@@ -438,8 +509,7 @@ class _OnlineToggleButton extends ConsumerWidget {
                   }
                 },
           child: Padding(
-            padding: const EdgeInsets.symmetric(
-                horizontal: 10, vertical: 6),
+            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
             child: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
@@ -448,12 +518,21 @@ class _OnlineToggleButton extends ConsumerWidget {
                 else
                   Icon(icon, color: cs.onPrimary, size: 14),
                 const SizedBox(width: 6),
-                Text(
-                  label,
-                  style: TextStyle(
-                    color: cs.onPrimary,
-                    fontWeight: FontWeight.w700,
-                    fontSize: 12,
+                // Bounded: in the error state `label` is a raw
+                // `tracker.errorMessage` sentence, not a short status
+                // word. Unbounded it blew the greeting row off the
+                // right edge of a 360dp phone.
+                ConstrainedBox(
+                  constraints: const BoxConstraints(maxWidth: 96),
+                  child: Text(
+                    label,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(
+                      color: cs.onPrimary,
+                      fontWeight: FontWeight.w700,
+                      fontSize: 12,
+                    ),
                   ),
                 ),
               ],
@@ -504,8 +583,7 @@ class _PulsingDotState extends State<_PulsingDot>
             color: Colors.white.withValues(alpha: 1.0 - (t * 0.5)),
             boxShadow: [
               BoxShadow(
-                color: Colors.white
-                    .withValues(alpha: 0.6 - (t * 0.4)),
+                color: Colors.white.withValues(alpha: 0.6 - (t * 0.4)),
                 blurRadius: 4 + (t * 6),
                 spreadRadius: 1 + (t * 2),
               ),
@@ -630,6 +708,8 @@ class _SellerGreetingHeader extends StatelessWidget {
                 const SizedBox(height: 4),
                 Text(
                   subtitle,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
                   style: TextStyle(
                     color: cs.onPrimary.withValues(alpha: 0.85),
                     fontSize: 14,

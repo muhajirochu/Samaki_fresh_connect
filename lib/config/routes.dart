@@ -6,14 +6,16 @@ import '../providers/auth_provider.dart';
 import '../screens/auth/splash_screen.dart';
 import '../screens/auth/login_screen.dart';
 import '../screens/auth/register_screen.dart';
-import '../screens/buyer/buyer_dashboard_screen.dart';
+import '../screens/buyer/buyer_shell_screen.dart';
+import '../screens/buyer/cart_screen.dart';
 import '../screens/buyer/buyer_fish_search_screen.dart';
 import '../screens/buyer/buyer_map_screen.dart';
 import '../screens/buyer/buyer_notifications_screen.dart';
 import '../screens/buyer/buyer_requests_screen.dart';
 import '../screens/buyer/buyer_seller_tracking_screen.dart';
 import '../screens/buyer/buyer_wishlist_screen.dart';
-import '../screens/street_seller/street_seller_dashboard_screen.dart';
+import '../screens/street_seller/seller_shell_screen.dart';
+import '../screens/street_seller/seller_contacts_screen.dart';
 import '../screens/admin/admin_shell_screen.dart';
 import '../screens/admin/manage_sellers_screen.dart';
 import '../screens/admin/manage_buyers_screen.dart';
@@ -124,15 +126,19 @@ final List<GoRoute> _appRoutes = [
   ),
 
   // ── Role-based Dashboards ────────────────────────────────────
+  // Each role's dashboard path resolves to that role's *shell* — the
+  // IndexedStack + bottom NavigationBar — not the bare dashboard
+  // screen. The dashboard is tab 0 inside its shell, so landing here
+  // after sign-in gives the user their nav bar immediately.
   GoRoute(
     path: AppRoutes.dashboardBuyer,
     name: AppRouteNames.dashboardBuyer,
-    builder: (context, state) => const BuyerDashboardScreen(),
+    builder: (context, state) => const BuyerShellScreen(),
   ),
   GoRoute(
     path: AppRoutes.dashboardStreetSeller,
     name: AppRouteNames.dashboardStreetSeller,
-    builder: (context, state) => const StreetSellerDashboardScreen(),
+    builder: (context, state) => const SellerShellScreen(),
   ),
   GoRoute(
     path: AppRoutes.dashboardAdmin,
@@ -177,6 +183,19 @@ final List<GoRoute> _appRoutes = [
     path: AppRoutes.buyerRequests,
     name: AppRouteNames.buyerRequests,
     builder: (context, state) => const BuyerRequestsScreen(),
+  ),
+  // Cart and seller-contacts are tabs inside their role's shell, but
+  // they also get standalone routes so notifications and deep links
+  // can push them directly.
+  GoRoute(
+    path: AppRoutes.buyerCart,
+    name: AppRouteNames.buyerCart,
+    builder: (context, state) => const CartScreen(),
+  ),
+  GoRoute(
+    path: AppRoutes.sellerContacts,
+    name: AppRouteNames.sellerContacts,
+    builder: (context, state) => const SellerContactsScreen(),
   ),
   GoRoute(
     path: AppRoutes.buyerSellerTrackingPath,

@@ -1,6 +1,5 @@
 {
     "@@locale": "en",
-
     "appTitle": "Samaki Fresh Connect",
     "welcome": "Welcome",
     "login": "Login",
@@ -16,7 +15,6 @@
     "orContinueWith": "Or continue with",
     "alreadyHaveAccount": "Already have an account?",
     "dontHaveAccount": "Don't have an account?",
-
     "submit": "Submit",
     "save": "Save",
     "cancel": "Cancel",
@@ -29,7 +27,6 @@
     "yes": "Yes",
     "no": "No",
     "ok": "OK",
-
     "settings": "Settings",
     "appearance": "Appearance",
     "language": "Language",
@@ -38,7 +35,6 @@
     "selectLanguage": "Select Language",
     "english": "English",
     "kiswahili": "Kiswahili",
-
     "home": "Home",
     "marketplace": "Marketplace",
     "myListings": "My Listings",
@@ -51,21 +47,23 @@
     "noSellersHave": "No sellers have \"{query}\" right now",
     "@noSellersHave": {
         "placeholders": {
-            "query": {"type": "String"}
+            "query": {
+                "type": "String"
+            }
         }
     },
     "noSellersHaveSubtitle": "No seller carries this fish at the moment. Try a different name.",
-
     "loading": "Loading…",
     "loadingError": "Error: {error}",
     "@loadingError": {
         "placeholders": {
-            "error": {"type": "String"}
+            "error": {
+                "type": "String"
+            }
         }
     },
     "searchFailed": "Search failed",
     "notLoggedIn": "Not logged in",
-
     "fishType": "Fish Type",
     "quantity": "Quantity (kg)",
     "price": "Price per kg",
@@ -78,7 +76,6 @@
     "passwordsDoNotMatch": "Passwords do not match",
     "emailInvalid": "Enter a valid email address",
     "passwordTooShort": "Password must be at least 6 characters",
-
     "postListing": "Post Listing",
     "sellStock": "Sell Stock",
     "buyStock": "Buy Stock",
@@ -87,7 +84,6 @@
     "sellStockSubtitle": "Post a listing",
     "myListingsSubtitle": "Manage your stock",
     "buyStockSubtitle": "Browse marketplace",
-
     "fishAvailableNearby": "Fish Available Nearby",
     "activeListings": "Active Listings",
     "totalStock": "Total Stock",
@@ -98,7 +94,6 @@
     "starting": "Starting…",
     "youAreNowOnline": "You are now online · sharing location",
     "youAreNowOffline": "You are now offline",
-
     "photosUpTo5": "Photos (up to 5)",
     "addPhoto": "Add Photo",
     "gallery": "Gallery",
@@ -111,58 +106,64 @@
     "shopLocationSetTo": "Shop location set to {label}",
     "@shopLocationSetTo": {
         "placeholders": {
-            "label": {"type": "String"}
+            "label": {
+                "type": "String"
+            }
         }
     },
-
     "imageUploadFailed": "Could not read photos: {error}",
     "@imageUploadFailed": {
         "placeholders": {
-            "error": {"type": "String"}
+            "error": {
+                "type": "String"
+            }
         }
     },
     "cameraImageFailed": "Could not read photo from camera: {error}",
     "@cameraImageFailed": {
         "placeholders": {
-            "error": {"type": "String"}
+            "error": {
+                "type": "String"
+            }
         }
     },
-
     "listingCreatedSuccessfully": "Listing created successfully! 🐟",
     "errorGeneric": "Error: {error}",
     "@errorGeneric": {
         "placeholders": {
-            "error": {"type": "String"}
+            "error": {
+                "type": "String"
+            }
         }
     },
-
     "habari": "Hello, {name}! 🛒",
     "@habari": {
         "placeholders": {
-            "name": {"type": "String"}
+            "name": {
+                "type": "String"
+            }
         }
     },
     "yourStreetSellingHub": "Your street selling hub",
     "quickActions": "Quick Actions",
-
-    "noImage": "No Image",
+    "noImage": "No image",
     "expiresIn": "Expires in {duration}",
     "@expiresIn": {
         "placeholders": {
-            "duration": {"type": "String"}
+            "duration": {
+                "type": "String"
+            }
         }
     },
     "active": "ACTIVE",
     "sold": "SOLD",
     "expired": "EXPIRED",
-
     "myProfile": "My Profile",
-    "editProfile": "Edit profile",
+    "editProfile": "Edit Profile",
     "accountInformation": "Account Information",
     "signOut": "Sign Out",
     "signOutConfirmation": "Are you sure you want to sign out?",
     "noImageBroken": "Image could not be loaded",
-
     "sendFishRequest": "Send fish request",
     "sendRequest": "Send Request",
     "callSeller": "Call seller",
@@ -178,71 +179,67 @@
     "sellersNearby": "{count, plural, =0{No sellers} =1{1 seller} other{{count} sellers}} nearby",
     "@sellersNearby": {
         "placeholders": {
-            "count": {"type": "int"}
+            "count": {
+                "type": "int"
+            }
         }
     },
     "live": "Live",
     "onlineLiveLocation": "Online · live location",
-
     "account": "Account",
     "search": "Search",
-
     "demoAccounts": "Demo Accounts",
     "tryOutApp": "Try out the app instantly with a demo account.",
-
     "myLocation": "My Location",
     "useGps": "Use GPS",
     "useSavedLocation": "Use saved location",
     "distanceAway": "{distance} km away",
     "@distanceAway": {
         "placeholders": {
-            "distance": {"type": "String"}
+            "distance": {
+                "type": "String"
+            }
         }
     },
-
     "verificationRequired": "Account verification required",
     "verificationMessage": "Please check your email and verify your account before continuing.",
     "verifyNow": "Verify Now",
-
     "noNotificationsYet": "No notifications yet",
     "noNotificationsSubtitle": "We'll let you know when something happens.",
-
     "noWishlistItems": "Your wishlist is empty",
     "noWishlistSubtitle": "Tap the heart on any fish listing to save it here.",
-
     "noActiveRequests": "No active fish requests",
     "noActiveRequestsSubtitle": "When you post a fish request, it will appear here.",
-
     "noListings": "No listings yet",
     "noListingsSubtitle": "Tap the + button to add your first listing.",
-
     "noOrders": "No orders yet",
     "noOrdersSubtitle": "When you buy or sell fish, orders will appear here.",
-
     "offlineState": "This seller is currently offline",
     "kmAway": "{km} km away",
     "@kmAway": {
         "placeholders": {
-            "km": {"type": "String"}
+            "km": {
+                "type": "String"
+            }
         }
     },
-
     "selectLanguageTitle": "Select Language",
     "selectLanguageDescription": "The whole app will switch instantly. Your choice is saved on this device.",
     "languageSaved": "Language saved",
-
     "settingsSaved": "Settings saved",
     "changeFailed": "Couldn't change {setting}: {error}",
     "@changeFailed": {
         "placeholders": {
-            "setting": {"type": "String"},
-            "error": {"type": "String"}
+            "setting": {
+                "type": "String"
+            },
+            "error": {
+                "type": "String"
+            }
         }
     },
-
     "commonError": "Something went wrong",
     "tryAgain": "Try again",
-
     "personalInformation": "Personal Information",
     "editListing": "Edit Listing",
     "logoutConfirmationMessage": "You will be returned to the login screen.",
@@ -275,6 +272,13 @@
     "viewMore": "View more",
     "filterByType": "Filter by fish type",
     "distanceFromYou": "{distance} km from you",
+    "@distanceFromYou": {
+        "placeholders": {
+            "distance": {
+                "type": "String"
+            }
+        }
+    },
     "selectRadius": "Select search radius",
     "showingNearest": "Showing nearest sellers only",
     "languagePreference": "Language preference",
@@ -381,7 +385,9 @@
     "orderId": "Order #{id}",
     "@orderId": {
         "placeholders": {
-            "id": {"type": "String"}
+            "id": {
+                "type": "String"
+            }
         }
     },
     "markAsCompleted": "Mark as completed",
@@ -395,39 +401,54 @@
     "quantityShortKg": "{qty} kg",
     "@quantityShortKg": {
         "placeholders": {
-            "qty": {"type": "String"}
+            "qty": {
+                "type": "String"
+            }
         }
     },
     "totalKg": "{qty} kg total",
     "@totalKg": {
         "placeholders": {
-            "qty": {"type": "String"}
+            "qty": {
+                "type": "String"
+            }
         }
     },
     "buyerOrderedItems": "{buyer} ordered {qty} kg",
     "@buyerOrderedItems": {
         "placeholders": {
-            "buyer": {"type": "String"},
-            "qty": {"type": "String"}
+            "buyer": {
+                "type": "String"
+            },
+            "qty": {
+                "type": "String"
+            }
         }
     },
     "pricePerKg": "TZS {price}/kg",
     "@pricePerKg": {
         "placeholders": {
-            "price": {"type": "String"}
+            "price": {
+                "type": "String"
+            }
         }
     },
     "priceRange": "TZS {min} – {max} / kg",
     "@priceRange": {
         "placeholders": {
-            "min": {"type": "String"},
-            "max": {"type": "String"}
+            "min": {
+                "type": "String"
+            },
+            "max": {
+                "type": "String"
+            }
         }
     },
-    "sellersNearbyCount": "{count, plural, =0{No sellers nearby} =1{1 seller nearby} other{{count} sellers nearby}}",
     "@sellersNearbyCount": {
         "placeholders": {
-            "count": {"type": "int"}
+            "count": {
+                "type": "int"
+            }
         }
     },
     "setMyLocation": "Set my location",
@@ -447,7 +468,9 @@
     "hello": "Hello, {name}!",
     "@hello": {
         "placeholders": {
-            "name": {"type": "String"}
+            "name": {
+                "type": "String"
+            }
         }
     },
     "manageStreetSellers": "Manage Street Sellers",
@@ -468,7 +491,9 @@
     "listingsDeleted": "{count, plural, =0{No listings deleted} =1{1 listing deleted} other{{count} listings deleted}}",
     "@listingsDeleted": {
         "placeholders": {
-            "count": {"type": "int"}
+            "count": {
+                "type": "int"
+            }
         }
     },
     "selectMode": "Select",
@@ -479,21 +504,23 @@
     "deleteListingsConfirmationAdmin": "Permanently delete {count} listings? This cannot be undone.",
     "@deleteListingsConfirmationAdmin": {
         "placeholders": {
-            "count": {"type": "int"}
+            "count": {
+                "type": "int"
+            }
         }
     },
     "selectedCount": "{count, plural, =0{None selected} =1{1 selected} other{{count} selected}}",
     "@selectedCount": {
         "placeholders": {
-            "count": {"type": "int"}
+            "count": {
+                "type": "int"
+            }
         }
     },
     "appearanceLiveHint": "Your selection is applied instantly across every screen and saved for next time.",
     "adminDashboardSubtitle": "Platform overview and management",
     "totalSellers": "Total street sellers",
     "totalBuyers": "Total buyers",
-    "totalListings": "Total listings",
-    "totalOrders": "Total orders",
     "pendingOrders": "Pending orders",
     "completedOrders": "Completed orders",
     "cancelledOrders": "Cancelled orders",
@@ -517,14 +544,7 @@
     "userSuspended": "Buyer suspended",
     "userReactivated": "Buyer reactivated",
     "userModerationFailed": "Couldn't update this buyer. Please try again.",
-
-    "marketplace": "Marketplace",
-    "myOrders": "My Orders",
-    "myListings": "My Listings",
-    "editListing": "Edit Listing",
     "listingDetails": "Listing Details",
-    "orderDetails": "Order Details",
-    "editProfile": "Edit Profile",
     "notLoggedInSimple": "Not logged in",
     "loadingFreshCatch": "Loading fresh catch...",
     "loadingYourListings": "Loading your listings...",
@@ -538,22 +558,20 @@
     "orderTrackingExplanation": "Order tracking is for buyers and sellers.",
     "noOrdersFound": "No Orders Found",
     "noOrdersPrompt": "You haven't made any transactions yet.",
-    "cancel": "Cancel",
-    "delete": "Delete",
-    "edit": "Edit",
-    "save": "Save",
-    "retry": "Retry",
     "show": "Show",
     "hide": "Hide",
     "deleteListingTitle": "Delete listing?",
     "deleteListingBody": "This will permanently remove the {fishType} listing ({quantity} kg). Buyers will no longer see it on the marketplace.",
     "@deleteListingBody": {
         "placeholders": {
-            "fishType": {"type": "String"},
-            "quantity": {"type": "String"}
+            "fishType": {
+                "type": "String"
+            },
+            "quantity": {
+                "type": "String"
+            }
         }
     },
-    "listingDeleted": "Listing deleted",
     "deleteFailed": "Delete failed",
     "listingUpdated": "Listing updated",
     "updateFailed": "Update failed",
@@ -570,24 +588,38 @@
     "couldNotLoadListing": "Could not load listing: {error}",
     "@couldNotLoadListing": {
         "placeholders": {
-            "error": {"type": "String"}
+            "error": {
+                "type": "String"
+            }
         }
     },
     "orderPlacedSuccess": "Order placed successfully!",
+    "orderPlacedSellerTitle": "New order placed",
+    "orderPlacedSellerBody": "{name} just placed an order on one of your listings",
+    "@orderPlacedSellerBody": {
+        "placeholders": {
+            "name": {
+                "type": "String"
+            }
+        }
+    },
     "listingAlreadySold": "This listing is no longer available — another buyer just purchased it.",
     "profileUpdatedSuccess": "Profile updated successfully",
     "errorWithMessage": "Error: {message}",
     "@errorWithMessage": {
         "placeholders": {
-            "message": {"type": "String"}
+            "message": {
+                "type": "String"
+            }
         }
     },
-    "noImage": "No image",
     "noRatingsYet": "No ratings yet",
     "reviewCount": "{count} reviews",
     "@reviewCount": {
         "placeholders": {
-            "count": {"type": "int"}
+            "count": {
+                "type": "int"
+            }
         }
     },
     "manageListingTooltip": "Manage listing",
@@ -659,22 +691,89 @@
     "revenueLabel": "TZS {amount}",
     "@revenueLabel": {
         "placeholders": {
-            "amount": {"type": "String"}
+            "amount": {
+                "type": "String"
+            }
         }
     },
     "revenueZero": "TZS 0",
     "kFormatter": "{value}K",
     "@kFormatter": {
         "placeholders": {
-            "value": {"type": "String"}
+            "value": {
+                "type": "String"
+            }
         }
     },
     "ordersCount": "{count, plural, =0{No orders} =1{1 order} other{{count} orders}}",
     "@ordersCount": {
         "placeholders": {
-            "count": {"type": "int"}
+            "count": {
+                "type": "int"
+            }
         }
-    }
-,
-    "goOnlineFailed": "Imeshindwa kuwa online"
+    },
+    "goOnlineFailed": "Imeshindwa kuwa online",
+    "dashboard": "Dashboard",
+    "myProducts": "My Products",
+    "messages": "Messages",
+    "cart": "Cart",
+    "cartTitle": "My Cart",
+    "cartEmptyTitle": "Your cart is empty",
+    "cartEmptySubtitle": "Browse fish and add them to your cart to order them all at once.",
+    "cartBrowseFish": "Browse fish",
+    "cartTotal": "Total",
+    "cartCheckout": "Place order",
+    "cartClear": "Clear cart",
+    "cartClearConfirmTitle": "Clear cart?",
+    "cartClearConfirmBody": "This removes every item from your cart. It cannot be undone.",
+    "cartItemRemoved": "Removed from cart",
+    "cartAddedToCart": "Added to cart",
+    "cartAlreadyInCart": "Already in your cart",
+    "addToCart": "Add to cart",
+    "cartCheckoutSuccess": "{count, plural, =1{1 order placed} other{{count} orders placed}}",
+    "@cartCheckoutSuccess": {
+        "placeholders": {
+            "count": {
+                "type": "int"
+            }
+        }
+    },
+    "cartCheckoutPartial": "{placed} of {total} items ordered — the rest are no longer available",
+    "@cartCheckoutPartial": {
+        "placeholders": {
+            "placed": {
+                "type": "int"
+            },
+            "total": {
+                "type": "int"
+            }
+        }
+    },
+    "cartCheckoutFailed": "Could not place your order. Please try again.",
+    "cartUnavailable": "No longer available",
+    "cartPricePerKg": "{price}/kg",
+    "@cartPricePerKg": {
+        "placeholders": {
+            "price": {
+                "type": "String"
+            }
+        }
+    },
+    "contactsTitle": "Messages",
+    "contactsEmptyTitle": "No buyers yet",
+    "contactsEmptySubtitle": "When someone orders from you, they will show up here so you can call or text them.",
+    "contactsOrderCount": "{count, plural, =1{1 order} other{{count} orders}}",
+    "@contactsOrderCount": {
+        "placeholders": {
+            "count": {
+                "type": "int"
+            }
+        }
+    },
+    "contactsCall": "Call",
+    "contactsSms": "SMS",
+    "contactsNoPhone": "No phone number on file",
+    "contactsCallFailed": "Could not start the call",
+    "contactsSmsFailed": "Could not open messages"
 }

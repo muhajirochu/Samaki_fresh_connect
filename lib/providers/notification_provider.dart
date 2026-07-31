@@ -50,6 +50,26 @@ final unreadNotificationsCountProvider = StreamProvider<int>((ref) {
   return svc.unreadCount(session.buyerId);
 });
 
+// ── Session-agnostic variants ─────────────────────────────────────────────────
+// Mirror the buyer-scoped streams above but keyed on a userId parameter
+// instead of `currentBuyerSessionProvider`, so sellers (and any other role)
+// also see their notifications. Same shape, same code — just a different
+// session gate.
+
+final notificationsForAnyUserProvider =
+    StreamProvider.family<List<NotificationItem>, String>((ref, userId) {
+  if (userId.isEmpty) return const Stream.empty();
+  final svc = ref.watch(notificationServiceProvider);
+  return svc.streamForUser(userId);
+});
+
+final unreadCountForAnyUserProvider =
+    StreamProvider.family<int, String>((ref, userId) {
+  if (userId.isEmpty) return Stream.value(0);
+  final svc = ref.watch(notificationServiceProvider);
+  return svc.unreadCount(userId);
+});
+
 // ── Wishlist stream ─────────────────────────────────────────────────────────
 
 final wishlistProvider = StreamProvider<List<WishlistEntry>>((ref) {
@@ -159,8 +179,7 @@ class BuyerNotificationController extends StateNotifier<int> {
   BuyerNotificationController(this._ref) : super(0);
   final Ref _ref;
 
-  String? _requireSession() =>
-      _ref.read(currentBuyerSessionProvider)?.buyerId;
+  String? _requireSession() => _ref.read(currentBuyerSessionProvider)?.buyerId;
 
   Future<void> markAsRead(String notificationId) async {
     await _ref.read(notificationServiceProvider).markAsRead(notificationId);
@@ -182,8 +201,7 @@ class WishlistController extends StateNotifier<WishlistEntry?> {
   WishlistController(this._ref) : super(null);
   final Ref _ref;
 
-  String? _requireSession() =>
-      _ref.read(currentBuyerSessionProvider)?.buyerId;
+  String? _requireSession() => _ref.read(currentBuyerSessionProvider)?.buyerId;
 
   Future<void> addFish(FishType type, {double? maxPricePerKg}) async {
     final id = _requireSession();

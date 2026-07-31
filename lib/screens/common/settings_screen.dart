@@ -425,12 +425,22 @@ class _MockButton extends StatelessWidget {
         children: [
           Icon(Icons.check_circle_rounded, color: tokens.background, size: 14),
           const SizedBox(width: 6),
-          Text(
-            tokens.brightness == Brightness.dark ? 'Deep Navy' : 'Modern Blue',
-            style: TextStyle(
-              color: tokens.background,
-              fontWeight: FontWeight.w600,
-              fontSize: 11,
+          // Flexible: this chip sits in an Expanded column beside a
+          // 96dp preview surface and a selection indicator. On a 360dp
+          // phone the leftover width is narrower than the label, so an
+          // unbounded Text overflowed the row by ~38px.
+          Flexible(
+            child: Text(
+              tokens.brightness == Brightness.dark
+                  ? 'Deep Navy'
+                  : 'Modern Blue',
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: TextStyle(
+                color: tokens.background,
+                fontWeight: FontWeight.w600,
+                fontSize: 11,
+              ),
             ),
           ),
         ],

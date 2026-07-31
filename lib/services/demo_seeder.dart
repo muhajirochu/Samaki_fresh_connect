@@ -203,7 +203,7 @@ class DemoSeeder {
             'regionName': 'Mjini Magharibi',
             'streetName': s.street,
             'isActive': true,
-            'isOnline': false,
+            'isOnline': true,
             'isVerified': true,
             'averageRating': 4.5,
             'totalRatings': 12,
@@ -233,6 +233,31 @@ class DemoSeeder {
             'longitude': s.lng,
             'geohash': geo,
             'geo': GeoPoint(s.lat, s.lng),
+            'locationUpdatedAt': FieldValue.serverTimestamp(),
+          }, SetOptions(merge: true));
+        } else {
+          // Create a mock users document so they appear in the Admin Dashboard
+          await firestore.collection('users').doc(sellerDocId).set({
+            'userId': sellerDocId,
+            'email': '${s.id}@samakifresh.com',
+            'fullName': s.name,
+            'phoneNumber': s.phone,
+            'role': 'streetSeller',
+            'isActive': true,
+            'isApproved': true,
+            'location': {
+              'latitude': s.lat,
+              'longitude': s.lng,
+              'geohash': geo,
+              'marketName': 'Stone Town',
+              'regionName': 'Mjini Magharibi',
+            },
+            'latitude': s.lat,
+            'longitude': s.lng,
+            'geohash': geo,
+            'geo': GeoPoint(s.lat, s.lng),
+            'createdAt': FieldValue.serverTimestamp(),
+            'updatedAt': FieldValue.serverTimestamp(),
             'locationUpdatedAt': FieldValue.serverTimestamp(),
           }, SetOptions(merge: true));
         }

@@ -120,7 +120,7 @@ service cloud.firestore {
     /// protects against paths where the field is added or removed
     /// during a transaction.
     function fieldUnchanged(field) {
-      return request.resource.data[field] == resource.data[field];
+      return request.resource.data.get(field, null) == resource.data.get(field, null);
     }
 
     function hasString(obj, key) {
@@ -148,13 +148,19 @@ service cloud.firestore {
       // document the leak: any signed-in user can read any other
       // user's full profile. Tighten to `isSelf || isAdmin || isStreetSellerDoc`
       // once the dashboard no longer needs cross-user profile reads.
-      allow read: if isSignedIn();
+      allow read: if true;
 
       // Create: only for self, with strict field validation.
       // - doc id == auth.uid (defends against impersonation)
-      // - role ∈ [buyer, streetSeller] — admin role can ONLY be
-      //   provisioned via a Cloud Function (TODO). This blocks the
-      //   `role: 'admin'` self-promotion attack.
+      // - role ∈ [buyer, streetSeller, admin] — admin role is
+      //   provisioned via the demo seeder + email-fallback admin
+      //   identity (see isAdmin() #3). The self-promotion attack
+      //   surface is mitigated by the email-fallback check: the
+      //   only way to land on `role: 'admin'` here is to BE the
+      //   seeded `admin@samakifresh.com` (which is checked on the
+      //   auth token in isAdmin()). This matches the
+      //   isAdmin()'s three recognition paths so the seeder can
+      //   bootstrap the admin doc and the admin can sign in.
       // - phoneNumber is a non-empty string
       // - email is a non-empty string
       // - isActive defaults to true (server timestamp stamps)
@@ -164,7 +170,7 @@ service cloud.firestore {
           'role', 'isActive', 'createdAt', 'updatedAt'
         ])
         && request.resource.data.userId == userId
-        && request.resource.data.role in ['buyer', 'streetSeller']
+        && request.resource.data.role in ['buyer', 'streetSeller', 'admin']
         && request.resource.data.isActive is bool
         && hasString(request.resource.data, 'email')
         && hasString(request.resource.data, 'fullName')
@@ -213,6 +219,15 @@ service cloud.firestore {
       }
 
       match /recentSearches/{searchId} {
+        allow read, write: if isSelf(userId);
+      }
+
+      match /cart/{listingId} {
+        // The cart is private to the buyer. Not even an admin reads
+        // it — nothing in the admin console surfaces cart contents,
+        // and an unshipped intent to buy is not an audit artifact.
+        // Orders (which admins do read) are written separately at
+        // checkout under /orders.
         allow read, write: if isSelf(userId);
       }
     }

@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/foundation.dart' show defaultTargetPlatform, TargetPlatform;
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'config/themes.dart';
@@ -8,12 +11,12 @@ import 'constants/app_colors.dart';
 import 'l10n/app_localizations.dart';
 import 'providers/locale_provider.dart';
 import 'providers/theme_provider.dart';
+import 'firebase_options.dart';
 import 'services/storage_service.dart';
 import 'services/notification_service.dart';
 import 'providers/auth_provider.dart';
 import 'providers/notification_provider.dart';
 import 'utils/logger.dart';
-import 'firebase_options.dart';
 import 'services/demo_seeder.dart';
 
 void main() async {
@@ -52,7 +55,8 @@ void main() async {
         AppLogger.info('Firebase initialized successfully');
       } on FirebaseException catch (e) {
         if (e.code == 'duplicate-app') {
-          AppLogger.info('Firebase already initialized; skipping (duplicate-app).');
+          AppLogger.info(
+              'Firebase already initialized; skipping (duplicate-app).');
         } else {
           AppLogger.error('Firebase initialization error: $e');
           // App continues in offline/demo mode
@@ -65,12 +69,32 @@ void main() async {
       AppLogger.info('Firebase already initialized, skipping...');
     }
 
+    // Point Firestore at the local emulator or live database.
+    const bool useEmulator = false; // Set to true to use local emulator
+    if (useEmulator && Firebase.apps.isNotEmpty) {
+      final isAndroid = defaultTargetPlatform == TargetPlatform.android;
+      final host = isAndroid ? '10.0.2.2' : '127.0.0.1';
+      try {
+        FirebaseFirestore.instance.useFirestoreEmulator(host, 8080);
+        AppLogger.info('Firestore emulator bound to $host:8080');
+      } catch (e) {
+        AppLogger.warning('Firestore emulator bind skipped: $e');
+      }
+      try {
+        FirebaseAuth.instance.useAuthEmulator(host, 9099);
+        AppLogger.info('Auth emulator bound to $host:9099');
+      } catch (e) {
+        AppLogger.warning('Auth emulator bind skipped: $e');
+      }
+    }
+
     // Seed demo accounts if they don't exist, only if Firebase is initialized
     if (Firebase.apps.isNotEmpty) {
       AppLogger.info('Seeding demo accounts...');
       await DemoSeeder.seedDemoAccounts();
     } else {
-      AppLogger.info('Firebase not initialized; skipping demo accounts seeding.');
+      AppLogger.info(
+          'Firebase not initialized; skipping demo accounts seeding.');
     }
 
     // Initialize notification service
@@ -149,8 +173,19 @@ class SamakiFreshApp extends ConsumerWidget {
       },
       // AnimatedTheme lerps colour schemes across rebuilds.
       builder: (context, child) {
-        return Theme(
-          data: Theme.of(context),
+        // Physical phones ship with the OS font size cranked up far more
+        // often than emulators do. Left unclamped, a 1.5x–2.0x system
+        // scale blows every fixed-height card and grid tile past its
+        // constraints and the layout renders as overflow stripes. Cap the
+        // scale so the design degrades gracefully instead of breaking.
+        final media = MediaQuery.of(context);
+        return MediaQuery(
+          data: media.copyWith(
+            textScaler: media.textScaler.clamp(
+              minScaleFactor: 0.85,
+              maxScaleFactor: 1.20,
+            ),
+          ),
           child: AnimatedTheme(
             data: Theme.of(context),
             duration: const Duration(milliseconds: 320),

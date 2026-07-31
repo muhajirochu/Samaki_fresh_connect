@@ -72,7 +72,14 @@ class TopAppBar extends ConsumerWidget implements PreferredSizeWidget {
     final user = userAsync.valueOrNull;
     final role = user?.role;
 
-    final unreadAsync = ref.watch(unreadNotificationsCountProvider);
+    // Use the session-agnostic provider so the bell surfaces
+    // notifications for sellers (and any non-buyer role) too —
+    // `unreadNotificationsCountProvider` is gated on
+    // `currentBuyerSessionProvider` and would otherwise return 0
+    // for the seller dashboard.
+    final unreadAsync = ref.watch(
+      unreadCountForAnyUserProvider(user?.userId ?? ''),
+    );
     final unreadCount = unreadAsync.valueOrNull ?? 0;
 
     final isDark = Theme.of(context).brightness == Brightness.dark;
@@ -97,8 +104,7 @@ class TopAppBar extends ConsumerWidget implements PreferredSizeWidget {
                 // ── Notifications bell ────────────────────────────────────────
                 _IconAction(
                   tooltip: l10n.notifications,
-                  onTap: () =>
-                      context.push(notificationsPathFor(role)),
+                  onTap: () => context.push(notificationsPathFor(role)),
                   badgeCount: unreadCount,
                   child: const Icon(
                     Icons.notifications_outlined,
@@ -108,9 +114,8 @@ class TopAppBar extends ConsumerWidget implements PreferredSizeWidget {
                 const SizedBox(width: AppSizes.paddingXS),
                 // ── Theme toggle ──────────────────────────────────────────────
                 _IconAction(
-                  tooltip: isDark
-                      ? l10n.switchToLightTheme
-                      : l10n.switchToDarkTheme,
+                  tooltip:
+                      isDark ? l10n.switchToLightTheme : l10n.switchToDarkTheme,
                   badgeCount: 0,
                   onTap: () => ref
                       .read(themeControllerProvider.notifier)
@@ -121,8 +126,8 @@ class TopAppBar extends ConsumerWidget implements PreferredSizeWidget {
                     duration: const Duration(milliseconds: 280),
                     transitionBuilder: (child, anim) {
                       return RotationTransition(
-                        turns: Tween<double>(begin: 0.85, end: 1.0)
-                            .animate(anim),
+                        turns:
+                            Tween<double>(begin: 0.85, end: 1.0).animate(anim),
                         child: FadeTransition(opacity: anim, child: child),
                       );
                     },
@@ -295,10 +300,8 @@ class _IconAction extends StatelessWidget {
             top: 6,
             right: 6,
             child: Container(
-              padding:
-                  const EdgeInsets.symmetric(horizontal: 5, vertical: 1),
-              constraints:
-                  const BoxConstraints(minWidth: 18, minHeight: 18),
+              padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 1),
+              constraints: const BoxConstraints(minWidth: 18, minHeight: 18),
               decoration: BoxDecoration(
                 color: Theme.of(context).colorScheme.error,
                 borderRadius: BorderRadius.circular(9),

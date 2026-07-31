@@ -10,7 +10,6 @@ import '../../utils/validators.dart';
 import '../../utils/error_handler.dart';
 import '../../providers/auth_provider.dart';
 import '../../models/enums/user_role.dart';
-import '../../models/user_model.dart';
 import '../../providers/admin_provider.dart';
 import '../../utils/logger.dart';
 import '../../widgets/common/app_logo.dart';
@@ -74,7 +73,8 @@ class LoginScreen extends HookConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    // Transparent status bar for full-bleed header
+    // Transparent status bar so the ocean-blue hero bleeds to the
+    // top of the screen.
     SystemChrome.setSystemUIOverlayStyle(
       const SystemUiOverlayStyle(
         statusBarColor: Colors.transparent,
@@ -89,12 +89,181 @@ class LoginScreen extends HookConsumerWidget {
       backgroundColor: tokens.background,
       body: Column(
         children: [
-          // ── Hero header ────────────────────────────────────────────────────
+          // ── Ocean hero header (centered logo + brand) ───────────────────
           _HeroHeader(gradient: gradients.hero),
 
           // ── Form body ───────────────────────────────────────────────────────
-          const Expanded(
-            child: _SignInTab(),
+          const Expanded(child: _SignInTab()),
+        ],
+      ),
+    );
+  }
+}
+
+// ── Hero header — full-bleed ocean gradient with centered logo, two fish
+// silhouettes, and "Welcome Back" copy. ───────────────────────────────────────
+class _HeroHeader extends StatelessWidget {
+  final LinearGradient gradient;
+  const _HeroHeader({required this.gradient});
+
+  @override
+  Widget build(BuildContext context) {
+    final statusBarH = MediaQuery.of(context).padding.top;
+    final cs = Theme.of(context).colorScheme;
+    final tt = Theme.of(context).textTheme;
+
+    return Container(
+      width: double.infinity,
+      decoration: BoxDecoration(
+        gradient: gradient,
+        // Wave-like bottom edge so the form feels like it's emerging
+        // from water. `borderRadius` alone is too rigid.
+        borderRadius: const BorderRadius.only(
+          bottomLeft: Radius.circular(36),
+          bottomRight: Radius.circular(36),
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: cs.shadow.withValues(alpha: 0.30),
+            blurRadius: 18,
+            offset: const Offset(0, 8),
+          ),
+        ],
+      ),
+      child: Stack(
+        children: [
+          // Two faint fish silhouettes flanking the header, mirroring
+          // the design. Using `Icons.set_meal_rounded` as a stylized
+          // fish stand-in (no extra asset).
+          Positioned(
+            top: statusBarH + 8,
+            left: 18,
+            child: Icon(
+              Icons.set_meal_rounded,
+              color: cs.onPrimary.withValues(alpha: 0.35),
+              size: 26,
+            ),
+          ),
+          Positioned(
+            top: statusBarH + 8,
+            right: 18,
+            child: Icon(
+              Icons.set_meal_rounded,
+              color: cs.onPrimary.withValues(alpha: 0.35),
+              size: 26,
+            ),
+          ),
+          // Soft radial glow blob behind the logo for depth.
+          Positioned(
+            top: 24,
+            left: 0,
+            right: 0,
+            child: Center(
+              child: Container(
+                width: 180,
+                height: 180,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  gradient: RadialGradient(
+                    colors: [
+                      cs.onPrimary.withValues(alpha: 0.18),
+                      cs.onPrimary.withValues(alpha: 0.0),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          ),
+          Padding(
+            padding: EdgeInsets.only(top: statusBarH + 32, bottom: 28),
+            child: Column(
+              children: [
+                // Circular logo plate — matches the design's white
+                // ring around the fish icon.
+                Container(
+                  width: 96,
+                  height: 96,
+                  padding: const EdgeInsets.all(6),
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: cs.onPrimary,
+                    boxShadow: [
+                      BoxShadow(
+                        color: cs.shadow.withValues(alpha: 0.25),
+                        blurRadius: 18,
+                        offset: const Offset(0, 6),
+                      ),
+                    ],
+                  ),
+                  child: ClipOval(
+                    child: Container(
+                      decoration: BoxDecoration(
+                        gradient: LinearGradient(
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
+                          colors: [
+                            cs.primary,
+                            cs.secondary,
+                          ],
+                        ),
+                      ),
+                      alignment: Alignment.center,
+                      child: const AppLogo(
+                        size: 72,
+                        borderRadius: 32,
+                      ),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 14),
+                // Brand name — "SamakiFresh " bold + "Connect" lighter
+                Text.rich(
+                  TextSpan(
+                    style: tt.headlineSmall?.copyWith(
+                      color: cs.onPrimary,
+                      letterSpacing: -0.4,
+                    ),
+                    children: [
+                      const TextSpan(
+                        text: 'SamakiFresh ',
+                        style: TextStyle(fontWeight: FontWeight.w800),
+                      ),
+                      TextSpan(
+                        text: 'Connect',
+                        style: TextStyle(
+                          color: cs.onPrimary.withValues(alpha: 0.85),
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 6),
+                // Tiny fish-divider — a single-line ornamental piece.
+                _FishDivider(color: cs.onPrimary.withValues(alpha: 0.55)),
+                const SizedBox(height: 14),
+                Text(
+                  'Welcome Back',
+                  style: tt.headlineSmall?.copyWith(
+                    color: cs.onPrimary,
+                    fontWeight: FontWeight.w700,
+                    letterSpacing: -0.3,
+                  ),
+                ),
+                const SizedBox(height: 6),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 32),
+                  child: Text(
+                    'Sign in to continue to your dashboard.',
+                    textAlign: TextAlign.center,
+                    style: tt.bodyMedium?.copyWith(
+                      color: cs.onPrimary.withValues(alpha: 0.85),
+                      height: 1.35,
+                    ),
+                  ),
+                ),
+              ],
+            ),
           ),
         ],
       ),
@@ -102,166 +271,29 @@ class LoginScreen extends HookConsumerWidget {
   }
 }
 
-// ── Hero header with gradient + segment control ──────────────────────────────
-class _HeroHeader extends StatelessWidget {
-  final LinearGradient gradient;
-  const _HeroHeader({required this.gradient});
+/// Horizontal fish-divider line. Uses a dash + fish icon + dash
+/// composition that renders crisply without a custom SVG asset.
+class _FishDivider extends StatelessWidget {
+  final Color color;
+  const _FishDivider({required this.color});
 
   @override
   Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context);
-    final statusBarH = MediaQuery.of(context).padding.top;
-    final cs = Theme.of(context).colorScheme;
-    final tt = Theme.of(context).textTheme;
-
-    return Container(
-      decoration: BoxDecoration(
-        gradient: gradient,
-        borderRadius: const BorderRadius.only(
-          bottomLeft: Radius.circular(32),
-          bottomRight: Radius.circular(32),
-        ),
-        boxShadow: [
-          BoxShadow(
-            // Theme-aware shadow — slightly stronger in dark mode so
-            // the gradient header reads as elevated on either theme.
-            color: cs.shadow.withValues(alpha: 0.32),
-            blurRadius: 18,
-            offset: const Offset(0, 8),
+    return SizedBox(
+      width: 180,
+      child: Row(
+        children: [
+          Expanded(child: Divider(color: color, thickness: 1)),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 8),
+            child: Icon(
+              Icons.set_meal_rounded,
+              size: 14,
+              color: color,
+            ),
           ),
+          Expanded(child: Divider(color: color, thickness: 1)),
         ],
-      ),
-      child: Padding(
-        padding: EdgeInsets.only(top: statusBarH + 16, bottom: 0),
-        child: Column(
-          children: [
-            // Logo + title
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 24),
-              child: Row(
-                children: [
-                  const AppLogo(
-                    size: 48,
-                    withGlow: true,
-                  ),
-                  const SizedBox(width: 12),
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        'SamakiFresh',
-                        style: tt.titleLarge?.copyWith(
-                          color: cs.onPrimary,
-                          fontWeight: FontWeight.w800,
-                          letterSpacing: -0.3,
-                        ),
-                      ),
-                      Text(
-                        'CONNECT',
-                        style: tt.bodySmall?.copyWith(
-                          color: cs.onPrimary.withValues(alpha: 0.75),
-                          fontWeight: FontWeight.w300,
-                          letterSpacing: 3,
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-            ),
-            const SizedBox(height: 24),
-            // Welcome text
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 24),
-              child: Align(
-                alignment: Alignment.centerLeft,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'Welcome back',
-                      style: tt.headlineSmall?.copyWith(
-                        color: cs.onPrimary,
-                        fontWeight: FontWeight.w700,
-                        letterSpacing: -0.5,
-                      ),
-                    ),
-                    const SizedBox(height: 4),
-                    Text(
-                      'Sign in to continue to your dashboard',
-                      style: tt.bodyMedium?.copyWith(
-                        color: cs.onPrimary.withValues(alpha: 0.80),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-            const SizedBox(height: 20),
-            // Tab bar
-            Container(
-              margin: const EdgeInsets.symmetric(horizontal: 24),
-              padding: const EdgeInsets.all(4),
-              decoration: BoxDecoration(
-                color: cs.onPrimary.withValues(alpha: 0.15),
-                borderRadius: BorderRadius.circular(14),
-              ),
-              child: Row(
-                children: [
-                  Expanded(
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(vertical: 10),
-                      decoration: BoxDecoration(
-                        // The "selected" tab pill needs to read
-                        // against the gradient background. White is the
-                        // correct contrast colour regardless of theme
-                        // because the pill sits ON TOP of the brand
-                        // gradient, not on the surface.
-                        color: cs.onPrimary,
-                        borderRadius: BorderRadius.circular(10),
-                        boxShadow: [
-                          BoxShadow(
-                            color: cs.shadow.withValues(alpha: 0.18),
-                            blurRadius: 8,
-                            offset: const Offset(0, 2),
-                          ),
-                        ],
-                      ),
-                      alignment: Alignment.center,
-                      child: Text(
-                        l10n.login,
-                        style: TextStyle(
-                          color: cs.primary,
-                          fontWeight: FontWeight.w700,
-                          fontSize: 15,
-                        ),
-                      ),
-                    ),
-                  ),
-                  Expanded(
-                    child: GestureDetector(
-                      onTap: () => context.push('/register'),
-                      behavior: HitTestBehavior.opaque,
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(vertical: 10),
-                        alignment: Alignment.center,
-                        child: Text(
-                          l10n.signup,
-                          style: TextStyle(
-                            color: cs.onPrimary,
-                            fontWeight: FontWeight.w500,
-                            fontSize: 15,
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            const SizedBox(height: 20),
-          ],
-        ),
       ),
     );
   }
@@ -409,29 +441,27 @@ class _SignInTab extends HookConsumerWidget {
     }
 
     return SingleChildScrollView(
-      padding: const EdgeInsets.fromLTRB(24, 28, 24, 24),
+      padding: const EdgeInsets.fromLTRB(24, 24, 24, 24),
       child: Form(
         key: formKey,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             // Email
-            const _PremiumInputLabel(
-                label: 'Email address', icon: Icons.email_rounded),
-            const SizedBox(height: 8),
             TextFormField(
               controller: emailCtrl,
               keyboardType: TextInputType.emailAddress,
               textInputAction: TextInputAction.next,
-              decoration: themedInputDec(context, hint: 'you@example.com'),
+              decoration: themedInputDec(
+                context,
+                hint: 'Email address',
+                leadingIcon: Icons.email_outlined,
+              ),
               validator: Validators.validateEmail,
             ),
-            const SizedBox(height: 20),
+            const SizedBox(height: 14),
 
             // Password
-            const _PremiumInputLabel(
-                label: 'Password', icon: Icons.lock_rounded),
-            const SizedBox(height: 8),
             TextFormField(
               controller: passwordCtrl,
               obscureText: obscure.value,
@@ -439,7 +469,8 @@ class _SignInTab extends HookConsumerWidget {
               onFieldSubmitted: (_) => handleLogin(),
               decoration: themedInputDec(
                 context,
-                hint: '••••••••',
+                hint: 'Password',
+                leadingIcon: Icons.lock_outline_rounded,
                 suffix: IconButton(
                   icon: Icon(
                     obscure.value
@@ -471,13 +502,50 @@ class _SignInTab extends HookConsumerWidget {
               onPressed: isLoading.value ? null : handleLogin,
               isLoading: isLoading.value,
             ),
-            const SizedBox(height: 28),
+            const SizedBox(height: 24),
 
             // Demo section
             _DemoSection(isLoading: isLoading.value),
+            const SizedBox(height: 18),
+
+            // Footer
+            _SignupFooter(),
           ],
         ),
       ),
+    );
+  }
+}
+
+// ── Sign up footer ────────────────────────────────────────────────────────────
+class _SignupFooter extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    final tt = Theme.of(context).textTheme;
+
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        Text(
+          "Don't have an account? ",
+          style: tt.bodyMedium?.copyWith(
+            color: cs.onSurface.withValues(alpha: 0.70),
+          ),
+        ),
+        GestureDetector(
+          onTap: () => context.push('/register'),
+          behavior: HitTestBehavior.opaque,
+          child: Text(
+            'sign up.',
+            style: tt.bodyMedium?.copyWith(
+              color: cs.primary,
+              fontWeight: FontWeight.w700,
+              decoration: TextDecoration.underline,
+            ),
+          ),
+        ),
+      ],
     );
   }
 }
@@ -501,7 +569,7 @@ class _DemoSection extends HookConsumerWidget {
         GestureDetector(
           onTap: () => expanded.value = !expanded.value,
           child: Container(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
             decoration: BoxDecoration(
               color: tokens.surface,
               borderRadius: BorderRadius.circular(14),
@@ -584,23 +652,48 @@ class _DemoCard extends HookConsumerWidget {
       if (isLoading) return;
 
       AppLogger.info('Demo card tapped: ${demo.email}');
-      await Future.delayed(const Duration(milliseconds: 300));
 
-      final now = DateTime.now();
-      setMockUser(UserModel(
-        userId: 'demo_${demo.role.name}',
-        email: demo.email,
-        fullName: demo.name,
-        phoneNumber: '0700000000',
-        role: demo.role,
-        isActive: true,
-        createdAt: now,
-        updatedAt: now,
-      ));
-      ref.invalidate(authStateProvider);
-      ref.invalidate(currentUserProvider);
-      ref.invalidate(currentUserStreamProvider);
-      ref.invalidate(currentUserDataProvider);
+      // Sign in through Firebase Auth rather than stamping a mock user.
+      //
+      // This card is the second demo-login entry point; the form's
+      // "Demo login" path above was converted in 4dbaf3f but this one
+      // was missed, so tapping it left `request.auth == null` and
+      // EVERY Firestore read returned PERMISSION_DENIED — the buyer
+      // dashboard showed "0 Fish Available" and search returned
+      // nothing at all, because `fishListings` was never readable.
+      //
+      // The demo accounts are real Firebase Auth accounts provisioned
+      // by DemoSeeder.seedDemoAccounts on cold start.
+      final messenger = ScaffoldMessenger.of(context);
+      final errorColor = Theme.of(context).colorScheme.error;
+      try {
+        final fbUser = await ref.read(authServiceProvider).signIn(
+              email: demo.email,
+              password: demo.password,
+            );
+        if (fbUser == null) {
+          throw StateError('Demo sign-in returned no user');
+        }
+        // Clear any leftover mock user so the real auth event wins.
+        setMockUser(null);
+        ref.invalidate(authStateProvider);
+        ref.invalidate(currentUserProvider);
+        ref.invalidate(currentUserStreamProvider);
+        ref.invalidate(currentUserDataProvider);
+      } catch (e) {
+        AppLogger.error('Demo sign-in failed for ${demo.email}: $e');
+        messenger.showSnackBar(
+          SnackBar(
+            content: Text(
+              'Demo sign-in failed: $e\n'
+              'Check that Firebase Auth is reachable and the '
+              'demo accounts were seeded.',
+            ),
+            backgroundColor: errorColor,
+          ),
+        );
+        return;
+      }
 
       if (context.mounted) {
         context.go(AppRoutesExtensions.dashboardFor(demo.role));
@@ -675,39 +768,15 @@ void _showSnack(BuildContext context, String message, {bool isError = false}) {
   );
 }
 
-// ── Field label + theme-aware input decoration ────────────────────────────────
-class _PremiumInputLabel extends StatelessWidget {
-  final String label;
-  final IconData icon;
-
-  const _PremiumInputLabel({required this.label, required this.icon});
-
-  @override
-  Widget build(BuildContext context) {
-    final cs = Theme.of(context).colorScheme;
-    final tt = Theme.of(context).textTheme;
-
-    return Row(
-      children: [
-        Icon(icon, size: 16, color: cs.onSurface.withValues(alpha: 0.65)),
-        const SizedBox(width: 6),
-        Text(
-          label,
-          style: tt.labelMedium?.copyWith(
-            fontWeight: FontWeight.w600,
-            color: cs.onSurface.withValues(alpha: 0.80),
-          ),
-        ),
-      ],
-    );
-  }
-}
-
 /// Builds a theme-aware [InputDecoration] from the current theme.
+///
+/// Adds an optional [leadingIcon] so the email/password fields mirror
+/// the design's icon-prefixed inputs (mail/lock on the left edge).
 InputDecoration themedInputDec(
   BuildContext context, {
   required String hint,
   Widget? suffix,
+  IconData? leadingIcon,
 }) {
   final cs = Theme.of(context).colorScheme;
   final tt = Theme.of(context).textTheme;
@@ -717,8 +786,14 @@ InputDecoration themedInputDec(
     filled: true,
     fillColor: cs.surfaceContainerHighest,
     hintStyle: tt.bodyMedium
-        ?.copyWith(color: cs.onSurface.withValues(alpha: 0.40), fontSize: 15),
-    contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+        ?.copyWith(color: cs.onSurface.withValues(alpha: 0.55), fontSize: 15),
+    contentPadding: EdgeInsets.symmetric(
+      horizontal: 16,
+      vertical: leadingIcon != null ? 14 : 14,
+    ),
+    prefixIcon: leadingIcon != null
+        ? Icon(leadingIcon, size: 20, color: cs.onSurface.withValues(alpha: 0.55))
+        : null,
     suffixIcon: suffix,
     border: OutlineInputBorder(
       borderRadius: BorderRadius.circular(12),

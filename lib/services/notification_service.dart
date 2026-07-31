@@ -53,6 +53,13 @@ class NotificationService {
 
   Future<void> init() async {
     try {
+      // Per-platform settings. The plugin refuses to initialize if the
+      // target platform has no settings — on Linux that means
+      // `defaultActionName` is required, on macOS it reuses the Darwin
+      // settings, on Windows the package adds a dedicated
+      // `WindowsInitializationSettings`. Every platform we ship for
+      // gets an entry so `flutter run -d <anything>` works without the
+      // "Linux settings must be set" error.
       const androidSettings =
           AndroidInitializationSettings('@mipmap/ic_launcher');
       const iosSettings = DarwinInitializationSettings(
@@ -60,9 +67,19 @@ class NotificationService {
         requestBadgePermission: true,
         requestSoundPermission: true,
       );
+      const macosSettings = DarwinInitializationSettings(
+        requestAlertPermission: true,
+        requestBadgePermission: true,
+        requestSoundPermission: true,
+      );
+      const linuxSettings = LinuxInitializationSettings(
+        defaultActionName: 'Open Samaki Fresh',
+      );
       const initSettings = InitializationSettings(
         android: androidSettings,
         iOS: iosSettings,
+        macOS: macosSettings,
+        linux: linuxSettings,
       );
       await _notificationsPlugin.initialize(initSettings);
       AppLogger.info('NotificationService initialized');

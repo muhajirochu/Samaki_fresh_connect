@@ -16,18 +16,34 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
+import '../../config/route_paths.dart';
 import '../../constants/app_colors.dart';
 import '../../constants/app_sizes.dart';
 import '../../l10n/app_localizations.dart';
 import '../../models/fish_search_result.dart';
+import '../../providers/buyer_provider.dart';
 import '../../providers/fish_search_provider.dart';
 
 class BuyerFishSearchScreen extends ConsumerStatefulWidget {
-  /// Optional initial query (when the user tapped an autocomplete
-  /// suggestion).
+  /// Optional initial query (when the screen is deep-linked with a
+  /// query already in hand).
   final String? initialQuery;
 
-  const BuyerFishSearchScreen({super.key, this.initialQuery});
+  /// Whether to focus the field — and so raise the keyboard — as soon
+  /// as this screen is built.
+  ///
+  /// Defaults to true for the standalone `/buyer/search` route, where
+  /// the buyer navigated here specifically to type. `BuyerShellScreen`
+  /// passes false: its IndexedStack builds every tab up front, so an
+  /// unconditional autofocus would pop the keyboard while the buyer is
+  /// still looking at the Home tab.
+  final bool autofocus;
+
+  const BuyerFishSearchScreen({
+    super.key,
+    this.initialQuery,
+    this.autofocus = true,
+  });
 
   @override
   ConsumerState<BuyerFishSearchScreen> createState() =>
@@ -48,8 +64,13 @@ class _BuyerFishSearchScreenState extends ConsumerState<BuyerFishSearchScreen> {
     // the initial value before the first frame renders.
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted) return;
-      ref.read(searchQueryProvider.notifier).state = initial;
-      _focusNode.requestFocus();
+      // Only seed a non-empty query. Inside the shell every tab is
+      // built at startup, and blanking the shared provider here would
+      // wipe a query the buyer typed on a previous visit to the tab.
+      if (initial.isNotEmpty) {
+        ref.read(searchQueryProvider.notifier).state = initial;
+      }
+      if (widget.autofocus) _focusNode.requestFocus();
     });
   }
 
@@ -64,6 +85,23 @@ class _BuyerFishSearchScreenState extends ConsumerState<BuyerFishSearchScreen> {
     // Update the shared query so the singleton search provider
     // re-emits against its already-loaded buffers.
     ref.read(searchQueryProvider.notifier).state = value;
+  }
+
+  /// Records the query against the buyer's search history.
+  ///
+  /// This used to live on the dashboard's autocomplete bar. When that
+  /// bar was removed in favour of this screen, the recording moved
+  /// here — otherwise `users/{buyerId}/recentSearches` would have
+  /// stopped being written to entirely.
+  ///
+  /// Fired on submit rather than on every keystroke, so the history
+  /// holds intent ("changu") and not the prefixes typed on the way
+  /// there ("c", "ch", "cha").
+  void _onSubmitted(String value) {
+    final q = value.trim();
+    if (q.isEmpty) return;
+    ref.read(searchQueryProvider.notifier).state = q;
+    ref.read(buyerDashboardControllerProvider.notifier).recordSearch(q);
   }
 
   @override
@@ -99,6 +137,7 @@ class _BuyerFishSearchScreenState extends ConsumerState<BuyerFishSearchScreen> {
               controller: _controller,
               focusNode: _focusNode,
               onChanged: _onChanged,
+              onSubmitted: _onSubmitted,
               textInputAction: TextInputAction.search,
               decoration: InputDecoration(
                 hintText: AppLocalizations.of(context).searchHint,
@@ -135,13 +174,22 @@ class _BuyerFishSearchScreenState extends ConsumerState<BuyerFishSearchScreen> {
               query: query,
               resultsAsync: resultsAsync,
               onTapListing: (result, listingWithSeller) {
-                context.go(
-                  '/buyer/map',
-                  extra: {
+                // Query parameters, not `extra`. The `/buyer/map` route
+                // builds BuyerMapScreen from `state.uri.queryParameters`
+                // (see routes.dart) and never reads `extra`, so the map
+                // used to open completely unfiltered no matter which
+                // result was tapped.
+                //
+                // push, not go: the buyer expects Back to return to
+                // their results, not to drop them on the dashboard.
+                final uri = Uri(
+                  path: AppRoutes.buyerMap,
+                  queryParameters: {
                     'fishType': result.fishType,
                     'sellerId': listingWithSeller.seller.sellerId,
                   },
                 );
+                context.push(uri.toString());
               },
             ),
           ),
@@ -169,8 +217,7 @@ class _ResultsBody extends StatelessWidget {
       return _EmptyHint(
         icon: Icons.search_rounded,
         title: l10n.startTypingToSearch,
-        subtitle:
-            'Find sellers with the fish you want, sorted by distance.',
+        subtitle: 'Find sellers with the fish you want, sorted by distance.',
       );
     }
 
@@ -257,8 +304,8 @@ class _SearchResultCard extends StatelessWidget {
                     color: cs.primary.withValues(alpha: 0.10),
                     borderRadius: BorderRadius.circular(AppSizes.radiusMD),
                   ),
-                  child: Icon(Icons.set_meal_rounded,
-                      color: cs.primary, size: 22),
+                  child:
+                      Icon(Icons.set_meal_rounded, color: cs.primary, size: 22),
                 ),
                 const SizedBox(width: AppSizes.paddingMD),
                 Expanded(
@@ -291,8 +338,7 @@ class _SearchResultCard extends StatelessWidget {
                     ),
                     decoration: BoxDecoration(
                       color: AppColors.successGreen.withValues(alpha: 0.12),
-                      borderRadius:
-                          BorderRadius.circular(AppSizes.radiusXS),
+                      borderRadius: BorderRadius.circular(AppSizes.radiusXS),
                     ),
                     child: Row(
                       mainAxisSize: MainAxisSize.min,
@@ -327,12 +373,16 @@ class _SearchResultCard extends StatelessWidget {
             ),
             child: Row(
               children: [
-                Text(
-                  'TZS ${result.minPricePerKg.toStringAsFixed(0)} – '
-                  '${result.maxPricePerKg.toStringAsFixed(0)} / kg',
-                  style: theme.textTheme.bodySmall?.copyWith(
-                    color: cs.onSurface.withValues(alpha: 0.65),
-                    fontWeight: FontWeight.w600,
+                Expanded(
+                  child: Text(
+                    'TZS ${result.minPricePerKg.toStringAsFixed(0)} – '
+                    '${result.maxPricePerKg.toStringAsFixed(0)} / kg',
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: theme.textTheme.bodySmall?.copyWith(
+                      color: cs.onSurface.withValues(alpha: 0.65),
+                      fontWeight: FontWeight.w600,
+                    ),
                   ),
                 ),
               ],

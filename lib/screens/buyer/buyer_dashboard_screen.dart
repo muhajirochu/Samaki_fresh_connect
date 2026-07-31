@@ -3,11 +3,10 @@
 // Layout (top → bottom):
 //   1. Greeting header
 //   2. Summary tiles: Fish Available / Active Requests / Nearest Seller
-//   3. Autocomplete search bar
-//   4. "Ramani ya Wauzaji" CTA card (jumps to /buyer/map)
-//   5. My Requests CTA
-//   6. "Browse Other Fish" horizontal scroller
-//   7. "Popular Near You" recommendations
+//   3. "Ramani ya Wauzaji" CTA card (jumps to /buyer/map)
+//   4. My Requests CTA
+//   5. "Browse Other Fish" horizontal scroller
+//   6. "Popular Near You" recommendations
 //
 // Every section reads from Riverpod providers, so updates flow in real time
 // when fish go out of stock, requests open/close, or the buyer's location
@@ -16,11 +15,17 @@
 // Note: the previous "Reseed demo marketplace" dev tile was removed
 // when demo street-seller data was taken out — sellers must register
 // themselves, so there is nothing to reseed.
+//
+// Note: the autocomplete search bar that used to sit under the summary
+// tiles was removed once the bottom nav gained a Search tab. Two search
+// entry points meant two code paths to keep in step; the Search tab is
+// now the single one.
 
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
+import '../../config/route_paths.dart';
 import '../../config/theme_extensions.dart';
 import '../../constants/app_sizes.dart';
 import '../../l10n/app_localizations.dart';
@@ -32,7 +37,6 @@ import '../../widgets/common/premium_components.dart';
 import '../../widgets/common/top_app_bar.dart';
 import '../../widgets/dashboard/browse_fish_section.dart';
 import '../../widgets/dashboard/popular_fish_section.dart';
-import '../../widgets/dashboard/search_bar.dart';
 import '../../widgets/dashboard/summary_header.dart';
 import '../../widgets/notifications/wishlist_match_banner.dart';
 
@@ -50,24 +54,31 @@ class BuyerDashboardScreen extends ConsumerWidget {
       // and theme toggle. It slots straight into the Scaffold's appBar
       // slot so Material handles status-bar / safe-area / elevation.
       appBar: const TopAppBar(),
-      body: userAsync.when(
-        loading: () => const Center(child: CircularProgressIndicator()),
-        error: (error, stack) =>
-            Center(child: Text(l10n.loadingError(error.toString()))),
-        data: (user) {
-          if (user == null) {
-            return Center(child: Text(l10n.notLoggedIn));
-          }
-          return Stack(
-            children: [
-              _DashboardBody(userName: user.fullName),
-              // No-op listener that pops a SnackBar whenever the wishlist
-              // cross-trigger fires. Mounted once at the root of the
-              // buyer shell.
-              const WishlistMatchBanner(),
-            ],
-          );
-        },
+      // top: false — the AppBar already owns the status-bar inset. The
+      // bottom inset is the one that mattered: on phones with gesture
+      // navigation the last cards were drawn underneath the nav pill,
+      // which never shows up on a desktop emulator.
+      body: SafeArea(
+        top: false,
+        child: userAsync.when(
+          loading: () => const Center(child: CircularProgressIndicator()),
+          error: (error, stack) =>
+              Center(child: Text(l10n.loadingError(error.toString()))),
+          data: (user) {
+            if (user == null) {
+              return Center(child: Text(l10n.notLoggedIn));
+            }
+            return Stack(
+              children: [
+                _DashboardBody(userName: user.fullName),
+                // No-op listener that pops a SnackBar whenever the wishlist
+                // cross-trigger fires. Mounted once at the root of the
+                // buyer shell.
+                const WishlistMatchBanner(),
+              ],
+            );
+          },
+        ),
       ),
     );
   }
@@ -77,8 +88,24 @@ class _DashboardBody extends ConsumerWidget {
   final String userName;
   const _DashboardBody({required this.userName});
 
+  /// Opens the seller map, optionally pre-filtered.
+  ///
+  /// This used to push `/map-foundation`, which is not in the route
+  /// table — every "Fungua Ramani" tap landed on the "Page not found"
+  /// errorBuilder. The real route is `AppRoutes.buyerMap`, and it
+  /// already reads `fishType` / `q` query parameters (see
+  /// `routes.dart`), so the arguments this method always accepted but
+  /// silently dropped are now actually forwarded.
   void _openMap(BuildContext context, {String? fishType, String? query}) {
-    context.push('/map-foundation');
+    final params = <String, String>{
+      if (fishType != null && fishType.isNotEmpty) 'fishType': fishType,
+      if (query != null && query.isNotEmpty) 'q': query,
+    };
+    final uri = Uri(
+      path: AppRoutes.buyerMap,
+      queryParameters: params.isEmpty ? null : params,
+    );
+    context.push(uri.toString());
   }
 
   @override
@@ -139,20 +166,10 @@ class _DashboardBody extends ConsumerWidget {
             ),
           ),
 
-          // ── 3. Search bar (autocomplete) ────────────────────────────────
-          const SliverToBoxAdapter(
-            child: Padding(
-              padding: EdgeInsets.fromLTRB(
-                AppSizes.paddingLG,
-                AppSizes.paddingLG,
-                AppSizes.paddingLG,
-                AppSizes.paddingSM,
-              ),
-              child: DashboardSearchBar(),
-            ),
-          ),
-
-          // ── 4. Map CTA card ─────────────────────────────────────────────
+          // ── 3. Map CTA card ─────────────────────────────────────────────
+          // The dashboard no longer carries its own search bar — search
+          // lives on the bottom nav's Search tab, so there is exactly
+          // one search surface instead of two that drifted apart.
           SliverToBoxAdapter(
             child: Padding(
               padding: const EdgeInsets.fromLTRB(
@@ -289,8 +306,7 @@ class _MapCtaCard extends StatelessWidget {
                     color: cs.onPrimary.withValues(alpha: 0.20),
                     borderRadius: BorderRadius.circular(AppSizes.radiusMD),
                   ),
-                  child: Icon(Icons.map_rounded,
-                      color: cs.onPrimary, size: 28),
+                  child: Icon(Icons.map_rounded, color: cs.onPrimary, size: 28),
                 ),
                 const SizedBox(width: AppSizes.paddingMD),
                 Expanded(
@@ -371,8 +387,7 @@ class _RequestsCtaCard extends StatelessWidget {
                     color: cs.tertiary.withValues(alpha: 0.12),
                     borderRadius: BorderRadius.circular(AppSizes.radiusMD),
                   ),
-                  child: Icon(Icons.send_rounded,
-                      color: cs.tertiary, size: 24),
+                  child: Icon(Icons.send_rounded, color: cs.tertiary, size: 24),
                 ),
                 const SizedBox(width: AppSizes.paddingMD),
                 Expanded(

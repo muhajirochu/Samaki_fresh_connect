@@ -39,138 +39,149 @@ class AdminDashboardScreen extends ConsumerWidget {
     return Scaffold(
       backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       appBar: const _AdminDashboardAppBar(),
-      body: userAsync.when(
-        loading: () => const LoadingIndicator(),
-        error: (e, _) => Center(child: Text(l10n.loadingError(e.toString()))),
-        data: (user) {
-          if (user == null) {
-            return Center(child: Text(l10n.notLoggedIn));
-          }
-          return CustomScrollView(
-            slivers: [
-              // Row 1 — People & Listings
-              SliverPadding(
-                padding: const EdgeInsets.fromLTRB(
-                  AppSizes.paddingLG,
-                  AppSizes.paddingMD,
-                  AppSizes.paddingLG,
-                  0,
-                ),
-                sliver: SliverGrid.count(
-                  crossAxisCount: 2,
-                  mainAxisSpacing: AppSizes.paddingMD,
-                  crossAxisSpacing: AppSizes.paddingMD,
-                  childAspectRatio: 1.5,
-                  children: [
-                    _TotalSellersCard(),
-                    _TotalBuyersCard(),
-                    _TotalListingsCard(),
-                    _ActiveListingsCard(),
-                  ],
-                ),
-              ),
-
-              // Quick actions — Management (shown first)
-              SliverToBoxAdapter(
-                child: Padding(
+      // top: false — the AppBar owns the status-bar inset. The bottom
+      // inset keeps the last stat row clear of the gesture nav pill on
+      // real phones; emulators rarely show one.
+      body: SafeArea(
+        top: false,
+        child: userAsync.when(
+          loading: () => const LoadingIndicator(),
+          error: (e, _) => Center(child: Text(l10n.loadingError(e.toString()))),
+          data: (user) {
+            if (user == null) {
+              return Center(child: Text(l10n.notLoggedIn));
+            }
+            return CustomScrollView(
+              slivers: [
+                // Row 1 — People & Listings
+                SliverPadding(
                   padding: const EdgeInsets.fromLTRB(
                     AppSizes.paddingLG,
-                    AppSizes.paddingXL,
-                    AppSizes.paddingLG,
-                    AppSizes.paddingSM,
-                  ),
-                  child: SectionHeader(
-                    title: l10n.management,
-                    leadingIcon: Icons.build_rounded,
-                  ),
-                ),
-              ),
-              SliverPadding(
-                padding: const EdgeInsets.symmetric(
-                    horizontal: AppSizes.paddingLG),
-                sliver: SliverList(
-                  delegate: SliverChildListDelegate([
-                    _ActionTile(
-                      icon: Icons.shopping_cart_rounded,
-                      title: l10n.manageBuyers,
-                      subtitle: l10n.manageBuyersSubtitle,
-                      onTap: () => context.push('/admin/buyers'),
-                      color: cs.secondary,
-                    ),
-                    const SizedBox(height: AppSizes.paddingMD),
-                    _ActionTile(
-                      icon: Icons.storefront_rounded,
-                      title: l10n.manageStreetSellers,
-                      subtitle: l10n.manageStreetSellersSubtitle,
-                      onTap: () => context.push('/admin/sellers'),
-                      color: cs.primary,
-                      trailing: _PendingBadge(),
-                    ),
-                    const SizedBox(height: AppSizes.paddingMD),
-                    _ActionTile(
-                      icon: Icons.list_alt_rounded,
-                      title: l10n.allListings,
-                      subtitle: l10n.adminAllListingsSubtitle,
-                      onTap: () => context.push('/admin/listings'),
-                      color: cs.tertiary,
-                    ),
-                    const SizedBox(height: AppSizes.paddingMD),
-                    _ActionTile(
-                      icon: Icons.receipt_long_rounded,
-                      title: l10n.transactionsTitle,
-                      subtitle: l10n.transactionsScreenSubtitle,
-                      onTap: () => context.push('/admin/transactions'),
-                      color: cs.secondary,
-                    ),
-                    const SizedBox(height: AppSizes.paddingMD),
-                    _ActionTile(
-                      icon: Icons.bar_chart_rounded,
-                      title: l10n.reportsTab,
-                      subtitle: l10n.reportsSales,
-                      onTap: () => context.push('/admin/reports'),
-                      color: cs.primary,
-                    ),
-                    const SizedBox(height: AppSizes.paddingMD),
-                    _ActionTile(
-                      icon: Icons.history_rounded,
-                      title: l10n.logsTitle,
-                      subtitle: l10n.logsSubtitle,
-                      onTap: () => context.push('/admin/logs'),
-                      color: cs.tertiary,
-                    ),
-                    const SizedBox(height: AppSizes.paddingMD),
-                  ]),
-                ),
-              ),
-              // Recent activity — shown last
-              SliverToBoxAdapter(
-                child: Padding(
-                  padding: const EdgeInsets.fromLTRB(
-                    AppSizes.paddingLG,
-                    AppSizes.paddingSM,
-                    AppSizes.paddingLG,
-                    AppSizes.paddingSM,
-                  ),
-                  child: SectionHeader(
-                    title: l10n.recentActivity,
-                    leadingIcon: Icons.history_rounded,
-                  ),
-                ),
-              ),
-              SliverToBoxAdapter(
-                child: Padding(
-                  padding: const EdgeInsets.fromLTRB(
+                    AppSizes.paddingMD,
                     AppSizes.paddingLG,
                     0,
-                    AppSizes.paddingLG,
-                    AppSizes.paddingXXL,
                   ),
-                  child: _RecentActivityStrip(),
+                  sliver: SliverGrid.count(
+                    crossAxisCount: 2,
+                    mainAxisSpacing: AppSizes.paddingMD,
+                    crossAxisSpacing: AppSizes.paddingMD,
+                    // 1.25, not 1.5: on a 360dp phone a tile is ~152dp
+                    // wide, and icon + value + label needs ~116dp of
+                    // height. At 1.5 the box was only ~101dp and every
+                    // card overflowed. Emulators are wide enough to hide
+                    // this, real phones are not.
+                    childAspectRatio: 1.25,
+                    children: [
+                      _TotalSellersCard(),
+                      _TotalBuyersCard(),
+                      _TotalListingsCard(),
+                      _ActiveListingsCard(),
+                    ],
+                  ),
                 ),
-              ),
-            ],
-          );
-        },
+
+                // Quick actions — Management (shown first)
+                SliverToBoxAdapter(
+                  child: Padding(
+                    padding: const EdgeInsets.fromLTRB(
+                      AppSizes.paddingLG,
+                      AppSizes.paddingXL,
+                      AppSizes.paddingLG,
+                      AppSizes.paddingSM,
+                    ),
+                    child: SectionHeader(
+                      title: l10n.management,
+                      leadingIcon: Icons.build_rounded,
+                    ),
+                  ),
+                ),
+                SliverPadding(
+                  padding: const EdgeInsets.symmetric(
+                      horizontal: AppSizes.paddingLG),
+                  sliver: SliverList(
+                    delegate: SliverChildListDelegate([
+                      _ActionTile(
+                        icon: Icons.shopping_cart_rounded,
+                        title: l10n.manageBuyers,
+                        subtitle: l10n.manageBuyersSubtitle,
+                        onTap: () => context.push('/admin/buyers'),
+                        color: cs.secondary,
+                      ),
+                      const SizedBox(height: AppSizes.paddingMD),
+                      _ActionTile(
+                        icon: Icons.storefront_rounded,
+                        title: l10n.manageStreetSellers,
+                        subtitle: l10n.manageStreetSellersSubtitle,
+                        onTap: () => context.push('/admin/sellers'),
+                        color: cs.primary,
+                        trailing: _PendingBadge(),
+                      ),
+                      const SizedBox(height: AppSizes.paddingMD),
+                      _ActionTile(
+                        icon: Icons.list_alt_rounded,
+                        title: l10n.allListings,
+                        subtitle: l10n.adminAllListingsSubtitle,
+                        onTap: () => context.push('/admin/listings'),
+                        color: cs.tertiary,
+                      ),
+                      const SizedBox(height: AppSizes.paddingMD),
+                      _ActionTile(
+                        icon: Icons.receipt_long_rounded,
+                        title: l10n.transactionsTitle,
+                        subtitle: l10n.transactionsScreenSubtitle,
+                        onTap: () => context.push('/admin/transactions'),
+                        color: cs.secondary,
+                      ),
+                      const SizedBox(height: AppSizes.paddingMD),
+                      _ActionTile(
+                        icon: Icons.bar_chart_rounded,
+                        title: l10n.reportsTab,
+                        subtitle: l10n.reportsSales,
+                        onTap: () => context.push('/admin/reports'),
+                        color: cs.primary,
+                      ),
+                      const SizedBox(height: AppSizes.paddingMD),
+                      _ActionTile(
+                        icon: Icons.history_rounded,
+                        title: l10n.logsTitle,
+                        subtitle: l10n.logsSubtitle,
+                        onTap: () => context.push('/admin/logs'),
+                        color: cs.tertiary,
+                      ),
+                      const SizedBox(height: AppSizes.paddingMD),
+                    ]),
+                  ),
+                ),
+                // Recent activity — shown last
+                SliverToBoxAdapter(
+                  child: Padding(
+                    padding: const EdgeInsets.fromLTRB(
+                      AppSizes.paddingLG,
+                      AppSizes.paddingSM,
+                      AppSizes.paddingLG,
+                      AppSizes.paddingSM,
+                    ),
+                    child: SectionHeader(
+                      title: l10n.recentActivity,
+                      leadingIcon: Icons.history_rounded,
+                    ),
+                  ),
+                ),
+                SliverToBoxAdapter(
+                  child: Padding(
+                    padding: const EdgeInsets.fromLTRB(
+                      AppSizes.paddingLG,
+                      0,
+                      AppSizes.paddingLG,
+                      AppSizes.paddingXXL,
+                    ),
+                    child: _RecentActivityStrip(),
+                  ),
+                ),
+              ],
+            );
+          },
+        ),
       ),
     );
   }
@@ -178,7 +189,8 @@ class AdminDashboardScreen extends ConsumerWidget {
 
 // ── Admin Dashboard AppBar ────────────────────────────────────────
 
-class _AdminDashboardAppBar extends ConsumerWidget implements PreferredSizeWidget {
+class _AdminDashboardAppBar extends ConsumerWidget
+    implements PreferredSizeWidget {
   const _AdminDashboardAppBar();
 
   @override
@@ -208,8 +220,7 @@ class _AdminDashboardAppBar extends ConsumerWidget implements PreferredSizeWidge
 class _AdminGreetingHeader extends StatelessWidget {
   final String greeting;
   final String subtitle;
-  const _AdminGreetingHeader(
-      {required this.greeting, required this.subtitle});
+  const _AdminGreetingHeader({required this.greeting, required this.subtitle});
 
   @override
   Widget build(BuildContext context) {
@@ -357,8 +368,6 @@ class _ActiveListingsCard extends ConsumerWidget {
   }
 }
 
-
-
 // ── Stat card (shared) ────────────────────────────────────────────
 
 class _StatCard extends StatelessWidget {
@@ -397,30 +406,41 @@ class _StatCard extends StatelessWidget {
             ),
             child: Icon(icon, color: color, size: 22),
           ),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Text(
-                value,
-                style: tt.titleLarge?.copyWith(
-                  fontWeight: FontWeight.w800,
-                  color: cs.onSurface,
+          // Flexible + FittedBox: on a 360dp phone this tile is only
+          // ~120dp tall, and icon + value + label already fills it. A
+          // long value ("1,234,500") or a scaled-up system font pushed
+          // the old fixed Column past the constraint and painted
+          // overflow stripes. Now the text block shrinks to fit.
+          Flexible(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                FittedBox(
+                  fit: BoxFit.scaleDown,
+                  alignment: Alignment.centerLeft,
+                  child: Text(
+                    value,
+                    style: tt.titleLarge?.copyWith(
+                      fontWeight: FontWeight.w800,
+                      color: cs.onSurface,
+                    ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
                 ),
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-              ),
-              const SizedBox(height: 2),
-              Text(
-                title,
-                style: tt.bodySmall?.copyWith(
-                  color: cs.onSurface.withValues(alpha: 0.65),
-                  fontWeight: FontWeight.w500,
+                const SizedBox(height: 2),
+                Text(
+                  title,
+                  style: tt.bodySmall?.copyWith(
+                    color: cs.onSurface.withValues(alpha: 0.65),
+                    fontWeight: FontWeight.w500,
+                  ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
                 ),
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-              ),
-            ],
+              ],
+            ),
           ),
         ],
       ),
@@ -477,8 +497,7 @@ class _RecentActivityStrip extends ConsumerWidget {
                     subtitle: log.subtitle != null
                         ? Text(log.subtitle!,
                             style: tt.bodySmall?.copyWith(
-                              color:
-                                  cs.onSurface.withValues(alpha: 0.65),
+                              color: cs.onSurface.withValues(alpha: 0.65),
                             ),
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis)
@@ -609,6 +628,7 @@ class _ActionTile extends StatelessWidget {
     );
   }
 }
+
 /// Small badge rendered on the "Manage Sellers" tile. Reflects
 /// [adminPendingSellersCountProvider] — the live count of newly
 /// registered street sellers awaiting approval. Hidden when the

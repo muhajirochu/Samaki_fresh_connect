@@ -4,4 +4,15 @@
          to allow setting breakpoints, to provide hot reload, etc.
     -->
     <uses-permission android:name="android.permission.INTERNET"/>
+
+    <!-- Debug-only: allow plain HTTP to 10.0.2.2 (the host machine loopback
+         from the Android emulator). The Firebase emulators listen on
+         8080 (Firestore) and 9099 (Auth) without TLS, and Android refuses
+         cleartext by default on API 28+.
+
+         This manifest is in `src/debug/` and is merged INTO the debug
+         build only — release builds do not see this flag. Do NOT copy
+         this into `src/main/`. -->
+    <application
+        android:usesCleartextTraffic="true" />
 </manifest>
