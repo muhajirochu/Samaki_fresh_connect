@@ -3,7 +3,7 @@
 **Status:** ✅ **All three waves completed (2026-08-02)**
 **Project root:** `c:\Users\noble\StudioProjects\samaki_fresh_connect`
 **Generated:** 2026-08-02
-**Commits:** `3fae5df` (wave 3) · `4363894` (wave 2) · `771da16` (wave 1) — on `main`, ready to push.
+**Commits:** `5be878d` (cleanup status update) · `3fae5df` (wave 3) · `4363894` (wave 2) · `771da16` (wave 1) — on `main`, ready to push.
 
 ### Decisions captured (2026-08-02)
 
@@ -28,12 +28,39 @@
 - `git grep UserRoleConverter` → 0 hits (only this `clean.md` references it).
 - `git status` → clean after the three commits.
 
-### Out of scope — still on your plate
+---
+
+## Remaining work — two layers
+
+### A. Out of scope from cleanup (still on your plate)
 
 1. **Firestore data migration** — rename `fishermanId` → `streetSellerId` in any existing production documents. Code/rules are consistent; live data is not yet. Run a one-off `update` against the live database before deploying Wave 3.
-2. **`firebase_options.dart`** placeholder API keys — `flutterfire configure` before any production deploy.
+2. **`firebase_options.dart` placeholder API keys** — `flutterfire configure` before any production deploy.
 3. **37 pre-existing test failures** — unrelated to this cleanup, defer to a separate task.
 4. **Push to remote** — blocked on `main`: the configured git user (`Abubakar-Sadik-Abdulla`) has no write access to `muhajirochu/Samaki_fresh_connect`. Push from a user with access, or re-authenticate with a PAT.
+
+### B. Feature gaps (from the 2026-08-02 feature inventory)
+
+These are areas where the codebase is shipped-but-incomplete, partial, or stubbed. **None of them are caused by the cleanup** — they predate it.
+
+| # | Gap | Where | Severity |
+|---|---|---|---|
+| 1 | **Social sign-in is a stub** — Google / Apple / Facebook buttons render but providers are not wired | `lib/screens/auth/login_screen.dart:865-890` (UI only) | High — UX promise with no behavior |
+| 2 | **Admin broadcast notifications** — no admin-side composer for ad-hoc in-app notifications | not in repo | Medium |
+| 3 | **Listing `expired` status** — enum exists but no code path writes it | `lib/models/enums/listing_status.dart` | Low — date math done at search time |
+| 4 | **Avatar editing** — camera overlay visible in `edit_profile_screen.dart`, no tap handler | `lib/screens/common/edit_profile_screen.dart` | Medium |
+| 5 | **Role-aware notifications routes** — `/admin/notifications` and `/seller/notifications` both reuse `BuyerNotificationsScreen` | `lib/config/routes.dart` | Medium |
+| 6 | **Edit listing image re-upload** — controller exposes it, UI doesn't let seller swap images | `lib/screens/common/edit_listing_screen.dart` | Medium |
+| 7 | **Empty `test/integration/` and `test/unit/`** — placeholder folders, no coverage | `test/integration/`, `test/unit/` | Low |
+| 8 | **Hard-coded role inference at registration** — `register_screen.dart` infers role from email domain for legacy accounts | `lib/screens/auth/register_screen.dart` | Low — not a security boundary (rules are the gate) |
+| 9 | **No email verification** — sign-up completes immediately, no `sendEmailVerification` call | `lib/services/auth_service.dart` | Medium |
+| 10 | **Map first-paint latency** — buyer map cascades across three streams for resilience | `lib/screens/buyer/buyer_map_screen.dart` | Low — performance, not correctness |
+
+### C. Other project-level carry-over
+
+- **`firebase_options.dart` placeholder keys** — `flutterfire configure` before any production deploy. (Repeated from A.2 for visibility.)
+- **DALALI** — already gone, no work needed.
+- **`package:fisherman`** — never used, no work needed.
 
 ---
 
