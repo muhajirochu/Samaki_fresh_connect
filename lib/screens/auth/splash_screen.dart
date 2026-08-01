@@ -132,48 +132,55 @@ class _SplashScreenState extends ConsumerState<SplashScreen>
           alignment: Alignment.center,
           children: [
             // Glow halo behind the logo — the only animated layer.
-            Positioned(
-              top: size.height * 0.18,
-              left: 0,
-              right: 0,
-              child: Center(
-                child: AnimatedBuilder(
-                  animation: _pulseCtrl,
-                  builder: (_, __) {
-                    final t = _pulseCtrl.value;
-                    return Container(
-                      width: haloSize,
-                      height: haloSize,
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        gradient: RadialGradient(
-                          colors: [
-                            _splashHalo
-                                .withValues(alpha: 0.10 + t * 0.10),
-                            _splashHaloDeep
-                                .withValues(alpha: t * 0.10),
-                            Colors.transparent,
-                          ],
+            // IgnorePointer so it doesn't intercept any layout, and
+            // `Positioned.fill` lets us use Center freely.
+            Positioned.fill(
+              child: IgnorePointer(
+                child: Center(
+                  child: AnimatedBuilder(
+                    animation: _pulseCtrl,
+                    builder: (_, __) {
+                      final t = _pulseCtrl.value;
+                      return Container(
+                        width: haloSize,
+                        height: haloSize,
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          gradient: RadialGradient(
+                            colors: [
+                              _splashHalo
+                                  .withValues(alpha: 0.10 + t * 0.10),
+                              _splashHaloDeep
+                                  .withValues(alpha: t * 0.10),
+                              Colors.transparent,
+                            ],
+                          ),
                         ),
-                      ),
-                    );
-                  },
+                      );
+                    },
+                  ),
                 ),
               ),
             ),
 
             // Static brand content — built once, not per frame.
-            Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                AppLogo(size: iconSize, withGlow: true),
-                const SizedBox(height: 32),
-                const _BrandName(),
-                const SizedBox(height: 5),
-                const _Tagline(),
-                const SizedBox(height: 36),
-                const _LoadingIndicator(),
-              ],
+            // Center-aligned so the whole column (logo + brand + tagline
+            // + spinner) sits in the visual middle of the screen.
+            Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  AppLogo(size: iconSize, withGlow: true),
+                  const SizedBox(height: 32),
+                  const Center(child: _BrandName()),
+                  const SizedBox(height: 5),
+                  const Center(child: _Tagline()),
+                  const SizedBox(height: 36),
+                  const Center(child: _LoadingIndicator()),
+                ],
+              ),
             ),
           ],
         ),
@@ -197,6 +204,7 @@ class _BrandName extends StatelessWidget {
       blendMode: BlendMode.srcIn,
       child: const Text(
         'SamakiFresh',
+        textAlign: TextAlign.center,
         style: TextStyle(
           fontSize: 38,
           fontWeight: FontWeight.w900,

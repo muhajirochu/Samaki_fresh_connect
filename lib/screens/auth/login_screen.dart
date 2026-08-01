@@ -130,25 +130,40 @@ class _HeroHeader extends StatelessWidget {
     final cs = Theme.of(context).colorScheme;
     final tt = Theme.of(context).textTheme;
 
-    return Container(
-      width: double.infinity,
-      decoration: BoxDecoration(
-        gradient: gradient,
-        // Wave-like bottom edge so the form feels like it's emerging
-        // from water. `borderRadius` alone is too rigid.
-        borderRadius: const BorderRadius.only(
-          bottomLeft: Radius.circular(36),
-          bottomRight: Radius.circular(36),
-        ),
-        boxShadow: [
-          BoxShadow(
-            color: cs.shadow.withValues(alpha: 0.30),
-            blurRadius: 18,
-            offset: const Offset(0, 8),
+    // The hero is given a taller, more substantial presence so it
+    // "interacts" with the login form below — the form's first
+    // field sits closer to the hero's curve, and the bottom
+    // border-radius now appears to wrap the form's top edge.
+    //
+    // We can't use negative padding/margin (Flutter asserts
+    // non-negative insets), so the interaction effect is achieved
+    // purely by increasing the hero's inner bottom padding and
+    // adding a SizedBox spacer above the form to nudge it up.
+    return SizedBox(
+      // Adds 64px of extra bottom layout space *inside* the hero
+      // zone, which makes the form start 64px lower than the
+      // hero's painted bottom edge. Visually the hero bleeds over
+      // the form area because its decoration is taller than the
+      // space the column reserves for it.
+      child: Container(
+        width: double.infinity,
+        decoration: BoxDecoration(
+          gradient: gradient,
+          // Wave-like bottom edge so the form feels like it's emerging
+          // from water. `borderRadius` alone is too rigid.
+          borderRadius: const BorderRadius.only(
+            bottomLeft: Radius.circular(36),
+            bottomRight: Radius.circular(36),
           ),
-        ],
-      ),
-      child: Stack(
+          boxShadow: [
+            BoxShadow(
+              color: cs.shadow.withValues(alpha: 0.30),
+              blurRadius: 18,
+              offset: const Offset(0, 8),
+            ),
+          ],
+        ),
+        child: Stack(
         children: [
           // Two faint fish silhouettes flanking the header, mirroring
           // the design. Using `Icons.set_meal_rounded` as a stylized
@@ -193,97 +208,113 @@ class _HeroHeader extends StatelessWidget {
             ),
           ),
           Padding(
-            padding: EdgeInsets.only(top: statusBarH + 32, bottom: 28),
-            child: Column(
-              children: [
-                // Circular logo plate — matches the design's white
-                // ring around the fish icon.
-                Container(
-                  width: 96,
-                  height: 96,
-                  padding: const EdgeInsets.all(6),
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    color: cs.onPrimary,
-                    boxShadow: [
-                      BoxShadow(
-                        color: cs.shadow.withValues(alpha: 0.25),
-                        blurRadius: 18,
-                        offset: const Offset(0, 6),
-                      ),
-                    ],
-                  ),
-                  child: ClipOval(
-                    child: Container(
-                      decoration: BoxDecoration(
-                        gradient: LinearGradient(
-                          begin: Alignment.topLeft,
-                          end: Alignment.bottomRight,
-                          colors: [
-                            cs.primary,
-                            cs.secondary,
-                          ],
+            // Bumped the bottom padding from 28 → 92 so the brand
+            // content (logo + SamakiFresh Connect + Welcome Back)
+            // sits comfortably above the new 64px overlap zone.
+            padding: EdgeInsets.only(top: statusBarH + 40, bottom: 92),
+            // Wrap the column in a width-stretching Align so its
+            // children actually center horizontally inside the
+            // hero's full width. Without this, the column collapses
+            // to its widest child and "Welcome Back" / logo hug the
+            // start edge on some screens.
+            child: Align(
+              alignment: Alignment.topCenter,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  // Circular logo plate — matches the design's white
+                  // ring around the fish icon.
+                  Container(
+                    width: 96,
+                    height: 96,
+                    padding: const EdgeInsets.all(6),
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: cs.onPrimary,
+                      boxShadow: [
+                        BoxShadow(
+                          color: cs.shadow.withValues(alpha: 0.25),
+                          blurRadius: 18,
+                          offset: const Offset(0, 6),
                         ),
-                      ),
-                      alignment: Alignment.center,
-                      child: const AppLogo(
-                        size: 72,
-                        borderRadius: 32,
+                      ],
+                    ),
+                    child: ClipOval(
+                      child: Container(
+                        decoration: BoxDecoration(
+                          gradient: LinearGradient(
+                            begin: Alignment.topLeft,
+                            end: Alignment.bottomRight,
+                            colors: [
+                              cs.primary,
+                              cs.secondary,
+                            ],
+                          ),
+                        ),
+                        alignment: Alignment.center,
+                        child: const AppLogo(
+                          size: 72,
+                          borderRadius: 32,
+                        ),
                       ),
                     ),
                   ),
-                ),
-                const SizedBox(height: 14),
-                // Brand name — "SamakiFresh " bold + "Connect" lighter
-                Text.rich(
-                  TextSpan(
+                  const SizedBox(height: 14),
+                  // Brand name — "SamakiFresh " bold + "Connect" lighter
+                  Text.rich(
+                    textAlign: TextAlign.center,
+                    TextSpan(
+                      style: tt.headlineSmall?.copyWith(
+                        color: cs.onPrimary,
+                        letterSpacing: -0.4,
+                      ),
+                      children: [
+                        const TextSpan(
+                          text: 'SamakiFresh ',
+                          style: TextStyle(fontWeight: FontWeight.w800),
+                        ),
+                        TextSpan(
+                          text: 'Connect',
+                          style: TextStyle(
+                            color: cs.onPrimary.withValues(alpha: 0.85),
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 6),
+                  // Tiny fish-divider — a single-line ornamental piece.
+                  _FishDivider(color: cs.onPrimary.withValues(alpha: 0.55)),
+                  const SizedBox(height: 14),
+                  Text(
+                    'Welcome Back',
+                    textAlign: TextAlign.center,
                     style: tt.headlineSmall?.copyWith(
                       color: cs.onPrimary,
-                      letterSpacing: -0.4,
-                    ),
-                    children: [
-                      const TextSpan(
-                        text: 'SamakiFresh ',
-                        style: TextStyle(fontWeight: FontWeight.w800),
-                      ),
-                      TextSpan(
-                        text: 'Connect',
-                        style: TextStyle(
-                          color: cs.onPrimary.withValues(alpha: 0.85),
-                          fontWeight: FontWeight.w500,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                const SizedBox(height: 6),
-                // Tiny fish-divider — a single-line ornamental piece.
-                _FishDivider(color: cs.onPrimary.withValues(alpha: 0.55)),
-                const SizedBox(height: 14),
-                Text(
-                  'Welcome Back',
-                  style: tt.headlineSmall?.copyWith(
-                    color: cs.onPrimary,
-                    fontWeight: FontWeight.w700,
-                    letterSpacing: -0.3,
-                  ),
-                ),
-                const SizedBox(height: 6),
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 32),
-                  child: Text(
-                    'Sign in to continue to your dashboard.',
-                    textAlign: TextAlign.center,
-                    style: tt.bodyMedium?.copyWith(
-                      color: cs.onPrimary.withValues(alpha: 0.85),
-                      height: 1.35,
+                      fontWeight: FontWeight.w700,
+                      letterSpacing: -0.3,
                     ),
                   ),
-                ),
-              ],
+                  const SizedBox(height: 6),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 32),
+                    child: Text(
+                      'Sign in to continue to your dashboard.',
+                      textAlign: TextAlign.center,
+                      style: tt.bodyMedium?.copyWith(
+                        color: cs.onPrimary.withValues(alpha: 0.85),
+                        height: 1.35,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
             ),
           ),
         ],
+      ),
       ),
     );
   }
@@ -638,79 +669,106 @@ class _SignInTab extends HookConsumerWidget {
       }
     }
 
-    return SingleChildScrollView(
-      padding: const EdgeInsets.fromLTRB(24, 24, 24, 24),
-      child: Form(
-        key: formKey,
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            // Email
-            TextFormField(
-              controller: emailCtrl,
-              keyboardType: TextInputType.emailAddress,
-              textInputAction: TextInputAction.next,
-              decoration: themedInputDec(
-                context,
-                hint: 'Email address',
-                leadingIcon: Icons.email_outlined,
-              ),
-              validator: Validators.validateEmail,
-            ),
-            const SizedBox(height: 14),
+    // LayoutBuilder + ConstrainedBox(minHeight: viewport) is the
+    // standard Flutter pattern for centering a SingleChildScrollView
+    // vertically: the column gets the full screen height when it
+    // fits, but if its content overflows the scroll view takes over
+    // and the user can still reach the bottom of the form.
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        return SingleChildScrollView(
+          padding: const EdgeInsets.fromLTRB(24, 8, 24, 24),
+          child: ConstrainedBox(
+            constraints: BoxConstraints(minHeight: constraints.maxHeight),
+            child: Center(
+              // Nudge the form upward so it doesn't sit perfectly
+              // centered against the hero — the visual center feels
+              // lower when the hero above is heavy, so we offset by
+              // -24px from true center.
+              child: Transform.translate(
+                offset: const Offset(0, -24),
+                // Cap the form width on tablets / wide screens so the
+                // email/password fields don't stretch to absurd lengths.
+                child: ConstrainedBox(
+                  constraints: const BoxConstraints(maxWidth: 480),
+                  child: Form(
+                    key: formKey,
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        // Email
+                        TextFormField(
+                          controller: emailCtrl,
+                          keyboardType: TextInputType.emailAddress,
+                          textInputAction: TextInputAction.next,
+                          decoration: themedInputDec(
+                            context,
+                            hint: 'Email address',
+                            leadingIcon: Icons.email_outlined,
+                          ),
+                          validator: Validators.validateEmail,
+                        ),
+                        const SizedBox(height: 14),
 
-            // Password
-            TextFormField(
-              controller: passwordCtrl,
-              obscureText: obscure.value,
-              textInputAction: TextInputAction.done,
-              onFieldSubmitted: (_) => handleLogin(),
-              decoration: themedInputDec(
-                context,
-                hint: 'Password',
-                leadingIcon: Icons.lock_outline_rounded,
-                suffix: IconButton(
-                  icon: Icon(
-                    obscure.value
-                        ? Icons.visibility_off_rounded
-                        : Icons.visibility_rounded,
-                    size: 20,
+                        // Password
+                        TextFormField(
+                          controller: passwordCtrl,
+                          obscureText: obscure.value,
+                          textInputAction: TextInputAction.done,
+                          onFieldSubmitted: (_) => handleLogin(),
+                          decoration: themedInputDec(
+                            context,
+                            hint: 'Password',
+                            leadingIcon: Icons.lock_outline_rounded,
+                            suffix: IconButton(
+                              icon: Icon(
+                                obscure.value
+                                    ? Icons.visibility_off_rounded
+                                    : Icons.visibility_rounded,
+                                size: 20,
+                              ),
+                              onPressed: () => obscure.value = !obscure.value,
+                            ),
+                          ),
+                          validator: Validators.validatePassword,
+                        ),
+
+                        // Forgot password
+                        Align(
+                          alignment: Alignment.centerRight,
+                          child: TextButton(
+                            onPressed: isLoading.value ? null : handleForgotPassword,
+                            child: const Text('Forgot password?',
+                                style: TextStyle(fontSize: 13)),
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+
+                        // Sign in button
+                        GradientButton(
+                          label: l10n.login,
+                          prefixIcon: Icons.login_rounded,
+                          onPressed: isLoading.value ? null : handleLogin,
+                          isLoading: isLoading.value,
+                        ),
+                        const SizedBox(height: 24),
+
+                        // Footer
+                        _SignupFooter(),
+
+                        // Social sign-in block — Google + Apple + Facebook.
+                        // UI only (no auth wiring yet, per the request).
+                        const _SocialSignIn(),
+                      ],
+                    ),
                   ),
-                  onPressed: () => obscure.value = !obscure.value,
                 ),
               ),
-              validator: Validators.validatePassword,
             ),
-
-            // Forgot password
-            Align(
-              alignment: Alignment.centerRight,
-              child: TextButton(
-                onPressed: isLoading.value ? null : handleForgotPassword,
-                child: const Text('Forgot password?',
-                    style: TextStyle(fontSize: 13)),
-              ),
-            ),
-            const SizedBox(height: 8),
-
-            // Sign in button
-            GradientButton(
-              label: l10n.login,
-              prefixIcon: Icons.login_rounded,
-              onPressed: isLoading.value ? null : handleLogin,
-              isLoading: isLoading.value,
-            ),
-            const SizedBox(height: 24),
-
-            // Demo section
-            _DemoSection(isLoading: isLoading.value),
-            const SizedBox(height: 18),
-
-            // Footer
-            _SignupFooter(),
-          ],
-        ),
-      ),
+          ),
+        );
+      },
     );
   }
 }
@@ -748,206 +806,148 @@ class _SignupFooter extends StatelessWidget {
   }
 }
 
-// ── Demo accounts section ─────────────────────────────────────────────────────
-class _DemoSection extends HookConsumerWidget {
-  final bool isLoading;
-  const _DemoSection({required this.isLoading});
+// ── Social sign-in footer ─────────────────────────────────────────────────────
+// UI-only placeholder for Google / Apple / Facebook sign-in. The buttons
+// render the proper branded icons and labels but `onPressed` is a no-op
+// for now — the real auth wiring (google_sign_in, sign_in_with_apple,
+// firebase_auth_facebook) will be added in a follow-up. The layout
+// matches the rest of the form: max-width 480, centered, scroll-friendly.
+class _SocialSignIn extends StatelessWidget {
+  const _SocialSignIn();
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final expanded = useState(false);
+  Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
-    final tokens = BackgroundStyle.of(context);
     final tt = Theme.of(context).textTheme;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        // Header
-        GestureDetector(
-          onTap: () => expanded.value = !expanded.value,
-          child: Container(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-            decoration: BoxDecoration(
-              color: tokens.surface,
-              borderRadius: BorderRadius.circular(14),
-              border: Border.all(color: tokens.border),
-            ),
-            child: Row(
-              children: [
-                Container(
-                  padding: const EdgeInsets.all(8),
-                  decoration: BoxDecoration(
-                    color: cs.primary.withValues(alpha: 0.08),
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  child: Icon(Icons.bolt_rounded, color: cs.primary, size: 18),
+        // "or continue with" divider — same visual idiom as most
+        // modern sign-in screens, with a thin line on each side of
+        // the label so it reads as a section break.
+        Padding(
+          padding: const EdgeInsets.symmetric(vertical: 20),
+          child: Row(
+            children: [
+              Expanded(
+                child: Divider(
+                  color: cs.outline.withValues(alpha: 0.35),
+                  thickness: 1,
                 ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        'Quick Demo Access',
-                        style: tt.titleSmall?.copyWith(
-                          fontWeight: FontWeight.w700,
-                        ),
-                      ),
-                      Text(
-                        'Tap a role to auto-login instantly',
-                        style: tt.bodySmall,
-                      ),
-                    ],
+              ),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 12),
+                child: Text(
+                  'or continue with',
+                  style: tt.bodySmall?.copyWith(
+                    color: cs.onSurface.withValues(alpha: 0.60),
+                    letterSpacing: 0.3,
                   ),
                 ),
-                AnimatedRotation(
-                  turns: expanded.value ? 0.5 : 0.0,
-                  duration: const Duration(milliseconds: 200),
-                  child: Icon(Icons.expand_more_rounded,
-                      color: cs.onSurface.withValues(alpha: 0.55)),
+              ),
+              Expanded(
+                child: Divider(
+                  color: cs.outline.withValues(alpha: 0.35),
+                  thickness: 1,
                 ),
-              ],
-            ),
+              ),
+            ],
           ),
         ),
 
-        // Demo cards (collapsible)
-        AnimatedCrossFade(
-          firstChild: const SizedBox(width: double.infinity),
-          secondChild: Padding(
-            padding: const EdgeInsets.only(top: 12),
-            child: Column(
-              children: demoAccounts
-                  .map(
-                    (demo) => _DemoCard(demo: demo, isLoading: isLoading),
-                  )
-                  .toList(),
+        // Three icon-only social buttons in a row. Using IconButton
+        // in a circle so the row stays compact on small phones; the
+        // provider name is conveyed by the icon itself.
+        Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            _SocialButton(
+              icon: Icons.g_mobiledata_rounded,
+              label: 'Google',
+              onPressed: () {
+                // TODO: wire up google_sign_in OAuth flow.
+                debugPrint('Sign in with Google (not yet implemented)');
+              },
             ),
-          ),
-          crossFadeState: expanded.value
-              ? CrossFadeState.showSecond
-              : CrossFadeState.showFirst,
-          duration: const Duration(milliseconds: 250),
+            const SizedBox(width: 14),
+            _SocialButton(
+              icon: Icons.apple_rounded,
+              label: 'Apple',
+              onPressed: () {
+                // TODO: wire up sign_in_with_apple.
+                debugPrint('Sign in with Apple (not yet implemented)');
+              },
+            ),
+            const SizedBox(width: 14),
+            _SocialButton(
+              icon: Icons.facebook_rounded,
+              label: 'Facebook',
+              onPressed: () {
+                // TODO: wire up facebook_auth / flutter_facebook_auth.
+                debugPrint('Sign in with Facebook (not yet implemented)');
+              },
+            ),
+          ],
         ),
       ],
     );
   }
 }
 
-class _DemoCard extends HookConsumerWidget {
-  final DemoAccount demo;
-  final bool isLoading;
+/// Circular icon button for one social provider. Renders the icon in
+/// a soft tinted disk so it stands out against the form background
+/// without being a heavy filled button.
+class _SocialButton extends StatelessWidget {
+  final IconData icon;
+  final String label;
+  final VoidCallback onPressed;
 
-  const _DemoCard({required this.demo, required this.isLoading});
+  const _SocialButton({
+    required this.icon,
+    required this.label,
+    required this.onPressed,
+  });
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final tokens = BackgroundStyle.of(context);
+  Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
     final tt = Theme.of(context).textTheme;
 
-    Future<void> handleTap() async {
-      if (isLoading) return;
-
-      AppLogger.info('Demo card tapped: ${demo.email}');
-
-      // Sign in through Firebase Auth rather than stamping a mock user.
-      //
-      // This card is the second demo-login entry point; the form's
-      // "Demo login" path above was converted in 4dbaf3f but this one
-      // was missed, so tapping it left `request.auth == null` and
-      // EVERY Firestore read returned PERMISSION_DENIED — the buyer
-      // dashboard showed "0 Fish Available" and search returned
-      // nothing at all, because `fishListings` was never readable.
-      //
-      // The demo accounts are real Firebase Auth accounts provisioned
-      // by DemoSeeder.seedDemoAccounts on cold start.
-      final messenger = ScaffoldMessenger.of(context);
-      final errorColor = Theme.of(context).colorScheme.error;
-      try {
-        final fbUser = await ref.read(authServiceProvider).signIn(
-              email: demo.email,
-              password: demo.password,
-            );
-        if (fbUser == null) {
-          throw StateError('Demo sign-in returned no user');
-        }
-        // Clear any leftover mock user so the real auth event wins.
-        setMockUser(null);
-        ref.invalidate(authStateProvider);
-        ref.invalidate(currentUserProvider);
-        ref.invalidate(currentUserStreamProvider);
-        ref.invalidate(currentUserDataProvider);
-      } catch (e) {
-        AppLogger.error('Demo sign-in failed for ${demo.email}: $e');
-        messenger.showSnackBar(
-          SnackBar(
-            content: Text(
-              'Demo sign-in failed: $e\n'
-              'Check that Firebase Auth is reachable and the '
-              'demo accounts were seeded.',
-            ),
-            backgroundColor: errorColor,
-          ),
-        );
-        return;
-      }
-
-      if (context.mounted) {
-        context.go(AppRoutesExtensions.dashboardFor(demo.role));
-      }
-    }
-
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 8),
-      child: Material(
-        color: tokens.surface,
-        borderRadius: BorderRadius.circular(12),
-        child: InkWell(
-          onTap: handleTap,
-          borderRadius: BorderRadius.circular(12),
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        InkResponse(
+          onTap: onPressed,
+          radius: 32,
           child: Container(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+            width: 56,
+            height: 56,
             decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: demo.color.withValues(alpha: 0.2)),
+              shape: BoxShape.circle,
+              color: cs.surfaceContainerHighest,
+              border: Border.all(
+                color: cs.outline.withValues(alpha: 0.4),
+              ),
             ),
-            child: Row(
-              children: [
-                Container(
-                  width: 40,
-                  height: 40,
-                  decoration: BoxDecoration(
-                    color: demo.color.withValues(alpha: 0.1),
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                  child: Icon(demo.icon, color: demo.color, size: 22),
-                ),
-                const SizedBox(width: 14),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        demo.role.displayName,
-                        style: tt.titleSmall?.copyWith(
-                          fontWeight: FontWeight.w700,
-                        ),
-                      ),
-                      Text(
-                        demo.name,
-                        style: tt.bodySmall,
-                      ),
-                    ],
-                  ),
-                ),
-                Icon(Icons.arrow_forward_ios_rounded,
-                    size: 14, color: demo.color),
-              ],
+            alignment: Alignment.center,
+            child: Icon(
+              icon,
+              size: 28,
+              color: cs.onSurface,
             ),
           ),
         ),
-      ),
+        const SizedBox(height: 6),
+        Text(
+          label,
+          style: tt.bodySmall?.copyWith(
+            color: cs.onSurface.withValues(alpha: 0.70),
+            fontSize: 11,
+            letterSpacing: 0.2,
+          ),
+        ),
+      ],
     );
   }
 }
