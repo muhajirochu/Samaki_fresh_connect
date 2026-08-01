@@ -24,14 +24,13 @@ mixin _$UserModel {
   String get email => throw _privateConstructorUsedError;
   String get fullName => throw _privateConstructorUsedError;
   String get phoneNumber => throw _privateConstructorUsedError;
-  @UserRoleConverter()
   UserRole get role => throw _privateConstructorUsedError;
   String? get profilePictureUrl => throw _privateConstructorUsedError;
-  @JsonKey(fromJson: _locationFromJson)
   Map<String, dynamic>? get location => throw _privateConstructorUsedError;
   bool get isActive => throw _privateConstructorUsedError;
   String? get registeredBy =>
-      throw _privateConstructorUsedError;
+      throw _privateConstructorUsedError; // Onboarding / approval fields (originally for broker role;
+// kept generic for street-seller onboarding).
   bool get isApproved => throw _privateConstructorUsedError;
   String? get approvedBy => throw _privateConstructorUsedError;
   @OptionalTimestampConverter()
@@ -69,9 +68,9 @@ abstract class $UserModelCopyWith<$Res> {
       String email,
       String fullName,
       String phoneNumber,
-      @UserRoleConverter() UserRole role,
+      UserRole role,
       String? profilePictureUrl,
-      @JsonKey(fromJson: _locationFromJson) Map<String, dynamic>? location,
+      Map<String, dynamic>? location,
       bool isActive,
       String? registeredBy,
       bool isApproved,
@@ -233,9 +232,9 @@ abstract class _$$UserModelImplCopyWith<$Res>
       String email,
       String fullName,
       String phoneNumber,
-      @UserRoleConverter() UserRole role,
+      UserRole role,
       String? profilePictureUrl,
-      @JsonKey(fromJson: _locationFromJson) Map<String, dynamic>? location,
+      Map<String, dynamic>? location,
       bool isActive,
       String? registeredBy,
       bool isApproved,
@@ -390,9 +389,8 @@ class _$UserModelImpl implements _UserModel {
       this.email = '',
       this.fullName = '',
       this.phoneNumber = '',
-      @UserRoleConverter() this.role = UserRole.buyer,
+      this.role = UserRole.buyer,
       this.profilePictureUrl,
-      @JsonKey(fromJson: _locationFromJson)
       final Map<String, dynamic>? location,
       this.isActive = true,
       this.registeredBy,
@@ -428,13 +426,11 @@ class _$UserModelImpl implements _UserModel {
   final String phoneNumber;
   @override
   @JsonKey()
-  @UserRoleConverter()
   final UserRole role;
   @override
   final String? profilePictureUrl;
   final Map<String, dynamic>? _location;
   @override
-  @JsonKey(fromJson: _locationFromJson)
   Map<String, dynamic>? get location {
     final value = _location;
     if (value == null) return null;
@@ -448,6 +444,8 @@ class _$UserModelImpl implements _UserModel {
   final bool isActive;
   @override
   final String? registeredBy;
+// Onboarding / approval fields (originally for broker role;
+// kept generic for street-seller onboarding).
   @override
   @JsonKey()
   final bool isApproved;
@@ -586,9 +584,8 @@ abstract class _UserModel implements UserModel {
           final String email,
           final String fullName,
           final String phoneNumber,
-          @UserRoleConverter() final UserRole role,
+          final UserRole role,
           final String? profilePictureUrl,
-          @JsonKey(fromJson: _locationFromJson)
           final Map<String, dynamic>? location,
           final bool isActive,
           final String? registeredBy,
@@ -619,17 +616,17 @@ abstract class _UserModel implements UserModel {
   @override
   String get phoneNumber;
   @override
-  @UserRoleConverter()
   UserRole get role;
   @override
   String? get profilePictureUrl;
   @override
-  @JsonKey(fromJson: _locationFromJson)
   Map<String, dynamic>? get location;
   @override
   bool get isActive;
   @override
-  String? get registeredBy;
+  String?
+      get registeredBy; // Onboarding / approval fields (originally for broker role;
+// kept generic for street-seller onboarding).
   @override
   bool get isApproved;
   @override

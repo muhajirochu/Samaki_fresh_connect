@@ -21,9 +21,8 @@ class UserService {
   ///   - [UserModel.email]       → the lookup email (or empty)
   ///   - [UserModel.fullName]    → the email local-part (or empty)
   ///   - [UserModel.role]        → falls back to [UserRole.buyer]
-  ///     (the [UserRoleConverter] is already lenient, so a parse
-  ///     error here means the field is genuinely missing — safer
-  ///     to grant the lowest privilege than to deny sign-in).
+  ///     (grant the lowest privilege when the field is genuinely
+  ///     missing — safer than denying sign-in).
   ///
   /// If a truly structural error is encountered (e.g. the doc isn't
   /// a Map at all), returns `null` so the caller can fall through.

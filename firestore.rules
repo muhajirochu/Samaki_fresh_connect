@@ -89,8 +89,8 @@ service cloud.firestore {
     }
 
     /// The signed-in user's role, read from the users/{uid} doc.
-    /// Defaults to `'buyer'` when the doc is missing — matches the
-    /// `UserRoleConverter` fallback in the codebase.
+    /// Defaults to `'buyer'` when the doc is missing — the safest
+    /// lowest-privilege role.
     function userRole() {
       return exists(/databases/$(database)/documents/users/$(request.auth.uid))
         ? get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role
@@ -334,22 +334,18 @@ service cloud.firestore {
 
     // ─────────────── orders/{orderId} ───────────────
     match /orders/{orderId} {
-      // Read: a participant (buyer, streetSeller, fisherman) or
-      // an admin. fishermanId is reserved for the future fisherman
-      // role so its check is included but no client code sets it
-      // today.
+      // Read: a participant (buyer or streetSeller) or an admin.
       allow read: if (isSignedIn() && (
             resource.data.buyerId == request.auth.uid
             || resource.data.get('streetSellerId', null) == request.auth.uid
-            || resource.data.get('fishermanId', null) == request.auth.uid
           ))
         || isAdmin();
 
       // Create: a buyer creating an order against an existing
       // listing. The buyerId MUST equal auth.uid; status starts as
       // 'pending'; immutable identity fields (listingId, buyerId,
-      // streetSellerId, fishermanId) are locked on subsequent
-      // updates but on CREATE they are simply set by the client.
+      // streetSellerId) are locked on subsequent updates but on
+      // CREATE they are simply set by the client.
       allow create: if isSignedIn()
         && request.resource.data.buyerId == request.auth.uid
         && request.resource.data.orderStatus == 'pending'
@@ -389,7 +385,6 @@ service cloud.firestore {
             && fieldUnchanged('quantityKg')
             && fieldUnchanged('buyerId')
             && fieldUnchanged('streetSellerId')
-            && fieldUnchanged('fishermanId')
             && fieldUnchanged('listingId'))
         || (resource.data.get('streetSellerId', null) == request.auth.uid
             && isActiveApprovedSeller()
@@ -413,7 +408,6 @@ service cloud.firestore {
             && fieldUnchanged('quantityKg')
             && fieldUnchanged('buyerId')
             && fieldUnchanged('streetSellerId')
-            && fieldUnchanged('fishermanId')
             && fieldUnchanged('listingId'));
 
       // Delete: admin only. Order history is preserved.

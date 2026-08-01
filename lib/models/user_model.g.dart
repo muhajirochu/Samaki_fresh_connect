@@ -12,11 +12,10 @@ _$UserModelImpl _$$UserModelImplFromJson(Map<String, dynamic> json) =>
       email: json['email'] as String? ?? '',
       fullName: json['fullName'] as String? ?? '',
       phoneNumber: json['phoneNumber'] as String? ?? '',
-      role: json['role'] == null
-          ? UserRole.buyer
-          : const UserRoleConverter().fromJson(json['role']),
+      role: $enumDecodeNullable(_$UserRoleEnumMap, json['role']) ??
+          UserRole.buyer,
       profilePictureUrl: json['profilePictureUrl'] as String?,
-      location: _locationFromJson(json['location']),
+      location: json['location'] as Map<String, dynamic>?,
       isActive: json['isActive'] as bool? ?? true,
       registeredBy: json['registeredBy'] as String?,
       isApproved: json['isApproved'] as bool? ?? false,
@@ -41,7 +40,7 @@ Map<String, dynamic> _$$UserModelImplToJson(_$UserModelImpl instance) =>
       'email': instance.email,
       'fullName': instance.fullName,
       'phoneNumber': instance.phoneNumber,
-      'role': const UserRoleConverter().toJson(instance.role),
+      'role': _$UserRoleEnumMap[instance.role]!,
       'profilePictureUrl': instance.profilePictureUrl,
       'location': instance.location,
       'isActive': instance.isActive,
@@ -61,3 +60,9 @@ Map<String, dynamic> _$$UserModelImplToJson(_$UserModelImpl instance) =>
       'createdAt': const TimestampConverter().toJson(instance.createdAt),
       'updatedAt': const TimestampConverter().toJson(instance.updatedAt),
     };
+
+const _$UserRoleEnumMap = {
+  UserRole.streetSeller: 'streetSeller',
+  UserRole.buyer: 'buyer',
+  UserRole.admin: 'admin',
+};

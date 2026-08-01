@@ -1,6 +1,6 @@
 // Bridges GPS capture with persistence for the create-listing flow.
 //
-// The fisherman taps "Set shop location" once; this service:
+// The street seller taps "Set shop location" once; this service:
 //   1. Reads the device's current position via the existing
 //      [LocationService.getCurrentOrFallback] (so we get the same
 //      profile / fallback / GPS-priority chain the buyer map uses).

@@ -40,10 +40,9 @@ const PROJECT_ID = 'demo-samaki-rules-test';
 
   await env.withSecurityRulesDisabled(async (ctx) => {
     const db = ctx.firestore();
-    // Seed: two buyers, one fisherman, one street_seller, one admin
+    // Seed: two buyers, one street_seller, one admin
     await setDoc(doc(db, 'users', 'buyer1'), { userId: 'buyer1', role: 'buyer', name: 'B' });
     await setDoc(doc(db, 'users', 'buyer2'), { userId: 'buyer2', role: 'buyer', name: 'B2' });
-    await setDoc(doc(db, 'users', 'fisher1'), { userId: 'fisher1', role: 'fisherman', name: 'F' });
     await setDoc(doc(db, 'users', 'seller1'), { userId: 'seller1', role: 'street_seller', name: 'S' });
     await setDoc(doc(db, 'users', 'admin1'), { userId: 'admin1', role: 'admin', name: 'A' });
 
@@ -53,9 +52,9 @@ const PROJECT_ID = 'demo-samaki-rules-test';
       status: 'active',
       createdAt: Date.now(),
     });
-    // Seed one listing owned by fisher1
+    // Seed one listing owned by other1
     await setDoc(doc(db, 'fishListings', 'list2'), {
-      sellerId: 'fisher1',
+      sellerId: 'other1',
       status: 'active',
       createdAt: Date.now(),
     });
@@ -98,7 +97,7 @@ const PROJECT_ID = 'demo-samaki-rules-test';
   await check('seller CANNOT create listing under someone else\'s sellerId', async () => {
     const ctx = env.authenticatedContext('seller1');
     await assertFails(setDoc(doc(ctx.firestore(), 'fishListings/list_evil'), {
-      sellerId: 'fisher1',
+      sellerId: 'other1',
       status: 'active',
       createdAt: Date.now(),
     }));
@@ -197,7 +196,7 @@ const PROJECT_ID = 'demo-samaki-rules-test';
 
   await check('seller CANNOT update another seller\'s mirror', async () => {
     const ctx = env.authenticatedContext('seller1');
-    await assertFails(setDoc(doc(ctx.firestore(), 'streetSellers/fisher1'), {
+    await assertFails(setDoc(doc(ctx.firestore(), 'streetSellers/other1'), {
       isOnline: true,
     }, { merge: true }));
   });
