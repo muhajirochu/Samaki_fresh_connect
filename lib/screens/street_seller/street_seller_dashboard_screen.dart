@@ -197,6 +197,10 @@ class StreetSellerDashboardScreen extends ConsumerWidget {
         ),
       ),
       floatingActionButton: FloatingActionButton.extended(
+        // Unique Hero tag — the seller shell's IndexedStack mounts this
+        // Scaffold alongside other tabs that also use FABs, so the
+        // shared default tag would crash the route.
+        heroTag: 'streetSellerDashboardFab',
         onPressed: () => context.pushNamed(AppRouteNames.listingsCreate),
         backgroundColor: cs.primary,
         foregroundColor: cs.onPrimary,

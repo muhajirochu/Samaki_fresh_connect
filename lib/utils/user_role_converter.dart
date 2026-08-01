@@ -1,7 +1,7 @@
 // Safe JSON converter for [UserRole].
 //
-// Firestore contains legacy user documents with role strings that are
-// no longer in the canonical enum (e.g. `'fisherman'` from the
+// Firestore may contain legacy user documents with role strings that
+// are no longer in the canonical enum (e.g. `'fisherman'` from the
 // pre-rebrand era). The default Freezed / json_serializable decoder
 // `$enumDecode` throws `ArgumentError` on those values, which
 // crashes the admin "Manage Street Sellers" stream the moment the
@@ -10,8 +10,7 @@
 // This converter accepts every legacy role string and silently
 // maps it to a sensible fallback so the admin screen never breaks:
 //   'fisherman'        → streetSeller  (closest semantic match)
-//   'dalali'           → streetSeller  (alias used in older builds)
-//   any other unknown  → streetSeller  (safest admin default)
+//   any other unknown  → buyer        (safest app default)
 //
 // New writes always go through [UserRole.name], so this is a
 // one-way forgiving read path — never a write path.
@@ -26,7 +25,6 @@ class UserRoleConverter implements JsonConverter<UserRole, dynamic> {
   // Legacy role strings → canonical enum. Read-only.
   static const Map<String, UserRole> _legacyAliases = {
     'fisherman': UserRole.streetSeller,
-    'dalali': UserRole.streetSeller,
     'seller': UserRole.streetSeller,
     'fisherman_seller': UserRole.streetSeller,
   };

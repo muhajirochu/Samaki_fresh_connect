@@ -38,7 +38,8 @@ class UserModel with _$UserModel {
     @Default(true) bool isActive,
     String? registeredBy,
 
-    // Dalali Specific Fields
+    // Onboarding / approval fields (originally for broker role;
+    // kept generic for street-seller onboarding).
     @Default(false) bool isApproved,
     String? approvedBy,
     @OptionalTimestampConverter() DateTime? approvedAt,

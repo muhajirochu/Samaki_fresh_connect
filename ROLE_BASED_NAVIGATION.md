@@ -13,9 +13,9 @@ the user to the dashboard for their role. Roles are read from the
 | `streetSeller`| `/dashboard/street_seller` | Sellers list fish, manage stock.           |
 | `admin`       | `/dashboard/admin`     | Full admin shell with manage screens.          |
 
-The legacy roles `fisherman` and `dalali` (broker) referenced in
-earlier revisions of this doc were collapsed into `streetSeller` once
-the data model settled. Create-listing / broker-approval flows now
+The legacy role `fisherman` referenced in earlier revisions of this
+doc was collapsed into `streetSeller` once the data model settled.
+Create-listing flows now
 live under `streetSeller`.
 
 ## Auth-route guard

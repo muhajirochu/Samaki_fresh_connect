@@ -26,7 +26,7 @@ class FishItemModel {
 
   // ── Broker-approval contract (REQUIRED) ────────────────────────────────────
   final bool isBrokerApproved;
-  final String? approvedBy; // dalali userId
+  final String? approvedBy; // approving userId (legacy: broker)
   final DateTime? approvedAt;
   final ListingStatus status;
 
@@ -65,8 +65,7 @@ class FishItemModel {
   });
 
   /// True if this item should be visible to a buyer right now.
-  /// Since the broker/dalali role was removed, all active in-stock fish
-  /// are buyable — no approval gate needed.
+  /// All active in-stock fish are buyable — no approval gate needed.
   bool get isBuyable =>
       status == ListingStatus.active &&
       quantityKg > 0 &&
@@ -96,9 +95,8 @@ class FishItemModel {
           const [],
       description: data['description'] as String?,
       isBrokerApproved: (data['isBrokerApproved'] as bool?) ??
-          (data['dalaliApproved'] as bool? ??
-              (data['status'] == 'active')), // sane fallback
-      approvedBy: (data['approvedBy'] ?? data['dalaliId']) as String?,
+          (data['status'] == 'active'), // sane fallback
+      approvedBy: data['approvedBy'] as String?,
       approvedAt: const OptionalTimestampConverter()
           .fromJson(data['approvedAt'] ?? data['createdAt']),
       status: ListingStatusExtension.fromString(

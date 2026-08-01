@@ -169,7 +169,6 @@ class OrderDetailScreen extends ConsumerWidget {
                     orderId: order.orderId,
                     listingId: order.listingId,
                     status: status,
-                    isDalali: currentUser?.role.name == 'dalali',
                     isStreetSeller: order.streetSellerId != null &&
                         currentUser?.userId == order.streetSellerId,
                   ),
@@ -186,14 +185,12 @@ class _OrderActions extends ConsumerWidget {
   final String orderId;
   final String listingId;
   final OrderStatus status;
-  final bool isDalali;
   final bool isStreetSeller;
 
   const _OrderActions({
     required this.orderId,
     required this.listingId,
     required this.status,
-    required this.isDalali,
     required this.isStreetSeller,
   });
 
@@ -291,56 +288,6 @@ class _OrderActions extends ConsumerWidget {
             ),
           ),
         ],
-      );
-    }
-
-    if (status == OrderStatus.placed && isDalali) {
-      return CustomButton(
-        label: 'Assign Delivery',
-        onPressed: () async {
-          await ref.read(orderServiceProvider).updateOrderStatus(
-                orderId,
-                OrderStatus.assigned.name,
-              );
-          ref.invalidate(orderDetailProvider(orderId));
-        },
-        style: _actionStyle(),
-      );
-    }
-
-    if (status == OrderStatus.assigned && isDalali) {
-      return CustomButton(
-        label: 'Confirm Pickup',
-        onPressed: () async {
-          await ref.read(orderServiceProvider).confirmPickup(orderId);
-          ref.invalidate(orderDetailProvider(orderId));
-        },
-        style: _actionStyle(),
-      );
-    }
-
-    if (status == OrderStatus.inTransit && isDalali) {
-      return CustomButton(
-        label: 'Confirm Delivery',
-        onPressed: () async {
-          await ref.read(orderServiceProvider).confirmDelivery(orderId);
-          ref.invalidate(orderDetailProvider(orderId));
-        },
-        style: _actionStyle(),
-      );
-    }
-
-    if (status == OrderStatus.pickedUp && isDalali) {
-      return CustomButton(
-        label: 'Mark In Transit',
-        onPressed: () async {
-          await ref.read(orderServiceProvider).updateOrderStatus(
-                orderId,
-                OrderStatus.inTransit.name,
-              );
-          ref.invalidate(orderDetailProvider(orderId));
-        },
-        style: _actionStyle(),
       );
     }
 

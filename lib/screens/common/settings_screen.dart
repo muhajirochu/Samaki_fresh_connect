@@ -117,11 +117,20 @@ class SettingsScreen extends ConsumerWidget {
     return Scaffold(
       appBar: AppBar(
         title: Text(l10n.settings),
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back_rounded),
-          tooltip: l10n.back,
-          onPressed: () => context.pop(),
-        ),
+        // SettingsScreen is mounted as a tab inside every role's shell
+        // (IndexedStack), so it can be the root route — `context.pop()`
+        // then throws "There is nothing to pop". Only render the back
+        // arrow when there's a route to pop back to. Flutter's default
+        // `automaticallyImplyLeading` will then add its own back arrow
+        // when the route was pushed via GoRouter, so we don't override
+        // that here.
+        leading: context.canPop()
+            ? IconButton(
+                icon: const Icon(Icons.arrow_back_rounded),
+                tooltip: l10n.back,
+                onPressed: () => context.pop(),
+              )
+            : null,
       ),
       body: SafeArea(
         child: SingleChildScrollView(

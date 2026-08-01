@@ -9,7 +9,9 @@ plugins {
 android {
     namespace = "com.example.samaki_fresh_connect"
     compileSdk = flutter.compileSdkVersion
-    ndkVersion = flutter.ndkVersion
+    // Pinned to NDK 27.0.12077973 because the Firebase / Flutter plugins in
+    // pubspec.lock require it (Flutter 3.29 default NDK 26.3.11579264 is too old).
+    ndkVersion = "27.0.12077973"
 
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17
@@ -26,7 +28,9 @@ android {
         applicationId = "com.example.samaki_fresh_connect"
         // You can update the following values to match your application needs.
         // For more information, see: https://flutter.dev/to/review-gradle-config.
-        minSdk = flutter.minSdkVersion
+        // minSdk overridden to 23 because firebase-firestore 26.4.0 requires it
+        // (Flutter 3.29 default is 21, which Firestore rejects).
+        minSdk = 23
         targetSdk = flutter.targetSdkVersion
         versionCode = flutter.versionCode
         versionName = flutter.versionName

@@ -1,6 +1,6 @@
 // A buyer's open request for fish. Distinct from OrderModel: an Order is the
 // post-pickup transaction, a FishRequest is the pre-purchase intent the buyer
-// broadcasts to dalalis / street sellers ("I want 5kg of Tuna by Friday").
+// broadcasts to street sellers ("I want 5kg of Tuna by Friday").
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import '../models/enums/fish_type.dart';

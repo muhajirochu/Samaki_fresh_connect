@@ -17,7 +17,6 @@ import '../models/fish_listing_model.dart';
 import '../models/order_model.dart';
 import '../models/user_model.dart';
 import '../services/activity_log_service.dart';
-import '../services/email_sms_service.dart';
 import '../services/fish_category_service.dart';
 import '../services/fish_listing_service.dart';
 import '../services/order_service.dart';
@@ -27,10 +26,6 @@ import 'listing_provider.dart';
 import 'order_provider.dart';
 
 // ── Service providers ─────────────────────────────────────────────
-final emailSmsServiceProvider = Provider<EmailSmsService>((ref) {
-  return EmailSmsService();
-});
-
 final adminUserServiceProvider = Provider<UserService>((ref) => UserService());
 
 final adminListingServiceProvider = Provider<FishListingService>(

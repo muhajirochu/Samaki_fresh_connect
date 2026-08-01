@@ -31,7 +31,7 @@ mixin _$UserModel {
   Map<String, dynamic>? get location => throw _privateConstructorUsedError;
   bool get isActive => throw _privateConstructorUsedError;
   String? get registeredBy =>
-      throw _privateConstructorUsedError; // Dalali Specific Fields
+      throw _privateConstructorUsedError;
   bool get isApproved => throw _privateConstructorUsedError;
   String? get approvedBy => throw _privateConstructorUsedError;
   @OptionalTimestampConverter()
@@ -448,7 +448,6 @@ class _$UserModelImpl implements _UserModel {
   final bool isActive;
   @override
   final String? registeredBy;
-// Dalali Specific Fields
   @override
   @JsonKey()
   final bool isApproved;
@@ -630,7 +629,7 @@ abstract class _UserModel implements UserModel {
   @override
   bool get isActive;
   @override
-  String? get registeredBy; // Dalali Specific Fields
+  String? get registeredBy;
   @override
   bool get isApproved;
   @override

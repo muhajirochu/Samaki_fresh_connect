@@ -1,10 +1,10 @@
-enum OrderPath { directFromDalali, pickupFromSeller }
+enum OrderPath { directFromSeller, pickupFromSeller }
 
 extension OrderPathExtension on OrderPath {
   String get displayName {
     switch (this) {
-      case OrderPath.directFromDalali:
-        return 'Direct from Dalali';
+      case OrderPath.directFromSeller:
+        return 'Direct from Seller';
       case OrderPath.pickupFromSeller:
         return 'Pickup from Seller';
     }
@@ -18,7 +18,7 @@ extension OrderPathExtension on OrderPath {
     try {
       return OrderPath.values.firstWhere((e) => e.name == value);
     } catch (e) {
-      return OrderPath.directFromDalali;
+      return OrderPath.directFromSeller;
     }
   }
 }

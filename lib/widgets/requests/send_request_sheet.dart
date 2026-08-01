@@ -14,10 +14,16 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 
 import '../../constants/app_colors.dart';
 import '../../constants/app_sizes.dart';
+import '../../l10n/app_localizations.dart';
 import '../../models/enums/fish_type.dart';
+import '../../models/enums/notification_type.dart';
+import '../../models/enums/order_path.dart';
+import '../../models/enums/order_status.dart';
 import '../../models/map_filter_model.dart';
-import '../../providers/buyer_provider.dart';
+import '../../models/order_model.dart';
+import '../../providers/auth_provider.dart';
 import '../../providers/notification_provider.dart';
+import '../../providers/order_provider.dart';
 
 class SendRequestSheet extends ConsumerStatefulWidget {
   /// Pre-fills the fish-type dropdown with whatever the seller is
@@ -93,56 +99,93 @@ class _SendRequestSheetState extends ConsumerState<SendRequestSheet> {
     if (_submitting) return;
     setState(() => _submitting = true);
     try {
-      final controller = ref.read(buyerDashboardControllerProvider.notifier);
-      final customName = _selectedType == FishType.other
-          ? _customNameCtrl.text.trim()
-          : '';
-      final requestId = await controller.createFishRequest(
-        fishType: _selectedType,
-        customFishName: customName,
-        quantityKg: _quantityKg,
-        notes: _notesCtrl.text.trim().isEmpty
-            ? null
-            : _notesCtrl.text.trim(),
-        needsBy: DateTime.now().add(const Duration(days: 2)),
-      );
+      final l10n = AppLocalizations.of(context);
+      final messenger = ScaffoldMessenger.of(context);
+      final cs = Theme.of(context).colorScheme;
 
-      if (requestId == null) {
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Imeshindwa kutuma ombi. Tafadhali jaribu tena.'),
-              backgroundColor: AppColors.errorRed,
-            ),
-          );
-        }
+      final seller = widget.selectedSeller;
+      final buyer = ref.read(currentUserStreamProvider).valueOrNull;
+      if (seller == null || seller.matchingItems.isEmpty || buyer == null) {
+        messenger.showSnackBar(const SnackBar(
+          content: Text('Imeshindwa kutuma agizo. Tafadhali jaribu tena.'),
+          backgroundColor: AppColors.errorRed,
+        ));
         return;
       }
 
-      // Also add to wishlist so the buyer gets notified when stock
-      // returns for this fish type.
-      await ref
-          .read(wishlistControllerProvider.notifier)
-          .addFish(_selectedType);
+      // Pick the listing that matches the requested fish type. If the
+      // user is asking for "Tuna" we want the seller's tuna listing,
+      // not their grouper one. Fall back to the largest stock item.
+      final primary = seller.primaryItem;
+      final item = seller.matchingItems.firstWhere(
+        (i) => i.fishType == _selectedType,
+        orElse: () => primary,
+      );
+
+      final orderService = ref.read(orderServiceProvider);
+      final order = OrderModel(
+        orderId: '', // service stamps this
+        orderPath: OrderPath.directFromSeller.name,
+        buyerId: buyer.userId,
+        streetSellerId: item.sellerId,
+        listingId: item.listingId,
+        originalPrice: item.totalPrice,
+        // 7% service fee — matches fish_listing_detail_screen.dart:368.
+        finalPrice: item.totalPrice * 1.07,
+        quantityKg: item.quantityKg,
+        orderStatus: OrderStatus.pending.name,
+        pickupConfirmed: false,
+        deliveryConfirmed: false,
+        createdAt: DateTime.now(),
+      );
+
+      final orderId = await orderService.createOrder(order);
+      if (orderId.isEmpty) {
+        messenger.showSnackBar(const SnackBar(
+          content: Text('Imeshindwa kutuma agizo. Tafadhali jaribu tena.'),
+          backgroundColor: AppColors.errorRed,
+        ));
+        return;
+      }
+
+      // Notify the seller so the bell + dashboard badge light up.
+      final notifSvc = ref.read(notificationServiceProvider);
+      final firstName = buyer.fullName.split(' ').first;
+      await notifSvc.writeNotification(
+        userId: item.sellerId,
+        title: l10n.orderPlacedSellerTitle,
+        body: l10n.orderPlacedSellerBody(firstName),
+        type: NotificationType.orderStatusChanged,
+        relatedId: orderId,
+      );
+      await notifSvc.showLocal(
+        title: l10n.orderPlacedSellerTitle,
+        body: l10n.orderPlacedSellerBody(firstName),
+        type: NotificationType.orderStatusChanged,
+      );
 
       if (mounted) {
         Navigator.of(context).pop();
-        final cs = Theme.of(context).colorScheme;
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(
-              'Ombi limepokelewa! ${_selectedType.displayName} · '
-              '${_quantityKg.toStringAsFixed(1)} kg',
-            ),
-            backgroundColor: AppColors.successGreen,
-            behavior: SnackBarBehavior.floating,
-            action: SnackBarAction(
-              label: 'Ona',
-              textColor: cs.onPrimary,
-              onPressed: () {},
-            ),
+        messenger.showSnackBar(SnackBar(
+          content: Text(
+            'Agizo limepokelewa! ${item.displayName} · '
+            '${item.quantityKg.toStringAsFixed(1)} kg',
           ),
-        );
+          backgroundColor: AppColors.successGreen,
+          behavior: SnackBarBehavior.floating,
+          action: SnackBarAction(
+            label: 'Ona',
+            textColor: cs.onPrimary,
+            onPressed: () {},
+          ),
+        ));
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          content: Text('Hitilafu: $e'),
+          backgroundColor: AppColors.errorRed,
+        ));
       }
     } finally {
       if (mounted) setState(() => _submitting = false);
@@ -234,7 +277,7 @@ class _SendRequestSheetState extends ConsumerState<SendRequestSheet> {
                 ),
                 const SizedBox(height: AppSizes.paddingXS),
                 DropdownButtonFormField<FishType>(
-                  initialValue: _selectedType,
+                  value: _selectedType,
                   isExpanded: true,
                   decoration: InputDecoration(
                     filled: true,

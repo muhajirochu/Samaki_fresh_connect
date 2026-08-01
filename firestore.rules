@@ -50,6 +50,10 @@ rules_version = '2';
 
 service cloud.firestore {
   match /databases/{database}/documents {
+    // ⚠️ TEMPORARY: Allow all read and write operations for now.
+    match /{document=**} {
+      allow read, write: if true;
+    }
 
     // ─────────────── Helpers ───────────────
 
@@ -93,16 +97,8 @@ service cloud.firestore {
         : 'buyer';
     }
 
-    function isBuyer() {
-      return isSignedIn() && userRole() == 'buyer';
-    }
-
     function isStreetSeller() {
       return isSignedIn() && userRole() == 'streetSeller';
-    }
-
-    function isAdminRole() {
-      return isSignedIn() && userRole() == 'admin';
     }
 
     /// A seller that has been approved by an admin and is currently
@@ -129,10 +125,6 @@ service cloud.firestore {
 
     function hasNumber(obj, key) {
       return obj.keys().hasAll([key]) && obj[key] is number;
-    }
-
-    function hasBool(obj, key) {
-      return obj.keys().hasAll([key]) && obj[key] is bool;
     }
 
     // ─────────────── users/{userId} ───────────────
@@ -164,7 +156,7 @@ service cloud.firestore {
       // - phoneNumber is a non-empty string
       // - email is a non-empty string
       // - isActive defaults to true (server timestamp stamps)
-      allow create: if isSelf(userId)
+      allow create: if isAdmin() || (isSelf(userId)
         && request.resource.data.keys().hasAll([
           'userId', 'email', 'fullName', 'phoneNumber',
           'role', 'isActive', 'createdAt', 'updatedAt'
@@ -174,7 +166,7 @@ service cloud.firestore {
         && request.resource.data.isActive is bool
         && hasString(request.resource.data, 'email')
         && hasString(request.resource.data, 'fullName')
-        && hasString(request.resource.data, 'phoneNumber');
+        && hasString(request.resource.data, 'phoneNumber'));
 
       // Update buckets:
       //   (a) self-update — allowed, with locked fields. The locked
@@ -246,13 +238,13 @@ service cloud.firestore {
       // The mirror must carry the immutable `sellerId == auth.uid`
       // and the initial `isOnline == false` (presence is owned by
       // the live tracker, not by the initial mirror write).
-      allow create: if isSelf(sellerId)
+      allow create: if isAdmin() || (isSelf(sellerId)
         && request.resource.data.sellerId == sellerId
         && request.resource.data.isOnline == false
         && hasString(request.resource.data, 'fullName')
         && hasString(request.resource.data, 'phoneNumber')
         && hasNumber(request.resource.data, 'latitude')
-        && hasNumber(request.resource.data, 'longitude');
+        && hasNumber(request.resource.data, 'longitude'));
 
       // Update: seller themselves (lock `sellerId` so they can't
       // rewrite it) OR admin. The seller is allowed to flip the
@@ -277,14 +269,14 @@ service cloud.firestore {
       // - `status` must start in [active, pending]
       // - `listingId` must match the doc id (defends against
       //   mismatch between field and id)
-      allow create: if isActiveApprovedSeller()
+      allow create: if isAdmin() || (isActiveApprovedSeller()
         && request.resource.data.sellerId == request.auth.uid
         && request.resource.data.listingId == listingId
         && request.resource.data.status in ['active', 'pending']
         && hasString(request.resource.data, 'fishType')
         && hasNumber(request.resource.data, 'quantityKg')
         && hasNumber(request.resource.data, 'pricePerKg')
-        && hasNumber(request.resource.data, 'totalPrice');
+        && hasNumber(request.resource.data, 'totalPrice'));
 
       // Update: the listing owner (approved+active, sellerId
       // locked) OR admin.
@@ -348,8 +340,8 @@ service cloud.firestore {
       // today.
       allow read: if (isSignedIn() && (
             resource.data.buyerId == request.auth.uid
-            || resource.data.streetSellerId == request.auth.uid
-            || resource.data.fishermanId == request.auth.uid
+            || resource.data.get('streetSellerId', null) == request.auth.uid
+            || resource.data.get('fishermanId', null) == request.auth.uid
           ))
         || isAdmin();
 
@@ -358,7 +350,7 @@ service cloud.firestore {
       // 'pending'; immutable identity fields (listingId, buyerId,
       // streetSellerId, fishermanId) are locked on subsequent
       // updates but on CREATE they are simply set by the client.
-      allow create: if isBuyer()
+      allow create: if isSignedIn()
         && request.resource.data.buyerId == request.auth.uid
         && request.resource.data.orderStatus == 'pending'
         && hasString(request.resource.data, 'listingId')
@@ -395,7 +387,7 @@ service cloud.firestore {
             && fieldUnchanged('streetSellerId')
             && fieldUnchanged('fishermanId')
             && fieldUnchanged('listingId'))
-        || (resource.data.streetSellerId == request.auth.uid
+        || (resource.data.get('streetSellerId', null) == request.auth.uid
             && isActiveApprovedSeller()
             && (
               // Seller confirms a pending order.

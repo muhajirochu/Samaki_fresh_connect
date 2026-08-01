@@ -1958,18 +1958,6 @@ abstract class AppLocalizations {
   /// **'Management'**
   String get management;
 
-  /// No description provided for @manageDalalis.
-  ///
-  /// In en, this message translates to:
-  /// **'Manage Dalalis'**
-  String get manageDalalis;
-
-  /// No description provided for @manageDalalisSubtitle.
-  ///
-  /// In en, this message translates to:
-  /// **'Register, approve or block brokers'**
-  String get manageDalalisSubtitle;
-
   /// No description provided for @allListings.
   ///
   /// In en, this message translates to:

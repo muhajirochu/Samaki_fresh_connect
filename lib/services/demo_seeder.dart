@@ -425,7 +425,6 @@ class DemoSeeder {
             'description': fish.description,
             // Phase-1 buyer view uses these flags as the only gate.
             'isBrokerApproved': true,
-            'dalaliApproved': true,
             'status': 'active',
             'latitude': s.lat,
             'longitude': s.lng,

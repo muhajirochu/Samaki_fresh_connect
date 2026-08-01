@@ -94,8 +94,10 @@ void main() async {
 
     // Seed demo accounts if they don't exist, only if Firebase is initialized
     if (Firebase.apps.isNotEmpty) {
-      AppLogger.info('Seeding demo accounts...');
-      await DemoSeeder.seedDemoAccounts();
+      AppLogger.info('Skipping demo accounts seeding (testing on physical device).');
+      // DemoSeeder.seedDemoAccounts().catchError((e) {
+      //   AppLogger.error('Failed to seed demo accounts: $e');
+      // });
     } else {
       AppLogger.info(
           'Firebase not initialized; skipping demo accounts seeding.');

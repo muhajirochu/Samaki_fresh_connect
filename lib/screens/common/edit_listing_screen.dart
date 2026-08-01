@@ -1,4 +1,4 @@
-// Edit listing screen for street sellers / dalalis. Pre-fills the form
+// Edit listing screen for street sellers. Pre-fills the form
 // from the listing detail, validates ownership through the controller,
 // and writes back via `ListingManagementController.updateListing`.
 

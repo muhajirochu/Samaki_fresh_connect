@@ -36,8 +36,6 @@ class AppStrings {
   static const String role = 'User Role';
 
   // Roles
-  static const String fisherman = 'Fisherman';
-  static const String dalali = 'Fish Broker (Dalali)';
   static const String streetSeller = 'Street Seller';
   static const String buyer = 'Buyer';
   static const String admin = 'Administrator';

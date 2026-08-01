@@ -1293,7 +1293,7 @@ class _AppDropdown<T> extends HookWidget {
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
     return DropdownButtonFormField<T>(
-      initialValue: value,
+      value: value,
       isExpanded: true,
       decoration: themedInputDec(context, hint: hint).copyWith(hintText: null),
       hint: Text(hint,

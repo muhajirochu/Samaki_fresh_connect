@@ -1,4 +1,4 @@
-// My Listings screen — for street sellers and dalalis. Lists every
+// My Listings screen — for street sellers. Lists every
 // listing owned by the current user and surfaces the per-card action
 // menu (Edit / Mark Sold / Delete). All actions go through the
 // `ListingManagementController`, which checks ownership before writing.
@@ -143,6 +143,9 @@ class MyListingsScreen extends ConsumerWidget {
         ),
       ),
       floatingActionButton: FloatingActionButton(
+        // Unique Hero tag — this screen mounts inside every role's
+        // shell (IndexedStack), so the shared default tag would crash.
+        heroTag: 'myListingsFab',
         onPressed: () => context.pushNamed(AppRouteNames.listingsCreate),
         backgroundColor: Theme.of(context).colorScheme.primary,
         foregroundColor: Theme.of(context).colorScheme.onPrimary,

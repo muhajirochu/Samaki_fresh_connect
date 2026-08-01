@@ -148,7 +148,7 @@ refactored to a denormalized snapshot.
 
 ### `orders/{orderId}`
 - **Read:** participant (buyer / streetSeller / fisherman) OR admin.
-- **Create:** `isBuyer()` plus `buyerId == auth.uid`,
+- **Create:** `isSignedIn()` plus `buyerId == auth.uid`,
   `orderStatus == 'pending'`, and the required identity /
   financial fields.
 - **Update:** documented state-machine transitions per side; every

@@ -1013,12 +1013,6 @@ class AppLocalizationsSw extends AppLocalizations {
   String get management => 'Usimamizi';
 
   @override
-  String get manageDalalis => 'Simamia Dalalis';
-
-  @override
-  String get manageDalalisSubtitle => 'Sajili, kubali au zuia mabrokeri';
-
-  @override
   String get allListings => 'Zabuni Zote';
 
   @override

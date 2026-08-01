@@ -1015,12 +1015,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get management => 'Management';
 
   @override
-  String get manageDalalis => 'Manage Dalalis';
-
-  @override
-  String get manageDalalisSubtitle => 'Register, approve or block brokers';
-
-  @override
   String get allListings => 'All Listings';
 
   @override

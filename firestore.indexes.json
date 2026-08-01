@@ -137,12 +137,13 @@
       ]
     },
     {
-      "comment": "nearbySellersGeoQueryProvider: streetSellers WHERE geohash>=start AND geohash<=end AND isActive==true. Range query on geohash needs single-field 'geohash' which is auto; the equality on isActive runs against the live docs.",
+      "comment": "nearbySellersGeoQueryProvider: streetSellers WHERE geohash>=start AND geohash<=end AND isActive==true. Firestore auto-injects `orderBy geohash ASC, __name__ ASC` for this range query, so the index must list the equality filter (isActive) first, then the range field (geohash), then the trailing __name__ sort. Without __name__ in the index the query fails with FAILED_PRECONDITION ('requires an index').",
       "collectionGroup": "streetSellers",
       "queryScope": "COLLECTION",
       "fields": [
-        { "fieldPath": "isActive", "order": "ASCENDING" },
-        { "fieldPath": "geohash",  "order": "ASCENDING" }
+        { "fieldPath": "isActive",  "order": "ASCENDING" },
+        { "fieldPath": "geohash",   "order": "ASCENDING" },
+        { "fieldPath": "__name__",  "order": "ASCENDING" }
       ]
     },
     {

@@ -348,7 +348,7 @@ class _BuyButton extends HookConsumerWidget {
         // and the seller manually picks one.
         final order = OrderModel(
           orderId: '', // Service sets this
-          orderPath: OrderPath.directFromDalali.name,
+          orderPath: OrderPath.directFromSeller.name,
           buyerId: currentUser!.userId,
           // Stamp the order with the LISTING'S seller — that's who
           // needs to see this order in their queue and who will

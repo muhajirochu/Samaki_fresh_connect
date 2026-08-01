@@ -123,6 +123,10 @@ class OrderCard extends StatelessWidget {
         // Same colour family as `placed` so the two first-step
         // states read as related stages on the card.
         return cs.tertiary;
+      case OrderStatus.confirmed:
+        // Seller has accepted the order; brand-primary to read as
+        // an active milestone rather than a passive wait state.
+        return cs.primary;
       case OrderStatus.placed:
         return cs.tertiary;
       case OrderStatus.assigned:

@@ -490,7 +490,7 @@ class CreateListingScreen extends HookConsumerWidget {
 
               // ── Fish Type ──────────────────────────────────────────────────
               DropdownButtonFormField<FishType>(
-                initialValue: selectedFishType.value,
+                value: selectedFishType.value,
                 decoration: InputDecoration(
                   labelText: AppStrings.fishType,
                   prefixIcon: const Icon(Icons.set_meal_rounded),

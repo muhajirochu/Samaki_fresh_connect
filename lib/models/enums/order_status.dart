@@ -5,6 +5,7 @@ enum OrderStatus {
   /// to be created with `orderStatus == 'pending'`. The seller
   /// confirms with a transition to `confirmed`.
   pending,
+  confirmed,
   placed,
   assigned,
   negotiating,
@@ -20,6 +21,8 @@ extension OrderStatusExtension on OrderStatus {
     switch (this) {
       case OrderStatus.pending:
         return 'Pending Confirmation';
+      case OrderStatus.confirmed:
+        return 'Confirmed';
       case OrderStatus.placed:
         return 'Placed';
       case OrderStatus.assigned:

@@ -166,7 +166,7 @@ class CartScreen extends HookConsumerWidget {
         final originalPrice = listing.pricePerKg * qty;
         final order = OrderModel(
           orderId: '',
-          orderPath: OrderPath.directFromDalali.name,
+          orderPath: OrderPath.directFromSeller.name,
           buyerId: buyer.userId,
           // The listing's seller — not the buyer's role — decides
           // whose queue this lands in. Same rule as the detail screen.

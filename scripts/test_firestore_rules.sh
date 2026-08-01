@@ -1,10 +1,16 @@
 #!/usr/bin/env bash
 # Run Firestore rules unit tests against the local emulator.
 # Usage: ./scripts/test_firestore_rules.sh
+#
+# Cross-platform note: this script is bash. On Windows, run it via
+#   Git Bash (recommended), WSL, or use the PowerShell equivalent
+#   scripts/test_firestore_rules.ps1.
 set -euo pipefail
 
 PROJECT_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-TEST_DIR="/tmp/fb-rules-test"
+
+# Cross-platform temp dir: $TMPDIR on macOS/Linux, %TEMP% on Git Bash for Windows.
+TEST_DIR="${TMPDIR:-/tmp}/fb-rules-test"
 
 # 1. Ensure test deps are installed (one-time)
 if [ ! -d "$TEST_DIR/node_modules/@firebase/rules-unit-testing" ]; then

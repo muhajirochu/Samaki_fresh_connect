@@ -6,7 +6,7 @@
 //      `notifications/{auto-id}`, scoped to the buyer via `userId`. The
 //      buyer-side `notificationsProvider` streams this collection.
 //
-// Writers (sellers, dalalis, the system) call `writeNotification` with
+// Writers (sellers and the system) call `writeNotification` with
 // the buyer's userId. Readers (the buyer dashboard / bell icon) call
 // `streamForUser` and `unreadCount`.
 
