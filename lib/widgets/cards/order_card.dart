@@ -117,31 +117,26 @@ class OrderCard extends StatelessWidget {
       id.length > 8 ? id.substring(0, 8).toUpperCase() : id.toUpperCase();
 
   Color _colorForStatus(OrderStatus status, ColorScheme cs) {
+    // Maps the implemented order lifecycle onto theme tokens. The
+    // happy path is `pending → confirmed → inTransit → completed`;
+    // `cancelled` is the terminal off-path state. The enum only
+    // contains these five values (see `OrderStatus`), so this
+    // switch is exhaustive by construction.
     switch (status) {
       case OrderStatus.pending:
         // Buyer has placed the order; awaiting seller confirmation.
-        // Same colour family as `placed` so the two first-step
-        // states read as related stages on the card.
         return cs.tertiary;
       case OrderStatus.confirmed:
         // Seller has accepted the order; brand-primary to read as
         // an active milestone rather than a passive wait state.
         return cs.primary;
-      case OrderStatus.placed:
-        return cs.tertiary;
-      case OrderStatus.assigned:
-        return cs.primary;
-      case OrderStatus.negotiating:
-        // Purple is a distinct negotiation cue — kept as raw hex so
-        // it reads the same in both themes. Not a theme token.
-        return const Color(0xFF8B5CF6);
-      case OrderStatus.pickedUp:
-        return cs.tertiary;
       case OrderStatus.inTransit:
+        // Seller has handed the order off; still brand-primary to
+        // signal an active, in-flight order.
         return cs.primary;
-      case OrderStatus.delivered:
-        return cs.tertiary;
       case OrderStatus.completed:
+        // Terminal happy-path state — secondary reads as a quieter
+        // "done" colour distinct from the active primary.
         return cs.secondary;
       case OrderStatus.cancelled:
         return cs.error;

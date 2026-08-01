@@ -57,6 +57,47 @@ class OrderDetailScreen extends ConsumerWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
+                // ── Completion Banner ──────────────────────────────────────
+                // Shown only when the order has reached the terminal
+                // `completed` state. Without this banner the only
+                // visible difference between `inTransit` and `completed`
+                // is the timeline's last dot, which is easy to miss.
+                // The banner gives the buyer an unambiguous "order is
+                // done" confirmation in the header area.
+                if (status == OrderStatus.completed)
+                  Container(
+                    margin: const EdgeInsets.only(bottom: AppSizes.paddingLG),
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: AppSizes.paddingMD, vertical: 12),
+                    decoration: BoxDecoration(
+                      color: Theme.of(context).colorScheme.secondaryContainer,
+                      borderRadius:
+                          BorderRadius.circular(AppSizes.radiusMD),
+                    ),
+                    child: Row(
+                      children: [
+                        Icon(Icons.check_circle_rounded,
+                            color: Theme.of(context).colorScheme.secondary,
+                            size: 24),
+                        const SizedBox(width: AppSizes.paddingMD),
+                        Expanded(
+                          child: Text(
+                            'Order completed successfully',
+                            style: Theme.of(context)
+                                .textTheme
+                                .titleSmall
+                                ?.copyWith(
+                                  fontWeight: FontWeight.w700,
+                                  color: Theme.of(context)
+                                      .colorScheme
+                                      .onSecondaryContainer,
+                                ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+
                 // ── Header Summary ────────────────────────────────────────────
                 Container(
                   padding: const EdgeInsets.all(AppSizes.paddingLG),
@@ -171,6 +212,7 @@ class OrderDetailScreen extends ConsumerWidget {
                     status: status,
                     isStreetSeller: order.streetSellerId != null &&
                         currentUser?.userId == order.streetSellerId,
+                    isBuyer: currentUser?.userId == order.buyerId,
                   ),
               ],
             ),
@@ -186,21 +228,20 @@ class _OrderActions extends ConsumerWidget {
   final String listingId;
   final OrderStatus status;
   final bool isStreetSeller;
+  final bool isBuyer;
 
   const _OrderActions({
     required this.orderId,
     required this.listingId,
     required this.status,
     required this.isStreetSeller,
+    required this.isBuyer,
   });
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    // Seller-facing branch: a street seller with the order's
-    // `streetSellerId == currentUser.userId` sees Confirm / Reject
-    // buttons for a buyer-placed pending order. Confirm writes
-    // both the order (→ confirmed) and the listing (→ sold) in a
-    // single batch — see [OrderService.confirmOrderAndMarkListingSold].
+    // Seller: pending order — Confirm (atomic with listing → sold)
+    // or Reject.
     if (status == OrderStatus.pending && isStreetSeller) {
       return Row(
         children: [
@@ -288,6 +329,77 @@ class _OrderActions extends ConsumerWidget {
             ),
           ),
         ],
+      );
+    }
+
+    // Seller: confirmed order — Mark In Transit (handed off to
+    // buyer / out for delivery). Firestore rules permit
+    // `confirmed → in_transit` for the seller at
+    // match /orders/{orderId} (see firestore.rules).
+    if (status == OrderStatus.confirmed && isStreetSeller) {
+      return CustomButton(
+        label: 'Mark In Transit',
+        style: _actionStyle(),
+        onPressed: () async {
+          try {
+            await ref
+                .read(orderServiceProvider)
+                .updateOrderStatus(orderId, 'inTransit');
+            ref.invalidate(orderDetailProvider(orderId));
+            if (context.mounted) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(
+                  content: Text('Order marked as in transit.'),
+                  behavior: SnackBarBehavior.floating,
+                ),
+              );
+            }
+          } catch (e) {
+            if (context.mounted) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text('Failed to update: $e'),
+                  backgroundColor: Theme.of(context).colorScheme.error,
+                  behavior: SnackBarBehavior.floating,
+                ),
+              );
+            }
+          }
+        },
+      );
+    }
+
+    // Buyer: in-transit order — Confirm Receipt (terminal
+    // transition to `completed`). Closes the lifecycle and unlocks
+    // payout analytics. See [OrderService.confirmReceipt].
+    if (status == OrderStatus.inTransit && isBuyer) {
+      return CustomButton(
+        label: 'Confirm Receipt',
+        style: _actionStyle(),
+        onPressed: () async {
+          try {
+            await ref.read(orderServiceProvider).confirmReceipt(orderId);
+            ref.invalidate(orderDetailProvider(orderId));
+            if (context.mounted) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(
+                  content: Text('Receipt confirmed. Order completed.'),
+                  behavior: SnackBarBehavior.floating,
+                ),
+              );
+            }
+          } catch (e) {
+            if (context.mounted) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text('Failed to confirm receipt: $e'),
+                  backgroundColor: Theme.of(context).colorScheme.error,
+                  behavior: SnackBarBehavior.floating,
+                ),
+              );
+            }
+          }
+        },
       );
     }
 

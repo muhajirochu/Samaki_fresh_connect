@@ -21,15 +21,16 @@ class OrderTimeline extends StatelessWidget {
     final cs = Theme.of(context).colorScheme;
     // Define the generic happy path. `pending` is the buyer's
     // initial state on create; `confirmed` is the seller's accept;
-    // `placed` through `delivered` cover the delivery steps.
+    // `inTransit` is the seller marking the order handed off;
+    // `completed` is the buyer's receipt confirmation (terminal).
+    // The remaining enum values (`placed`, `assigned`, `pickedUp`,
+    // `delivered`, `negotiating`) are intentionally not rendered
+    // here — the lifecycle no longer passes through them.
     final steps = [
       OrderStatus.pending,
       OrderStatus.confirmed,
-      OrderStatus.placed,
-      OrderStatus.assigned,
-      OrderStatus.pickedUp,
       OrderStatus.inTransit,
-      OrderStatus.delivered,
+      OrderStatus.completed,
     ];
 
     if (currentStatus == OrderStatus.cancelled) {
@@ -47,12 +48,10 @@ class OrderTimeline extends StatelessWidget {
 
     int currentIndex = steps.indexOf(currentStatus);
     if (currentIndex == -1) {
-      // Handle edge cases like 'negotiating' or 'completed'
-      if (currentStatus == OrderStatus.completed) {
-        currentIndex = steps.length - 1; // All done
-      } else {
-        currentIndex = 0; // Fallback
-      }
+      // Fallback for statuses outside the happy path (e.g.
+      // `negotiating` if it ever gets written). Default to the
+      // first step so the timeline doesn't render empty.
+      currentIndex = 0;
     }
 
     return Column(
@@ -62,6 +61,12 @@ class OrderTimeline extends StatelessWidget {
         final isCompleted = index <= currentIndex;
         final isLast = index == steps.length - 1;
         final isCurrent = index == currentIndex;
+        // The terminal `completed` step gets a distinct colour so the
+        // buyer can tell at a glance that the order reached its
+        // end-state — without this, the last filled dot reads the
+        // same as the in-progress primary step.
+        final isTerminalCompleted = isLast &&
+            currentStatus == OrderStatus.completed;
 
         // Determine timestamp logic
         String? timeStr;
@@ -78,6 +83,7 @@ class OrderTimeline extends StatelessWidget {
           isCompleted: isCompleted,
           isLast: isLast,
           isCurrent: isCurrent,
+          isTerminalCompleted: isTerminalCompleted,
         );
       }),
     );
@@ -90,6 +96,7 @@ class _TimelineNode extends StatelessWidget {
   final bool isCompleted;
   final bool isLast;
   final bool isCurrent;
+  final bool isTerminalCompleted;
 
   const _TimelineNode({
     required this.title,
@@ -97,6 +104,7 @@ class _TimelineNode extends StatelessWidget {
     required this.isCompleted,
     required this.isLast,
     required this.isCurrent,
+    this.isTerminalCompleted = false,
   });
 
   @override
@@ -122,9 +130,14 @@ class _TimelineNode extends StatelessWidget {
                   // Completed steps use the theme primary so the
                   // "done" portion of the timeline reads as brand
                   // colour; pending steps use the muted border so
-                  // they stay neutral on either theme.
-                  color:
-                      isCompleted ? cs.primary : pendingColor,
+                  // they stay neutral on either theme. The terminal
+                  // `completed` step uses the secondary token so the
+                  // buyer can see at a glance that the order is
+                  // fully done — distinct from the in-progress
+                  // primary colour used by earlier completed steps.
+                  color: isTerminalCompleted
+                      ? cs.secondary
+                      : (isCompleted ? cs.primary : pendingColor),
                   border: isCurrent
                       // Active step uses tertiary so it visually pops
                       // against the primary-coloured completed steps.

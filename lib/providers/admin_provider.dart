@@ -152,15 +152,15 @@ final adminMonthlyOrdersProvider = StreamProvider<List<OrderModel>>((ref) {
 });
 
 /// Daily / weekly / monthly revenue — `finalPrice * quantityKg`
-/// across delivered orders only. Matches the platform-revenue
+/// across completed orders only. Matches the platform-revenue
 /// derivation in [adminPlatformRevenueProvider].
 final adminDailyRevenueProvider = StreamProvider<double>((ref) {
   return ref.watch(adminDailyOrdersProvider).when(
         data: (orders) {
-          final delivered =
-              orders.where((o) => o.orderStatus == 'delivered').toList();
+          final completed =
+              orders.where((o) => o.orderStatus == 'completed').toList();
           return Stream.value(
-            delivered.fold<double>(
+            completed.fold<double>(
               0,
               (acc, o) => acc + (o.finalPrice * o.quantityKg),
             ),
@@ -174,10 +174,10 @@ final adminDailyRevenueProvider = StreamProvider<double>((ref) {
 final adminWeeklyRevenueProvider = StreamProvider<double>((ref) {
   return ref.watch(adminWeeklyOrdersProvider).when(
         data: (orders) {
-          final delivered =
-              orders.where((o) => o.orderStatus == 'delivered').toList();
+          final completed =
+              orders.where((o) => o.orderStatus == 'completed').toList();
           return Stream.value(
-            delivered.fold<double>(
+            completed.fold<double>(
               0,
               (acc, o) => acc + (o.finalPrice * o.quantityKg),
             ),
@@ -191,10 +191,10 @@ final adminWeeklyRevenueProvider = StreamProvider<double>((ref) {
 final adminMonthlyRevenueProvider = StreamProvider<double>((ref) {
   return ref.watch(adminMonthlyOrdersProvider).when(
         data: (orders) {
-          final delivered =
-              orders.where((o) => o.orderStatus == 'delivered').toList();
+          final completed =
+              orders.where((o) => o.orderStatus == 'completed').toList();
           return Stream.value(
-            delivered.fold<double>(
+            completed.fold<double>(
               0,
               (acc, o) => acc + (o.finalPrice * o.quantityKg),
             ),
@@ -280,16 +280,16 @@ final adminRecentActivityProvider = StreamProvider<List<ActivityLogModel>>(
 // ── Aggregates ────────────────────────────────────────────────────
 
 /// Live platform revenue — sum of `finalPrice * quantityKg` across
-/// every delivered order. Returns 0.0 when the underlying order
-/// stream is still loading or no delivered orders exist yet.
+/// every completed order. Returns 0.0 when the underlying order
+/// stream is still loading or no completed orders exist yet.
 final adminPlatformRevenueProvider = StreamProvider<double>((ref) {
   return ref.watch(adminAllOrdersProvider).when(
         data: (orders) {
-          final delivered =
-              orders.where((o) => o.orderStatus == 'delivered').toList();
-          if (delivered.isEmpty) return Stream.value(0.0);
+          final completed =
+              orders.where((o) => o.orderStatus == 'completed').toList();
+          if (completed.isEmpty) return Stream.value(0.0);
           return Stream.value(
-            delivered.fold<double>(
+            completed.fold<double>(
               0,
               (acc, o) => acc + (o.finalPrice * o.quantityKg),
             ),

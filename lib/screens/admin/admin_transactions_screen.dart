@@ -187,7 +187,7 @@ class _OrderRow extends StatelessWidget {
   Color _statusColor(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
     switch (order.orderStatus) {
-      case 'delivered':
+      case 'completed':
         return cs.secondary;
       case 'cancelled':
         return cs.error;

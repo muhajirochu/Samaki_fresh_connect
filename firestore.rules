@@ -375,9 +375,13 @@ service cloud.firestore {
               // Buyer cancels a pending order.
               (resource.data.orderStatus == 'pending'
                 && request.resource.data.orderStatus == 'cancelled')
-              // Buyer confirms delivery on an in_transit order.
+              // Buyer confirms delivery on an in_transit order — terminal
+              // transition. Accepts either `delivered` or `completed`
+              // as the target status so callers can use the cleaner
+              // terminal `completed` value without being rejected.
               || (resource.data.orderStatus == 'in_transit'
-                  && request.resource.data.orderStatus == 'delivered')
+                  && (request.resource.data.orderStatus == 'delivered'
+                      || request.resource.data.orderStatus == 'completed'))
             )
             && fieldUnchanged('orderId')
             && fieldUnchanged('finalPrice')

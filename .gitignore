@@ -56,3 +56,7 @@ app.*.map.json
 /firebase-debug.log
 /firebase-debug.*.log
 /.firebase/
+
+# Claude Code agent state — contains auth tokens and is regenerated per session.
+/.claude/
+/.flutter-plugins

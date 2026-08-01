@@ -54,7 +54,7 @@ class _OrderDetailBody extends ConsumerWidget {
 
   Color _statusColor(BuildContext context) {
     switch (order.orderStatus) {
-      case 'delivered':
+      case 'completed':
         return AppColors.accentGreen;
       case 'cancelled':
         return AppColors.errorRed;

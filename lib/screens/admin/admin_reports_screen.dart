@@ -107,7 +107,7 @@ class _SalesTab extends ConsumerWidget {
 
   double _sumRevenue(List<OrderModel> orders) {
     return orders
-        .where((o) => o.orderStatus == 'delivered')
+        .where((o) => o.orderStatus == 'completed')
         .fold<double>(0, (acc, o) => acc + (o.finalPrice * o.quantityKg));
   }
 }
@@ -180,7 +180,7 @@ class _WeeklyBars extends StatelessWidget {
       final next = d.add(const Duration(days: 1));
       final total = orders
           .where((o) =>
-              o.orderStatus == 'delivered' &&
+              o.orderStatus == 'completed' &&
               o.createdAt.isAfter(d) &&
               o.createdAt.isBefore(next))
           .fold<double>(0, (acc, o) => acc + (o.finalPrice * o.quantityKg));
@@ -494,7 +494,7 @@ class _DailySalesCard extends ConsumerWidget {
     final l10n = AppLocalizations.of(context);
     final orders = ref.watch(adminDailyOrdersProvider).valueOrNull ?? [];
     final revenue = orders
-        .where((o) => o.orderStatus == 'delivered')
+        .where((o) => o.orderStatus == 'completed')
         .fold<double>(0, (acc, o) => acc + (o.finalPrice * o.quantityKg));
     return _StatCard(
       title: l10n.dailySales,
@@ -511,7 +511,7 @@ class _WeeklySalesCard extends ConsumerWidget {
     final l10n = AppLocalizations.of(context);
     final orders = ref.watch(adminWeeklyOrdersProvider).valueOrNull ?? [];
     final revenue = orders
-        .where((o) => o.orderStatus == 'delivered')
+        .where((o) => o.orderStatus == 'completed')
         .fold<double>(0, (acc, o) => acc + (o.finalPrice * o.quantityKg));
     return _StatCard(
       title: l10n.weeklySales,
@@ -528,7 +528,7 @@ class _MonthlySalesCard extends ConsumerWidget {
     final l10n = AppLocalizations.of(context);
     final orders = ref.watch(adminMonthlyOrdersProvider).valueOrNull ?? [];
     final revenue = orders
-        .where((o) => o.orderStatus == 'delivered')
+        .where((o) => o.orderStatus == 'completed')
         .fold<double>(0, (acc, o) => acc + (o.finalPrice * o.quantityKg));
     return _StatCard(
       title: l10n.monthlySales,

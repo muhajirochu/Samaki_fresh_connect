@@ -182,16 +182,14 @@ class OrderService {
     }
   }
 
-  /// Confirm pickup
-  Future<void> confirmPickup(String orderId) async {
-    await updateOrderStatus(orderId, 'pickedUp', extraFields: {
-      'pickupConfirmed': true,
-    });
-  }
-
-  /// Confirm delivery
-  Future<void> confirmDelivery(String orderId) async {
-    await updateOrderStatus(orderId, 'delivered', extraFields: {
+  /// Buyer confirms receipt — terminal transition. Writes
+  /// `orderStatus = 'completed'` and stamps `completedAt` so the
+  /// timeline shows the final step filled in and admin/payout queries
+  /// can sum over `completed` orders. The previous implementation
+  /// wrote `delivered` and left `completed` as an unused enum value;
+  /// this collapses the two into one terminal state.
+  Future<void> confirmReceipt(String orderId) async {
+    await updateOrderStatus(orderId, 'completed', extraFields: {
       'deliveryConfirmed': true,
       'completedAt': FieldValue.serverTimestamp(),
     });

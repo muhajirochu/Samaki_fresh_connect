@@ -28,7 +28,7 @@ OrderModel _order(String id, {String? buyerId, String? sellerId}) =>
       originalPrice: 1000,
       finalPrice: 1000,
       quantityKg: 1,
-      orderStatus: OrderStatus.placed.name,
+      orderStatus: OrderStatus.confirmed.name,
       pickupConfirmed: false,
       deliveryConfirmed: false,
       createdAt: DateTime(2026, 1, 1),
