@@ -848,18 +848,6 @@ abstract class AppLocalizations {
   /// **'Search'**
   String get search;
 
-  /// No description provided for @demoAccounts.
-  ///
-  /// In en, this message translates to:
-  /// **'Demo Accounts'**
-  String get demoAccounts;
-
-  /// No description provided for @tryOutApp.
-  ///
-  /// In en, this message translates to:
-  /// **'Try out the app instantly with a demo account.'**
-  String get tryOutApp;
-
   /// No description provided for @myLocation.
   ///
   /// In en, this message translates to:

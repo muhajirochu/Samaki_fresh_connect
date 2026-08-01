@@ -18,7 +18,6 @@ import 'services/notification_service.dart';
 import 'providers/auth_provider.dart';
 import 'providers/notification_provider.dart';
 import 'utils/logger.dart';
-import 'services/demo_seeder.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -91,17 +90,6 @@ void main() async {
     // Firebase emulators are enabled with:
     // flutter run --dart-define=USE_FIREBASE_EMULATOR=true
     // Android emulators reach the host machine through 10.0.2.2.
-
-    // Seed demo accounts if they don't exist, only if Firebase is initialized
-    if (Firebase.apps.isNotEmpty) {
-      AppLogger.info('Skipping demo accounts seeding (testing on physical device).');
-      // DemoSeeder.seedDemoAccounts().catchError((e) {
-      //   AppLogger.error('Failed to seed demo accounts: $e');
-      // });
-    } else {
-      AppLogger.info(
-          'Firebase not initialized; skipping demo accounts seeding.');
-    }
 
     // Initialize notification service
     AppLogger.info('Initializing notification service...');

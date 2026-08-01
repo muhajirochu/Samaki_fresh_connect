@@ -17,69 +17,6 @@ import '../../utils/logger.dart';
 import '../../widgets/common/app_logo.dart';
 import '../../widgets/common/premium_components.dart';
 
-// ── Demo account definitions ──────────────────────────────────────────────────
-class DemoAccount {
-  final String email;
-  final String password;
-  final UserRole role;
-  final String name;
-  final IconData icon;
-  final Color color;
-
-  const DemoAccount({
-    required this.email,
-    required this.password,
-    required this.role,
-    required this.name,
-    required this.icon,
-    required this.color,
-  });
-}
-
-// Demo accounts shown on the login screen as quick-fill buttons.
-// Street seller demo accounts were intentionally removed — real
-// sellers must register themselves through the registration flow.
-//
-// The accent colours are intentionally NOT theme tokens — they're
-// role identifiers that should look the same regardless of light/dark
-// mode (green = buyer, red = admin) so users can spot the role at a
-// glance. The values are kept here at the call-site instead of in
-// AppColors because they're only meaningful on the login screen.
-const List<DemoAccount> demoAccounts = [
-  DemoAccount(
-    email: 'buyer@samakifresh.com',
-    password: 'password123',
-    role: UserRole.buyer,
-    name: 'Fatma Buyer',
-    icon: Icons.shopping_bag_rounded,
-    color: Color(0xFF2E8B57),
-  ),
-  DemoAccount(
-    email: 'fatma@samakifresh.com',
-    password: 'password123',
-    role: UserRole.streetSeller,
-    name: 'Fatma (Street Seller)',
-    icon: Icons.storefront_rounded,
-    color: Color(0xFFF57C00),
-  ),
-  DemoAccount(
-    email: 'babu@samakifresh.com',
-    password: 'password123',
-    role: UserRole.streetSeller,
-    name: 'Babu (Street Seller)',
-    icon: Icons.storefront_rounded,
-    color: Color(0xFFF57C00),
-  ),
-  DemoAccount(
-    email: 'admin@samakifresh.com',
-    password: 'password123',
-    role: UserRole.admin,
-    name: 'Admin User',
-    icon: Icons.admin_panel_settings_rounded,
-    color: Color(0xFFC62828),
-  ),
-];
-
 // ── Route helper ──────────────────────────────────────────────────────────────
 // The role → dashboard-path mapping now lives in
 // `lib/config/route_paths.dart` (`AppRoutesExtensions.dashboardFor`).
@@ -369,40 +306,6 @@ class _SignInTab extends HookConsumerWidget {
       final email = emailCtrl.text.trim();
       final password = passwordCtrl.text;
 
-      // ── Demo account quick-fill (bypasses Firestore lookup — uses role from local list) ──
-      final demo = demoAccounts.cast<DemoAccount?>().firstWhere(
-            (d) =>
-                d!.email.toLowerCase() == email.toLowerCase() &&
-                d.password == password,
-            orElse: () => null,
-          );
-
-      if (demo != null) {
-        AppLogger.info('Demo login: ${demo.email}');
-        try {
-          final fbUser = await authService.signIn(
-            email: demo.email,
-            password: demo.password,
-          );
-          if (fbUser == null) throw StateError('Demo sign-in returned no user');
-          setMockUser(null);
-          ref.invalidate(authStateProvider);
-          ref.invalidate(currentUserProvider);
-          ref.invalidate(currentUserStreamProvider);
-          ref.invalidate(currentUserDataProvider);
-          if (context.mounted) {
-            context.go(AppRoutesExtensions.dashboardFor(demo.role));
-          }
-        } catch (e) {
-          AppLogger.error('Demo sign-in failed for ${demo.email}: $e');
-          if (context.mounted) {
-            _showSnack(context, 'Demo sign-in failed: $e', isError: true);
-          }
-        }
-        if (context.mounted) isLoading.value = false;
-        return;
-      }
-
       // ── Real user login ──────────────────────────────────────────────────────
       try {
         setMockUser(null);
@@ -582,7 +485,6 @@ class _SignInTab extends HookConsumerWidget {
         final UserRole userRole;
         switch (resolvedRole) {
           case 'streetSeller':
-          case 'fisherman':
           case 'seller':
             userRole = UserRole.streetSeller;
             break;
@@ -866,7 +768,6 @@ class _SocialSignIn extends StatelessWidget {
               icon: Icons.g_mobiledata_rounded,
               label: 'Google',
               onPressed: () {
-                // TODO: wire up google_sign_in OAuth flow.
                 debugPrint('Sign in with Google (not yet implemented)');
               },
             ),
@@ -875,7 +776,6 @@ class _SocialSignIn extends StatelessWidget {
               icon: Icons.apple_rounded,
               label: 'Apple',
               onPressed: () {
-                // TODO: wire up sign_in_with_apple.
                 debugPrint('Sign in with Apple (not yet implemented)');
               },
             ),
@@ -884,7 +784,6 @@ class _SocialSignIn extends StatelessWidget {
               icon: Icons.facebook_rounded,
               label: 'Facebook',
               onPressed: () {
-                // TODO: wire up facebook_auth / flutter_facebook_auth.
                 debugPrint('Sign in with Facebook (not yet implemented)');
               },
             ),

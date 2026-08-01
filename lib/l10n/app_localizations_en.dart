@@ -412,12 +412,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get search => 'Search';
 
   @override
-  String get demoAccounts => 'Demo Accounts';
-
-  @override
-  String get tryOutApp => 'Try out the app instantly with a demo account.';
-
-  @override
   String get myLocation => 'My Location';
 
   @override

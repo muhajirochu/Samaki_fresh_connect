@@ -410,13 +410,6 @@ class AppLocalizationsSw extends AppLocalizations {
   String get search => 'Tafuta';
 
   @override
-  String get demoAccounts => 'Akaunti za Onyesho';
-
-  @override
-  String get tryOutApp =>
-      'Jaribu programu mara moja kwa kutumia akaunti ya onyesho.';
-
-  @override
   String get myLocation => 'Eneo Langu';
 
   @override
