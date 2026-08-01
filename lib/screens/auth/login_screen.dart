@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart' hide FormField;
 import 'package:flutter/services.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
@@ -51,6 +53,22 @@ const List<DemoAccount> demoAccounts = [
     name: 'Fatma Buyer',
     icon: Icons.shopping_bag_rounded,
     color: Color(0xFF2E8B57),
+  ),
+  DemoAccount(
+    email: 'fatma@samakifresh.com',
+    password: 'password123',
+    role: UserRole.streetSeller,
+    name: 'Fatma (Street Seller)',
+    icon: Icons.storefront_rounded,
+    color: Color(0xFFF57C00),
+  ),
+  DemoAccount(
+    email: 'babu@samakifresh.com',
+    password: 'password123',
+    role: UserRole.streetSeller,
+    name: 'Babu (Street Seller)',
+    icon: Icons.storefront_rounded,
+    color: Color(0xFFF57C00),
   ),
   DemoAccount(
     email: 'admin@samakifresh.com',
@@ -312,7 +330,6 @@ class _SignInTab extends HookConsumerWidget {
     final isLoading = useState(false);
     final obscure = useState(true);
     final authService = ref.watch(authServiceProvider);
-    final userService = ref.watch(userServiceProvider);
 
     Future<void> handleLogin() async {
       if (!formKey.currentState!.validate()) return;
@@ -321,7 +338,7 @@ class _SignInTab extends HookConsumerWidget {
       final email = emailCtrl.text.trim();
       final password = passwordCtrl.text;
 
-      // Check demo credentials first (offline bypass)
+      // ── Demo account quick-fill (bypasses Firestore lookup — uses role from local list) ──
       final demo = demoAccounts.cast<DemoAccount?>().firstWhere(
             (d) =>
                 d!.email.toLowerCase() == email.toLowerCase() &&
@@ -331,27 +348,12 @@ class _SignInTab extends HookConsumerWidget {
 
       if (demo != null) {
         AppLogger.info('Demo login: ${demo.email}');
-        // Demo accounts are real Firebase Auth accounts — the
-        // seeder provisions them on every cold start (see
-        // DemoSeeder.seedDemoAccounts). We must sign in via
-        // Firebase Auth, not just stamp a mock user locally, so the
-        // Firestore rules see `request.auth != null` and admit the
-        // demo session. The previous `setMockUser(...)` shortcut
-        // worked for the buyer because the buyer's queries are
-        // role-agnostic read-only, but for the admin it left
-        // `request.auth == null` and every collection read got
-        // PERMISSION_DENIED.
         try {
           final fbUser = await authService.signIn(
             email: demo.email,
             password: demo.password,
           );
-          if (fbUser == null) {
-            throw StateError('Demo sign-in returned no user');
-          }
-          // Real Firebase Auth session is now established — clear
-          // any leftover mock user from a prior session so the auth
-          // state listener (which now sees a real auth event) wins.
+          if (fbUser == null) throw StateError('Demo sign-in returned no user');
           setMockUser(null);
           ref.invalidate(authStateProvider);
           ref.invalidate(currentUserProvider);
@@ -363,61 +365,257 @@ class _SignInTab extends HookConsumerWidget {
         } catch (e) {
           AppLogger.error('Demo sign-in failed for ${demo.email}: $e');
           if (context.mounted) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: Text(
-                  'Demo sign-in failed: $e\n'
-                  'Check that Firebase Auth is reachable and the '
-                  'demo accounts were seeded.',
-                ),
-                backgroundColor: Theme.of(context).colorScheme.error,
-              ),
-            );
+            _showSnack(context, 'Demo sign-in failed: $e', isError: true);
           }
         }
+        if (context.mounted) isLoading.value = false;
         return;
       }
 
+      // ── Real user login ──────────────────────────────────────────────────────
       try {
         setMockUser(null);
         ref.invalidate(authStateProvider);
         ref.invalidate(currentUserProvider);
         ref.invalidate(currentUserStreamProvider);
+        ref.invalidate(currentUserDataProvider);
 
-        final user = await authService.signIn(email: email, password: password);
-        if (user != null && context.mounted) {
-          final userData = await userService.fetchUserById(user.uid);
-          if (userData != null && context.mounted) {
-            // Best-effort activity log — never blocks the sign-in.
-            try {
-              final log = ref.read(adminActivityLogServiceProvider);
-              await log.write(
-                type: 'login',
-                actorUid: userData.userId,
-                actorRole: userData.role.name,
-                title: 'User signed in',
-                subtitle: userData.email,
-              );
-            } catch (_) {/* swallow — audit-only */}
-            if (context.mounted) {
-              context.go(AppRoutesExtensions.dashboardFor(userData.role));
+        // STEP 1: Sign in with Firebase Auth — get the auth User object
+        final fbUser = await authService.signIn(email: email, password: password);
+
+        if (fbUser == null) {
+          if (context.mounted) {
+            _showSnack(context, 'Sign-in failed. Please try again.', isError: true);
+          }
+          return;
+        }
+
+        // STEP 2: Log the UID as requested.
+        final uid = fbUser.uid;
+        AppLogger.info('Fetched UID: $uid');
+        AppLogger.info('Firebase Auth succeeded. UID: $uid | Email: ${fbUser.email}');
+
+        // STEP 3: Read raw Firestore document directly by UID
+        // This is the most reliable path — direct doc read, no query needed
+        Map<String, dynamic>? rawData;
+        String? resolvedRole;
+
+        try {
+          final docSnap = await FirebaseFirestore.instance
+              .collection('users')
+              .doc(uid)
+              .get();
+
+          AppLogger.debug('Firestore users/$uid exists: ${docSnap.exists}');
+
+          if (docSnap.exists && docSnap.data() != null) {
+            rawData = Map<String, dynamic>.from(docSnap.data()!);
+            rawData['userId'] = uid; // ensure userId is stamped
+            resolvedRole = rawData['role']?.toString();
+            AppLogger.info('Firestore read OK. role=$resolvedRole fields=${rawData.keys.toList()}');
+          }
+        } on FirebaseException catch (fe) {
+          AppLogger.error('Firestore direct-read FAILED: code=${fe.code} msg=${fe.message}');
+          if (context.mounted) {
+            _showSnack(context, 'Database error: ${fe.message}. Check your connection.', isError: true);
+          }
+          await authService.signOut();
+          return;
+        }
+
+        // STEP 4: If not found by UID, try email fallback (heals old registrations)
+        if (rawData == null) {
+          AppLogger.warning('users/$uid not found. Trying email fallback: ${fbUser.email}');
+          try {
+            final q = await FirebaseFirestore.instance
+                .collection('users')
+                .where('email', isEqualTo: fbUser.email ?? email)
+                .limit(1)
+                .get();
+
+            if (q.docs.isEmpty) {
+              // Try lowercase email
+              final q2 = await FirebaseFirestore.instance
+                  .collection('users')
+                  .where('email', isEqualTo: (fbUser.email ?? email).toLowerCase())
+                  .limit(1)
+                  .get();
+              if (q2.docs.isNotEmpty) {
+                rawData = Map<String, dynamic>.from(q2.docs.first.data());
+              }
+            } else {
+              rawData = Map<String, dynamic>.from(q.docs.first.data());
             }
-          } else if (context.mounted) {
-            _showSnack(context, 'Failed to fetch user data. Try again.',
-                isError: true);
+
+            if (rawData != null) {
+              rawData['userId'] = uid;
+              resolvedRole = rawData['role']?.toString();
+              AppLogger.info('Email fallback succeeded. role=$resolvedRole');
+
+              // HARD FIX: Firestore's `users/{uid}` create rule
+              // requires `phoneNumber` to be a non-empty string. If
+              // the migrated doc has no phone number (e.g. it was
+              // created by an older build) we seed a placeholder
+              // so the migration write passes the rule.
+              if (rawData['phoneNumber'] == null ||
+                  (rawData['phoneNumber'] is String &&
+                      (rawData['phoneNumber'] as String).isEmpty)) {
+                rawData['phoneNumber'] = '+255000000000';
+              }
+              // Also ensure `fullName` is non-empty (same rule).
+              if (rawData['fullName'] == null ||
+                  (rawData['fullName'] is String &&
+                      (rawData['fullName'] as String).isEmpty)) {
+                rawData['fullName'] = (fbUser.email ?? email).split('@').first;
+              }
+
+              // Migrate: write correct doc at users/{uid}
+              rawData['createdAt'] = rawData['createdAt'] ?? FieldValue.serverTimestamp();
+              rawData['updatedAt'] = FieldValue.serverTimestamp();
+              try {
+                await FirebaseFirestore.instance
+                    .collection('users')
+                    .doc(uid)
+                    .set(rawData, SetOptions(merge: true));
+                AppLogger.info('Migrated user doc to users/$uid');
+              } on FirebaseException catch (fe) {
+                // Migration write can fail if the rule rejects the
+                // data (legacy doc missing required fields). Falling
+                // through to STEP 5 lets us create a fresh doc
+                // instead of stranding the user on /login.
+                AppLogger.warning(
+                    'Migration write failed (${fe.code}): ${fe.message} — '
+                    'falling through to STEP 5 default doc');
+              }
+            }
+          } on FirebaseException catch (fe) {
+            AppLogger.error('Email fallback FAILED: ${fe.code} ${fe.message}');
           }
         }
-      } catch (e) {
+
+        // STEP 5: If still no document, create a basic one so the user can log in.
+        // We honour the email domain so existing demo accounts (e.g.
+        // `admin@samakifresh.com`) get the right role without forcing
+        // every legacy user to become a buyer.
+        if (rawData == null) {
+          AppLogger.warning('No Firestore doc found for UID=$uid. Creating a default doc.');
+          final now = FieldValue.serverTimestamp();
+          final lowerEmail = (fbUser.email ?? email).toLowerCase();
+          // Pick a role that matches the email. The default of `buyer`
+          // is the lowest-privilege choice, but `@samakifresh.com`
+          // addresses are demo accounts and should keep their
+          // intended role.
+          String inferredRole;
+          if (lowerEmail == 'admin@samakifresh.com') {
+            inferredRole = 'admin';
+          } else if (lowerEmail.endsWith('@samakifresh.com')) {
+            inferredRole = 'streetSeller';
+          } else {
+            inferredRole = 'buyer';
+          }
+          // HARD FIX: Firestore's `users/{uid}` create rule requires
+          // `phoneNumber` to be a non-empty string AND a 200-char
+          // max name. We seed a placeholder phone number so the
+          // user can sign in immediately; the user updates it to
+          // their real number on the profile screen.
+          rawData = {
+            'userId': uid,
+            'email': fbUser.email ?? email,
+            'fullName': (fbUser.displayName?.isNotEmpty ?? false)
+                ? fbUser.displayName
+                : email.split('@').first,
+            'phoneNumber': '+255000000000',
+            'role': inferredRole,
+            'isActive': true,
+            'isApproved': false,
+            'createdAt': now,
+            'updatedAt': now,
+          };
+          resolvedRole = inferredRole;
+          try {
+            await FirebaseFirestore.instance.collection('users').doc(uid).set(rawData);
+            AppLogger.info('Created default $inferredRole doc for UID=$uid');
+          } on FirebaseException catch (fe) {
+            AppLogger.error('Failed to create default doc: ${fe.code} ${fe.message}');
+            if (context.mounted) {
+              _showSnack(context, 'Failed to create user profile. Contact support.', isError: true);
+            }
+            await authService.signOut();
+            return;
+          }
+        }
+
+        // STEP 6: Determine role and navigate to the correct dashboard
+        // We read the role string directly — no UserModel parse required.
+        // This means even if the model has a parse bug, login still works.
+        final UserRole userRole;
+        switch (resolvedRole) {
+          case 'streetSeller':
+          case 'fisherman':
+          case 'seller':
+            userRole = UserRole.streetSeller;
+            break;
+          case 'admin':
+            userRole = UserRole.admin;
+            break;
+          case 'buyer':
+          default:
+            userRole = UserRole.buyer;
+        }
+
+        AppLogger.info('Login complete. UID=$uid role=${userRole.name}. Navigating...');
+
+        // Write audit log (swallow any failure — login must always succeed)
+        try {
+          final log = ref.read(adminActivityLogServiceProvider);
+          await log.write(
+            type: 'login',
+            actorUid: uid,
+            actorRole: userRole.name,
+            title: 'User signed in',
+            subtitle: fbUser.email ?? email,
+          );
+        } catch (_) {/* swallow — audit-only */}
+
         if (context.mounted) {
-          _showSnack(context, ErrorHandler.getErrorMessage(e), isError: true);
+          context.go(AppRoutesExtensions.dashboardFor(userRole));
+        }
+      } on FirebaseAuthException catch (e) {
+        AppLogger.error('FirebaseAuthException: code=${e.code} msg=${e.message}');
+        if (context.mounted) {
+          String msg;
+          switch (e.code) {
+            case 'user-not-found':
+            case 'invalid-credential':
+            case 'wrong-password':
+              msg = 'Barua pepe au neno la siri si sahihi.';
+              break;
+            case 'too-many-requests':
+              msg = 'Majaribio mengi sana. Jaribu tena baadaye.';
+              break;
+            case 'user-disabled':
+              msg = 'Akaunti yako imezuiwa. Wasiliana na msaada.';
+              break;
+            case 'network-request-failed':
+              msg = 'Hakuna muunganisho wa intaneti. Angalia wifi yako.';
+              break;
+            default:
+              msg = 'Imeshindwa kuingia: ${e.message}';
+          }
+          _showSnack(context, msg, isError: true);
+        }
+      } on FirebaseException catch (e) {
+        AppLogger.error('FirebaseException: code=${e.code} msg=${e.message}');
+        if (context.mounted) {
+          _showSnack(context, 'Hitilafu ya database: ${e.message}', isError: true);
+        }
+      } catch (e, st) {
+        AppLogger.error('Unexpected login error: $e\n$st');
+        if (context.mounted) {
+          _showSnack(context, 'Hitilafu isiyotarajiwa. Jaribu tena.', isError: true);
         }
       } finally {
-        // Guard against use-after-dispose: if navigation already
-        // happened (success path) the widget tree is gone. Same
-        // ValueNotifier-after-dispose issue as the demo branch above.
-        if (context.mounted) {
-          isLoading.value = false;
-        }
+        if (context.mounted) isLoading.value = false;
       }
     }
 

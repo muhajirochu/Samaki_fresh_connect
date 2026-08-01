@@ -9,25 +9,284 @@ class UserService {
 
   bool get _isFirebaseAvailable => Firebase.apps.isNotEmpty;
 
-  /// Fetch user data from Firestore by user ID
-  Future<UserModel?> fetchUserById(String userId) async {
+  /// Lenient fallback parser used when [UserModel.fromJson] throws on
+  /// a malformed field. Returns a fully populated [UserModel] with
+  /// safe defaults for any field that could not be parsed, so the
+  /// caller can still log the user in instead of seeing "User
+  /// profile not found".
+  ///
+  /// Required fields that fail to parse are filled with these
+  /// defaults:
+  ///   - [UserModel.createdAt] / [UserModel.updatedAt] → DateTime.now()
+  ///   - [UserModel.email]       → the lookup email (or empty)
+  ///   - [UserModel.fullName]    → the email local-part (or empty)
+  ///   - [UserModel.role]        → falls back to [UserRole.buyer]
+  ///     (the [UserRoleConverter] is already lenient, so a parse
+  ///     error here means the field is genuinely missing — safer
+  ///     to grant the lowest privilege than to deny sign-in).
+  ///
+  /// If a truly structural error is encountered (e.g. the doc isn't
+  /// a Map at all), returns `null` so the caller can fall through.
+  UserModel? _recoverUserModel(Map<String, dynamic> data, String userId) {
+    final now = DateTime.now();
+    final email = (data['email'] as String?)?.trim() ?? '';
+    final fallbackName = email.isNotEmpty
+        ? email.split('@').first.replaceAll(RegExp(r'[^A-Za-z0-9]'), ' ')
+        : 'User';
+    final safe = <String, dynamic>{
+      'userId': data['userId'] ?? userId,
+      'email': email,
+      'fullName': (data['fullName'] as String?)?.trim().isNotEmpty == true
+          ? data['fullName']
+          : fallbackName,
+      'phoneNumber': (data['phoneNumber'] as String?) ?? '',
+      'role': data['role'] is String ? data['role'] : 'buyer',
+      'isActive': data['isActive'] is bool ? data['isActive'] : true,
+      'isApproved': data['isApproved'] is bool ? data['isApproved'] : false,
+      'totalListings': data['totalListings'] is int ? data['totalListings'] : 0,
+      'totalOrders': data['totalOrders'] is int ? data['totalOrders'] : 0,
+      'totalSales': data['totalSales'] is num ? data['totalSales'] : 0.0,
+      'averageRating':
+          data['averageRating'] is num ? data['averageRating'] : 0.0,
+      'totalEarnings':
+          data['totalEarnings'] is num ? data['totalEarnings'] : 0.0,
+      'createdAt': now.toIso8601String(),
+      'updatedAt': now.toIso8601String(),
+      // Pass through any optional fields whose type matches; drop
+      // the rest. This keeps the lenient parser cheap and bounded.
+      if (data['profilePictureUrl'] is String)
+        'profilePictureUrl': data['profilePictureUrl'],
+      if (data['location'] is Map)
+        'location': Map<String, dynamic>.from(data['location'] as Map),
+    };
+    return UserModel.fromJson(safe);
+  }
+
+  /// Fetch user data from Firestore by user ID.
+  ///
+  /// Strategy (in order):
+  ///   1. Direct doc lookup at `users/{uid}` — fast path.
+  ///   2. Email-exact query — catches documents saved with `.add()` or
+  ///      a wrong ID by an older version of the app.
+  ///   3. Case-insensitive email retry — catches mixed-case mismatches.
+  ///   4. Full collection scan (≤500 docs) — absolute last resort for
+  ///      accounts where the `email` field is missing from Firestore.
+  ///
+  /// When found via fallback, the document is **migrated** to
+  /// `users/{uid}` so the next login uses the fast path.
+  Future<UserModel?> fetchUserById(String userId, {String? email}) async {
     if (!_isFirebaseAvailable) return null;
     try {
-      AppLogger.debug('Fetching user data for: $userId');
+      AppLogger.debug('fetchUserById: START uid=$userId email=$email');
 
-      final doc = await _firestore.collection('users').doc(userId).get();
+      // ── 1. Direct doc lookup (fast path) ────────────────────────
+      DocumentSnapshot<Map<String, dynamic>> doc;
+      try {
+        doc = await _firestore.collection('users').doc(userId).get();
+      } on FirebaseException catch (fe) {
+        AppLogger.error(
+            'fetchUserById: Firestore GET users/$userId FAILED '
+            'code=${fe.code} msg=${fe.message}');
+        rethrow;
+      }
+
+      AppLogger.debug(
+          'fetchUserById: users/$userId exists=${doc.exists} '
+          'fields=${doc.exists ? doc.data()?.keys.toList() : 'N/A'}');
 
       if (doc.exists) {
-        final user = UserModel.fromJson(doc.data() as Map<String, dynamic>);
-        AppLogger.info(
-            'User data fetched successfully. Role: ${user.role.displayName}');
-        return user;
-      } else {
-        AppLogger.warning('User document not found: $userId');
-        return null;
+        final data = Map<String, dynamic>.from(doc.data()!);
+        data['userId'] = data['userId'] ?? doc.id;
+        try {
+          final user = UserModel.fromJson(data);
+          AppLogger.info(
+              'fetchUserById: SUCCESS by UID. role=${user.role.displayName}');
+          return user;
+        } catch (parseErr) {
+          // HARD FIX: profile exists but a field was malformed
+          // (e.g. `createdAt` set to a string in an old write).
+          // Returning `null` here left the user staring at "User
+          // profile not found" even though their doc was on the
+          // server. Now we salvage what we can — fill missing
+          // required fields with safe defaults, parse the rest,
+          // and return the user. The next write will overwrite
+          // the malformed fields with valid values.
+          AppLogger.warning(
+              'fetchUserById: UserModel.fromJson THREW for users/$userId — '
+              'attempting lenient recovery\n'
+              'data=$data\nerr=$parseErr');
+          try {
+            final recovered = _recoverUserModel(data, userId);
+            if (recovered != null) {
+              AppLogger.info(
+                  'fetchUserById: Recovered user with lenient parser. '
+                  'role=${recovered.role.displayName}');
+              return recovered;
+            }
+          } catch (recoveryErr) {
+            AppLogger.error(
+                'fetchUserById: Lenient recovery also failed: $recoveryErr');
+          }
+          return null;
+        }
       }
-    } catch (e) {
-      AppLogger.error('Error fetching user data: $e');
+
+      // ── 2. Email-based fallback (self-healing migration) ────────
+      //
+      // The document at `users/{uid}` doesn't exist. This is the
+      // common case for users whose Firestore records were created
+      // outside the app (e.g. Firebase Console import, direct
+      // writes, or old code that used a different doc-id strategy).
+      //
+      // We query by email, and if found, copy the data to
+      // `users/{uid}` so the next login is instant.
+      if (email != null && email.isNotEmpty) {
+        AppLogger.info(
+            'fetchUserById: users/$userId NOT FOUND — trying email lookup: $email');
+
+        // Try exact email match first.
+        QuerySnapshot<Map<String, dynamic>> emailQuery;
+        try {
+          emailQuery = await _firestore
+              .collection('users')
+              .where('email', isEqualTo: email)
+              .limit(1)
+              .get();
+        } on FirebaseException catch (fe) {
+          AppLogger.error(
+              'fetchUserById: email query FAILED code=${fe.code} msg=${fe.message}');
+          rethrow;
+        }
+
+        AppLogger.debug(
+            'fetchUserById: email query matched ${emailQuery.docs.length} doc(s)');
+
+        // ── 3. Case-insensitive fallback — some older registrations
+        // stored the email in a different case. We re-run with
+        // lowercase if the first query returned nothing.
+        if (emailQuery.docs.isEmpty) {
+          final lowerEmail = email.toLowerCase();
+          if (lowerEmail != email) {
+            AppLogger.info(
+                'fetchUserById: retrying with lowercase email: $lowerEmail');
+            try {
+              emailQuery = await _firestore
+                  .collection('users')
+                  .where('email', isEqualTo: lowerEmail)
+                  .limit(1)
+                  .get();
+              AppLogger.debug(
+                  'fetchUserById: lowercase query matched ${emailQuery.docs.length} doc(s)');
+            } on FirebaseException catch (fe) {
+              AppLogger.warning(
+                  'fetchUserById: lowercase email query failed: ${fe.code}');
+            }
+          }
+        }
+
+        if (emailQuery.docs.isNotEmpty) {
+          final oldDoc = emailQuery.docs.first;
+          final data = Map<String, dynamic>.from(oldDoc.data());
+          // Stamp the canonical userId into the data.
+          data['userId'] = userId;
+
+          AppLogger.info(
+              'fetchUserById: Found user by email (oldDocId=${oldDoc.id}). '
+              'Migrating to users/$userId...');
+
+          // Write the canonical document at `users/{uid}`.
+          try {
+            await _firestore
+                .collection('users')
+                .doc(userId)
+                .set(data, SetOptions(merge: true));
+            AppLogger.info('fetchUserById: Migration write succeeded');
+          } on FirebaseException catch (fe) {
+            AppLogger.error(
+                'fetchUserById: Migration SET failed code=${fe.code} msg=${fe.message}');
+            // Even if migration write fails, still return the user
+            // so they can log in — migration will retry next login.
+          }
+
+          // Delete the orphaned document if its ID differs.
+          if (oldDoc.id != userId) {
+            try {
+              await _firestore.collection('users').doc(oldDoc.id).delete();
+              AppLogger.info('fetchUserById: Deleted orphan doc: users/${oldDoc.id}');
+            } catch (e) {
+              AppLogger.warning(
+                  'fetchUserById: Could not delete orphan doc ${oldDoc.id}: $e');
+            }
+          }
+
+          try {
+            final user = UserModel.fromJson(data);
+            AppLogger.info(
+                'fetchUserById: SUCCESS via email migration. role=${user.role.displayName}');
+            return user;
+          } catch (parseErr, parseSt) {
+            AppLogger.error(
+                'fetchUserById: UserModel.fromJson THREW during migration\n'
+                'data=$data\nerr=$parseErr\n$parseSt');
+            return null;
+          }
+        }
+
+        // ── 4. Last resort: scan all users and match by email ──────
+        // Only runs when BOTH the UID lookup and the email-indexed
+        // query fail — e.g. the `email` field is missing from the
+        // Firestore doc entirely. Expensive but only triggers once
+        // per broken account.
+        AppLogger.warning(
+            'fetchUserById: email query found nothing. '
+            'Running full-collection scan for $email (last resort)...');
+        try {
+          final allSnap =
+              await _firestore.collection('users').limit(500).get();
+          AppLogger.debug(
+              'fetchUserById: scan returned ${allSnap.docs.length} docs');
+
+          for (final d in allSnap.docs) {
+            final storedEmail = (d.data()['email'] as String? ?? '').toLowerCase();
+            if (storedEmail == email.toLowerCase()) {
+              AppLogger.info(
+                  'fetchUserById: Full scan matched doc ${d.id} for email $email');
+              final data = Map<String, dynamic>.from(d.data());
+              data['userId'] = userId;
+              // Migrate the found document to the correct UID path.
+              try {
+                await _firestore
+                    .collection('users')
+                    .doc(userId)
+                    .set(data, SetOptions(merge: true));
+                if (d.id != userId) {
+                  await _firestore.collection('users').doc(d.id).delete();
+                }
+                AppLogger.info('fetchUserById: Scan-based migration done.');
+              } catch (migrErr) {
+                AppLogger.warning('fetchUserById: Scan migration failed: $migrErr');
+              }
+              try {
+                return UserModel.fromJson(data);
+              } catch (parseErr) {
+                AppLogger.error('fetchUserById: scan fromJson failed: $parseErr');
+                return null;
+              }
+            }
+          }
+          AppLogger.warning(
+              'fetchUserById: FULL SCAN found no document matching email=$email '
+              '(uid=$userId). User has no Firestore profile.');
+        } on FirebaseException catch (fe) {
+          AppLogger.error(
+              'fetchUserById: full scan failed code=${fe.code} msg=${fe.message}');
+        }
+      } else {
+        AppLogger.warning('User document not found: $userId (no email for fallback)');
+      }
+      return null;
+    } catch (e, st) {
+      AppLogger.error('Error fetching user data for $userId: $e\n$st');
       return null;
     }
   }
@@ -56,7 +315,14 @@ class UserService {
     try {
       return _firestore.collection('users').doc(userId).snapshots().map((doc) {
         if (doc.exists) {
-          return UserModel.fromJson(doc.data() as Map<String, dynamic>);
+          try {
+            final data = Map<String, dynamic>.from(doc.data()!);
+            data['userId'] = data['userId'] ?? doc.id;
+            return UserModel.fromJson(data);
+          } catch (e) {
+            AppLogger.error('userStream: Error parsing user doc ${doc.id}: $e');
+            return null;
+          }
         }
         return null;
       });
@@ -155,7 +421,7 @@ class UserService {
         final list = <UserModel>[];
         for (final d in snap.docs) {
           try {
-            list.add(UserModel.fromJson(d.data()));
+            list.add(UserModel.fromJson({...d.data(), 'userId': d.data()['userId'] ?? d.id}));
           } catch (e) {
             AppLogger.debug(
                 'streamAllUsers: dropping malformed doc ${d.id}: $e');
@@ -187,7 +453,7 @@ class UserService {
         final list = <UserModel>[];
         for (final d in snap.docs) {
           try {
-            list.add(UserModel.fromJson(d.data()));
+            list.add(UserModel.fromJson({...d.data(), 'userId': d.data()['userId'] ?? d.id}));
           } catch (e) {
             AppLogger.debug(
                 'streamAllStreetSellers: dropping malformed doc ${d.id}: $e');
@@ -273,7 +539,7 @@ class UserService {
         final list = <UserModel>[];
         for (final d in snap.docs) {
           try {
-            list.add(UserModel.fromJson(d.data()));
+            list.add(UserModel.fromJson({...d.data(), 'userId': d.data()['userId'] ?? d.id}));
           } catch (e) {
             AppLogger.debug(
                 'streamAllBuyers: dropping malformed doc ${d.id}: $e');
@@ -306,7 +572,7 @@ class UserService {
         final list = <UserModel>[];
         for (final d in snap.docs) {
           try {
-            list.add(UserModel.fromJson(d.data()));
+            list.add(UserModel.fromJson({...d.data(), 'userId': d.data()['userId'] ?? d.id}));
           } catch (e) {
             AppLogger.debug(
                 'streamAllSellersFull: dropping malformed doc ${d.id}: $e');
@@ -406,7 +672,7 @@ class UserService {
         final list = <UserModel>[];
         for (final d in snap.docs) {
           try {
-            list.add(UserModel.fromJson(d.data()));
+            list.add(UserModel.fromJson({...d.data(), 'userId': d.data()['userId'] ?? d.id}));
           } catch (e) {
             AppLogger.debug(
                 'streamSellersByApproval: dropping malformed doc ${d.id}: $e');
@@ -439,7 +705,7 @@ class UserService {
       final list = <UserModel>[];
       for (final d in snap.docs) {
         try {
-          list.add(UserModel.fromJson(d.data()));
+          list.add(UserModel.fromJson({...d.data(), 'userId': d.data()['userId'] ?? d.id}));
         } catch (e) {
           AppLogger.debug(
               'searchSellers: dropping malformed doc ${d.id}: $e');
@@ -472,7 +738,7 @@ class UserService {
       final list = <UserModel>[];
       for (final d in snap.docs) {
         try {
-          list.add(UserModel.fromJson(d.data()));
+          list.add(UserModel.fromJson({...d.data(), 'userId': d.data()['userId'] ?? d.id}));
         } catch (e) {
           AppLogger.debug(
               'searchBuyers: dropping malformed doc ${d.id}: $e');

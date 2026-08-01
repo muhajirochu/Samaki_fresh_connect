@@ -149,13 +149,13 @@ class AppGradients extends ThemeExtension<AppGradients> {
   const AppGradients({required this.brand, required this.hero});
 
   static const AppGradients light = AppGradients(
-    brand: AppColors.lightGradient,
-    hero: AppColors.oceanLightGradient,
+    brand: AppColors.lightGradient,       // Teal → Cyan
+    hero:  AppColors.oceanLightGradient,  // Deeper teal wave header
   );
 
   static const AppGradients dark = AppGradients(
-    brand: AppColors.darkGradient,
-    hero: AppColors.deepNavyGradient,
+    brand: AppColors.darkGradient,        // Bright teal → teal-green
+    hero:  AppColors.deepNavyGradient,    // Deep navy → midnight blue
   );
 
   static AppGradients of(BuildContext context) {

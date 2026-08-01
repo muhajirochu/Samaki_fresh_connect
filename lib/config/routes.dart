@@ -65,12 +65,10 @@ final routerProvider = Provider<GoRouter>((ref) {
     initialLocation: initial,
     refreshListenable: refresh,
     redirect: (context, state) {
-      final user = mockUser ?? ref.read(currentUserStreamProvider).valueOrNull;
-      final hasAuthUser =
-          user != null || ref.read(authStateProvider).valueOrNull != null;
+      final session = readAuthSession(ref);
       return resolveAuthRedirect(
-        user: user,
-        hasAuthUser: hasAuthUser,
+        user: session.userModel,
+        hasAuthUser: session.isSignedIn,
         location: state.matchedLocation,
       );
     },

@@ -24,7 +24,9 @@ import 'package:url_launcher/url_launcher.dart';
 import '../../config/theme_extensions.dart';
 import '../../constants/app_sizes.dart';
 import '../../utils/gps_helper.dart';
+import '../../services/listing_location_service.dart';
 import '../../l10n/app_localizations.dart';
+import '../../models/fish_item_model.dart';
 import '../../models/street_seller_model.dart';
 import '../common/premium_components.dart';
 
@@ -47,6 +49,7 @@ const _avatarPalette = <Color>[
 /// `BuildContext` and a `StreetSellerModel`.
 class SellerProfileSheet extends StatelessWidget {
   final StreetSellerModel seller;
+  final List<FishItemModel> fishItems;
   final double? buyerLatitude;
   final double? buyerLongitude;
   final VoidCallback? onSendRequest;
@@ -54,6 +57,7 @@ class SellerProfileSheet extends StatelessWidget {
   const SellerProfileSheet({
     super.key,
     required this.seller,
+    this.fishItems = const [],
     this.buyerLatitude,
     this.buyerLongitude,
     this.onSendRequest,
@@ -64,6 +68,7 @@ class SellerProfileSheet extends StatelessWidget {
   static Future<void> show(
     BuildContext context, {
     required StreetSellerModel seller,
+    List<FishItemModel> fishItems = const [],
     double? buyerLatitude,
     double? buyerLongitude,
     VoidCallback? onSendRequest,
@@ -75,6 +80,7 @@ class SellerProfileSheet extends StatelessWidget {
       useSafeArea: true,
       builder: (ctx) => SellerProfileSheet(
         seller: seller,
+        fishItems: fishItems,
         buyerLatitude: buyerLatitude,
         buyerLongitude: buyerLongitude,
         onSendRequest: onSendRequest,
@@ -127,8 +133,10 @@ class SellerProfileSheet extends StatelessWidget {
                       distanceKm: distanceKm,
                     ),
                     const SizedBox(height: AppSizes.paddingLG),
-                    _TrustSignals(seller: seller),
-                    const SizedBox(height: AppSizes.paddingLG),
+                    if (fishItems.isNotEmpty) ...[
+                      _SellerFishGallery(fishItems: fishItems),
+                      const SizedBox(height: AppSizes.paddingLG),
+                    ],
                     _ActionRow(onSendRequest: onSendRequest),
                   ],
                 ),
@@ -628,15 +636,53 @@ class _ContactTile extends StatelessWidget {
 }
 
 /// Market + region + street + lat/lng tile.
-class _LocationCard extends StatelessWidget {
+class _LocationCard extends StatefulWidget {
   final StreetSellerModel seller;
   final double? distanceKm;
   const _LocationCard({required this.seller, required this.distanceKm});
 
   @override
+  State<_LocationCard> createState() => _LocationCardState();
+}
+
+class _LocationCardState extends State<_LocationCard> {
+  Future<String?>? _addressFuture;
+  late double _lat;
+  late double _lng;
+
+  @override
+  void initState() {
+    super.initState();
+    _initFuture();
+  }
+
+  void _initFuture() {
+    _lat = widget.seller.latitude;
+    _lng = widget.seller.longitude;
+    if (widget.seller.isOnline) {
+      _addressFuture = ListingLocationService().reverseGeocodeLabel(_lat, _lng);
+    }
+  }
+
+  @override
+  void didUpdateWidget(_LocationCard oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.seller.isOnline &&
+        (widget.seller.latitude != _lat || widget.seller.longitude != _lng)) {
+      _initFuture();
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final cs = theme.colorScheme;
+    final isMobile = widget.seller.isOnline;
+
+    // speed in m/s to km/h (1 m/s = 3.6 km/h)
+    final speedKmh = (widget.seller.speedMps ?? 0) * 3.6;
+    final isMoving = speedKmh > 3.0;
+
     return PremiumCard(
       padding: const EdgeInsets.all(AppSizes.paddingMD),
       child: Column(
@@ -645,13 +691,13 @@ class _LocationCard extends StatelessWidget {
           Row(
             children: [
               Icon(
-                Icons.location_on_rounded,
+                isMobile ? Icons.explore_rounded : Icons.location_on_rounded,
                 size: 18,
                 color: cs.primary,
               ),
               const SizedBox(width: 6),
               Text(
-                'LOCATION',
+                isMobile ? 'LIVE LOCATION' : 'REGISTERED BASE',
                 style: theme.textTheme.labelSmall?.copyWith(
                   color: cs.onSurface.withValues(alpha: 0.65),
                   fontWeight: FontWeight.w700,
@@ -659,7 +705,7 @@ class _LocationCard extends StatelessWidget {
                 ),
               ),
               const Spacer(),
-              if (distanceKm != null)
+              if (widget.distanceKm != null)
                 Container(
                   padding: const EdgeInsets.symmetric(
                     horizontal: AppSizes.paddingXS,
@@ -670,7 +716,7 @@ class _LocationCard extends StatelessWidget {
                     borderRadius: BorderRadius.circular(AppSizes.radiusXS),
                   ),
                   child: Text(
-                    '${distanceKm!.toStringAsFixed(1)} km away',
+                    '${widget.distanceKm!.toStringAsFixed(1)} km away',
                     style: theme.textTheme.bodySmall?.copyWith(
                       color: cs.primary,
                       fontWeight: FontWeight.w700,
@@ -680,28 +726,44 @@ class _LocationCard extends StatelessWidget {
             ],
           ),
           const SizedBox(height: AppSizes.paddingSM),
-          _LocationRow(
-            icon: Icons.store_mall_directory_outlined,
-            label: 'Market',
-            value: seller.marketName ?? 'Unknown market',
-          ),
-          _LocationRow(
-            icon: Icons.map_outlined,
-            label: 'Region',
-            value: seller.regionName ?? 'Zanzibar',
-          ),
-          _LocationRow(
-            icon: Icons.signpost_outlined,
-            label: 'Street',
-            value: seller.streetName ?? '—',
-          ),
-          _LocationRow(
-            icon: Icons.my_location_rounded,
-            label: 'Coordinates',
-            value:
-                '${seller.latitude.toStringAsFixed(5)}, ${seller.longitude.toStringAsFixed(5)}',
-            monospace: true,
-          ),
+          
+          if (isMobile) ...[
+            FutureBuilder<String?>(
+              future: _addressFuture,
+              builder: (context, snapshot) {
+                final address = snapshot.data;
+                return _LocationRow(
+                  icon: Icons.streetview_rounded,
+                  label: 'Address',
+                  value: snapshot.connectionState == ConnectionState.waiting
+                      ? 'Resolving...'
+                      : (address ?? 'Unknown Location'),
+                );
+              },
+            ),
+            if (isMoving)
+              _LocationRow(
+                icon: Icons.pedal_bike_rounded,
+                label: 'Status',
+                value: 'On the move (${speedKmh.toStringAsFixed(1)} km/h)',
+              ),
+          ] else ...[
+            _LocationRow(
+              icon: Icons.store_mall_directory_outlined,
+              label: 'Market',
+              value: widget.seller.marketName ?? 'Unknown market',
+            ),
+            _LocationRow(
+              icon: Icons.map_outlined,
+              label: 'Region',
+              value: widget.seller.regionName ?? 'Zanzibar',
+            ),
+            _LocationRow(
+              icon: Icons.signpost_outlined,
+              label: 'Street',
+              value: widget.seller.streetName ?? '—',
+            ),
+          ],
         ],
       ),
     );
@@ -712,13 +774,11 @@ class _LocationRow extends StatelessWidget {
   final IconData icon;
   final String label;
   final String value;
-  final bool monospace;
 
   const _LocationRow({
     required this.icon,
     required this.label,
     required this.value,
-    this.monospace = false,
   });
 
   @override
@@ -736,16 +796,15 @@ class _LocationRow extends StatelessWidget {
             child: Text(
               label,
               style: theme.textTheme.bodySmall?.copyWith(
-                color: cs.onSurface.withValues(alpha: 0.65),
+                color: cs.onSurface.withValues(alpha: 0.55),
               ),
             ),
           ),
           Expanded(
             child: Text(
               value,
-              style: theme.textTheme.bodySmall?.copyWith(
+              style: theme.textTheme.bodyMedium?.copyWith(
                 fontWeight: FontWeight.w600,
-                fontFamily: monospace ? 'monospace' : null,
               ),
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
@@ -757,120 +816,121 @@ class _LocationRow extends StatelessWidget {
   }
 }
 
-/// Rating + ratings count + total orders + verified badge.
-class _TrustSignals extends StatelessWidget {
-  final StreetSellerModel seller;
-  const _TrustSignals({required this.seller});
+class _SellerFishGallery extends StatelessWidget {
+  final List<FishItemModel> fishItems;
+  const _SellerFishGallery({required this.fishItems});
 
   @override
   Widget build(BuildContext context) {
+    if (fishItems.isEmpty) return const SizedBox.shrink();
+    
+    // We want to extract all image URLs from the fish items.
+    final itemsWithImages = fishItems.where((item) => item.imageUrls.isNotEmpty).toList();
+    if (itemsWithImages.isEmpty) return const SizedBox.shrink();
+
     final cs = Theme.of(context).colorScheme;
-    return Row(
+    final textTheme = Theme.of(context).textTheme;
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Expanded(
-          child: _TrustTile(
-            icon: Icons.star_rounded,
-            // Star/rating uses the tertiary amber for the brand-
-            // canonical "five-star" cue across light and dark.
-            iconColor: _avatarPalette[2],
-            label: 'Rating',
-            value: seller.totalRatings == 0
-                ? '—'
-                : seller.averageRating.toStringAsFixed(1),
-            subtitle: seller.totalRatings == 0
-                ? 'No ratings yet'
-                : '${seller.totalRatings} reviews',
+        Text(
+          'Samaki Wanaopatikana',
+          style: textTheme.titleMedium?.copyWith(
+            fontWeight: FontWeight.w800,
+            letterSpacing: -0.3,
           ),
         ),
-        const SizedBox(width: AppSizes.paddingSM),
-        Expanded(
-          child: _TrustTile(
-            icon: Icons.shopping_bag_rounded,
-            iconColor: cs.primary,
-            label: 'Orders',
-            value: '${seller.totalOrders}',
-            subtitle: 'Completed',
-          ),
-        ),
-        const SizedBox(width: AppSizes.paddingSM),
-        Expanded(
-          child: _TrustTile(
-            icon: seller.isVerified
-                ? Icons.verified_rounded
-                : Icons.verified_outlined,
-            iconColor: seller.isVerified
-                ? cs.secondary
-                : cs.onSurface.withValues(alpha: 0.45),
-            label: 'Status',
-            value: seller.isVerified ? 'Verified' : 'Pending',
-            subtitle: seller.isVerified ? 'Admin approved' : 'In review',
+        const SizedBox(height: AppSizes.paddingMD),
+        SizedBox(
+          height: 140,
+          child: ListView.separated(
+            scrollDirection: Axis.horizontal,
+            itemCount: itemsWithImages.length,
+            separatorBuilder: (_, __) => const SizedBox(width: AppSizes.paddingSM),
+            itemBuilder: (context, index) {
+              final item = itemsWithImages[index];
+              return Container(
+                width: 140,
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(AppSizes.radiusLG),
+                  border: Border.all(
+                    color: cs.outline.withValues(alpha: 0.15),
+                  ),
+                ),
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(AppSizes.radiusLG),
+                  child: Stack(
+                    fit: StackFit.expand,
+                    children: [
+                      CachedNetworkImage(
+                        imageUrl: item.imageUrls.first,
+                        fit: BoxFit.cover,
+                        placeholder: (context, url) => Container(
+                          color: cs.surfaceContainerHighest,
+                          child: const Center(
+                            child: CircularProgressIndicator(strokeWidth: 2),
+                          ),
+                        ),
+                        errorWidget: (context, url, error) => Container(
+                          color: cs.surfaceContainerHighest,
+                          child: const Icon(Icons.broken_image_rounded, color: Colors.grey),
+                        ),
+                      ),
+                      // Gradient overlay for text readability
+                      Positioned(
+                        bottom: 0, left: 0, right: 0,
+                        height: 60,
+                        child: DecoratedBox(
+                          decoration: BoxDecoration(
+                            gradient: LinearGradient(
+                              begin: Alignment.topCenter,
+                              end: Alignment.bottomCenter,
+                              colors: [
+                                Colors.transparent,
+                                Colors.black.withValues(alpha: 0.7),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ),
+                      // Text
+                      Positioned(
+                        bottom: 8, left: 8, right: 8,
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              item.displayName,
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontWeight: FontWeight.w700,
+                                fontSize: 13,
+                              ),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                            Text(
+                              '${item.quantityKg.toStringAsFixed(1)} kg',
+                              style: TextStyle(
+                                color: Colors.white.withValues(alpha: 0.8),
+                                fontWeight: FontWeight.w600,
+                                fontSize: 11,
+                              ),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              );
+            },
           ),
         ),
       ],
-    );
-  }
-}
-
-class _TrustTile extends StatelessWidget {
-  final IconData icon;
-  final Color iconColor;
-  final String label;
-  final String value;
-  final String subtitle;
-
-  const _TrustTile({
-    required this.icon,
-    required this.iconColor,
-    required this.label,
-    required this.value,
-    required this.subtitle,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final cs = theme.colorScheme;
-    return Container(
-      padding: const EdgeInsets.all(AppSizes.paddingSM),
-      decoration: BoxDecoration(
-        color: iconColor.withValues(alpha: 0.06),
-        borderRadius: BorderRadius.circular(AppSizes.radiusMD),
-        border: Border.all(color: iconColor.withValues(alpha: 0.18)),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Icon(icon, color: iconColor, size: 18),
-          const SizedBox(height: 4),
-          Text(
-            label.toUpperCase(),
-            style: theme.textTheme.labelSmall?.copyWith(
-              color: cs.onSurface.withValues(alpha: 0.65),
-              fontWeight: FontWeight.w700,
-              fontSize: 9,
-              letterSpacing: 0.5,
-            ),
-          ),
-          const SizedBox(height: 2),
-          Text(
-            value,
-            style: theme.textTheme.titleMedium?.copyWith(
-              fontWeight: FontWeight.w800,
-              color: iconColor,
-            ),
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-          ),
-          Text(
-            subtitle,
-            style: theme.textTheme.labelSmall?.copyWith(
-              color: cs.onSurface.withValues(alpha: 0.65),
-            ),
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-          ),
-        ],
-      ),
     );
   }
 }

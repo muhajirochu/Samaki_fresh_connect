@@ -33,7 +33,13 @@ class AdminDashboardScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context);
-    final userAsync = ref.watch(currentUserStreamProvider);
+    // HARD FIX: prefer the future provider (kept-alive) so the
+    // dashboard resolves immediately after login. The stream
+    // provider is still watched so live updates (e.g. role flip)
+    // flow through.
+    final futureUser = ref.watch(currentUserDataProvider).valueOrNull;
+    final streamUser = ref.watch(currentUserStreamProvider);
+    final user = futureUser ?? streamUser.valueOrNull;
     final cs = Theme.of(context).colorScheme;
 
     return Scaffold(
@@ -44,14 +50,9 @@ class AdminDashboardScreen extends ConsumerWidget {
       // real phones; emulators rarely show one.
       body: SafeArea(
         top: false,
-        child: userAsync.when(
-          loading: () => const LoadingIndicator(),
-          error: (e, _) => Center(child: Text(l10n.loadingError(e.toString()))),
-          data: (user) {
-            if (user == null) {
-              return Center(child: Text(l10n.notLoggedIn));
-            }
-            return CustomScrollView(
+        child: user == null
+            ? const LoadingIndicator()
+            : CustomScrollView(
               slivers: [
                 // Row 1 — People & Listings
                 SliverPadding(
@@ -179,9 +180,7 @@ class AdminDashboardScreen extends ConsumerWidget {
                   ),
                 ),
               ],
-            );
-          },
-        ),
+            ),
       ),
     );
   }

@@ -26,10 +26,11 @@ class ManageSellersScreen extends ConsumerStatefulWidget {
 
 class _ManageSellersScreenState extends ConsumerState<ManageSellersScreen> {
   String _query = '';
-  // Default to 'pending' so admins land on the most actionable
-  // queue first — newly-registered sellers awaiting approval are
-  // surfaced immediately rather than buried in the full list.
-  String _statusFilter = 'pending'; // 'all' | 'pending' | 'approved' | 'suspended'
+  // Default to 'all' so admins see every seller immediately. The
+  // 'pending' filter was the historical default, but with seeded
+  // demo data all sellers are pre-approved, so 'pending' would
+  // render an empty list and look like a bug.
+  String _statusFilter = 'all'; // 'all' | 'pending' | 'approved' | 'suspended'
 
   @override
   Widget build(BuildContext context) {

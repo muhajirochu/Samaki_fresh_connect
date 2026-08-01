@@ -27,6 +27,7 @@ mixin _$UserModel {
   @UserRoleConverter()
   UserRole get role => throw _privateConstructorUsedError;
   String? get profilePictureUrl => throw _privateConstructorUsedError;
+  @JsonKey(fromJson: _locationFromJson)
   Map<String, dynamic>? get location => throw _privateConstructorUsedError;
   bool get isActive => throw _privateConstructorUsedError;
   String? get registeredBy =>
@@ -70,7 +71,7 @@ abstract class $UserModelCopyWith<$Res> {
       String phoneNumber,
       @UserRoleConverter() UserRole role,
       String? profilePictureUrl,
-      Map<String, dynamic>? location,
+      @JsonKey(fromJson: _locationFromJson) Map<String, dynamic>? location,
       bool isActive,
       String? registeredBy,
       bool isApproved,
@@ -234,7 +235,7 @@ abstract class _$$UserModelImplCopyWith<$Res>
       String phoneNumber,
       @UserRoleConverter() UserRole role,
       String? profilePictureUrl,
-      Map<String, dynamic>? location,
+      @JsonKey(fromJson: _locationFromJson) Map<String, dynamic>? location,
       bool isActive,
       String? registeredBy,
       bool isApproved,
@@ -385,14 +386,15 @@ class __$$UserModelImplCopyWithImpl<$Res>
 @JsonSerializable()
 class _$UserModelImpl implements _UserModel {
   const _$UserModelImpl(
-      {required this.userId,
-      required this.email,
-      required this.fullName,
-      required this.phoneNumber,
-      @UserRoleConverter() required this.role,
+      {this.userId = '',
+      this.email = '',
+      this.fullName = '',
+      this.phoneNumber = '',
+      @UserRoleConverter() this.role = UserRole.buyer,
       this.profilePictureUrl,
+      @JsonKey(fromJson: _locationFromJson)
       final Map<String, dynamic>? location,
-      required this.isActive,
+      this.isActive = true,
       this.registeredBy,
       this.isApproved = false,
       this.approvedBy,
@@ -413,20 +415,26 @@ class _$UserModelImpl implements _UserModel {
       _$$UserModelImplFromJson(json);
 
   @override
+  @JsonKey()
   final String userId;
   @override
+  @JsonKey()
   final String email;
   @override
+  @JsonKey()
   final String fullName;
   @override
+  @JsonKey()
   final String phoneNumber;
   @override
+  @JsonKey()
   @UserRoleConverter()
   final UserRole role;
   @override
   final String? profilePictureUrl;
   final Map<String, dynamic>? _location;
   @override
+  @JsonKey(fromJson: _locationFromJson)
   Map<String, dynamic>? get location {
     final value = _location;
     if (value == null) return null;
@@ -436,6 +444,7 @@ class _$UserModelImpl implements _UserModel {
   }
 
   @override
+  @JsonKey()
   final bool isActive;
   @override
   final String? registeredBy;
@@ -574,14 +583,15 @@ class _$UserModelImpl implements _UserModel {
 
 abstract class _UserModel implements UserModel {
   const factory _UserModel(
-          {required final String userId,
-          required final String email,
-          required final String fullName,
-          required final String phoneNumber,
-          @UserRoleConverter() required final UserRole role,
+          {final String userId,
+          final String email,
+          final String fullName,
+          final String phoneNumber,
+          @UserRoleConverter() final UserRole role,
           final String? profilePictureUrl,
+          @JsonKey(fromJson: _locationFromJson)
           final Map<String, dynamic>? location,
-          required final bool isActive,
+          final bool isActive,
           final String? registeredBy,
           final bool isApproved,
           final String? approvedBy,
@@ -615,6 +625,7 @@ abstract class _UserModel implements UserModel {
   @override
   String? get profilePictureUrl;
   @override
+  @JsonKey(fromJson: _locationFromJson)
   Map<String, dynamic>? get location;
   @override
   bool get isActive;

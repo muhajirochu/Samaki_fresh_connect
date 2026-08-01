@@ -1,17 +1,18 @@
 // Summary header — three reactive tiles shown at the top of the buyer
 // dashboard: Fish Available Nearby, Active Requests, Nearest Seller.
 //
-// The data is sourced from Riverpod providers, so the tiles update
-// in real time when:
-//   - a fish goes out of stock (count drops),
-//   - the buyer posts/cancels a request (active count moves),
-//   - the buyer's location updates (nearest seller changes).
-//
-// All three tiles read their own dedicated stream so a single error
-// doesn't zero-out the others. We also fall back to a global seed
-// stream so the dashboard shows real data even when the buyer
-// session hasn't resolved yet — that was the root cause of "fish
-// available nearby does nothing" the user reported.
+// Fix log (2026-08-01):
+//   • Fish count   — now reads the global unfiltered Firestore feed
+//                    directly (no session required). Populated within
+//                    the first Firestore tick after app launch.
+//   • Active reqs  — shows a loading shimmer while the buyer session
+//                    resolves; jumps to the real count once the stream
+//                    first emits.
+//   • Nearest km   — now uses `currentBuyerLocationProvider` (GPS →
+//                    profile → Stone Town) so the distance is always
+//                    meaningful, not stuck at "—" when the session
+//                    location map-field is null.
+//   • Smart m/km   — distances < 1 km display as "850 m" not "0.9 km".
 
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
@@ -20,6 +21,7 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import '../../constants/app_sizes.dart';
 import '../../l10n/app_localizations.dart';
 import '../../providers/buyer_provider.dart';
+import '../../services/location_service.dart';
 import '../common/premium_components.dart';
 
 class DashboardSummaryHeader extends ConsumerWidget {
@@ -30,44 +32,41 @@ class DashboardSummaryHeader extends ConsumerWidget {
     final l10n = AppLocalizations.of(context);
     final cs = Theme.of(context).colorScheme;
 
-    // Read each stream independently so a single missing permission
-    // (e.g. buyer session still resolving) doesn't kill the whole
-    // tile row. The fish feed in particular was reading through
-    // `currentBuyerSessionProvider` which returned null until the
-    // auth profile loaded — leaving the tile stuck at 0.
-    final fishAsync = ref.watch(buyerFishFeedProvider);
-    final requestsAsync = ref.watch(buyerActiveRequestsProvider);
-    final sellersAsync = ref.watch(activeStreetSellersProvider);
+    // ── 1. Fish Available ──────────────────────────────────────────────
+    // Always read the global unfiltered feed — it doesn't require a
+    // buyer session so it populates immediately after login. The
+    // session-scoped `buyerFishFeedProvider` may also have data (when
+    // the buyer has GPS/profile coords), so we take whichever is larger.
+    final globalFishAsync = ref.watch(_globalFishFeedFallbackProvider);
+    final sessionFishAsync = ref.watch(buyerFishFeedProvider);
+    final globalCount  = globalFishAsync.valueOrNull?.length ?? 0;
+    final sessionCount = sessionFishAsync.valueOrNull?.length ?? 0;
+    final fishCount    = globalCount > sessionCount ? globalCount : sessionCount;
+    final fishLoading  = globalFishAsync.isLoading && sessionFishAsync.isLoading;
 
-    // Fallback feeds: if the auth-gated streams are empty/loading,
-    // tap the unfiltered global feed so the buyer always sees real
-    // fish counts. This is the key fix for "fish available nearby
-    // does nothing".
-    final fallbackFishAsync = ref.watch(_globalFishFeedFallbackProvider);
-    final fishCount = fishAsync.valueOrNull?.length ??
-        fallbackFishAsync.valueOrNull?.length ??
-        0;
-
+    // ── 2. Active Requests ─────────────────────────────────────────────
+    // `buyerActiveRequestsProvider` emits an empty stream while session
+    // is null — show a shimmer until the first real value arrives.
+    final requestsAsync  = ref.watch(buyerActiveRequestsProvider);
     final activeRequests = requestsAsync.valueOrNull
             ?.where((r) => r.countsAsActive)
             .length ??
         0;
+    final requestsLoading = requestsAsync.isLoading;
 
-    // Nearest seller is derived from the live sellers list + the
-    // buyer's current location. If the buyer hasn't shared a location
-    // yet, fall back to Stone Town centre (where the demo sellers
-    // live) so the tile always shows a useful distance.
-    final session = ref.watch(currentBuyerSessionProvider);
-    final rawLat =
-        session?.user?.location?['latitude'] as double? ??
-            session?.user?.location?['lat'] as double?;
-    final rawLng =
-        session?.user?.location?['longitude'] as double? ??
-            session?.user?.location?['lng'] as double?;
-    final buyerLat = rawLat ?? -6.1629; // Stone Town
-    final buyerLng = rawLng ?? 39.2026;
+    // ── 3. Nearest Seller (km) ─────────────────────────────────────────
+    // Use `currentBuyerLocationProvider` which resolves: GPS → saved
+    // profile coords → Stone Town fallback. This is the same source the
+    // map screen uses, so the distance is always meaningful.
+    final locationAsync  = ref.watch(currentBuyerLocationProvider);
+    final sellersAsync   = ref.watch(activeStreetSellersProvider);
+    final sellers        = sellersAsync.valueOrNull ?? const [];
 
-    final sellers = sellersAsync.valueOrNull ?? const [];
+    // Resolve buyer lat/lng from location provider (GPS-backed).
+    final buyerLoc = locationAsync.valueOrNull;
+    final buyerLat = buyerLoc?.latitude  ?? -6.1629; // Stone Town fallback
+    final buyerLng = buyerLoc?.longitude ?? 39.2026;
+
     final nearestSeller = sellers.isEmpty
         ? null
         : (sellers.toList()
@@ -76,15 +75,24 @@ class DashboardSummaryHeader extends ConsumerWidget {
                   .compareTo(b.distanceKmFrom(buyerLat, buyerLng))))
               .first;
 
+    final nearestKm = nearestSeller?.distanceKmFrom(buyerLat, buyerLng);
+    // Smart m/km for the nearest-seller tile — same logic as the map badge.
+    final nearestLabel = nearestKm == null
+        ? '—'
+        : nearestKm < 1.0
+            ? '${(nearestKm * 1000).round()} m'
+            : '${nearestKm.toStringAsFixed(1)} km';
+
     return Row(
       children: [
         Expanded(
           child: _SummaryTile(
             icon: Icons.set_meal_rounded,
             label: l10n.fishAvailableNearbyTile,
-            value: '$fishCount',
+            value: fishLoading ? '…' : '$fishCount',
             subtitle: l10n.fishAvailableSubtitle,
             accent: cs.primary,
+            isLoading: fishLoading,
             onTap: () {
               context.push('/buyer/map');
             },
@@ -95,9 +103,10 @@ class DashboardSummaryHeader extends ConsumerWidget {
           child: _SummaryTile(
             icon: Icons.assignment_turned_in_rounded,
             label: l10n.activeRequestsTile,
-            value: '$activeRequests',
+            value: requestsLoading ? '…' : '$activeRequests',
             subtitle: l10n.activeRequestsSubtitle,
             accent: cs.tertiary,
+            isLoading: requestsLoading,
             onTap: () {
               context.push('/buyer/requests');
             },
@@ -108,13 +117,14 @@ class DashboardSummaryHeader extends ConsumerWidget {
           child: _SummaryTile(
             icon: Icons.storefront_rounded,
             label: l10n.nearestSellerTile,
-            value: nearestSeller == null
-                ? '—'
-                : '${nearestSeller.distanceKmFrom(buyerLat, buyerLng).toStringAsFixed(1)} km',
+            value: (sellersAsync.isLoading || locationAsync.isLoading)
+                ? '…'
+                : nearestLabel,
             subtitle: nearestSeller?.fullName.split(' ').first != null
                 ? l10n.nearestSellerSubtitle
                 : null,
             accent: cs.secondary,
+            isLoading: sellersAsync.isLoading || locationAsync.isLoading,
             onTap: () {
               if (nearestSeller != null) {
                 context.push(
@@ -148,6 +158,7 @@ class _SummaryTile extends StatelessWidget {
   final String? subtitle;
   final Color accent;
   final VoidCallback onTap;
+  final bool isLoading;
 
   const _SummaryTile({
     required this.icon,
@@ -156,6 +167,7 @@ class _SummaryTile extends StatelessWidget {
     required this.accent,
     required this.onTap,
     this.subtitle,
+    this.isLoading = false,
   });
 
   @override
@@ -194,6 +206,18 @@ class _SummaryTile extends StatelessWidget {
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
           ),
+          // Thin progress bar replaces the "0" state while loading.
+          if (isLoading) ...[
+            const SizedBox(height: 4),
+            ClipRRect(
+              borderRadius: BorderRadius.circular(2),
+              child: LinearProgressIndicator(
+                minHeight: 2,
+                backgroundColor: accent.withValues(alpha: 0.15),
+                valueColor: AlwaysStoppedAnimation<Color>(accent),
+              ),
+            ),
+          ],
           const SizedBox(height: 2),
           Text(
             label,

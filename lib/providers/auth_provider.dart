@@ -75,11 +75,19 @@ final authStateProvider = StreamProvider<User?>((ref) {
 });
 
 // ── Current Firebase User (reactive) ────────────────────────────────────────
+//
+// Reads the Firebase Auth cached user FIRST (synchronous, no async gap),
+// then falls back to the stream value. This prevents the GoRouter redirect
+// from seeing `null` during the ~200ms window before authStateChanges() emits.
 final currentUserProvider = Provider<User?>((ref) {
   ref.watch(mockUserTickProvider);
   if (mockUser != null) {
     return MockFirebaseUser(mockUser!.userId, mockUser!.email);
   }
+  // Priority 1: synchronous SDK cache (available immediately on cold start).
+  final cached = ref.watch(authServiceProvider).currentUser;
+  if (cached != null) return cached;
+  // Priority 2: stream value (updated on auth state changes).
   return ref.watch(authStateProvider).value;
 });
 
@@ -98,7 +106,16 @@ final currentUserStreamProvider = StreamProvider<UserModel?>((ref) {
     return Stream.value(mockUser);
   }
 
-  final currentUser = ref.watch(currentUserProvider);
+  // HARD FIX: pull the cached Firebase User AND the stream value
+  // so the stream rebuilds when the auth state flips mid-session
+  // (e.g. a real user signs in after we already emitted `null`
+  // for the unauthenticated state). The previous implementation
+  // only watched `currentUserProvider` — which is `null` while
+  // AsyncLoading — and the redirect logic could settle on `null`
+  // for the lifetime of the stream.
+  final firebaseUser = ref.watch(authServiceProvider).currentUser;
+  final streamUser = ref.watch(authStateProvider).value;
+  final currentUser = firebaseUser ?? streamUser;
   if (currentUser == null) return Stream.value(null);
   final userService = ref.watch(userServiceProvider);
   return userService.userStream(currentUser.uid);
@@ -106,13 +123,24 @@ final currentUserStreamProvider = StreamProvider<UserModel?>((ref) {
 
 // ── Current User Data — future provider (for splash, login flow) ──────────────
 final currentUserDataProvider = FutureProvider<UserModel?>((ref) async {
+  // Keep alive across the entire app lifetime so the router's
+  // refreshListenable can re-read the resolved value at any
+  // moment without a re-fetch (which would race with the next
+  // navigation event and cause the "redirect → login → redirect"
+  // loop we just fixed).
+  ref.keepAlive();
   ref.watch(mockUserTickProvider);
   if (mockUser != null) return mockUser;
 
   final currentUser = ref.watch(currentUserProvider);
   if (currentUser == null) return null;
   final userService = ref.watch(userServiceProvider);
-  return userService.fetchUserById(currentUser.uid);
+  // HARD FIX: `currentUser.email` can be null for accounts that
+  // authenticated via phone or anonymous providers. Fall back to
+  // an empty string so `fetchUserById`'s email lookup branch
+  // still runs (the UID lookup will succeed first).
+  final email = currentUser.email ?? '';
+  return userService.fetchUserById(currentUser.uid, email: email);
 });
 
 // ── User Model by ID — family stream ─────────────────────────────────────────
@@ -128,6 +156,68 @@ final currentUserRoleProvider = Provider<UserRole?>((ref) {
   final userAsync = ref.watch(currentUserStreamProvider);
   return userAsync.valueOrNull?.role;
 });
+
+// ── Auth session — single source of truth used by the router redirect ─────────
+//
+// The router calls this synchronously on every navigation event.
+// It returns a record of (isSignedIn, UserModel?).
+// Using the FIREBASE AUTH cached state (not the Firestore stream)
+// to determine `isSignedIn` prevents the race where the stream is
+// still AsyncLoading and the router kicks the user to /login.
+//
+// The UserModel is read from the stream so role-based redirects
+// still work — but crucially, `isSignedIn` does NOT depend on the
+// UserModel being loaded yet.
+//
+// HARD FIX: accept the parameter as `dynamic` so callers from
+// BOTH widget scope (`WidgetRef`) and provider scope (`Ref<T>`,
+// `ProviderRef<T>`) can invoke this without an explicit cast.
+//
+// Why `dynamic` here is safe: we only call `.read(provider)` on
+// the ref, and every Riverpod ref class (`WidgetRef`, `Ref`,
+// `ProviderRef`) exposes a `.read<T>(ProviderListenable<T>) => T`
+// method. We then assign the result to a typed local — `dynamic`
+// is never actually returned to the caller.
+({bool isSignedIn, UserModel? userModel}) readAuthSession(dynamic ref) {
+  if (mockUser != null) return (isSignedIn: true, userModel: mockUser);
+
+  // Read the Firebase Auth user synchronously. The cached value
+  // is available immediately on cold start, so this branch is the
+  // most reliable source of truth for "is the user signed in?".
+  final firebaseUserCached =
+      ref.read(authServiceProvider).currentUser;
+  final authStreamUser = ref.read(authStateProvider).value;
+  final firebaseUser = firebaseUserCached ?? authStreamUser;
+  final isSignedIn = firebaseUser != null;
+
+  // HARD FIX: only return a userModel whose UID matches the
+  // currently signed-in Firebase user. The previous code returned
+  // *any* resolved UserModel — including a stale value from the
+  // previously signed-in account — which the router then used to
+  // decide where to send the new user. That mismatch caused the
+  // "logged in, then bounced back to /login" loop.
+  UserModel? readUserModelForCurrentUser() {
+    if (firebaseUser == null) return null;
+    final currentUid = firebaseUser.uid;
+
+    // Prefer the cached future provider value (always kept alive).
+    try {
+      final v = ref.read(currentUserDataProvider).valueOrNull;
+      if (v is UserModel && v.userId == currentUid) return v;
+    } on Object {/* ignore */}
+
+    // Then check the live stream's cached value.
+    try {
+      final v = ref.read(currentUserStreamProvider).valueOrNull;
+      if (v is UserModel && v.userId == currentUid) return v;
+    } on Object {/* ignore */}
+
+    return null;
+  }
+
+  final userModel = readUserModelForCurrentUser();
+  return (isSignedIn: isSignedIn, userModel: userModel);
+}
 
 // ── Auth loading state ────────────────────────────────────────────────────────
 final authLoadingProvider = StateProvider<bool>((ref) => false);
@@ -185,6 +275,18 @@ class AuthRefreshNotifier extends ChangeNotifier {
     });
     ref.listen<AsyncValue<UserModel?>>(
       currentUserStreamProvider,
+      (_, __) {
+        _scheduleNotify();
+      },
+    );
+    // ── HARD FIX: also listen on the future provider so the router
+    // re-runs its redirect when the FutureProvider resolves to a
+    // UserModel after the initial AsyncLoading state. Without
+    // this, the redirect sees an AsyncLoading backend and may
+    // bounce the user back to /login even though the data is on
+    // its way.
+    ref.listen<AsyncValue<UserModel?>>(
+      currentUserDataProvider,
       (_, __) {
         _scheduleNotify();
       },

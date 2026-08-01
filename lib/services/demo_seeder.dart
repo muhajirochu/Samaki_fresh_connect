@@ -1,5 +1,8 @@
+import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'dart:convert';
+import 'package:http/http.dart' as http;
 import '../models/enums/user_role.dart';
 import '../models/user_model.dart';
 import '../screens/auth/login_screen.dart';
@@ -66,68 +69,212 @@ class DemoSeeder {
     'asha-pwani@samakifresh.com': 'pwani-fresh',
   };
 
+  /// Hardcoded endpoint of the running Firebase Auth emulator.
+  ///
+  /// The emulator runs on `10.0.2.2` (the host loopback) on the
+  /// Android emulator and `127.0.0.1` on Linux desktop. We use the
+  /// emulator's REST API to create demo accounts WITHOUT touching
+  /// the Firebase Auth client's `currentUser` — the previous
+  /// `createUserWithEmailAndPassword` flow would hijack any
+  /// already-signed-in user's session.
+  static String get _emulatorAuthHost {
+    // Same logic as main.dart's host selection.
+    return '10.0.2.2';
+  }
+
+  static String get _emulatorAuthUrl =>
+      'http://$_emulatorAuthHost:9099/identitytoolkit.googleapis.com/v1/accounts:signUp';
+
+  /// Create a Firebase Auth account via the emulator's REST API
+  /// without disturbing the current `auth.currentUser` session.
+  /// Returns the new user's UID, or null if the account already
+  /// exists or creation failed.
+  static Future<String?> _createAuthUserViaRestApi({
+    required String email,
+    required String password,
+  }) async {
+    try {
+      final resp = await http.post(
+        Uri.parse(_emulatorAuthUrl),
+        headers: const {'Content-Type': 'application/json'},
+        body: jsonEncode({
+          'email': email,
+          'password': password,
+          'returnSecureToken': true,
+        }),
+      );
+      if (resp.statusCode == 200) {
+        final data = jsonDecode(resp.body) as Map<String, dynamic>;
+        return data['localId'] as String?;
+      } else if (resp.statusCode == 400) {
+        // EMAIL_EXISTS, INVALID_EMAIL, WEAK_PASSWORD, etc. — treat
+        // as "already exists" so the seeder can move on.
+        return null;
+      } else {
+        AppLogger.warning(
+            'Auth emulator returned ${resp.statusCode}: ${resp.body}');
+        return null;
+      }
+    } catch (e) {
+      AppLogger.warning('Failed to create auth user via emulator REST: $e');
+      return null;
+    }
+  }
+
   static Future<void> seedDemoAccounts() async {
-    final auth = FirebaseAuth.instance;
     final firestore = FirebaseFirestore.instance;
 
-    // Map demo email → real Firebase UID. Populated as we sign in to
-    // each account so the marketplace seed step can link each seller's
-    // user doc to their street-seller mirror doc.
+    // HARD FIX: We use the Auth emulator REST API to create demo
+    // accounts (see `_createAuthUserViaRestApi`), so the seeder no
+    // longer hijacks an already-signed-in user's session. Note we
+    // no longer touch `FirebaseAuth.instance.currentUser` at all.
+
+    // Map demo email → real Firebase UID. Populated as we discover
+    // or create each account so the marketplace seed step can link
+    // each seller's user doc to their street-seller mirror doc.
     final emailToUid = <String, String>{};
 
-    for (final demo in demoAccounts) {
+
+    // Combine the explicit demo accounts (buyer, admin) with all the
+    // street sellers defined in our placement map. Previously, the
+    // sellers were only seeded into Firestore but never given Firebase
+    // Auth accounts, making it impossible to log in as them!
+    final Map<String, DemoAccount> allDemosMap = {
+      for (final demo in demoAccounts) demo.email: demo,
+      for (final email in _sellerEmailToId.keys)
+        email: DemoAccount(
+          email: email,
+          password: 'password123',
+          role: UserRole.streetSeller,
+          name: email.split('@').first,
+          icon: Icons.storefront_rounded,
+          color: const Color(0xFFF57C00),
+        )
+    };
+    final allDemos = allDemosMap.values.toList();
+
+    for (final demo in allDemos) {
       try {
+        // First, check if a user doc already exists in Firestore for
+        // this demo email. This avoids the expensive sign-in round-trip
+        // on every cold start and — critically — doesn't destroy the
+        // current user's session.
+        final existingQuery = await firestore
+            .collection('users')
+            .where('email', isEqualTo: demo.email)
+            .limit(1)
+            .get();
+
+        if (existingQuery.docs.isNotEmpty) {
+          // Demo user already exists in Firestore — grab their UID
+          // for the marketplace seed step.
+          final docId = existingQuery.docs.first.id;
+          emailToUid[demo.email] = docId;
+          AppLogger.info(
+              'Demo account ${demo.email} already exists (uid=$docId).');
+          continue;
+        }
+
+        // Demo user doesn't exist yet — create them.
         try {
-          final credential = await auth.signInWithEmailAndPassword(
+          // HARD FIX: use the Auth emulator REST API instead of
+          // `auth.createUserWithEmailAndPassword`. The client-side
+          // helper would sign the new user in immediately, hijacking
+          // any existing session; the REST API leaves auth.currentUser
+          // untouched.
+          final uid = await _createAuthUserViaRestApi(
             email: demo.email,
             password: demo.password,
           );
-          final uid = credential.user?.uid;
-          if (uid != null) emailToUid[demo.email] = uid;
-          AppLogger.info('Demo account ${demo.email} already exists.');
-        } on FirebaseAuthException catch (e) {
-          if (e.code == 'user-not-found' ||
-              e.code == 'invalid-credential' ||
-              e.code == 'wrong-password') {
-            final userCredential =
-                await auth.createUserWithEmailAndPassword(
+          if (uid != null) {
+            emailToUid[demo.email] = uid;
+            final now = DateTime.now();
+            final userModel = UserModel(
+              userId: uid,
               email: demo.email,
-              password: demo.password,
+              fullName: demo.name,
+              phoneNumber: '0700000000',
+              role: demo.role,
+              isActive: true,
+              location: demo.role == UserRole.streetSeller &&
+                      _sellerEmailToId.containsKey(demo.email)
+                  ? null
+                  : const {
+                      'latitude': -6.1629,
+                      'longitude': 39.2026,
+                      'marketName': 'Stone Town',
+                      'regionName': 'Mjini Magharibi',
+                    },
+              createdAt: now,
+              updatedAt: now,
             );
-            final uid = userCredential.user?.uid;
-            if (uid != null) {
-              emailToUid[demo.email] = uid;
-              final now = DateTime.now();
-              final userModel = UserModel(
-                userId: uid,
+            final data = userModel.toJson();
+            data['createdAt'] = FieldValue.serverTimestamp();
+            data['updatedAt'] = FieldValue.serverTimestamp();
+            await firestore.collection('users').doc(uid).set(data);
+            AppLogger.info(
+                'Successfully created demo account: ${demo.email}');
+          }
+        } on FirebaseAuthException catch (e) {
+          if (e.code == 'email-already-in-use') {
+            // Auth account exists but Firestore doc was missing —
+            // sign in to get the UID so we can create the doc.
+            try {
+              // Use the REST API to look up the existing Auth UID
+              // without touching the current session. We sign up
+              // (which will return EMAIL_EXISTS since it already
+              // exists) and read the localId from the error… but
+              // the emulator doesn't expose that. Fall back to
+              // querying Firestore by email — the doc had to have
+              // been created on first sign-up, so the UID is the
+              // doc id.
+              await _createAuthUserViaRestApi(
                 email: demo.email,
-                fullName: demo.name,
-                phoneNumber: '0700000000',
-                role: demo.role,
-                isActive: true,
-                // Pre-seed buyer-with-location so its dashboard geo
-                // search radius isn't empty on first run. Street
-                // sellers get the location of their shop so the
-                // dashboard renders correctly on first launch.
-                location: demo.role == UserRole.streetSeller &&
-                        _sellerEmailToId.containsKey(demo.email)
-                    ? null // populated below by the marketplace seeder
-                    : const {
-                        'latitude': -6.1629,
-                        'longitude': 39.2026,
-                        'marketName': 'Stone Town',
-                        'regionName': 'Mjini Magharibi',
-                      },
-                createdAt: now,
-                updatedAt: now,
+                password: demo.password,
               );
-              final data = userModel.toJson();
-              data['createdAt'] = FieldValue.serverTimestamp();
-              data['updatedAt'] = FieldValue.serverTimestamp();
-              await firestore.collection('users').doc(uid).set(data);
-              AppLogger.info(
-                  'Successfully created demo account: ${demo.email}');
+              final existingByEmail = await firestore
+                  .collection('users')
+                  .where('email', isEqualTo: demo.email)
+                  .limit(1)
+                  .get();
+              if (existingByEmail.docs.isNotEmpty) {
+                final uid = existingByEmail.docs.first.id;
+                emailToUid[demo.email] = uid;
+                // Create the missing Firestore user doc
+                final data = <String, dynamic>{
+                  'userId': uid,
+                  'email': demo.email,
+                  'fullName': demo.name,
+                  'phoneNumber': '0700000000',
+                  'role': demo.role.name,
+                  'isActive': true,
+                  'isApproved': false,
+                  'createdAt': FieldValue.serverTimestamp(),
+                  'updatedAt': FieldValue.serverTimestamp(),
+                };
+                if (demo.role != UserRole.streetSeller ||
+                    !_sellerEmailToId.containsKey(demo.email)) {
+                  data['location'] = const {
+                    'latitude': -6.1629,
+                    'longitude': 39.2026,
+                    'marketName': 'Stone Town',
+                    'regionName': 'Mjini Magharibi',
+                  };
+                }
+                await firestore
+                    .collection('users')
+                    .doc(uid)
+                    .set(data, SetOptions(merge: true));
+                AppLogger.info(
+                    'Created missing Firestore doc for demo: ${demo.email}');
+              }
+            } catch (signInError) {
+              AppLogger.error(
+                  'Could not sign in to existing demo ${demo.email}: $signInError');
             }
+          } else {
+            AppLogger.error(
+                'Failed to create demo account ${demo.email}: ${e.code}');
           }
         }
       } catch (e) {
@@ -135,13 +282,11 @@ class DemoSeeder {
       }
     }
 
-    await auth.signOut();
+    // No sign-out / restore: the REST API doesn't touch the
+    // current session, so nothing to unwind.
 
     // Now seed the demo marketplace — sellers + listings — so the
-    // buyer's map has data immediately on first run. This is the
-    // critical fix for the "buyer can't find fish the seller just
-    // posted" problem; without these docs the buyer's geo query
-    // returns nothing.
+    // buyer's map has data immediately on first run.
     await _seedMarketplace(firestore, emailToUid);
   }
 

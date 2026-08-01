@@ -8,14 +8,16 @@ part of 'user_model.dart';
 
 _$UserModelImpl _$$UserModelImplFromJson(Map<String, dynamic> json) =>
     _$UserModelImpl(
-      userId: json['userId'] as String,
-      email: json['email'] as String,
-      fullName: json['fullName'] as String,
-      phoneNumber: json['phoneNumber'] as String,
-      role: const UserRoleConverter().fromJson(json['role']),
+      userId: json['userId'] as String? ?? '',
+      email: json['email'] as String? ?? '',
+      fullName: json['fullName'] as String? ?? '',
+      phoneNumber: json['phoneNumber'] as String? ?? '',
+      role: json['role'] == null
+          ? UserRole.buyer
+          : const UserRoleConverter().fromJson(json['role']),
       profilePictureUrl: json['profilePictureUrl'] as String?,
-      location: json['location'] as Map<String, dynamic>?,
-      isActive: json['isActive'] as bool,
+      location: _locationFromJson(json['location']),
+      isActive: json['isActive'] as bool? ?? true,
       registeredBy: json['registeredBy'] as String?,
       isApproved: json['isApproved'] as bool? ?? false,
       approvedBy: json['approvedBy'] as String?,

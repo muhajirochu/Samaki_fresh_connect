@@ -70,15 +70,37 @@ class _SplashScreenState extends ConsumerState<SplashScreen>
 
   Future<void> _navigate() async {
     if (!mounted) return;
-    final currentUser = ref.read(currentUserProvider);
-    if (currentUser != null) {
-      try {
-        final userModel = await ref.read(currentUserDataProvider.future);
-        if (userModel != null && mounted) {
-          context.go(AppRoutesExtensions.dashboardFor(userModel.role));
-          return;
-        }
-      } catch (_) {}
+
+    // Wait for Firebase Auth stream to settle (max 2s)
+    var authState = ref.read(authStateProvider);
+    int waited = 0;
+    while (authState.isLoading && mounted && waited < 20) {
+      await Future<void>.delayed(const Duration(milliseconds: 100));
+      authState = ref.read(authStateProvider);
+      waited++;
+    }
+
+    if (!mounted) return;
+
+    // Use synchronous Firebase Auth cache — same pattern as the router redirect.
+    final session = readAuthSession(ref);
+    if (!session.isSignedIn) {
+      if (mounted) context.go(AppRoutes.login);
+      return;
+    }
+
+    // Auth says signed-in. Try to load the user profile for role-based routing.
+    // If the profile fails to load (e.g. missing Firestore doc), go to login
+    // which will create the doc and route the user correctly.
+    try {
+      final userModel = await ref.read(currentUserDataProvider.future)
+          .timeout(const Duration(seconds: 5));
+      if (userModel != null && mounted) {
+        context.go(AppRoutesExtensions.dashboardFor(userModel.role));
+        return;
+      }
+    } catch (_) {
+      // Timeout or Firestore error — fall through to login which heals the state.
     }
     if (mounted) context.go(AppRoutes.login);
   }

@@ -1,0 +1,25 @@
+--- lib/screens/auth/login_screen.dart
++++ lib/screens/auth/login_screen.dart
+@@ -1,4 +1,6 @@
+ import 'package:flutter/material.dart';
++import 'package:firebase_core/firebase_core.dart';
++import 'package:firebase_auth/firebase_auth.dart';
+ import 'package:flutter_hooks/flutter_hooks.dart';
+ import 'package:hooks_riverpod/hooks_riverpod.dart';
+ import 'package:go_router/go_router.dart';
+@@ -407,13 +409,12 @@
+           if (userData != null && context.mounted) {
+             // Write to the global audit log that someone signed in
+             try {
+-              final adminService = ref.read(adminServiceProvider);
+-              await adminService.logActivity(
+-                action: 'SIGN_IN',
++              final log = ref.read(adminActivityLogServiceProvider);
++              await log.write(
++                type: 'login',
+                 actorUid: userData.userId,
+                 actorRole: userData.role.name,
+                 title: 'User signed in',
+                 subtitle: userData.email,
+               );
+             } catch (_) {/* swallow — audit-only */}

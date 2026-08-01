@@ -134,7 +134,7 @@ class RouteInfoCard extends StatelessWidget {
                     label: 'Umbali',
                     value: route == null
                         ? '...'
-                        : '${route!.distanceKm.toStringAsFixed(1)} km',
+                        : _formatDistance(route!.distanceKm),
                     color: cs.primary,
                   )),
                   const SizedBox(width: AppSizes.paddingSM),
@@ -215,6 +215,15 @@ class RouteInfoCard extends StatelessWidget {
     if (minutes < 60) return '${minutes.round()} dk';
     final hours = minutes / 60;
     return '${hours.toStringAsFixed(1)} saa';
+  }
+
+  /// Smart distance formatter: shows metres when < 1 km, kilometres otherwise.
+  /// Examples: 0.35 km → "350 m" | 1.4 km → "1.4 km" | 0.0 km → "0 m"
+  static String _formatDistance(double km) {
+    if (km < 1.0) {
+      return '${(km * 1000).round()} m';
+    }
+    return '${km.toStringAsFixed(1)} km';
   }
 }
 

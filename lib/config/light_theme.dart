@@ -1,20 +1,15 @@
 // Light theme for Samaki Fresh Connect.
 //
-// Premium, clean, minimalist. Pure white background with light-gray
-// cards, Modern Blue primary (#2563EB), Elegant Green accent (#16A34A),
-// dark text, and soft shadows with rounded corners.
+// Design reference: Clean white background (pure white), Ocean Teal
+// (#0EA5E9) primary, Cyan (#06B6D4) accent, with wavy teal gradient
+// headers on auth screens.
 //
-// The ColorScheme is derived from a Material 3 seed via
-// `ColorScheme.fromSeed(...)` so every Material widget — Button,
-// TextField, Card, AppBar, Chip, Switch, Slider, ProgressIndicator,
-// Tooltip, Dialog, Snackbar, NavigationBar, TabBar — picks up the
-// brand tonal palette automatically. We then override a few tokens
-// where the brand demands a specific colour (white-on-blue button
-// labels, navy outline, etc.).
-//
-// Every token flows from a single source of truth — `AppColorTokens.light`
-// — so widgets that read tokens outside of a `BuildContext` stay in
-// sync with widgets that read `Theme.of(context).colorScheme`.
+// ● Scaffold background : pure white (#FFFFFF)
+// ● Cards / surfaces    : white with subtle teal-tinted border (sky-100)
+// ● Primary color       : Ocean Teal (#0EA5E9)
+// ● Inputs              : white fill, sky-100 border, teal focus ring
+// ● Buttons             : teal→cyan gradient (via decoration on key screens)
+// ● Text                : deep navy (#0C1F2C) primary, blue-gray secondary
 
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -27,76 +22,76 @@ ThemeData buildLightTheme() {
   const tokens = AppColorTokens.light;
 
   final textTheme = buildPoppinsTextTheme(
-    textPrimary: tokens.textPrimary,
+    textPrimary:   tokens.textPrimary,
     textSecondary: tokens.textSecondary,
-    textHint: tokens.textHint,
+    textHint:      tokens.textHint,
   );
 
-  // Material 3 `ColorScheme.fromSeed` derives a full tonal palette
-  // (primary, primaryContainer, onPrimaryContainer, surface tints, …)
-  // from a single brand seed. We then override the bits the brand
-  // wants pinned (Elegant Green as the secondary seed, etc.) so the
-  // whole UI reads as one consistent palette.
   final colorScheme = ColorScheme.fromSeed(
-    seedColor: AppColors.primaryBlue,
+    seedColor:  AppColors.primaryTeal,
     brightness: Brightness.light,
-    secondary: AppColors.accentGreen,
-    tertiary: const Color(0xFF14B8A6),
-    error: tokens.error,
-    surface: tokens.surface,
+    secondary:  AppColors.accentTeal,
+    tertiary:   AppColors.primaryCyan,
+    error:      tokens.error,
+    surface:    tokens.surface,
   ).copyWith(
-    onPrimary: AppColors.white,
-    onSecondary: AppColors.white,
-    onSurface: tokens.textPrimary,
-    onError: AppColors.white,
-    surfaceContainerHighest: tokens.surfaceAlt,
-    surfaceContainerHigh: tokens.surfaceAlt,
-    surfaceContainer: tokens.surface,
-    surfaceContainerLow: const Color(0xFFFBFBFD),
-    surfaceContainerLowest: AppColors.white,
-    outline: tokens.border,
-    outlineVariant: AppColors.lightDivider,
-    shadow: tokens.shadow,
+    primary:                   tokens.primary,
+    onPrimary:                 AppColors.white,
+    secondary:                 tokens.accent,
+    onSecondary:               AppColors.white,
+    onSurface:                 tokens.textPrimary,
+    onError:                   AppColors.white,
+    surfaceContainerHighest:   tokens.surfaceAlt,
+    surfaceContainerHigh:      tokens.surfaceAlt,
+    surfaceContainer:          tokens.surface,
+    surfaceContainerLow:       const Color(0xFFF8FBFF),
+    surfaceContainerLowest:    AppColors.white,
+    outline:                   tokens.border,
+    outlineVariant:            AppColors.lightDivider,
+    shadow:                    tokens.shadow,
   );
 
   return ThemeData(
-    useMaterial3: true,
-    brightness: Brightness.light,
-    primaryColor: tokens.primary,
+    useMaterial3:            true,
+    brightness:              Brightness.light,
+    primaryColor:            tokens.primary,
     scaffoldBackgroundColor: tokens.background,
-    canvasColor: tokens.background,
-    fontFamily: 'Poppins',
-    textTheme: textTheme,
-    primaryTextTheme: textTheme,
-    colorScheme: colorScheme,
-    splashFactory: InkSparkle.splashFactory,
-    iconTheme: IconThemeData(color: tokens.textPrimary, size: AppSizes.iconMD),
+    canvasColor:             tokens.background,
+    fontFamily:              'Poppins',
+    textTheme:               textTheme,
+    primaryTextTheme:        textTheme,
+    colorScheme:             colorScheme,
+    splashFactory:           InkSparkle.splashFactory,
+    iconTheme:    IconThemeData(color: tokens.textPrimary, size: AppSizes.iconMD),
     primaryIconTheme: const IconThemeData(color: AppColors.white),
+
     appBarTheme: AppBarTheme(
-      backgroundColor: tokens.background,
-      foregroundColor: tokens.textPrimary,
-      elevation: 0,
+      backgroundColor:      tokens.background,
+      foregroundColor:      tokens.textPrimary,
+      elevation:            0,
       scrolledUnderElevation: 0.5,
-      centerTitle: false,
-      iconTheme: IconThemeData(color: tokens.textPrimary),
+      centerTitle:          false,
+      iconTheme:            IconThemeData(color: tokens.textPrimary),
       titleTextStyle: GoogleFonts.poppins(
-        fontSize: AppSizes.fontLG,
-        fontWeight: FontWeight.w600,
-        color: tokens.textPrimary,
+        fontSize:     AppSizes.fontLG,
+        fontWeight:   FontWeight.w600,
+        color:        tokens.textPrimary,
         letterSpacing: -0.2,
       ),
     ),
+
     cardTheme: CardThemeData(
-      elevation: 0,
-      color: tokens.surface,
-      shadowColor: tokens.shadow,
-      surfaceTintColor: Colors.transparent,
+      elevation:         0,
+      color:             tokens.surface,
+      shadowColor:       tokens.shadow,
+      surfaceTintColor:  Colors.transparent,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(AppSizes.radiusLG),
-        side: BorderSide(color: tokens.border, width: 0.6),
+        side: BorderSide(color: tokens.border, width: 0.8),
       ),
       margin: EdgeInsets.zero,
     ),
+
     filledButtonTheme: FilledButtonThemeData(
       style: FilledButton.styleFrom(
         backgroundColor: tokens.primary,
@@ -104,72 +99,76 @@ ThemeData buildLightTheme() {
         elevation: 0,
         padding: const EdgeInsets.symmetric(
           horizontal: AppSizes.paddingXL,
-          vertical: AppSizes.paddingMD,
+          vertical:   AppSizes.paddingMD,
         ),
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(AppSizes.radiusMD),
         ),
         textStyle: GoogleFonts.poppins(
-          fontSize: AppSizes.fontMD,
+          fontSize:   AppSizes.fontMD,
           fontWeight: FontWeight.w600,
         ),
       ),
     ),
+
     elevatedButtonTheme: ElevatedButtonThemeData(
       style: ElevatedButton.styleFrom(
         backgroundColor: tokens.primary,
         foregroundColor: AppColors.white,
-        elevation: 0,
-        shadowColor: tokens.shadow,
+        elevation:       0,
+        shadowColor:     tokens.shadow,
         padding: const EdgeInsets.symmetric(
           horizontal: AppSizes.paddingXL,
-          vertical: AppSizes.paddingMD,
+          vertical:   AppSizes.paddingMD,
         ),
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(AppSizes.radiusMD),
         ),
         textStyle: GoogleFonts.poppins(
-          fontSize: AppSizes.fontMD,
+          fontSize:   AppSizes.fontMD,
           fontWeight: FontWeight.w600,
         ),
       ),
     ),
+
     outlinedButtonTheme: OutlinedButtonThemeData(
       style: OutlinedButton.styleFrom(
         foregroundColor: tokens.primary,
         side: BorderSide(color: tokens.primary, width: 1.2),
         padding: const EdgeInsets.symmetric(
           horizontal: AppSizes.paddingXL,
-          vertical: AppSizes.paddingMD,
+          vertical:   AppSizes.paddingMD,
         ),
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(AppSizes.radiusMD),
         ),
         textStyle: GoogleFonts.poppins(
-          fontSize: AppSizes.fontMD,
+          fontSize:   AppSizes.fontMD,
           fontWeight: FontWeight.w600,
         ),
       ),
     ),
+
     textButtonTheme: TextButtonThemeData(
       style: TextButton.styleFrom(
         foregroundColor: tokens.primary,
         padding: const EdgeInsets.symmetric(
           horizontal: AppSizes.paddingMD,
-          vertical: AppSizes.paddingSM,
+          vertical:   AppSizes.paddingSM,
         ),
         textStyle: GoogleFonts.poppins(
-          fontSize: AppSizes.fontMD,
+          fontSize:   AppSizes.fontMD,
           fontWeight: FontWeight.w600,
         ),
       ),
     ),
+
     inputDecorationTheme: InputDecorationTheme(
-      filled: true,
-      fillColor: tokens.surfaceAlt,
+      filled:      true,
+      fillColor:   AppColors.white,
       contentPadding: const EdgeInsets.symmetric(
         horizontal: AppSizes.paddingMD,
-        vertical: AppSizes.paddingMD,
+        vertical:   AppSizes.paddingMD,
       ),
       border: OutlineInputBorder(
         borderRadius: BorderRadius.circular(AppSizes.radiusMD),
@@ -181,7 +180,7 @@ ThemeData buildLightTheme() {
       ),
       focusedBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(AppSizes.radiusMD),
-        borderSide: BorderSide(color: tokens.primary, width: 1.6),
+        borderSide: BorderSide(color: tokens.primary, width: 1.8),
       ),
       errorBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(AppSizes.radiusMD),
@@ -189,27 +188,29 @@ ThemeData buildLightTheme() {
       ),
       focusedErrorBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(AppSizes.radiusMD),
-        borderSide: BorderSide(color: tokens.error, width: 1.6),
+        borderSide: BorderSide(color: tokens.error, width: 1.8),
       ),
       hintStyle: GoogleFonts.poppins(
-        fontSize: AppSizes.fontMD,
+        fontSize:   AppSizes.fontMD,
         fontWeight: FontWeight.normal,
-        color: tokens.textHint,
+        color:      tokens.textHint,
       ),
       labelStyle: GoogleFonts.poppins(
-        fontSize: AppSizes.fontMD,
+        fontSize:   AppSizes.fontMD,
         fontWeight: FontWeight.w500,
-        color: tokens.textSecondary,
+        color:      tokens.textSecondary,
       ),
     ),
+
     dividerTheme: DividerThemeData(
-      color: tokens.border,
+      color:     tokens.border,
       thickness: 0.6,
-      space: 0,
+      space:     0,
     ),
+
     bottomSheetTheme: BottomSheetThemeData(
-      backgroundColor: tokens.surface,
-      surfaceTintColor: Colors.transparent,
+      backgroundColor:      tokens.surface,
+      surfaceTintColor:     Colors.transparent,
       modalBackgroundColor: tokens.surface,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(
@@ -217,50 +218,54 @@ ThemeData buildLightTheme() {
         ),
       ),
     ),
+
     snackBarTheme: SnackBarThemeData(
       backgroundColor: tokens.textPrimary,
       contentTextStyle: GoogleFonts.poppins(
-        fontSize: AppSizes.fontMD,
+        fontSize:   AppSizes.fontMD,
         fontWeight: FontWeight.w500,
-        color: tokens.background,
+        color:      tokens.background,
       ),
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(AppSizes.radiusMD),
       ),
       behavior: SnackBarBehavior.floating,
     ),
+
     listTileTheme: ListTileThemeData(
-      iconColor: tokens.textSecondary,
-      textColor: tokens.textPrimary,
-      tileColor: tokens.surface,
+      iconColor:  tokens.textSecondary,
+      textColor:  tokens.textPrimary,
+      tileColor:  tokens.surface,
       contentPadding: const EdgeInsets.symmetric(
         horizontal: AppSizes.paddingMD,
-        vertical: AppSizes.paddingXS,
+        vertical:   AppSizes.paddingXS,
       ),
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(AppSizes.radiusMD),
       ),
     ),
+
     tabBarTheme: TabBarThemeData(
-      labelColor: tokens.primary,
+      labelColor:           tokens.primary,
       unselectedLabelColor: tokens.textSecondary,
-      indicatorColor: tokens.primary,
-      indicatorSize: TabBarIndicatorSize.label,
+      indicatorColor:       tokens.primary,
+      indicatorSize:        TabBarIndicatorSize.label,
       labelStyle: GoogleFonts.poppins(
-        fontSize: AppSizes.fontMD,
+        fontSize:   AppSizes.fontMD,
         fontWeight: FontWeight.w600,
       ),
       unselectedLabelStyle: GoogleFonts.poppins(
-        fontSize: AppSizes.fontMD,
+        fontSize:   AppSizes.fontMD,
         fontWeight: FontWeight.w500,
       ),
     ),
+
     navigationBarTheme: NavigationBarThemeData(
-      backgroundColor: tokens.surface,
-      indicatorColor: tokens.primary.withValues(alpha: 0.10),
+      backgroundColor:  tokens.surface,
+      indicatorColor:   tokens.primary.withValues(alpha: 0.12),
       labelTextStyle: WidgetStateProperty.resolveWith(
         (states) => GoogleFonts.poppins(
-          fontSize: AppSizes.fontXS,
+          fontSize:   AppSizes.fontXS,
           fontWeight: states.contains(WidgetState.selected)
               ? FontWeight.w600
               : FontWeight.w500,
@@ -275,40 +280,43 @@ ThemeData buildLightTheme() {
         ),
       ),
       elevation: 0,
-      height: 68,
+      height:    68,
     ),
+
     dialogTheme: DialogThemeData(
-      backgroundColor: tokens.surface,
+      backgroundColor:  tokens.surface,
       surfaceTintColor: Colors.transparent,
-      elevation: 8,
-      shadowColor: tokens.shadow,
+      elevation:        8,
+      shadowColor:      tokens.shadow,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(AppSizes.radiusXL),
       ),
       titleTextStyle: GoogleFonts.poppins(
-        fontSize: AppSizes.fontXL,
+        fontSize:   AppSizes.fontXL,
         fontWeight: FontWeight.w600,
-        color: tokens.textPrimary,
+        color:      tokens.textPrimary,
       ),
       contentTextStyle: GoogleFonts.poppins(
-        fontSize: AppSizes.fontMD,
+        fontSize:   AppSizes.fontMD,
         fontWeight: FontWeight.w400,
-        color: tokens.textSecondary,
+        color:      tokens.textSecondary,
       ),
     ),
+
     chipTheme: ChipThemeData(
       backgroundColor: tokens.surfaceAlt,
-      selectedColor: tokens.primary,
+      selectedColor:   tokens.primary,
       labelStyle: GoogleFonts.poppins(
-        fontSize: AppSizes.fontSM,
+        fontSize:   AppSizes.fontSM,
         fontWeight: FontWeight.w500,
-        color: tokens.textPrimary,
+        color:      tokens.textPrimary,
       ),
       side: BorderSide(color: tokens.border, width: 0.6),
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(AppSizes.radiusCircle),
       ),
     ),
+
     switchTheme: SwitchThemeData(
       thumbColor: WidgetStateProperty.resolveWith(
         (states) => states.contains(WidgetState.selected)
@@ -322,30 +330,33 @@ ThemeData buildLightTheme() {
       ),
       trackOutlineColor: WidgetStateProperty.all(Colors.transparent),
     ),
+
     sliderTheme: SliderThemeData(
-      activeTrackColor: tokens.primary,
+      activeTrackColor:   tokens.primary,
       inactiveTrackColor: tokens.border,
-      thumbColor: tokens.primary,
-      overlayColor: tokens.primary.withValues(alpha: 0.10),
+      thumbColor:         tokens.primary,
+      overlayColor:       tokens.primary.withValues(alpha: 0.10),
     ),
+
     progressIndicatorTheme: ProgressIndicatorThemeData(
-      color: tokens.primary,
-      linearTrackColor: tokens.border,
+      color:              tokens.primary,
+      linearTrackColor:   tokens.border,
       circularTrackColor: tokens.border,
     ),
+
     extensions: <ThemeExtension<dynamic>>[
       BackgroundStyle(
         background: tokens.background,
-        surface: tokens.surface,
+        surface:    tokens.surface,
         surfaceAlt: tokens.surfaceAlt,
-        border: tokens.border,
+        border:     tokens.border,
       ),
       const GlassStyle(
-        surface: Color(0x66FFFFFF),
-        border: Color(0x1F000000),
+        surface:   Color(0x99FFFFFF),
+        border:    Color(0x280EA5E9),         // teal-tinted glass border
         highlight: LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
+          begin:  Alignment.topLeft,
+          end:    Alignment.bottomRight,
           colors: [Color(0x33FFFFFF), Color(0x00FFFFFF)],
         ),
       ),
@@ -354,10 +365,7 @@ ThemeData buildLightTheme() {
   );
 }
 
-// Shared Poppins-based text theme used by both light and dark
-// variants — only the colour tokens differ. Exported as
-// [buildPoppinsTextTheme] so [buildDarkTheme] can reuse it without
-// duplicating the 15 TextStyle entries.
+// ── Shared Poppins text theme ─────────────────────────────────────────────────
 TextTheme buildPoppinsTextTheme({
   required Color textPrimary,
   required Color textSecondary,
@@ -365,90 +373,90 @@ TextTheme buildPoppinsTextTheme({
 }) {
   return GoogleFonts.poppinsTextTheme().copyWith(
     displayLarge: GoogleFonts.poppins(
-      fontSize: AppSizes.font4XL,
-      fontWeight: FontWeight.w700,
-      color: textPrimary,
+      fontSize:     AppSizes.font4XL,
+      fontWeight:   FontWeight.w700,
+      color:        textPrimary,
       letterSpacing: -0.5,
-      height: 1.15,
+      height:       1.15,
     ),
     displayMedium: GoogleFonts.poppins(
-      fontSize: AppSizes.font3XL,
-      fontWeight: FontWeight.w700,
-      color: textPrimary,
+      fontSize:     AppSizes.font3XL,
+      fontWeight:   FontWeight.w700,
+      color:        textPrimary,
       letterSpacing: -0.5,
-      height: 1.2,
+      height:       1.2,
     ),
     displaySmall: GoogleFonts.poppins(
-      fontSize: AppSizes.fontXXL,
-      fontWeight: FontWeight.w700,
-      color: textPrimary,
+      fontSize:     AppSizes.fontXXL,
+      fontWeight:   FontWeight.w700,
+      color:        textPrimary,
       letterSpacing: -0.4,
-      height: 1.2,
+      height:       1.2,
     ),
     headlineLarge: GoogleFonts.poppins(
-      fontSize: AppSizes.fontXXL,
-      fontWeight: FontWeight.w600,
-      color: textPrimary,
+      fontSize:     AppSizes.fontXXL,
+      fontWeight:   FontWeight.w600,
+      color:        textPrimary,
       letterSpacing: -0.3,
     ),
     headlineMedium: GoogleFonts.poppins(
-      fontSize: AppSizes.fontXL,
-      fontWeight: FontWeight.w600,
-      color: textPrimary,
+      fontSize:     AppSizes.fontXL,
+      fontWeight:   FontWeight.w600,
+      color:        textPrimary,
       letterSpacing: -0.2,
     ),
     headlineSmall: GoogleFonts.poppins(
-      fontSize: AppSizes.fontLG,
-      fontWeight: FontWeight.w600,
-      color: textPrimary,
+      fontSize:     AppSizes.fontLG,
+      fontWeight:   FontWeight.w600,
+      color:        textPrimary,
     ),
     titleLarge: GoogleFonts.poppins(
-      fontSize: AppSizes.fontLG,
+      fontSize:   AppSizes.fontLG,
       fontWeight: FontWeight.w600,
-      color: textPrimary,
+      color:      textPrimary,
     ),
     titleMedium: GoogleFonts.poppins(
-      fontSize: AppSizes.fontMD,
+      fontSize:   AppSizes.fontMD,
       fontWeight: FontWeight.w600,
-      color: textPrimary,
+      color:      textPrimary,
     ),
     titleSmall: GoogleFonts.poppins(
-      fontSize: AppSizes.fontSM,
+      fontSize:   AppSizes.fontSM,
       fontWeight: FontWeight.w600,
-      color: textPrimary,
+      color:      textPrimary,
     ),
     bodyLarge: GoogleFonts.poppins(
-      fontSize: AppSizes.fontMD,
+      fontSize:   AppSizes.fontMD,
       fontWeight: FontWeight.normal,
-      color: textPrimary,
-      height: 1.5,
+      color:      textPrimary,
+      height:     1.5,
     ),
     bodyMedium: GoogleFonts.poppins(
-      fontSize: AppSizes.fontSM,
+      fontSize:   AppSizes.fontSM,
       fontWeight: FontWeight.normal,
-      color: textSecondary,
-      height: 1.5,
+      color:      textSecondary,
+      height:     1.5,
     ),
     bodySmall: GoogleFonts.poppins(
-      fontSize: AppSizes.fontXS,
+      fontSize:   AppSizes.fontXS,
       fontWeight: FontWeight.normal,
-      color: textSecondary,
-      height: 1.5,
+      color:      textSecondary,
+      height:     1.5,
     ),
     labelLarge: GoogleFonts.poppins(
-      fontSize: AppSizes.fontMD,
+      fontSize:   AppSizes.fontMD,
       fontWeight: FontWeight.w600,
-      color: textPrimary,
+      color:      textPrimary,
     ),
     labelMedium: GoogleFonts.poppins(
-      fontSize: AppSizes.fontSM,
+      fontSize:   AppSizes.fontSM,
       fontWeight: FontWeight.w500,
-      color: textPrimary,
+      color:      textPrimary,
     ),
     labelSmall: GoogleFonts.poppins(
-      fontSize: AppSizes.fontXS,
-      fontWeight: FontWeight.w500,
-      color: textHint,
+      fontSize:     AppSizes.fontXS,
+      fontWeight:   FontWeight.w500,
+      color:        textHint,
       letterSpacing: 0.2,
     ),
   );

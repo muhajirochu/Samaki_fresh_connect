@@ -193,6 +193,7 @@ class _BuyerMapScreenState extends ConsumerState<BuyerMapScreen> {
                   SellerProfileSheet.show(
                     context,
                     seller: s.seller,
+                    fishItems: s.matchingItems,
                     buyerLatitude: fallbackLoc.latitude,
                     buyerLongitude: fallbackLoc.longitude,
                     onSendRequest: () {
@@ -259,6 +260,22 @@ class _BuyerMapScreenState extends ConsumerState<BuyerMapScreen> {
               orElse: () => const SizedBox.shrink(),
             ),
           ),
+
+          // ── Floating distance badge — appears on the map whenever a route
+          // is active. Smart m/km: shows "350 m" when close, "3.2 km" when
+          // farther away. Positioned bottom-right above the route card so it
+          // is always visible even while the user pans the map.
+          if (selection != null)
+            Positioned(
+              bottom: 228,
+              right: AppSizes.paddingMD,
+              child: routeAsync.maybeWhen(
+                data: (route) => route != null
+                    ? _FloatingDistanceBadge(distanceKm: route.distanceKm)
+                    : const SizedBox.shrink(),
+                orElse: () => const SizedBox.shrink(),
+              ),
+            ),
 
           // ── Bottom: route card when a seller is selected ────────────────
           if (selection != null)
@@ -690,6 +707,94 @@ class _VisibleSellerRow extends StatelessWidget {
             ),
           ),
         ],
+      ),
+    );
+  }
+}
+
+/// Floating badge on the map surface showing the active route distance.
+/// Uses smart m/km: below 1 km shows metres (e.g. "850 m"), otherwise km.
+/// Appears with a subtle scale-in animation when a seller is selected.
+class _FloatingDistanceBadge extends StatefulWidget {
+  final double distanceKm;
+  const _FloatingDistanceBadge({required this.distanceKm});
+
+  @override
+  State<_FloatingDistanceBadge> createState() => _FloatingDistanceBadgeState();
+}
+
+class _FloatingDistanceBadgeState extends State<_FloatingDistanceBadge>
+    with SingleTickerProviderStateMixin {
+  late final AnimationController _ctrl;
+  late final Animation<double> _scale;
+
+  @override
+  void initState() {
+    super.initState();
+    _ctrl = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 300),
+    );
+    _scale = CurvedAnimation(parent: _ctrl, curve: Curves.easeOutBack);
+    _ctrl.forward();
+  }
+
+  @override
+  void dispose() {
+    _ctrl.dispose();
+    super.dispose();
+  }
+
+  String _format(double km) {
+    if (km < 1.0) return '${(km * 1000).round()} m';
+    return '${km.toStringAsFixed(1)} km';
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
+    return ScaleTransition(
+      scale: _scale,
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+        decoration: BoxDecoration(
+          // Gradient pill — primary gradient for a premium feel.
+          gradient: LinearGradient(
+            colors: [
+              cs.primary,
+              cs.primary.withValues(alpha: 0.82),
+            ],
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+          ),
+          borderRadius: BorderRadius.circular(50),
+          boxShadow: [
+            BoxShadow(
+              color: cs.primary.withValues(alpha: isDark ? 0.55 : 0.35),
+              blurRadius: 12,
+              offset: const Offset(0, 4),
+            ),
+          ],
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(Icons.directions_walk_rounded,
+                color: cs.onPrimary, size: 18),
+            const SizedBox(width: 6),
+            Text(
+              _format(widget.distanceKm),
+              style: TextStyle(
+                color: cs.onPrimary,
+                fontWeight: FontWeight.w800,
+                fontSize: 15,
+                letterSpacing: 0.3,
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

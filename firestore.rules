@@ -80,7 +80,7 @@ service cloud.firestore {
       return isSignedIn() && (
         request.auth.token.admin == true
         || userRole() == 'admin'
-        || request.auth.token.firebase.identities.email == 'admin@samakifresh.com'
+        || request.auth.token.email == 'admin@samakifresh.com'
       );
     }
 

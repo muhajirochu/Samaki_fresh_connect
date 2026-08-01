@@ -31,6 +31,7 @@ import '../../constants/app_sizes.dart';
 import '../../l10n/app_localizations.dart';
 import '../../models/fish_item_model.dart';
 import '../../models/street_seller_model.dart';
+import '../../models/user_model.dart';
 import '../../providers/auth_provider.dart';
 import '../../providers/buyer_provider.dart';
 import '../../widgets/common/premium_components.dart';
@@ -45,7 +46,14 @@ class BuyerDashboardScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final userAsync = ref.watch(currentUserStreamProvider);
+    // HARD FIX: prefer the future provider (kept-alive) so the
+    // dashboard resolves immediately after login. The stream
+    // provider is still watched so live updates (e.g. role flip)
+    // flow through, but the future provider is the source of
+    // truth for the initial paint.
+    final futureUser = ref.watch(currentUserDataProvider).valueOrNull;
+    final streamUser = ref.watch(currentUserStreamProvider);
+    final user = futureUser ?? streamUser.valueOrNull;
     final l10n = AppLocalizations.of(context);
 
     return Scaffold(
@@ -60,26 +68,27 @@ class BuyerDashboardScreen extends ConsumerWidget {
       // which never shows up on a desktop emulator.
       body: SafeArea(
         top: false,
-        child: userAsync.when(
-          loading: () => const Center(child: CircularProgressIndicator()),
-          error: (error, stack) =>
-              Center(child: Text(l10n.loadingError(error.toString()))),
-          data: (user) {
-            if (user == null) {
-              return Center(child: Text(l10n.notLoggedIn));
-            }
-            return Stack(
-              children: [
-                _DashboardBody(userName: user.fullName),
-                // No-op listener that pops a SnackBar whenever the wishlist
-                // cross-trigger fires. Mounted once at the root of the
-                // buyer shell.
-                const WishlistMatchBanner(),
-              ],
-            );
-          },
-        ),
+        child: _buildBody(user, l10n),
       ),
+    );
+  }
+
+  Widget _buildBody(UserModel? user, AppLocalizations l10n) {
+    if (user == null) {
+      // Neither provider has resolved yet (or the user truly has
+      // no Firestore doc). Show a spinner — the providers will
+      // rebuild this widget as soon as data lands, so the user
+      // doesn't see a permanent "Not logged in" page.
+      return const Center(child: CircularProgressIndicator());
+    }
+    return Stack(
+      children: [
+        _DashboardBody(userName: user.fullName),
+        // No-op listener that pops a SnackBar whenever the wishlist
+        // cross-trigger fires. Mounted once at the root of the
+        // buyer shell.
+        const WishlistMatchBanner(),
+      ],
     );
   }
 }

@@ -1,4 +1,6 @@
 import 'dart:io';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart' hide FormField;
 import 'package:flutter/widgets.dart' as fw show FormField;
 import 'package:flutter/services.dart';
@@ -9,7 +11,6 @@ import 'package:image_picker/image_picker.dart';
 import '../../config/route_paths.dart';
 import '../../config/theme_extensions.dart';
 import '../../models/enums/user_role.dart';
-import '../../models/user_model.dart';
 import '../../providers/auth_provider.dart';
 import '../../services/cloudinary_service.dart';
 import '../../utils/error_handler.dart';
@@ -76,7 +77,6 @@ class RegisterScreen extends HookConsumerWidget {
     final businessNameCtrl = useTextEditingController();
 
     final authService = ref.watch(authServiceProvider);
-    final userService = ref.watch(userServiceProvider);
     final cloudinary = CloudinaryService();
     // ImagePicker is lightweight and stateless — construct it directly
     // rather than memoising. A useMemoized closure can become stale and
@@ -139,75 +139,106 @@ class RegisterScreen extends HookConsumerWidget {
       }
 
       isLoading.value = true;
+      User? createdAuthUser;
       try {
         setMockUser(null);
-        // 1. Firebase Auth sign up
-        final user = await authService.signUp(
+
+        // STEP 1: Firebase Auth sign up
+        createdAuthUser = await authService.signUp(
           email: emailCtrl.text.trim(),
           password: passwordCtrl.text,
           fullName: nameCtrl.text.trim(),
         );
-        if (user == null || !context.mounted) return;
+        if (createdAuthUser == null || !context.mounted) return;
+        AppLogger.info('Auth created for: ${createdAuthUser.uid}');
 
-        // 2. Upload profile photo if provided
+        // STEP 2: Upload profile photo if provided (non-blocking if it fails)
         String? photoUrl;
         if (profilePhoto.value != null) {
-          photoUrl = await cloudinary.uploadImage(
-            profilePhoto.value!,
-            folder: 'profile_photos',
-          );
+          try {
+            photoUrl = await cloudinary.uploadImage(
+              profilePhoto.value!,
+              folder: 'profile_photos',
+            );
+          } catch (photoErr) {
+            AppLogger.warning('Profile photo upload failed: $photoErr');
+            // Continue registration without a photo — not fatal.
+          }
         }
 
-        // 3. Build role-specific metadata
-        final Map<String, dynamic> extraData = {};
+        // STEP 3: Build role-specific metadata
+        final Map<String, dynamic> roleMetadata = {};
         final role = selectedRole.value!;
         if (role == UserRole.streetSeller) {
-          extraData['transportType'] = transportType.value;
+          if (transportType.value != null) {
+            roleMetadata['transportType'] = transportType.value;
+          }
           if (equipmentPhoto.value != null) {
-            final eUrl = await cloudinary.uploadImage(
-              equipmentPhoto.value!,
-              folder: 'equipment_photos',
-            );
-            extraData['equipmentPhotoUrl'] = eUrl;
+            try {
+              final eUrl = await cloudinary.uploadImage(
+                equipmentPhoto.value!,
+                folder: 'equipment_photos',
+              );
+              roleMetadata['equipmentPhotoUrl'] = eUrl;
+            } catch (photoErr) {
+              AppLogger.warning('Equipment photo upload failed: $photoErr');
+            }
           }
         } else if (role == UserRole.buyer) {
-          extraData['buyerType'] = buyerType.value;
-          extraData['deliveryAddress'] = deliveryAddressCtrl.text.trim();
-          extraData['preferredDeliveryTime'] = preferredDeliveryTime.value;
-          extraData['businessName'] = businessNameCtrl.text.trim();
+          if (buyerType.value != null) roleMetadata['buyerType'] = buyerType.value;
+          final addr = deliveryAddressCtrl.text.trim();
+          if (addr.isNotEmpty) roleMetadata['deliveryAddress'] = addr;
+          if (preferredDeliveryTime.value != null) {
+            roleMetadata['preferredDeliveryTime'] = preferredDeliveryTime.value;
+          }
+          final biz = businessNameCtrl.text.trim();
+          if (biz.isNotEmpty) roleMetadata['businessName'] = biz;
         }
 
-        // 4. Build and save UserModel
-        final now = DateTime.now();
-        final userModel = UserModel(
-          userId: user.uid,
-          email: emailCtrl.text.trim(),
-          fullName: nameCtrl.text.trim(),
-          phoneNumber: phoneCtrl.text.trim(),
-          role: role,
-          profilePictureUrl: photoUrl,
-          location: extraData.isEmpty ? null : extraData,
-          isActive: true,
-          createdAt: now,
-          updatedAt: now,
-        );
-        await userService.saveUser(userModel);
+        // STEP 4: Save Firestore document directly — bypasses UserModel.toJson
+        // to avoid any parse issues with required DateTime fields on first save.
+        final uid = createdAuthUser.uid;
+        final Map<String, dynamic> firestoreData = {
+          'userId': uid,
+          'email': emailCtrl.text.trim().toLowerCase(),
+          'fullName': nameCtrl.text.trim(),
+          'phoneNumber': phoneCtrl.text.trim(),
+          'role': role.name, // 'buyer' | 'streetSeller'
+          'profilePictureUrl': photoUrl,
+          'isActive': true,
+          'isApproved': false,
+          'totalListings': 0,
+          'totalOrders': 0,
+          'totalSales': 0.0,
+          'averageRating': 0.0,
+          'totalEarnings': 0.0,
+          'createdAt': FieldValue.serverTimestamp(),
+          'updatedAt': FieldValue.serverTimestamp(),
+          if (roleMetadata.isNotEmpty) 'metadata': roleMetadata,
+        };
 
-        AppLogger.info('Registration complete for: ${user.uid}');
+        await FirebaseFirestore.instance
+            .collection('users')
+            .doc(uid)
+            .set(firestoreData);
+
+        AppLogger.info('Firestore doc saved for: $uid role=${role.name}');
+
         if (context.mounted) {
-          _snack(context, 'Welcome to SamakiFresh!');
+          _snack(context, 'Karibu SamakiFresh!');
           context.go(AppRoutesExtensions.dashboardFor(role));
         }
       } catch (e) {
         AppLogger.error('Registration error: $e');
+        // NOTE: We do NOT roll back the Firebase Auth user here.
+        // If Firestore save failed but Auth succeeded, the user can
+        // still log in — the login flow (handleLogin in login_screen.dart)
+        // will create their missing Firestore document automatically.
+        // Deleting the Auth user would leave them with an unreachable account.
         if (context.mounted) {
           _snack(context, ErrorHandler.getErrorMessage(e), isError: true);
         }
       } finally {
-        // Guard against use-after-dispose: if navigation already
-        // happened (success path) the widget tree is gone. The
-        // `isLoading` ValueNotifier was created via `useState` and
-        // is disposed along with the widget.
         if (context.mounted) {
           isLoading.value = false;
         }

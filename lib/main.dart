@@ -2,7 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:flutter/foundation.dart' show defaultTargetPlatform, TargetPlatform;
+import 'package:flutter/foundation.dart'
+    show defaultTargetPlatform, TargetPlatform, kIsWeb;
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'config/themes.dart';
@@ -53,6 +54,24 @@ void main() async {
           options: DefaultFirebaseOptions.currentPlatform,
         );
         AppLogger.info('Firebase initialized successfully');
+
+        const useEmulator = bool.fromEnvironment(
+          'USE_FIREBASE_EMULATOR',
+          defaultValue: false,
+        );
+        if (useEmulator) {
+          final emulatorHost = kIsWeb ||
+                  defaultTargetPlatform != TargetPlatform.android
+              ? 'localhost'
+              : '10.0.2.2';
+          AppLogger.info(
+            'Connecting Firebase to emulators at $emulatorHost',
+          );
+          await FirebaseAuth.instance.useAuthEmulator(emulatorHost, 9099);
+          FirebaseFirestore.instance
+              .useFirestoreEmulator(emulatorHost, 8080);
+          AppLogger.info('Firebase emulators connected');
+        }
       } on FirebaseException catch (e) {
         if (e.code == 'duplicate-app') {
           AppLogger.info(
@@ -69,24 +88,9 @@ void main() async {
       AppLogger.info('Firebase already initialized, skipping...');
     }
 
-    // Point Firestore at the local emulator or live database.
-    const bool useEmulator = false; // Set to true to use local emulator
-    if (useEmulator && Firebase.apps.isNotEmpty) {
-      final isAndroid = defaultTargetPlatform == TargetPlatform.android;
-      final host = isAndroid ? '10.0.2.2' : '127.0.0.1';
-      try {
-        FirebaseFirestore.instance.useFirestoreEmulator(host, 8080);
-        AppLogger.info('Firestore emulator bound to $host:8080');
-      } catch (e) {
-        AppLogger.warning('Firestore emulator bind skipped: $e');
-      }
-      try {
-        FirebaseAuth.instance.useAuthEmulator(host, 9099);
-        AppLogger.info('Auth emulator bound to $host:9099');
-      } catch (e) {
-        AppLogger.warning('Auth emulator bind skipped: $e');
-      }
-    }
+    // Firebase emulators are enabled with:
+    // flutter run --dart-define=USE_FIREBASE_EMULATOR=true
+    // Android emulators reach the host machine through 10.0.2.2.
 
     // Seed demo accounts if they don't exist, only if Firebase is initialized
     if (Firebase.apps.isNotEmpty) {
