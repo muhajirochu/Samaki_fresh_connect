@@ -1,14 +1,39 @@
 # Samaki Fresh Connect — Waveform Cleaning Plan
 
-**Status:** Ready for approval (decisions captured)
+**Status:** ✅ **All three waves completed (2026-08-02)**
 **Project root:** `c:\Users\noble\StudioProjects\samaki_fresh_connect`
 **Generated:** 2026-08-02
+**Commits:** `3fae5df` (wave 3) · `4363894` (wave 2) · `771da16` (wave 1) — on `main`, ready to push.
 
 ### Decisions captured (2026-08-02)
 
 - ✅ `lib/services/demo_seeder.dart` → delete the whole file.
 - ✅ `FIREBASE_AUDIT_REPORT.md` → delete entirely.
 - ✅ Wave 3 → full removal of `'fisherman'` shim + Firestore field rename `fishermanId` → `streetSellerId`.
+
+### Wave completion
+
+| Wave | Scope | Status |
+|---|---|---|
+| **Wave 1** | Pure deletions: demo seeder, demo accounts, OAuth TODOs, l10n keys, stale root artifacts, doc merge into README, pubspec description | ✅ Done |
+| **Wave 2** | `FIREBASE_AUDIT_REPORT.md` deletion, `.gitignore` `*.patch` entry, AppLogger import audit | ✅ Done |
+| **Wave 3** | `user_role_converter.dart` removal, `@UserRoleConverter()` annotation strip + Freezed regen, `case 'fisherman'` removal, `fishermanId` → `streetSellerId` rename in `firestore.rules`, test seed data update, `docs/logger-decision.md` ADR | ✅ Done |
+
+### Verification (run after all three waves)
+
+- `flutter analyze` → 4 pre-existing warnings in `lib/screens/common/settings_screen.dart`, **0 cleanup-related warnings**.
+- `flutter test` → 173 passed / 37 failed. The 37 failures are **pre-existing** (verified by `git stash` round-trip on a clean baseline, same ratio).
+- `git grep fisherman lib/` → 0 hits.
+- `git grep fishermanId firestore.rules` → 0 hits.
+- `git grep UserRoleConverter` → 0 hits (only this `clean.md` references it).
+- `git status` → clean after the three commits.
+
+### Out of scope — still on your plate
+
+1. **Firestore data migration** — rename `fishermanId` → `streetSellerId` in any existing production documents. Code/rules are consistent; live data is not yet. Run a one-off `update` against the live database before deploying Wave 3.
+2. **`firebase_options.dart`** placeholder API keys — `flutterfire configure` before any production deploy.
+3. **37 pre-existing test failures** — unrelated to this cleanup, defer to a separate task.
+4. **Push to remote** — blocked on `main`: the configured git user (`Abubakar-Sadik-Abdulla`) has no write access to `muhajirochu/Samaki_fresh_connect`. Push from a user with access, or re-authenticate with a PAT.
 
 ---
 
