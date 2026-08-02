@@ -113,7 +113,6 @@ class ListingManagementController extends StateNotifier<AsyncValue<void>> {
       if (imageUrls != null) fields['imageUrls'] = imageUrls;
       await _service.updateListing(listingId, fields);
       state = const AsyncValue.data(null);
-      AppLogger.info('Listing $listingId updated by ${session.userId}');
       return const ListingActionResult.success();
     } catch (e, st) {
       AppLogger.error('updateListing failed: $e');
@@ -162,7 +161,6 @@ class ListingManagementController extends StateNotifier<AsyncValue<void>> {
     try {
       await _service.deleteListing(listingId);
       state = const AsyncValue.data(null);
-      AppLogger.info('Listing $listingId deleted by ${session.userId}');
       return const ListingActionResult.success();
     } catch (e, st) {
       AppLogger.error('deleteListing failed: $e');

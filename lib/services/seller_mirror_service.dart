@@ -121,7 +121,6 @@ class SellerMirrorService {
         },
         SetOptions(merge: true),
       );
-      AppLogger.info('Mirror ensured for street seller ${user.userId}');
     } catch (e) {
       AppLogger.error('ensureMirror failed for ${user.userId}: $e');
     }

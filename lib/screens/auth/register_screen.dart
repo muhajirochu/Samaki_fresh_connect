@@ -150,7 +150,6 @@ class RegisterScreen extends HookConsumerWidget {
           fullName: nameCtrl.text.trim(),
         );
         if (createdAuthUser == null || !context.mounted) return;
-        AppLogger.info('Auth created for: ${createdAuthUser.uid}');
 
         // STEP 2: Upload profile photo if provided (non-blocking if it fails)
         String? photoUrl;
@@ -221,8 +220,6 @@ class RegisterScreen extends HookConsumerWidget {
             .collection('users')
             .doc(uid)
             .set(firestoreData);
-
-        AppLogger.info('Firestore doc saved for: $uid role=${role.name}');
 
         if (context.mounted) {
           _snack(context, 'Karibu SamakiFresh!');

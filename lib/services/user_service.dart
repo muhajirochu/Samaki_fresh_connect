@@ -98,8 +98,6 @@ class UserService {
         data['userId'] = data['userId'] ?? doc.id;
         try {
           final user = UserModel.fromJson(data);
-          AppLogger.info(
-              'fetchUserById: SUCCESS by UID. role=${user.role.displayName}');
           return user;
         } catch (parseErr) {
           // HARD FIX: profile exists but a field was malformed
@@ -117,9 +115,6 @@ class UserService {
           try {
             final recovered = _recoverUserModel(data, userId);
             if (recovered != null) {
-              AppLogger.info(
-                  'fetchUserById: Recovered user with lenient parser. '
-                  'role=${recovered.role.displayName}');
               return recovered;
             }
           } catch (recoveryErr) {
@@ -140,9 +135,6 @@ class UserService {
       // We query by email, and if found, copy the data to
       // `users/{uid}` so the next login is instant.
       if (email != null && email.isNotEmpty) {
-        AppLogger.info(
-            'fetchUserById: users/$userId NOT FOUND — trying email lookup: $email');
-
         // Try exact email match first.
         QuerySnapshot<Map<String, dynamic>> emailQuery;
         try {
@@ -166,8 +158,6 @@ class UserService {
         if (emailQuery.docs.isEmpty) {
           final lowerEmail = email.toLowerCase();
           if (lowerEmail != email) {
-            AppLogger.info(
-                'fetchUserById: retrying with lowercase email: $lowerEmail');
             try {
               emailQuery = await _firestore
                   .collection('users')
@@ -189,17 +179,12 @@ class UserService {
           // Stamp the canonical userId into the data.
           data['userId'] = userId;
 
-          AppLogger.info(
-              'fetchUserById: Found user by email (oldDocId=${oldDoc.id}). '
-              'Migrating to users/$userId...');
-
           // Write the canonical document at `users/{uid}`.
           try {
             await _firestore
                 .collection('users')
                 .doc(userId)
                 .set(data, SetOptions(merge: true));
-            AppLogger.info('fetchUserById: Migration write succeeded');
           } on FirebaseException catch (fe) {
             AppLogger.error(
                 'fetchUserById: Migration SET failed code=${fe.code} msg=${fe.message}');
@@ -211,7 +196,6 @@ class UserService {
           if (oldDoc.id != userId) {
             try {
               await _firestore.collection('users').doc(oldDoc.id).delete();
-              AppLogger.info('fetchUserById: Deleted orphan doc: users/${oldDoc.id}');
             } catch (e) {
               AppLogger.warning(
                   'fetchUserById: Could not delete orphan doc ${oldDoc.id}: $e');
@@ -220,8 +204,6 @@ class UserService {
 
           try {
             final user = UserModel.fromJson(data);
-            AppLogger.info(
-                'fetchUserById: SUCCESS via email migration. role=${user.role.displayName}');
             return user;
           } catch (parseErr, parseSt) {
             AppLogger.error(
@@ -248,8 +230,6 @@ class UserService {
           for (final d in allSnap.docs) {
             final storedEmail = (d.data()['email'] as String? ?? '').toLowerCase();
             if (storedEmail == email.toLowerCase()) {
-              AppLogger.info(
-                  'fetchUserById: Full scan matched doc ${d.id} for email $email');
               final data = Map<String, dynamic>.from(d.data());
               data['userId'] = userId;
               // Migrate the found document to the correct UID path.
@@ -261,7 +241,6 @@ class UserService {
                 if (d.id != userId) {
                   await _firestore.collection('users').doc(d.id).delete();
                 }
-                AppLogger.info('fetchUserById: Scan-based migration done.');
               } catch (migrErr) {
                 AppLogger.warning('fetchUserById: Scan migration failed: $migrErr');
               }
@@ -300,8 +279,6 @@ class UserService {
           .collection('users')
           .doc(user.userId)
           .set(user.toJson(), SetOptions(merge: true));
-
-      AppLogger.info('User data saved successfully');
     } catch (e) {
       AppLogger.error('Error saving user data: $e');
       rethrow;
@@ -341,8 +318,6 @@ class UserService {
           .collection('users')
           .doc(userId)
           .update({'role': newRole});
-
-      AppLogger.info('User role updated successfully');
     } catch (e) {
       AppLogger.error('Error updating user role: $e');
       rethrow;
@@ -361,7 +336,6 @@ class UserService {
         ...fields,
         'updatedAt': DateTime.now().toIso8601String(),
       });
-      AppLogger.info('Profile updated successfully');
     } catch (e) {
       AppLogger.error('Error updating profile: $e');
       rethrow;
@@ -396,7 +370,6 @@ class UserService {
         'locationUpdatedAt': FieldValue.serverTimestamp(),
         'updatedAt': DateTime.now().toIso8601String(),
       });
-      AppLogger.info('User location updated successfully');
     } catch (e) {
       AppLogger.error('Error updating user location: $e');
       rethrow;
@@ -514,7 +487,6 @@ class UserService {
         'isActive': isActive,
         'updatedAt': FieldValue.serverTimestamp(),
       });
-      AppLogger.info('User $userId active flag set to $isActive');
     } catch (e) {
       AppLogger.error('Error toggling active flag for $userId: $e');
       rethrow;
@@ -598,7 +570,6 @@ class UserService {
         'approvedAt': FieldValue.serverTimestamp(),
         'updatedAt': FieldValue.serverTimestamp(),
       });
-      AppLogger.info('Seller $sellerId approved by $approverUid');
     } catch (e) {
       AppLogger.error('Error approving seller $sellerId: $e');
       rethrow;
@@ -616,7 +587,6 @@ class UserService {
         'approvedBy': revokerUid,
         'updatedAt': FieldValue.serverTimestamp(),
       });
-      AppLogger.info('Seller $sellerId approval revoked by $revokerUid');
     } catch (e) {
       AppLogger.error('Error revoking seller $sellerId: $e');
       rethrow;
@@ -628,13 +598,11 @@ class UserService {
   /// Reversible via [reactivateUser].
   Future<void> suspendUser(String userId, String actorUid) async {
     await setUserActive(userId, false);
-    AppLogger.info('User $userId suspended by $actorUid');
   }
 
   /// Reactivate a previously-suspended user. Sets `isActive = true`.
   Future<void> reactivateUser(String userId, String actorUid) async {
     await setUserActive(userId, true);
-    AppLogger.info('User $userId reactivated by $actorUid');
   }
 
   /// Live count of users that have [role]. Used by the admin

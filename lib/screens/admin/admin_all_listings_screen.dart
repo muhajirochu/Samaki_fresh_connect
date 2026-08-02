@@ -29,7 +29,6 @@ import '../../l10n/app_localizations.dart';
 import '../../models/enums/fish_type.dart';
 import '../../models/fish_listing_model.dart';
 import '../../providers/admin_provider.dart';
-import '../../utils/logger.dart';
 
 class AdminAllListingsScreen extends ConsumerStatefulWidget {
   const AdminAllListingsScreen({super.key});
@@ -106,7 +105,6 @@ class _AdminAllListingsScreenState
     final service = ref.read(adminListingServiceProvider);
     try {
       final deleted = await service.deleteListingsBulk(ids);
-      AppLogger.info('Admin bulk-deleted $deleted listings');
       ref.invalidate(adminAllListingsProvider);
       ref.invalidate(adminActiveListingsCountProvider);
       if (mounted) {
@@ -332,7 +330,6 @@ class _AdminAllListingsScreenState
     final service = ref.read(adminListingServiceProvider);
     try {
       await service.deleteListing(listing.listingId);
-      AppLogger.info('Admin deleted listing ${listing.listingId}');
       ref.invalidate(adminAllListingsProvider);
       ref.invalidate(adminActiveListingsCountProvider);
       if (context.mounted) {

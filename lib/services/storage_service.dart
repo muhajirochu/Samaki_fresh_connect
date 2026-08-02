@@ -28,7 +28,6 @@ class StorageService {
 
   Future<void> init() async {
     _prefs = await SharedPreferences.getInstance();
-    AppLogger.info('StorageService initialized');
   }
 
   // String methods
@@ -123,7 +122,6 @@ class StorageService {
   Future<void> clear() async {
     try {
       await _prefs.clear();
-      AppLogger.info('Storage cleared');
     } catch (e) {
       AppLogger.error('Error clearing storage: $e');
       rethrow;

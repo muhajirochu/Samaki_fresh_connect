@@ -26,33 +26,25 @@ void main() async {
     // Initialize local storage first (before Firebase) and expose
     // the global [StorageService.instance] so providers (notably the
     // theme controller) can read/write persistent values.
-    AppLogger.info('Initializing local storage...');
     await StorageService.bootstrap();
-    AppLogger.info('Local storage initialized');
 
     // Read the persisted theme choice before the first build so the
     // app launches in the right colour scheme — no flash of the
     // wrong theme on cold start.
-    AppLogger.info('Bootstrapping theme mode...');
     await migrateLegacyThemeSlot();
     await bootstrapThemeNotifier();
-    AppLogger.info('Theme mode bootstrapped');
 
     // Read the persisted language choice before the first build so
     // the very first frame already renders in the right locale —
     // no flash of English on launch for Kiswahili users.
-    AppLogger.info('Bootstrapping locale...');
     bootstrapLocale();
-    AppLogger.info('Locale bootstrapped');
 
     // Initialize Firebase only if not already initialized (prevents duplicate-app error on hot-restart)
     if (Firebase.apps.isEmpty) {
-      AppLogger.info('Initializing Firebase...');
       try {
         await Firebase.initializeApp(
           options: DefaultFirebaseOptions.currentPlatform,
         );
-        AppLogger.info('Firebase initialized successfully');
 
         const useEmulator = bool.fromEnvironment(
           'USE_FIREBASE_EMULATOR',
@@ -63,19 +55,12 @@ void main() async {
                   defaultTargetPlatform != TargetPlatform.android
               ? 'localhost'
               : '10.0.2.2';
-          AppLogger.info(
-            'Connecting Firebase to emulators at $emulatorHost',
-          );
           await FirebaseAuth.instance.useAuthEmulator(emulatorHost, 9099);
           FirebaseFirestore.instance
               .useFirestoreEmulator(emulatorHost, 8080);
-          AppLogger.info('Firebase emulators connected');
         }
       } on FirebaseException catch (e) {
-        if (e.code == 'duplicate-app') {
-          AppLogger.info(
-              'Firebase already initialized; skipping (duplicate-app).');
-        } else {
+        if (e.code != 'duplicate-app') {
           AppLogger.error('Firebase initialization error: $e');
           // App continues in offline/demo mode
         }
@@ -83,8 +68,6 @@ void main() async {
         AppLogger.error('Firebase initialization error: $e');
         // App continues in offline/demo mode
       }
-    } else {
-      AppLogger.info('Firebase already initialized, skipping...');
     }
 
     // Firebase emulators are enabled with:
@@ -92,10 +75,8 @@ void main() async {
     // Android emulators reach the host machine through 10.0.2.2.
 
     // Initialize notification service
-    AppLogger.info('Initializing notification service...');
     final notificationService = NotificationService();
     await notificationService.init();
-    AppLogger.info('Notification service initialized');
 
     final container = ProviderContainer(
       overrides: [

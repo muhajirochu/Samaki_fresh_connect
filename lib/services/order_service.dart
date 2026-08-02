@@ -23,13 +23,11 @@ class OrderService {
   Future<String> createOrder(OrderModel order) async {
     if (!_isAvailable) throw StateError('Firebase not available');
     try {
-      AppLogger.info('Creating order for buyer: ${order.buyerId}');
       final docRef = _firestore.collection(_collection).doc();
       final data = order.toJson();
       data['orderId'] = docRef.id;
       data['createdAt'] = FieldValue.serverTimestamp();
       await docRef.set(data);
-      AppLogger.info('Order created: ${docRef.id}');
       return docRef.id;
     } catch (e) {
       AppLogger.error('Error creating order: $e');
@@ -107,7 +105,6 @@ class OrderService {
       final fields = <String, dynamic>{'orderStatus': status};
       if (extraFields != null) fields.addAll(extraFields);
       await _firestore.collection(_collection).doc(orderId).update(fields);
-      AppLogger.info('Order $orderId status → $status');
     } catch (e) {
       AppLogger.error('Error updating order status: $e');
       rethrow;
@@ -152,8 +149,6 @@ class OrderService {
         'soldAt': FieldValue.serverTimestamp(),
       });
       await batch.commit();
-      AppLogger.info(
-          'Confirmed order $orderId + sold listing $listingId (atomic)');
     } catch (e) {
       AppLogger.error(
           'confirmOrderAndMarkListingSold failed for order $orderId: $e');
@@ -175,7 +170,6 @@ class OrderService {
         'cancelledAt': FieldValue.serverTimestamp(),
         'cancelledBy': 'seller',
       });
-      AppLogger.info('Seller rejected pending order $orderId');
     } catch (e) {
       AppLogger.error('rejectPendingOrder failed for $orderId: $e');
       rethrow;

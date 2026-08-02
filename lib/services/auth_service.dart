@@ -45,8 +45,6 @@ class AuthService {
       // Update user profile
       await userCredential.user?.updateDisplayName(fullName);
 
-      AppLogger.info(
-          'User signed up successfully: ${userCredential.user?.uid}');
       return userCredential.user;
     } on FirebaseAuthException catch (e) {
       AppLogger.error('Sign up error: ${e.code} - ${e.message}');
@@ -71,8 +69,6 @@ class AuthService {
         password: password,
       );
 
-      AppLogger.info(
-          'User signed in successfully: ${userCredential.user?.uid}');
       return userCredential.user;
     } on FirebaseAuthException catch (e) {
       AppLogger.error('Sign in error: ${e.code} - ${e.message}');
@@ -89,7 +85,6 @@ class AuthService {
     try {
       AppLogger.debug('Signing out user');
       await _firebaseAuth.signOut();
-      AppLogger.info('User signed out successfully');
     } catch (e) {
       AppLogger.error('Error during sign out: $e');
       rethrow;
@@ -102,7 +97,6 @@ class AuthService {
     try {
       AppLogger.debug('Sending password reset email to: $email');
       await _firebaseAuth.sendPasswordResetEmail(email: email);
-      AppLogger.info('Password reset email sent');
     } on FirebaseAuthException catch (e) {
       AppLogger.error('Error sending password reset email: ${e.code}');
       rethrow;

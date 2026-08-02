@@ -16,8 +16,6 @@ class CloudinaryService {
   /// Uploads a single image file and returns the secure URL.
   Future<String> uploadImage(File imageFile, {String? folder}) async {
     try {
-      AppLogger.info('Uploading image to Cloudinary: ${imageFile.path}');
-
       final formData = FormData.fromMap({
         'file': await MultipartFile.fromFile(
           imageFile.path,
@@ -37,7 +35,6 @@ class CloudinaryService {
 
       if (response.statusCode == 200) {
         final secureUrl = response.data['secure_url'] as String;
-        AppLogger.info('Image uploaded successfully: $secureUrl');
         return secureUrl;
       } else {
         throw Exception(

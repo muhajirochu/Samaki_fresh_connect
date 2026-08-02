@@ -7,7 +7,6 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_core/firebase_core.dart';
 
 import '../models/cart_model.dart';
-import '../utils/logger.dart';
 
 class CartService {
   FirebaseFirestore get _firestore => FirebaseFirestore.instance;
@@ -34,7 +33,6 @@ class CartService {
   Future<void> add(String buyerId, CartItem item) async {
     if (!_isAvailable || buyerId.isEmpty) return;
     await _cartRef(buyerId).doc(item.listingId).set(item.toMap());
-    AppLogger.info('Cart added: ${item.listingId} for $buyerId');
   }
 
   Future<void> updateQuantity(
@@ -70,7 +68,6 @@ class CartService {
       batch.delete(doc.reference);
     }
     await batch.commit();
-    AppLogger.info('Cart cleared for $buyerId (${snap.docs.length} items)');
   }
 
   /// Removes only the listings that were successfully ordered, leaving

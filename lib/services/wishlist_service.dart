@@ -4,7 +4,6 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_core/firebase_core.dart';
 
 import '../models/wishlist_model.dart';
-import '../utils/logger.dart';
 
 class WishlistService {
   FirebaseFirestore get _firestore => FirebaseFirestore.instance;
@@ -30,7 +29,6 @@ class WishlistService {
         .collection('wishlist')
         .doc(entry.id)
         .set(entry.toMap());
-    AppLogger.info('Wishlist added: ${entry.id} for $buyerId');
   }
 
   Future<void> remove(String buyerId, String entryId) async {

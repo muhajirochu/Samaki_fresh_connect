@@ -82,7 +82,6 @@ class NotificationService {
         linux: linuxSettings,
       );
       await _notificationsPlugin.initialize(initSettings);
-      AppLogger.info('NotificationService initialized');
     } catch (e) {
       AppLogger.error('Error initializing NotificationService: $e');
     }
@@ -143,8 +142,6 @@ class NotificationService {
         'createdAt': FieldValue.serverTimestamp(),
       };
       final ref = await _firestore.collection(_collection).add(data);
-      AppLogger.info(
-          'Notification written: ${ref.id} type=${type.value} → $userId');
       return ref.id;
     } catch (e) {
       AppLogger.error('writeNotification failed: $e');

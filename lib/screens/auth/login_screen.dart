@@ -326,8 +326,6 @@ class _SignInTab extends HookConsumerWidget {
 
         // STEP 2: Log the UID as requested.
         final uid = fbUser.uid;
-        AppLogger.info('Fetched UID: $uid');
-        AppLogger.info('Firebase Auth succeeded. UID: $uid | Email: ${fbUser.email}');
 
         // STEP 3: Read raw Firestore document directly by UID
         // This is the most reliable path — direct doc read, no query needed
@@ -346,7 +344,6 @@ class _SignInTab extends HookConsumerWidget {
             rawData = Map<String, dynamic>.from(docSnap.data()!);
             rawData['userId'] = uid; // ensure userId is stamped
             resolvedRole = rawData['role']?.toString();
-            AppLogger.info('Firestore read OK. role=$resolvedRole fields=${rawData.keys.toList()}');
           }
         } on FirebaseException catch (fe) {
           AppLogger.error('Firestore direct-read FAILED: code=${fe.code} msg=${fe.message}');
@@ -384,7 +381,6 @@ class _SignInTab extends HookConsumerWidget {
             if (rawData != null) {
               rawData['userId'] = uid;
               resolvedRole = rawData['role']?.toString();
-              AppLogger.info('Email fallback succeeded. role=$resolvedRole');
 
               // HARD FIX: Firestore's `users/{uid}` create rule
               // requires `phoneNumber` to be a non-empty string. If
@@ -411,7 +407,6 @@ class _SignInTab extends HookConsumerWidget {
                     .collection('users')
                     .doc(uid)
                     .set(rawData, SetOptions(merge: true));
-                AppLogger.info('Migrated user doc to users/$uid');
               } on FirebaseException catch (fe) {
                 // Migration write can fail if the rule rejects the
                 // data (legacy doc missing required fields). Falling
@@ -468,7 +463,6 @@ class _SignInTab extends HookConsumerWidget {
           resolvedRole = inferredRole;
           try {
             await FirebaseFirestore.instance.collection('users').doc(uid).set(rawData);
-            AppLogger.info('Created default $inferredRole doc for UID=$uid');
           } on FirebaseException catch (fe) {
             AppLogger.error('Failed to create default doc: ${fe.code} ${fe.message}');
             if (context.mounted) {
@@ -495,8 +489,6 @@ class _SignInTab extends HookConsumerWidget {
           default:
             userRole = UserRole.buyer;
         }
-
-        AppLogger.info('Login complete. UID=$uid role=${userRole.name}. Navigating...');
 
         // Write audit log (swallow any failure — login must always succeed)
         try {

@@ -111,7 +111,6 @@ class FishCategoryService {
         .collection(_collection)
         .doc(slug)
         .set(model.toJson(), SetOptions(merge: false));
-    AppLogger.info('Category $slug created by $actorUid');
   }
 
   /// Patch an existing category. Pass any subset of [displayName],
@@ -135,7 +134,6 @@ class FishCategoryService {
     if (isActive != null) patch['isActive'] = isActive;
 
     await _firestore.collection(_collection).doc(slug).update(patch);
-    AppLogger.info('Category $slug updated by $actorUid');
   }
 
   /// Hard-delete a category. Admin-only; the Firestore rules will
@@ -145,7 +143,6 @@ class FishCategoryService {
   Future<void> deleteCategory(String slug, String actorUid) async {
     if (!_isAvailable) return;
     await _firestore.collection(_collection).doc(slug).delete();
-    AppLogger.info('Category $slug deleted by $actorUid');
   }
 
   /// One-shot seed of the seven default `FishType` values. Idempotent
@@ -176,9 +173,6 @@ class FishCategoryService {
       });
       created++;
     }
-    AppLogger.info(
-      'Seeded $created default categories (actor=$actorUid)',
-    );
     return created;
   }
 }

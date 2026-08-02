@@ -76,7 +76,6 @@ class FishListingService {
   }) async {
     if (!_isAvailable) throw StateError('Firebase not available');
     try {
-      AppLogger.info('Creating listing for seller: ${listing.sellerId}');
       final data = listing.toJson();
       data['createdAt'] = FieldValue.serverTimestamp();
 
@@ -106,8 +105,6 @@ class FishListingService {
       final docRef = _firestore.collection(_collection).doc();
       data['listingId'] = docRef.id;
       await docRef.set(data);
-      AppLogger.info(
-          'Listing created: ${docRef.id} at ${coords.$1},${coords.$2}');
       return docRef.id;
     } catch (e) {
       AppLogger.error('Error creating listing: $e');
@@ -485,7 +482,6 @@ class FishListingService {
     if (!_isAvailable) return;
     try {
       await _firestore.collection(_collection).doc(listingId).update(fields);
-      AppLogger.info('Listing $listingId updated');
     } catch (e) {
       AppLogger.error('Error updating listing: $e');
       rethrow;
@@ -519,9 +515,7 @@ class FishListingService {
         });
         return true;
       });
-      if (result) {
-        AppLogger.info('Listing $listingId marked as sold (atomic)');
-      } else {
+      if (!result) {
         AppLogger.warning(
             'tryMarkAsSold: $listingId was no longer active');
       }
@@ -537,7 +531,6 @@ class FishListingService {
     if (!_isAvailable) return;
     try {
       await _firestore.collection(_collection).doc(listingId).delete();
-      AppLogger.info('Listing $listingId deleted');
     } catch (e) {
       AppLogger.error('Error deleting listing: $e');
       rethrow;
@@ -566,7 +559,6 @@ class FishListingService {
         batch.delete(_firestore.collection(_collection).doc(id));
       }
       await batch.commit();
-      AppLogger.info('Bulk-deleted ${ids.length} listings');
       return ids.length;
     } catch (e) {
       AppLogger.error('Error bulk-deleting listings: $e');
@@ -598,7 +590,6 @@ class FishListingService {
         'geo': GeoPoint(latitude, longitude),
         'locationUpdatedAt': FieldValue.serverTimestamp(),
       });
-      AppLogger.info('Listing $listingId location updated');
     } catch (e) {
       AppLogger.error('Error updating listing location: $e');
       rethrow;

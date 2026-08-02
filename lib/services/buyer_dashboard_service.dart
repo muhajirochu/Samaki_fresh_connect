@@ -114,8 +114,6 @@ class BuyerDashboardService {
     data['updatedAt'] = FieldValue.serverTimestamp();
     final ref = await _firestore.collection(_requestsCollection).add(data);
     await ref.update({'requestId': ref.id});
-    AppLogger.info(
-        'FishRequest created: ${ref.id} for buyer ${request.buyerId}');
     return ref.id;
   }
 
