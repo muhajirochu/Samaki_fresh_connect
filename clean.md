@@ -1,9 +1,9 @@
 # Samaki Fresh Connect — Waveform Cleaning Plan
 
-**Status:** ✅ **All three waves completed (2026-08-02)**
+**Status:** ✅ **All three waves completed + 37 pre-existing test failures fixed + Firestore migration script authored (2026-08-02)**
 **Project root:** `c:\Users\noble\StudioProjects\samaki_fresh_connect`
 **Generated:** 2026-08-02
-**Commits:** `5be878d` (cleanup status update) · `3fae5df` (wave 3) · `4363894` (wave 2) · `771da16` (wave 1) — on `main`, ready to push.
+**Commits:** `98101c9` (fix tests) · `9e6b55c` (clean.md update) · `5be878d` (cleanup status) · `3fae5df` (wave 3) · `4363894` (wave 2) · `771da16` (wave 1) — on `main`, ready to push.
 
 ### Decisions captured (2026-08-02)
 
@@ -34,9 +34,14 @@
 
 ### A. Out of scope from cleanup (still on your plate)
 
-1. **Firestore data migration** — rename `fishermanId` → `streetSellerId` in any existing production documents. Code/rules are consistent; live data is not yet. Run a one-off `update` against the live database before deploying Wave 3.
+1. **Firestore data migration** — ✅ **script authored**: `scripts/migrate_fisherman_to_street_seller.sh` (with `.ps1` companion). Walks every configured collection, copies `fishermanId` over `streetSellerId`, deletes `fishermanId`. Idempotent, paged 500 at a time, supports `--dry-run` and `--emulator`. **Run once before deploying Wave 3:**
+   ```bash
+   ./scripts/migrate_fisherman_to_street_seller.sh --dry-run   # inspect
+   ./scripts/migrate_fisherman_to_street_seller.sh            # live
+   ```
+   Payload-decision logic has 6 unit tests in `test/scripts/migrate_fisherman_to_street_seller_test.js` — all pass.
 2. **`firebase_options.dart` placeholder API keys** — `flutterfire configure` before any production deploy.
-3. **37 pre-existing test failures** — unrelated to this cleanup, defer to a separate task.
+3. **37 pre-existing test failures** — ✅ **fixed**: 173 passed / 37 failed → 210 passed / 0 failed. Fixed 2 layout overflows, 3 timing issues, 5 missing test dependencies, 4 test-assumption drifts. See commit `98101c9` for the per-test breakdown.
 4. **Push to remote** — blocked on `main`: the configured git user (`Abubakar-Sadik-Abdulla`) has no write access to `muhajirochu/Samaki_fresh_connect`. Push from a user with access, or re-authenticate with a PAT.
 
 ### B. Feature gaps (from the 2026-08-02 feature inventory)
