@@ -12,7 +12,9 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:samakifresh_connect/constants/app_colors.dart';
 import 'package:samakifresh_connect/l10n/app_localizations.dart';
@@ -31,6 +33,19 @@ const Size kSmallPhone = Size(360, 640);
 /// disposed — surfacing as "used after being disposed" rather than the
 /// real cause. Same override set as `theme_golden_test.dart`.
 Widget _app(Widget shell, {Locale locale = const Locale('en')}) {
+  // The Settings tab of both shells calls `GoRouter.of(context).canPop()`;
+  // provide a minimal router so that lookup succeeds. The actual
+  // routes are unused in this test — the shallow navigation only
+  // needs the inherited router for the assertion that follows.
+  final router = GoRouter(
+    initialLocation: '/',
+    routes: [
+      GoRoute(
+        path: '/',
+        builder: (context, state) => shell,
+      ),
+    ],
+  );
   return ProviderScope(
     overrides: [
       themeControllerProvider.overrideWith(
@@ -38,11 +53,11 @@ Widget _app(Widget shell, {Locale locale = const Locale('en')}) {
       ),
       localeProvider.overrideWith(() => LocaleNotifier()),
     ],
-    child: MaterialApp(
+    child: MaterialApp.router(
+      routerConfig: router,
       localizationsDelegates: AppLocalizations.localizationsDelegates,
       supportedLocales: AppLocalizations.supportedLocales,
       locale: locale,
-      home: shell,
     ),
   );
 }
@@ -72,6 +87,13 @@ List<String> _destinationLabels(WidgetTester tester) {
 }
 
 void main() {
+  setUp(() {
+    // Seed SharedPreferences so the LocaleChangeBridge singleton can
+    // resolve a stored locale without tripping the
+    // "StorageService.instance accessed before init" guard.
+    SharedPreferences.setMockInitialValues(<String, Object>{});
+  });
+
   group('BuyerShellScreen', () {
     testWidgets('shows the five buyer destinations in order', (tester) async {
       await _pump(tester, const BuyerShellScreen());

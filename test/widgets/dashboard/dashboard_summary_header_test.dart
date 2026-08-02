@@ -79,7 +79,12 @@ void main() {
           child: _wrap(),
         ),
       );
-      await tester.pumpAndSettle();
+      // pump twice (not pumpAndSettle): the tile uses an indeterminate
+      // refresh progress indicator that never settles under the test
+      // binding, so pumpAndSettle times out. Two pumps cover the
+      // post-frame Provider init + first paint.
+      await tester.pump();
+      await tester.pump();
 
       // Each tile must show its label and a count.
       expect(find.text('Fish Available\nNearby'), findsOneWidget);
@@ -115,7 +120,8 @@ void main() {
           child: _wrap(locale: const Locale('sw')),
         ),
       );
-      await tester.pumpAndSettle();
+      await tester.pump();
+      await tester.pump();
 
       expect(find.text('Samaki\nKaribu'), findsOneWidget);
       expect(find.text('Maombi\nHai'), findsOneWidget);
@@ -150,7 +156,8 @@ void main() {
           child: _wrap(),
         ),
       );
-      await tester.pumpAndSettle();
+      await tester.pump();
+      await tester.pump();
       // The fish count is the unique label-prefixed text on the
       // tile. Looking for the literal count is fragile because the
       // same number can appear elsewhere on the dashboard; instead
@@ -177,7 +184,8 @@ void main() {
           child: _wrap(),
         ),
       );
-      await tester.pumpAndSettle();
+      await tester.pump();
+      await tester.pump();
       // Tile labels still render after the swap.
       expect(find.text('Fish Available\nNearby'), findsOneWidget);
     },

@@ -685,10 +685,13 @@ class _SignupFooter extends StatelessWidget {
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        Text(
-          "Don't have an account? ",
-          style: tt.bodyMedium?.copyWith(
-            color: cs.onSurface.withValues(alpha: 0.70),
+        Flexible(
+          child: Text(
+            "Don't have an account? ",
+            style: tt.bodyMedium?.copyWith(
+              color: cs.onSurface.withValues(alpha: 0.70),
+            ),
+            overflow: TextOverflow.ellipsis,
           ),
         ),
         GestureDetector(

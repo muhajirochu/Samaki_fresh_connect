@@ -696,12 +696,15 @@ class _LocationCardState extends State<_LocationCard> {
                 color: cs.primary,
               ),
               const SizedBox(width: 6),
-              Text(
-                isMobile ? 'LIVE LOCATION' : 'REGISTERED BASE',
-                style: theme.textTheme.labelSmall?.copyWith(
-                  color: cs.onSurface.withValues(alpha: 0.65),
-                  fontWeight: FontWeight.w700,
-                  letterSpacing: 1.0,
+              Flexible(
+                child: Text(
+                  isMobile ? 'LIVE LOCATION' : 'REGISTERED BASE',
+                  style: theme.textTheme.labelSmall?.copyWith(
+                    color: cs.onSurface.withValues(alpha: 0.65),
+                    fontWeight: FontWeight.w700,
+                    letterSpacing: 1.0,
+                  ),
+                  overflow: TextOverflow.ellipsis,
                 ),
               ),
               const Spacer(),

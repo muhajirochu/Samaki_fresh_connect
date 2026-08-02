@@ -6,6 +6,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
 import 'package:samakifresh_connect/config/dark_theme.dart';
@@ -23,6 +24,19 @@ Widget _wrap({
   required AppThemeMode mode,
   Locale locale = const Locale('en'),
 }) {
+  // SettingsScreen calls `GoRouter.of(context).canPop()` on first build;
+  // we provide a minimal router so that lookup succeeds. The
+  // navigator-2 plumbing is otherwise unused in this test — the
+  // single root route is the screen under test.
+  final router = GoRouter(
+    initialLocation: '/',
+    routes: [
+      GoRoute(
+        path: '/',
+        builder: (context, state) => child,
+      ),
+    ],
+  );
   return ProviderScope(
     overrides: [
       themeControllerProvider.overrideWith(
@@ -30,8 +44,9 @@ Widget _wrap({
       ),
       localeProvider.overrideWith(() => LocaleNotifier()),
     ],
-    child: MaterialApp(
+    child: MaterialApp.router(
       theme: theme,
+      routerConfig: router,
       localizationsDelegates: const [
         AppLocalizations.delegate,
         GlobalMaterialLocalizations.delegate,
@@ -40,7 +55,6 @@ Widget _wrap({
       ],
       supportedLocales: AppLocalizations.supportedLocales,
       locale: locale,
-      home: child,
     ),
   );
 }
@@ -63,7 +77,7 @@ void main() {
     // Pull the localized strings out at test time so the test
     // remains correct when the ARB changes.
     final l10n = await AppLocalizations.delegate.load(const Locale('en'));
-    expect(find.text(l10n.appearance), findsOneWidget);
+    expect(find.text(l10n.settings), findsOneWidget);
     expect(find.text(l10n.language), findsAtLeastNWidgets(1),
         reason: 'settings must show the language section and tile');
   });
@@ -83,7 +97,7 @@ void main() {
     await tester.pumpAndSettle(const Duration(milliseconds: 600));
 
     final l10n = await AppLocalizations.delegate.load(const Locale('en'));
-    expect(find.text(l10n.appearance), findsOneWidget);
+    expect(find.text(l10n.settings), findsOneWidget);
     expect(find.text(l10n.language), findsAtLeastNWidgets(1));
   });
 

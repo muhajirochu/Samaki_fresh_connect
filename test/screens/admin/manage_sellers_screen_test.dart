@@ -108,10 +108,10 @@ void main() {
       tester.view.devicePixelRatio = 2.0;
       addTearDown(tester.view.resetPhysicalSize);
 
-      // The screen now opens on the 'pending' filter so admins see
-      // the queue of newly-registered sellers first. Mirror that
-      // here: one pending seller + one approved, both visible only
-      // after the user flips to 'all'.
+      // The screen now opens on the 'all' filter so admins see the
+      // full roster; the Pending chip narrows to the approval queue
+      // when tapped. Mirror that here: both sellers are visible,
+      // then flip to pending to confirm the filter narrows.
       final sellers = [
         _seller(id: 's1', name: 'Asha Seller', email: 'asha@test.com',
             approved: false),
@@ -122,8 +122,8 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(find.text('Asha Seller'), findsOneWidget);
-      expect(find.text('Halima Seller'), findsNothing,
-          reason: 'Halima is approved; default filter is pending');
+      expect(find.text('Halima Seller'), findsOneWidget,
+          reason: 'Default filter is now "all", not "pending"');
     },
   );
 

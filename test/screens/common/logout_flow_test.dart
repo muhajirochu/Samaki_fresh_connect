@@ -21,6 +21,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:samakifresh_connect/config/dark_theme.dart';
 import 'package:samakifresh_connect/config/light_theme.dart';
@@ -72,6 +73,13 @@ Widget _buildApp(ProviderContainer container) {
 // ── Test body ────────────────────────────────────────────────────────────────
 
 void main() {
+  setUp(() {
+    // Seed SharedPreferences so the LocaleChangeBridge singleton can
+    // resolve a stored locale without tripping the
+    // "StorageService.instance accessed before init" guard.
+    SharedPreferences.setMockInitialValues(<String, Object>{});
+  });
+
   testWidgets(
     'signOut() from ProfileScreen lands on /login (not Page not found)',
     (tester) async {
