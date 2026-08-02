@@ -18,7 +18,7 @@ import 'app_localizations_sw.dart';
 /// `supportedLocales` list. For example:
 ///
 /// ```dart
-/// import 'l10n/app_localizations.dart';
+/// import 'gen_l10n/app_localizations.dart';
 ///
 /// return MaterialApp(
 ///   localizationsDelegates: AppLocalizations.localizationsDelegates,
@@ -62,8 +62,7 @@ import 'app_localizations_sw.dart';
 /// be consistent with the languages listed in the AppLocalizations.supportedLocales
 /// property.
 abstract class AppLocalizations {
-  AppLocalizations(String locale)
-      : localeName = intl.Intl.canonicalizedLocale(locale.toString());
+  AppLocalizations(String locale) : localeName = intl.Intl.canonicalizedLocale(locale.toString());
 
   final String localeName;
 
@@ -71,8 +70,7 @@ abstract class AppLocalizations {
     return Localizations.of<AppLocalizations>(context, AppLocalizations)!;
   }
 
-  static const LocalizationsDelegate<AppLocalizations> delegate =
-      _AppLocalizationsDelegate();
+  static const LocalizationsDelegate<AppLocalizations> delegate = _AppLocalizationsDelegate();
 
   /// A list of this localizations delegate along with the default localizations
   /// delegates.
@@ -84,8 +82,7 @@ abstract class AppLocalizations {
   /// Additional delegates can be added by appending to this list in
   /// MaterialApp. This list does not have to be used at all if a custom list
   /// of delegates is preferred or required.
-  static const List<LocalizationsDelegate<dynamic>> localizationsDelegates =
-      <LocalizationsDelegate<dynamic>>[
+  static const List<LocalizationsDelegate<dynamic>> localizationsDelegates = <LocalizationsDelegate<dynamic>>[
     delegate,
     GlobalMaterialLocalizations.delegate,
     GlobalCupertinoLocalizations.delegate,
@@ -3127,10 +3124,87 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Could not open messages'**
   String get contactsSmsFailed;
+
+  /// No description provided for @buyerGreeting.
+  ///
+  /// In en, this message translates to:
+  /// **'Hello, {name} 👋'**
+  String buyerGreeting(String name);
+
+  /// No description provided for @buyerGreetingSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Find fresh fish near you'**
+  String get buyerGreetingSubtitle;
+
+  /// No description provided for @mapCtaTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Open the Map'**
+  String get mapCtaTitle;
+
+  /// No description provided for @mapCtaSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Sellers nearby, routes, and the time you\'ll wait'**
+  String get mapCtaSubtitle;
+
+  /// No description provided for @myRequestsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'My Requests'**
+  String get myRequestsTitle;
+
+  /// No description provided for @myRequestsEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'No active requests'**
+  String get myRequestsEmpty;
+
+  /// No description provided for @myRequestsCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =0{No active requests} =1{1 active request} other{{count} active requests}}'**
+  String myRequestsCount(int count);
+
+  /// No description provided for @recentlyBoughtTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Recently Bought'**
+  String get recentlyBoughtTitle;
+
+  /// No description provided for @recentlyBoughtSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Pick up where you left off'**
+  String get recentlyBoughtSubtitle;
+
+  /// No description provided for @recentlyBoughtChip.
+  ///
+  /// In en, this message translates to:
+  /// **'Recent'**
+  String get recentlyBoughtChip;
+
+  /// No description provided for @popularNearYouTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Popular Near You'**
+  String get popularNearYouTitle;
+
+  /// No description provided for @popularNearYouSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Recommendations for your area'**
+  String get popularNearYouSubtitle;
+
+  /// No description provided for @orderFallbackName.
+  ///
+  /// In en, this message translates to:
+  /// **'Order #{id}'**
+  String orderFallbackName(String id);
 }
 
-class _AppLocalizationsDelegate
-    extends LocalizationsDelegate<AppLocalizations> {
+class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {
   const _AppLocalizationsDelegate();
 
   @override
@@ -3139,25 +3213,25 @@ class _AppLocalizationsDelegate
   }
 
   @override
-  bool isSupported(Locale locale) =>
-      <String>['en', 'sw'].contains(locale.languageCode);
+  bool isSupported(Locale locale) => <String>['en', 'sw'].contains(locale.languageCode);
 
   @override
   bool shouldReload(_AppLocalizationsDelegate old) => false;
 }
 
 AppLocalizations lookupAppLocalizations(Locale locale) {
+
+
   // Lookup logic when only language code is specified.
   switch (locale.languageCode) {
-    case 'en':
-      return AppLocalizationsEn();
-    case 'sw':
-      return AppLocalizationsSw();
+    case 'en': return AppLocalizationsEn();
+    case 'sw': return AppLocalizationsSw();
   }
 
   throw FlutterError(
-      'AppLocalizations.delegate failed to load unsupported locale "$locale". This is likely '
-      'an issue with the localizations generation tool. Please file an issue '
-      'on GitHub with a reproducible sample app and the gen-l10n configuration '
-      'that was used.');
+    'AppLocalizations.delegate failed to load unsupported locale "$locale". This is likely '
+    'an issue with the localizations generation tool. Please file an issue '
+    'on GitHub with a reproducible sample app and the gen-l10n configuration '
+    'that was used.'
+  );
 }

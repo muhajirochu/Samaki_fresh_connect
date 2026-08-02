@@ -89,7 +89,7 @@ class BuyerDashboardScreen extends ConsumerWidget {
     }
     return Stack(
       children: [
-        _DashboardBody(userName: user.fullName),
+        _DashboardBody(userName: user.fullName, l10n: l10n),
         // No-op listener that pops a SnackBar whenever the wishlist
         // cross-trigger fires. Mounted once at the root of the
         // buyer shell.
@@ -101,7 +101,8 @@ class BuyerDashboardScreen extends ConsumerWidget {
 
 class _DashboardBody extends ConsumerWidget {
   final String userName;
-  const _DashboardBody({required this.userName});
+  final AppLocalizations l10n;
+  const _DashboardBody({required this.userName, required this.l10n});
 
   /// Opens the seller map, optionally pre-filtered.
   ///
@@ -147,7 +148,7 @@ class _DashboardBody extends ConsumerWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'Habari, ${userName.split(' ').first} 👋',
+                    l10n.buyerGreeting(userName.split(' ').first),
                     style: Theme.of(context).textTheme.headlineSmall?.copyWith(
                           fontWeight: FontWeight.w800,
                           letterSpacing: -0.4,
@@ -155,7 +156,7 @@ class _DashboardBody extends ConsumerWidget {
                   ),
                   const SizedBox(height: 4),
                   Text(
-                    'Pata samaki fresh karibu nawe',
+                    l10n.buyerGreetingSubtitle,
                     style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                           color: Theme.of(context)
                               .colorScheme
@@ -194,6 +195,7 @@ class _DashboardBody extends ConsumerWidget {
                 0,
               ),
               child: _MapCtaCard(
+                l10n: l10n,
                 onTap: () => _openMap(context),
               ),
             ),
@@ -209,6 +211,7 @@ class _DashboardBody extends ConsumerWidget {
                 0,
               ),
               child: _RequestsCtaCard(
+                l10n: l10n,
                 onTap: () => context.push('/buyer/requests'),
                 activeCount: ref.watch(activeRequestsCountProvider),
               ),
@@ -230,40 +233,41 @@ class _DashboardBody extends ConsumerWidget {
           // first. The widget self-hides when the buyer has no
           // completed/confirmed orders yet, so no placeholder chrome is
           // needed here.
-          const SliverToBoxAdapter(
+          SliverToBoxAdapter(
             child: Padding(
-              padding: EdgeInsets.only(
+              padding: const EdgeInsets.only(
                 top: AppSizes.paddingXL,
                 left: AppSizes.paddingLG,
                 right: AppSizes.paddingLG,
                 bottom: AppSizes.paddingSM,
               ),
               child: SectionHeader(
-                title: 'Iliyonunuliwa Hivi Karibuni',
-                subtitle: 'Rudi kwenye ununuzi wako wa hivi karibuni',
+                title: l10n.recentlyBoughtTitle,
+                subtitle: l10n.recentlyBoughtSubtitle,
                 leadingIcon: Icons.shopping_bag_rounded,
               ),
             ),
           ),
           SliverToBoxAdapter(
             child: RecentlyBoughtSection(
+              l10n: l10n,
               onTap: (String listingId) =>
                   context.push('/listings/$listingId'),
             ),
           ),
 
           // ── 6. Popular Near You ────────────────────────────────────────
-          const SliverToBoxAdapter(
+          SliverToBoxAdapter(
             child: Padding(
-              padding: EdgeInsets.only(
+              padding: const EdgeInsets.only(
                 top: AppSizes.paddingXL,
                 left: AppSizes.paddingLG,
                 right: AppSizes.paddingLG,
                 bottom: AppSizes.paddingSM,
               ),
               child: SectionHeader(
-                title: 'Maarufu Karibu Nawe',
-                subtitle: 'Mapendekezo kwa eneo lako',
+                title: l10n.popularNearYouTitle,
+                subtitle: l10n.popularNearYouSubtitle,
                 leadingIcon: Icons.local_fire_department_rounded,
               ),
             ),
@@ -287,7 +291,8 @@ class _DashboardBody extends ConsumerWidget {
 
 class _MapCtaCard extends StatelessWidget {
   final VoidCallback onTap;
-  const _MapCtaCard({required this.onTap});
+  final AppLocalizations l10n;
+  const _MapCtaCard({required this.onTap, required this.l10n});
 
   @override
   Widget build(BuildContext context) {
@@ -332,7 +337,7 @@ class _MapCtaCard extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        'Fungua Ramani',
+                        l10n.mapCtaTitle,
                         style:
                             Theme.of(context).textTheme.titleMedium?.copyWith(
                                   color: cs.onPrimary,
@@ -341,7 +346,7 @@ class _MapCtaCard extends StatelessWidget {
                       ),
                       const SizedBox(height: 2),
                       Text(
-                        'Wauzaji karibu, njia, na muda unaotarajiwa',
+                        l10n.mapCtaSubtitle,
                         style: TextStyle(
                           color: cs.onPrimary.withValues(alpha: 0.85),
                           fontSize: 12,
@@ -365,7 +370,12 @@ class _MapCtaCard extends StatelessWidget {
 class _RequestsCtaCard extends StatelessWidget {
   final VoidCallback onTap;
   final int activeCount;
-  const _RequestsCtaCard({required this.onTap, required this.activeCount});
+  final AppLocalizations l10n;
+  const _RequestsCtaCard({
+    required this.onTap,
+    required this.activeCount,
+    required this.l10n,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -413,16 +423,14 @@ class _RequestsCtaCard extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        'Maombi Yangu',
+                        l10n.myRequestsTitle,
                         style: tt.titleMedium?.copyWith(
                           fontWeight: FontWeight.w700,
                         ),
                       ),
                       const SizedBox(height: 2),
                       Text(
-                        activeCount == 0
-                            ? 'Hakuna maombi yanayoendelea'
-                            : '$activeCount maombi yanayoendelea',
+                        l10n.myRequestsCount(activeCount),
                         style: tt.bodySmall?.copyWith(
                           color: cs.onSurface.withValues(alpha: 0.65),
                         ),

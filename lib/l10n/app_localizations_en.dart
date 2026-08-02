@@ -102,8 +102,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get chooseLanguage => 'Choose Language';
 
   @override
-  String get chooseLanguageSubtitle =>
-      'Switch the entire app to your preferred language.';
+  String get chooseLanguageSubtitle => 'Switch the entire app to your preferred language.';
 
   @override
   String get selectLanguage => 'Select Language';
@@ -147,8 +146,7 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get noSellersHaveSubtitle =>
-      'No seller carries this fish at the moment. Try a different name.';
+  String get noSellersHaveSubtitle => 'No seller carries this fish at the moment. Try a different name.';
 
   @override
   String get loading => 'Loading…';
@@ -276,8 +274,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get shopLocationSet => 'Shop location set';
 
   @override
-  String get shopLocationRequired =>
-      'Required so buyers can find your shop on the map';
+  String get shopLocationRequired => 'Required so buyers can find your shop on the map';
 
   @override
   String get readingGps => 'Reading GPS signal...';
@@ -429,8 +426,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get verificationRequired => 'Account verification required';
 
   @override
-  String get verificationMessage =>
-      'Please check your email and verify your account before continuing.';
+  String get verificationMessage => 'Please check your email and verify your account before continuing.';
 
   @override
   String get verifyNow => 'Verify Now';
@@ -439,36 +435,31 @@ class AppLocalizationsEn extends AppLocalizations {
   String get noNotificationsYet => 'No notifications yet';
 
   @override
-  String get noNotificationsSubtitle =>
-      'We\'ll let you know when something happens.';
+  String get noNotificationsSubtitle => 'We\'ll let you know when something happens.';
 
   @override
   String get noWishlistItems => 'Your wishlist is empty';
 
   @override
-  String get noWishlistSubtitle =>
-      'Tap the heart on any fish listing to save it here.';
+  String get noWishlistSubtitle => 'Tap the heart on any fish listing to save it here.';
 
   @override
   String get noActiveRequests => 'No active fish requests';
 
   @override
-  String get noActiveRequestsSubtitle =>
-      'When you post a fish request, it will appear here.';
+  String get noActiveRequestsSubtitle => 'When you post a fish request, it will appear here.';
 
   @override
   String get noListings => 'No listings yet';
 
   @override
-  String get noListingsSubtitle =>
-      'Tap the + button to add your first listing.';
+  String get noListingsSubtitle => 'Tap the + button to add your first listing.';
 
   @override
   String get noOrders => 'No orders yet';
 
   @override
-  String get noOrdersSubtitle =>
-      'When you buy or sell fish, orders will appear here.';
+  String get noOrdersSubtitle => 'When you buy or sell fish, orders will appear here.';
 
   @override
   String get offlineState => 'This seller is currently offline';
@@ -482,8 +473,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get selectLanguageTitle => 'Select Language';
 
   @override
-  String get selectLanguageDescription =>
-      'The whole app will switch instantly. Your choice is saved on this device.';
+  String get selectLanguageDescription => 'The whole app will switch instantly. Your choice is saved on this device.';
 
   @override
   String get languageSaved => 'Language saved';
@@ -509,8 +499,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get editListing => 'Edit Listing';
 
   @override
-  String get logoutConfirmationMessage =>
-      'You will be returned to the login screen.';
+  String get logoutConfirmationMessage => 'You will be returned to the login screen.';
 
   @override
   String get km => 'km';
@@ -528,8 +517,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get reportListing => 'Report listing';
 
   @override
-  String get deleteListingConfirmation =>
-      'Delete this listing? This cannot be undone.';
+  String get deleteListingConfirmation => 'Delete this listing? This cannot be undone.';
 
   @override
   String get markAsSold => 'Mark as sold';
@@ -1029,15 +1017,13 @@ class AppLocalizationsEn extends AppLocalizations {
   String get manageStreetSellers => 'Manage Street Sellers';
 
   @override
-  String get manageStreetSellersSubtitle =>
-      'Approve, review or block sellers on the platform';
+  String get manageStreetSellersSubtitle => 'Approve, review or block sellers on the platform';
 
   @override
   String get noStreetSellers => 'No street sellers registered yet';
 
   @override
-  String get noStreetSellersSubtitle =>
-      'When sellers register, they\'ll appear here for review.';
+  String get noStreetSellersSubtitle => 'When sellers register, they\'ll appear here for review.';
 
   @override
   String get viewProfile => 'View profile';
@@ -1055,23 +1041,19 @@ class AppLocalizationsEn extends AppLocalizations {
   String get userUnblocked => 'User unblocked';
 
   @override
-  String get confirmBlockUser =>
-      'Block this seller? They will not be able to sign in until you unblock them.';
+  String get confirmBlockUser => 'Block this seller? They will not be able to sign in until you unblock them.';
 
   @override
-  String get adminAllListingsSubtitle =>
-      'Review every listing across the marketplace';
+  String get adminAllListingsSubtitle => 'Review every listing across the marketplace';
 
   @override
   String get noListingsFound => 'No listings found';
 
   @override
-  String get noListingsFoundSubtitle =>
-      'When buyers or sellers create listings, they\'ll appear here.';
+  String get noListingsFoundSubtitle => 'When buyers or sellers create listings, they\'ll appear here.';
 
   @override
-  String get deleteListingConfirmationAdmin =>
-      'Permanently delete this listing? This cannot be undone.';
+  String get deleteListingConfirmationAdmin => 'Permanently delete this listing? This cannot be undone.';
 
   @override
   String get listingDeleted => 'Listing deleted';
@@ -1121,8 +1103,7 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get appearanceLiveHint =>
-      'Your selection is applied instantly across every screen and saved for next time.';
+  String get appearanceLiveHint => 'Your selection is applied instantly across every screen and saved for next time.';
 
   @override
   String get adminDashboardSubtitle => 'Platform overview and management';
@@ -1200,8 +1181,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get userReactivated => 'Buyer reactivated';
 
   @override
-  String get userModerationFailed =>
-      'Couldn\'t update this buyer. Please try again.';
+  String get userModerationFailed => 'Couldn\'t update this buyer. Please try again.';
 
   @override
   String get listingDetails => 'Listing Details';
@@ -1237,8 +1217,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get noOrdersYet => 'No Orders';
 
   @override
-  String get orderTrackingExplanation =>
-      'Order tracking is for buyers and sellers.';
+  String get orderTrackingExplanation => 'Order tracking is for buyers and sellers.';
 
   @override
   String get noOrdersFound => 'No Orders Found';
@@ -1316,8 +1295,7 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get listingAlreadySold =>
-      'This listing is no longer available — another buyer just purchased it.';
+  String get listingAlreadySold => 'This listing is no longer available — another buyer just purchased it.';
 
   @override
   String get profileUpdatedSuccess => 'Profile updated successfully';
@@ -1435,8 +1413,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get platformMaintenance => 'Maintenance mode';
 
   @override
-  String get platformMaintenanceSubtitle =>
-      'Disable buyer + seller sign-ins temporarily';
+  String get platformMaintenanceSubtitle => 'Disable buyer + seller sign-ins temporarily';
 
   @override
   String get refreshData => 'Refresh live data';
@@ -1532,8 +1509,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get noTransactions => 'No transactions yet';
 
   @override
-  String get noTransactionsSubtitle =>
-      'When buyers place orders, they\'ll appear here.';
+  String get noTransactionsSubtitle => 'When buyers place orders, they\'ll appear here.';
 
   @override
   String revenueLabel(String amount) {
@@ -1582,8 +1558,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get cartEmptyTitle => 'Your cart is empty';
 
   @override
-  String get cartEmptySubtitle =>
-      'Browse fish and add them to your cart to order them all at once.';
+  String get cartEmptySubtitle => 'Browse fish and add them to your cart to order them all at once.';
 
   @override
   String get cartBrowseFish => 'Browse fish';
@@ -1601,8 +1576,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get cartClearConfirmTitle => 'Clear cart?';
 
   @override
-  String get cartClearConfirmBody =>
-      'This removes every item from your cart. It cannot be undone.';
+  String get cartClearConfirmBody => 'This removes every item from your cart. It cannot be undone.';
 
   @override
   String get cartItemRemoved => 'Removed from cart';
@@ -1633,8 +1607,7 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get cartCheckoutFailed =>
-      'Could not place your order. Please try again.';
+  String get cartCheckoutFailed => 'Could not place your order. Please try again.';
 
   @override
   String get cartUnavailable => 'No longer available';
@@ -1651,8 +1624,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get contactsEmptyTitle => 'No buyers yet';
 
   @override
-  String get contactsEmptySubtitle =>
-      'When someone orders from you, they will show up here so you can call or text them.';
+  String get contactsEmptySubtitle => 'When someone orders from you, they will show up here so you can call or text them.';
 
   @override
   String contactsOrderCount(int count) {
@@ -1679,4 +1651,56 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get contactsSmsFailed => 'Could not open messages';
+
+  @override
+  String buyerGreeting(String name) {
+    return 'Hello, $name 👋';
+  }
+
+  @override
+  String get buyerGreetingSubtitle => 'Find fresh fish near you';
+
+  @override
+  String get mapCtaTitle => 'Open the Map';
+
+  @override
+  String get mapCtaSubtitle => 'Sellers nearby, routes, and the time you\'ll wait';
+
+  @override
+  String get myRequestsTitle => 'My Requests';
+
+  @override
+  String get myRequestsEmpty => 'No active requests';
+
+  @override
+  String myRequestsCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count active requests',
+      one: '1 active request',
+      zero: 'No active requests',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get recentlyBoughtTitle => 'Recently Bought';
+
+  @override
+  String get recentlyBoughtSubtitle => 'Pick up where you left off';
+
+  @override
+  String get recentlyBoughtChip => 'Recent';
+
+  @override
+  String get popularNearYouTitle => 'Popular Near You';
+
+  @override
+  String get popularNearYouSubtitle => 'Recommendations for your area';
+
+  @override
+  String orderFallbackName(String id) {
+    return 'Order #$id';
+  }
 }

@@ -771,5 +771,32 @@
     "contactsSms": "Tuma SMS",
     "contactsNoPhone": "Hakuna namba ya simu",
     "contactsCallFailed": "Imeshindwa kupiga simu",
-    "contactsSmsFailed": "Imeshindwa kufungua ujumbe"
+    "contactsSmsFailed": "Imeshindwa kufungua ujumbe",
+    "buyerGreeting": "Habari, {name} 👋",
+    "buyerGreetingSubtitle": "Pata samaki fresh karibu nawe",
+    "mapCtaTitle": "Fungua Ramani",
+    "mapCtaSubtitle": "Wauzaji karibu, njia, na muda unaotarajiwa",
+    "myRequestsTitle": "Maombi Yangu",
+    "myRequestsEmpty": "Hakuna maombi yanayoendelea",
+    "myRequestsCount": "{count, plural, =0{Hakuna maombi yanayoendelea} =1{Ombi 1 linaloendelea} other{Maombi {count} yanayoendelea}}",
+    "@myRequestsCount": {
+        "placeholders": {
+            "count": {
+                "type": "int"
+            }
+        }
+    },
+    "recentlyBoughtTitle": "Iliyonunuliwa Hivi Karibuni",
+    "recentlyBoughtSubtitle": "Rudi kwenye ununuzi wako wa hivi karibuni",
+    "recentlyBoughtChip": "Iliyopita",
+    "popularNearYouTitle": "Maarufu Karibu Nawe",
+    "popularNearYouSubtitle": "Mapendekezo kwa eneo lako",
+    "orderFallbackName": "Orderi #{id}",
+    "@orderFallbackName": {
+        "placeholders": {
+            "id": {
+                "type": "String"
+            }
+        }
+    }
 }

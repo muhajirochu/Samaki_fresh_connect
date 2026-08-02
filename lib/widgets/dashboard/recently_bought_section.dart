@@ -29,6 +29,7 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 
 import '../../config/theme_extensions.dart';
 import '../../constants/app_sizes.dart';
+import '../../l10n/app_localizations.dart';
 import '../../models/fish_item_model.dart';
 import '../../models/order_model.dart';
 import '../../providers/buyer_provider.dart';
@@ -37,7 +38,8 @@ import '../../utils/formatters.dart';
 
 /// A recent purchase enriched with whatever live listing data we can
 /// find in the buyer feed. If the live listing is gone, the card falls
-/// back to the order's stored fields.
+/// back to the order's stored fields. The widget layer attaches the
+/// active locale to the entry before rendering.
 class RecentPurchaseEntry {
   final OrderModel order;
   final FishItemModel? liveListing;
@@ -45,9 +47,9 @@ class RecentPurchaseEntry {
 
   /// Display name — prefer the live listing's displayName (so the
   /// buyer sees the same name they'd see on the marketplace today)
-  /// and fall back to a generic label from the order id.
-  String get displayName =>
-      liveListing?.displayName ?? 'Order #${_short(order.orderId)}';
+  /// and fall back to a localized "Order #…" label.
+  String displayName(AppLocalizations l10n) =>
+      liveListing?.displayName ?? l10n.orderFallbackName(_short(order.orderId));
 
   String? get imageUrl {
     final urls = liveListing?.imageUrls;
@@ -68,6 +70,9 @@ class RecentPurchaseEntry {
 /// Resolves the most recent distinct purchases for the signed-in buyer.
 /// Distinct by `listingId` — a buyer who re-orders the same fish sees
 /// one card per fish, anchored to the most recent order.
+///
+/// The provider emits pure data — locale is a presentation concern and
+/// is attached to each entry by the section widget before rendering.
 final recentPurchasesProvider = Provider<List<RecentPurchaseEntry>>((ref) {
   final session = ref.watch(currentBuyerSessionProvider);
   if (session == null) return const [];
@@ -111,8 +116,13 @@ class RecentlyBoughtSection extends ConsumerStatefulWidget {
   /// Called when the buyer taps a card. Receives the order's listingId
   /// so the caller can route to the existing `/listings/{id}` detail.
   final void Function(String listingId) onTap;
+  final AppLocalizations l10n;
 
-  const RecentlyBoughtSection({super.key, required this.onTap});
+  const RecentlyBoughtSection({
+    super.key,
+    required this.onTap,
+    required this.l10n,
+  });
 
   @override
   ConsumerState<RecentlyBoughtSection> createState() =>
@@ -224,6 +234,7 @@ class _RecentlyBoughtSectionState extends ConsumerState<RecentlyBoughtSection> {
               itemBuilder: (context, i) => _RecentPurchaseCard(
                 entry: entries[i],
                 onTap: () => widget.onTap(entries[i].order.listingId),
+                l10n: widget.l10n,
               ),
             ),
           ),
@@ -257,8 +268,13 @@ class _RecentlyBoughtSectionState extends ConsumerState<RecentlyBoughtSection> {
 class _RecentPurchaseCard extends StatelessWidget {
   final RecentPurchaseEntry entry;
   final VoidCallback onTap;
+  final AppLocalizations l10n;
 
-  const _RecentPurchaseCard({required this.entry, required this.onTap});
+  const _RecentPurchaseCard({
+    required this.entry,
+    required this.onTap,
+    required this.l10n,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -339,7 +355,7 @@ class _RecentPurchaseCard extends StatelessWidget {
                                   ),
                                   const SizedBox(width: 3),
                                   Text(
-                                    'Iliyopita',
+                                    l10n.recentlyBoughtChip,
                                     style: TextStyle(
                                       color: cs.secondary,
                                       fontSize: 10,
@@ -353,7 +369,7 @@ class _RecentPurchaseCard extends StatelessWidget {
                         ),
                         const SizedBox(height: 6),
                         Text(
-                          entry.displayName,
+                          entry.displayName(l10n),
                           style: Theme.of(context)
                               .textTheme
                               .titleSmall

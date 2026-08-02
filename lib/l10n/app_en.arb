@@ -771,5 +771,39 @@
     "contactsSms": "SMS",
     "contactsNoPhone": "No phone number on file",
     "contactsCallFailed": "Could not start the call",
-    "contactsSmsFailed": "Could not open messages"
+    "contactsSmsFailed": "Could not open messages",
+    "buyerGreeting": "Hello, {name} 👋",
+    "@buyerGreeting": {
+        "placeholders": {
+            "name": {
+                "type": "String"
+            }
+        }
+    },
+    "buyerGreetingSubtitle": "Find fresh fish near you",
+    "mapCtaTitle": "Open the Map",
+    "mapCtaSubtitle": "Sellers nearby, routes, and the time you'll wait",
+    "myRequestsTitle": "My Requests",
+    "myRequestsEmpty": "No active requests",
+    "myRequestsCount": "{count, plural, =0{No active requests} =1{1 active request} other{{count} active requests}}",
+    "@myRequestsCount": {
+        "placeholders": {
+            "count": {
+                "type": "int"
+            }
+        }
+    },
+    "recentlyBoughtTitle": "Recently Bought",
+    "recentlyBoughtSubtitle": "Pick up where you left off",
+    "recentlyBoughtChip": "Recent",
+    "popularNearYouTitle": "Popular Near You",
+    "popularNearYouSubtitle": "Recommendations for your area",
+    "orderFallbackName": "Order #{id}",
+    "@orderFallbackName": {
+        "placeholders": {
+            "id": {
+                "type": "String"
+            }
+        }
+    }
 }
