@@ -334,20 +334,7 @@ final buyerHasLocationProvider = Provider<bool>((ref) {
   return ref.watch(buyerDashboardProvider).valueOrNull?.hasLocation ?? false;
 });
 
-// ── Phase 3 selectors (summary header + browse + recommendations) ────────────
-
-/// A "Fish Available Nearby" entry enriched with the seller's name and the
-/// distance from the buyer's location, ready to feed browse cards.
-class NearbyFishEntry {
-  final FishItemModel item;
-  final String? sellerName;
-  final double? distanceKm;
-  const NearbyFishEntry({
-    required this.item,
-    this.sellerName,
-    this.distanceKm,
-  });
-}
+// ── Phase 3 selectors (summary header + recommendations) ─────────────────────
 
 /// The single nearest seller relative to the buyer. `null` if the buyer
 /// has no location or no sellers are loaded. Used by the "Nearest Seller"
@@ -394,42 +381,6 @@ final nearestSellerProvider = Provider<NearestSeller?>((ref) {
     ),
     fishCount: fishByBroker[closest.sellerId],
   );
-});
-
-/// Browse-list data: every buyable fish nearby, enriched with seller
-/// info + distance. Sorted by distance ascending (closest first).
-final nearbyFishListProvider = Provider<List<NearbyFishEntry>>((ref) {
-  final dash = ref.watch(buyerDashboardProvider).valueOrNull;
-  if (dash == null) return const [];
-
-  // Build a quick seller-by-id lookup.
-  final sellerById = {for (final s in dash.nearbySellers) s.sellerId: s};
-  final brokerName = {for (final s in dash.nearbySellers) s.sellerId: s.fullName};
-
-  final entries = dash.fishAvailableNearby
-      .map((item) => NearbyFishEntry(
-            item: item,
-            sellerName: brokerName[item.sellerId] ??
-                (sellerById[item.sellerId]?.fullName),
-            distanceKm: (dash.buyerLatitude != null &&
-                    dash.buyerLongitude != null &&
-                    item.latitude != null &&
-                    item.longitude != null)
-                ? _haversineKm(
-                    dash.buyerLatitude!,
-                    dash.buyerLongitude!,
-                    item.latitude!,
-                    item.longitude!,
-                  )
-                : null,
-          ))
-      .toList();
-  entries.sort((a, b) {
-    final da = a.distanceKm ?? double.infinity;
-    final db = b.distanceKm ?? double.infinity;
-    return da.compareTo(db);
-  });
-  return entries;
 });
 
 /// "Popular Near You" — the fish types most frequently listed by sellers

@@ -5,8 +5,15 @@
 //   2. Summary tiles: Fish Available / Active Requests / Nearest Seller
 //   3. "Ramani ya Wauzaji" CTA card (jumps to /buyer/map)
 //   4. My Requests CTA
-//   5. "Browse Other Fish" horizontal scroller
+//   5. "Recently Buy" auto-advancing carousel (hidden when no purchases)
 //   6. "Popular Near You" recommendations
+//
+// Note: the "Browse Other Fish" / "Vinjari Samaki Wenge" scroller that
+// used to sit between Recently Buy and Popular Near You was removed —
+// its content (raw nearby listings) overlapped the Recently Buy
+// carousel and the buyer can still reach the same listings via the
+// "Ona Ramani" CTA on the map card, the search tab, and the Popular
+// Near You recommendations below.
 //
 // Every section reads from Riverpod providers, so updates flow in real time
 // when fish go out of stock, requests open/close, or the buyer's location
@@ -29,15 +36,14 @@ import '../../config/route_paths.dart';
 import '../../config/theme_extensions.dart';
 import '../../constants/app_sizes.dart';
 import '../../l10n/app_localizations.dart';
-import '../../models/fish_item_model.dart';
 import '../../models/street_seller_model.dart';
 import '../../models/user_model.dart';
 import '../../providers/auth_provider.dart';
 import '../../providers/buyer_provider.dart';
 import '../../widgets/common/premium_components.dart';
 import '../../widgets/common/top_app_bar.dart';
-import '../../widgets/dashboard/browse_fish_section.dart';
 import '../../widgets/dashboard/popular_fish_section.dart';
+import '../../widgets/dashboard/recently_bought_section.dart';
 import '../../widgets/dashboard/summary_header.dart';
 import '../../widgets/notifications/wishlist_match_banner.dart';
 
@@ -217,29 +223,32 @@ class _DashboardBody extends ConsumerWidget {
             ),
           ),
 
-          // ── 5. Browse Other Fish ────────────────────────────────────────
-          SliverToBoxAdapter(
+          // ── 5. Recently Buy — auto-advancing carousel ─────────────────
+          // Leads the discovery block: a buyer with history is more
+          // likely to reorder a fish they already bought than to scan
+          // the cold marketplace, so we surface the recent purchases
+          // first. The widget self-hides when the buyer has no
+          // completed/confirmed orders yet, so no placeholder chrome is
+          // needed here.
+          const SliverToBoxAdapter(
             child: Padding(
-              padding: const EdgeInsets.only(
+              padding: EdgeInsets.only(
                 top: AppSizes.paddingXL,
                 left: AppSizes.paddingLG,
                 right: AppSizes.paddingLG,
                 bottom: AppSizes.paddingSM,
               ),
               child: SectionHeader(
-                title: 'Vinjari Samaki Wengine',
-                subtitle: 'Karibu nawe · Bei mpya',
-                actionLabel: 'Ona Ramani',
-                actionIcon: Icons.arrow_forward_rounded,
-                leadingIcon: Icons.set_meal_rounded,
-                onAction: () => _openMap(context),
+                title: 'Iliyonunuliwa Hivi Karibuni',
+                subtitle: 'Rudi kwenye ununuzi wako wa hivi karibuni',
+                leadingIcon: Icons.shopping_bag_rounded,
               ),
             ),
           ),
           SliverToBoxAdapter(
-            child: BrowseFishSection(
-              onTap: (FishItemModel item) =>
-                  context.push('/listings/${item.listingId}'),
+            child: RecentlyBoughtSection(
+              onTap: (String listingId) =>
+                  context.push('/listings/$listingId'),
             ),
           ),
 
