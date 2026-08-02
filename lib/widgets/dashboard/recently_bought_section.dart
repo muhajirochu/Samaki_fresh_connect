@@ -33,13 +33,15 @@ import '../../l10n/app_localizations.dart';
 import '../../models/fish_item_model.dart';
 import '../../models/order_model.dart';
 import '../../providers/buyer_provider.dart';
+import '../../providers/listing_provider.dart';
 import '../../providers/order_provider.dart';
 import '../../utils/formatters.dart';
 
 /// A recent purchase enriched with whatever live listing data we can
-/// find in the buyer feed. If the live listing is gone, the card falls
-/// back to the order's stored fields. The widget layer attaches the
-/// active locale to the entry before rendering.
+/// find in the buyer feed. If the live listing is gone (typically
+/// because it was marked `sold` after the order completed), the card
+/// falls back to the order's stored fields. The widget layer attaches
+/// the active locale to the entry before rendering.
 class RecentPurchaseEntry {
   final OrderModel order;
   final FishItemModel? liveListing;
@@ -71,8 +73,16 @@ class RecentPurchaseEntry {
 /// Distinct by `listingId` — a buyer who re-orders the same fish sees
 /// one card per fish, anchored to the most recent order.
 ///
-/// The provider emits pure data — locale is a presentation concern and
-/// is attached to each entry by the section widget before rendering.
+/// Each entry is enriched in two passes:
+///   1. The live `buyerFishFeedProvider` snapshot is consulted first
+///      (cheap, already cached). This catches listings that are still
+///      `active` and in stock.
+///   2. If the listing isn't in the live feed (typically because it
+///      flipped to `sold` after the buyer completed the order),
+///      `listingDetailProvider` is watched for that one id. Riverpod
+///      keeps the FutureProvider cached so a re-mount doesn't re-hit
+///      Firestore, and only listings actually shown in the carousel
+///      trigger a fetch — capped at 10 cards.
 final recentPurchasesProvider = Provider<List<RecentPurchaseEntry>>((ref) {
   final session = ref.watch(currentBuyerSessionProvider);
   if (session == null) return const [];
@@ -80,8 +90,7 @@ final recentPurchasesProvider = Provider<List<RecentPurchaseEntry>>((ref) {
   final orders = ordersAsync.valueOrNull ?? const <OrderModel>[];
 
   // Build a lookup of live listings by id so each card can enrich
-  // itself with current name + image. No N+1 — we read the feed once
-  // and serve every card from it.
+  // itself with current name + image.
   final fish = ref.watch(buyerFishFeedProvider).valueOrNull ??
       const <FishItemModel>[];
   final byListingId = {for (final f in fish) f.listingId: f};
@@ -103,13 +112,25 @@ final recentPurchasesProvider = Provider<List<RecentPurchaseEntry>>((ref) {
     if (seen.add(o.listingId)) deduped.add(o);
   }
 
-  return deduped
-      .take(10)
-      .map((o) => RecentPurchaseEntry(
-            order: o,
-            liveListing: byListingId[o.listingId],
-          ))
-      .toList(growable: false);
+  final entries = <RecentPurchaseEntry>[];
+  for (final o in deduped.take(10)) {
+    FishItemModel? enriched = byListingId[o.listingId];
+    if (enriched == null) {
+      // The live feed drops sold listings. Fall back to a one-shot
+      // detail fetch — this is the path that surfaces the image for
+      // completed orders. `autoDispose: false` keeps the cache warm
+      // across re-mounts and `ref.watch` triggers a rebuild as soon
+      // as the fetch lands.
+      final detail =
+          ref.watch(listingDetailProvider(o.listingId)).valueOrNull;
+      if (detail != null) {
+        enriched = FishItemModel.fromMap(detail.toJson(),
+            docId: detail.listingId);
+      }
+    }
+    entries.add(RecentPurchaseEntry(order: o, liveListing: enriched));
+  }
+  return entries;
 });
 
 class RecentlyBoughtSection extends ConsumerStatefulWidget {
@@ -310,16 +331,24 @@ class _RecentPurchaseCard extends StatelessWidget {
             child: Padding(
               padding: const EdgeInsets.all(AppSizes.paddingSM),
               child: Row(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
+                  // `double.infinity` here would resolve to 0 inside a
+                  // Row that hasn't been given a finite cross-axis
+                  // size, collapsing the image to a sliver. Pin the
+                  // thumbnail to a fixed height and let `Row.stretch`
+                  // (above) keep the rest of the card aligned to it.
                   ClipRRect(
                     borderRadius: BorderRadius.circular(AppSizes.radiusMD),
                     child: SizedBox(
                       width: 120,
-                      height: double.infinity,
+                      height: 156,
                       child: imageUrl != null
                           ? CachedNetworkImage(
                               imageUrl: imageUrl,
                               fit: BoxFit.cover,
+                              fadeInDuration:
+                                  const Duration(milliseconds: 220),
                               placeholder: (_, __) => _imgFallback(context),
                               errorWidget: (_, __, ___) =>
                                   _imgFallback(context),
