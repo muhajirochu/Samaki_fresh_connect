@@ -23,6 +23,15 @@ class OrderModel with _$OrderModel {
     @TimestampConverter() required DateTime createdAt,
     @OptionalTimestampConverter() DateTime? completedAt,
     @OptionalTimestampConverter() DateTime? cancelledAt,
+    // ── Denormalized for "Popular Near You" demand aggregation ──────────
+    // Stamped at order-create from the source listing so the buyer
+    // dashboard can rank fish by completed-order volume without
+    // joining back to the listing collection. All three are
+    // optional so legacy orders written before this change still
+    // deserialize — they just won't contribute to the demand map.
+    String? fishType,
+    double? sellerLat,
+    double? sellerLng,
   }) = _OrderModel;
 
   factory OrderModel.fromJson(Map<String, dynamic> json) =>

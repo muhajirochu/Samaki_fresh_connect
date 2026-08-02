@@ -38,7 +38,16 @@ mixin _$OrderModel {
   @OptionalTimestampConverter()
   DateTime? get completedAt => throw _privateConstructorUsedError;
   @OptionalTimestampConverter()
-  DateTime? get cancelledAt => throw _privateConstructorUsedError;
+  DateTime? get cancelledAt =>
+      throw _privateConstructorUsedError; // ── Denormalized for "Popular Near You" demand aggregation ──────────
+// Stamped at order-create from the source listing so the buyer
+// dashboard can rank fish by completed-order volume without
+// joining back to the listing collection. All three are
+// optional so legacy orders written before this change still
+// deserialize — they just won't contribute to the demand map.
+  String? get fishType => throw _privateConstructorUsedError;
+  double? get sellerLat => throw _privateConstructorUsedError;
+  double? get sellerLng => throw _privateConstructorUsedError;
 
   /// Serializes this OrderModel to a JSON map.
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
@@ -72,7 +81,10 @@ abstract class $OrderModelCopyWith<$Res> {
       bool deliveryConfirmed,
       @TimestampConverter() DateTime createdAt,
       @OptionalTimestampConverter() DateTime? completedAt,
-      @OptionalTimestampConverter() DateTime? cancelledAt});
+      @OptionalTimestampConverter() DateTime? cancelledAt,
+      String? fishType,
+      double? sellerLat,
+      double? sellerLng});
 }
 
 /// @nodoc
@@ -106,6 +118,9 @@ class _$OrderModelCopyWithImpl<$Res, $Val extends OrderModel>
     Object? createdAt = null,
     Object? completedAt = freezed,
     Object? cancelledAt = freezed,
+    Object? fishType = freezed,
+    Object? sellerLat = freezed,
+    Object? sellerLng = freezed,
   }) {
     return _then(_value.copyWith(
       orderId: null == orderId
@@ -172,6 +187,18 @@ class _$OrderModelCopyWithImpl<$Res, $Val extends OrderModel>
           ? _value.cancelledAt
           : cancelledAt // ignore: cast_nullable_to_non_nullable
               as DateTime?,
+      fishType: freezed == fishType
+          ? _value.fishType
+          : fishType // ignore: cast_nullable_to_non_nullable
+              as String?,
+      sellerLat: freezed == sellerLat
+          ? _value.sellerLat
+          : sellerLat // ignore: cast_nullable_to_non_nullable
+              as double?,
+      sellerLng: freezed == sellerLng
+          ? _value.sellerLng
+          : sellerLng // ignore: cast_nullable_to_non_nullable
+              as double?,
     ) as $Val);
   }
 }
@@ -200,7 +227,10 @@ abstract class _$$OrderModelImplCopyWith<$Res>
       bool deliveryConfirmed,
       @TimestampConverter() DateTime createdAt,
       @OptionalTimestampConverter() DateTime? completedAt,
-      @OptionalTimestampConverter() DateTime? cancelledAt});
+      @OptionalTimestampConverter() DateTime? cancelledAt,
+      String? fishType,
+      double? sellerLat,
+      double? sellerLng});
 }
 
 /// @nodoc
@@ -232,6 +262,9 @@ class __$$OrderModelImplCopyWithImpl<$Res>
     Object? createdAt = null,
     Object? completedAt = freezed,
     Object? cancelledAt = freezed,
+    Object? fishType = freezed,
+    Object? sellerLat = freezed,
+    Object? sellerLng = freezed,
   }) {
     return _then(_$OrderModelImpl(
       orderId: null == orderId
@@ -298,6 +331,18 @@ class __$$OrderModelImplCopyWithImpl<$Res>
           ? _value.cancelledAt
           : cancelledAt // ignore: cast_nullable_to_non_nullable
               as DateTime?,
+      fishType: freezed == fishType
+          ? _value.fishType
+          : fishType // ignore: cast_nullable_to_non_nullable
+              as String?,
+      sellerLat: freezed == sellerLat
+          ? _value.sellerLat
+          : sellerLat // ignore: cast_nullable_to_non_nullable
+              as double?,
+      sellerLng: freezed == sellerLng
+          ? _value.sellerLng
+          : sellerLng // ignore: cast_nullable_to_non_nullable
+              as double?,
     ));
   }
 }
@@ -321,7 +366,10 @@ class _$OrderModelImpl implements _OrderModel {
       required this.deliveryConfirmed,
       @TimestampConverter() required this.createdAt,
       @OptionalTimestampConverter() this.completedAt,
-      @OptionalTimestampConverter() this.cancelledAt});
+      @OptionalTimestampConverter() this.cancelledAt,
+      this.fishType,
+      this.sellerLat,
+      this.sellerLng});
 
   factory _$OrderModelImpl.fromJson(Map<String, dynamic> json) =>
       _$$OrderModelImplFromJson(json);
@@ -361,10 +409,22 @@ class _$OrderModelImpl implements _OrderModel {
   @override
   @OptionalTimestampConverter()
   final DateTime? cancelledAt;
+// ── Denormalized for "Popular Near You" demand aggregation ──────────
+// Stamped at order-create from the source listing so the buyer
+// dashboard can rank fish by completed-order volume without
+// joining back to the listing collection. All three are
+// optional so legacy orders written before this change still
+// deserialize — they just won't contribute to the demand map.
+  @override
+  final String? fishType;
+  @override
+  final double? sellerLat;
+  @override
+  final double? sellerLng;
 
   @override
   String toString() {
-    return 'OrderModel(orderId: $orderId, orderPath: $orderPath, buyerId: $buyerId, streetSellerId: $streetSellerId, listingId: $listingId, originalPrice: $originalPrice, negotiatedPrice: $negotiatedPrice, finalPrice: $finalPrice, quantityKg: $quantityKg, orderStatus: $orderStatus, negotiationStatus: $negotiationStatus, pickupConfirmed: $pickupConfirmed, deliveryConfirmed: $deliveryConfirmed, createdAt: $createdAt, completedAt: $completedAt, cancelledAt: $cancelledAt)';
+    return 'OrderModel(orderId: $orderId, orderPath: $orderPath, buyerId: $buyerId, streetSellerId: $streetSellerId, listingId: $listingId, originalPrice: $originalPrice, negotiatedPrice: $negotiatedPrice, finalPrice: $finalPrice, quantityKg: $quantityKg, orderStatus: $orderStatus, negotiationStatus: $negotiationStatus, pickupConfirmed: $pickupConfirmed, deliveryConfirmed: $deliveryConfirmed, createdAt: $createdAt, completedAt: $completedAt, cancelledAt: $cancelledAt, fishType: $fishType, sellerLat: $sellerLat, sellerLng: $sellerLng)';
   }
 
   @override
@@ -401,29 +461,39 @@ class _$OrderModelImpl implements _OrderModel {
             (identical(other.completedAt, completedAt) ||
                 other.completedAt == completedAt) &&
             (identical(other.cancelledAt, cancelledAt) ||
-                other.cancelledAt == cancelledAt));
+                other.cancelledAt == cancelledAt) &&
+            (identical(other.fishType, fishType) ||
+                other.fishType == fishType) &&
+            (identical(other.sellerLat, sellerLat) ||
+                other.sellerLat == sellerLat) &&
+            (identical(other.sellerLng, sellerLng) ||
+                other.sellerLng == sellerLng));
   }
 
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
-  int get hashCode => Object.hash(
-      runtimeType,
-      orderId,
-      orderPath,
-      buyerId,
-      streetSellerId,
-      listingId,
-      originalPrice,
-      negotiatedPrice,
-      finalPrice,
-      quantityKg,
-      orderStatus,
-      negotiationStatus,
-      pickupConfirmed,
-      deliveryConfirmed,
-      createdAt,
-      completedAt,
-      cancelledAt);
+  int get hashCode => Object.hashAll([
+        runtimeType,
+        orderId,
+        orderPath,
+        buyerId,
+        streetSellerId,
+        listingId,
+        originalPrice,
+        negotiatedPrice,
+        finalPrice,
+        quantityKg,
+        orderStatus,
+        negotiationStatus,
+        pickupConfirmed,
+        deliveryConfirmed,
+        createdAt,
+        completedAt,
+        cancelledAt,
+        fishType,
+        sellerLat,
+        sellerLng
+      ]);
 
   /// Create a copy of OrderModel
   /// with the given fields replaced by the non-null parameter values.
@@ -443,23 +513,25 @@ class _$OrderModelImpl implements _OrderModel {
 
 abstract class _OrderModel implements OrderModel {
   const factory _OrderModel(
-          {required final String orderId,
-          required final String orderPath,
-          required final String buyerId,
-          final String? streetSellerId,
-          required final String listingId,
-          required final double originalPrice,
-          final double? negotiatedPrice,
-          required final double finalPrice,
-          required final double quantityKg,
-          required final String orderStatus,
-          final String? negotiationStatus,
-          required final bool pickupConfirmed,
-          required final bool deliveryConfirmed,
-          @TimestampConverter() required final DateTime createdAt,
-          @OptionalTimestampConverter() final DateTime? completedAt,
-          @OptionalTimestampConverter() final DateTime? cancelledAt}) =
-      _$OrderModelImpl;
+      {required final String orderId,
+      required final String orderPath,
+      required final String buyerId,
+      final String? streetSellerId,
+      required final String listingId,
+      required final double originalPrice,
+      final double? negotiatedPrice,
+      required final double finalPrice,
+      required final double quantityKg,
+      required final String orderStatus,
+      final String? negotiationStatus,
+      required final bool pickupConfirmed,
+      required final bool deliveryConfirmed,
+      @TimestampConverter() required final DateTime createdAt,
+      @OptionalTimestampConverter() final DateTime? completedAt,
+      @OptionalTimestampConverter() final DateTime? cancelledAt,
+      final String? fishType,
+      final double? sellerLat,
+      final double? sellerLng}) = _$OrderModelImpl;
 
   factory _OrderModel.fromJson(Map<String, dynamic> json) =
       _$OrderModelImpl.fromJson;
@@ -498,7 +570,19 @@ abstract class _OrderModel implements OrderModel {
   DateTime? get completedAt;
   @override
   @OptionalTimestampConverter()
-  DateTime? get cancelledAt;
+  DateTime?
+      get cancelledAt; // ── Denormalized for "Popular Near You" demand aggregation ──────────
+// Stamped at order-create from the source listing so the buyer
+// dashboard can rank fish by completed-order volume without
+// joining back to the listing collection. All three are
+// optional so legacy orders written before this change still
+// deserialize — they just won't contribute to the demand map.
+  @override
+  String? get fishType;
+  @override
+  double? get sellerLat;
+  @override
+  double? get sellerLng;
 
   /// Create a copy of OrderModel
   /// with the given fields replaced by the non-null parameter values.

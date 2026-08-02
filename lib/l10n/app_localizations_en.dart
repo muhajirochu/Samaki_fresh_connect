@@ -1700,6 +1700,34 @@ class AppLocalizationsEn extends AppLocalizations {
   String get popularNearYouSubtitle => 'Recommendations for your area';
 
   @override
+  String get popularNearYouEmpty => 'Recommendations will appear here once sellers list more fish near you.';
+
+  @override
+  String popularNearYouListings(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count listings',
+      one: '1 listing',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String popularNearYouSold(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count sold',
+      one: '1 sold',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get popularNearYouFrom => 'From';
+
+  @override
   String orderFallbackName(String id) {
     return 'Order #$id';
   }

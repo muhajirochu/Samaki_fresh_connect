@@ -123,6 +123,10 @@ class _SendRequestSheetState extends ConsumerState<SendRequestSheet> {
       );
 
       final orderService = ref.read(orderServiceProvider);
+      // Stamp denormalized fields for Popular Near You demand
+      // aggregation. `FishItemModel` is the buyer-facing feed
+      // projection of the listing, so it carries the same
+      // `fishType` + lat/lng surface as the source.
       final order = OrderModel(
         orderId: '', // service stamps this
         orderPath: OrderPath.directFromSeller.name,
@@ -137,6 +141,9 @@ class _SendRequestSheetState extends ConsumerState<SendRequestSheet> {
         pickupConfirmed: false,
         deliveryConfirmed: false,
         createdAt: DateTime.now(),
+        fishType: item.fishType.value,
+        sellerLat: item.latitude,
+        sellerLng: item.longitude,
       );
 
       final orderId = await orderService.createOrder(order);

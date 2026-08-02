@@ -3197,6 +3197,30 @@ abstract class AppLocalizations {
   /// **'Recommendations for your area'**
   String get popularNearYouSubtitle;
 
+  /// No description provided for @popularNearYouEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'Recommendations will appear here once sellers list more fish near you.'**
+  String get popularNearYouEmpty;
+
+  /// No description provided for @popularNearYouListings.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 listing} other{{count} listings}}'**
+  String popularNearYouListings(int count);
+
+  /// No description provided for @popularNearYouSold.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 sold} other{{count} sold}}'**
+  String popularNearYouSold(int count);
+
+  /// No description provided for @popularNearYouFrom.
+  ///
+  /// In en, this message translates to:
+  /// **'From'**
+  String get popularNearYouFrom;
+
   /// No description provided for @orderFallbackName.
   ///
   /// In en, this message translates to:

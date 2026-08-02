@@ -1700,6 +1700,34 @@ class AppLocalizationsSw extends AppLocalizations {
   String get popularNearYouSubtitle => 'Mapendekezo kwa eneo lako';
 
   @override
+  String get popularNearYouEmpty => 'Mapendekezo yatapatikana hapa baada ya wauzaji kuchapisha samaki wengi karibu nawe.';
+
+  @override
+  String popularNearYouListings(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Maorodha $count',
+      one: 'Orodha 1',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String popularNearYouSold(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Iliyouzwa $count',
+      one: 'Iliyouzwa 1',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get popularNearYouFrom => 'Kuanzia';
+
+  @override
   String orderFallbackName(String id) {
     return 'Orderi #$id';
   }

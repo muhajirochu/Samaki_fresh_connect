@@ -798,6 +798,24 @@
     "recentlyBoughtChip": "Recent",
     "popularNearYouTitle": "Popular Near You",
     "popularNearYouSubtitle": "Recommendations for your area",
+    "popularNearYouEmpty": "Recommendations will appear here once sellers list more fish near you.",
+    "popularNearYouListings": "{count, plural, =1{1 listing} other{{count} listings}}",
+    "@popularNearYouListings": {
+        "placeholders": {
+            "count": {
+                "type": "int"
+            }
+        }
+    },
+    "popularNearYouSold": "{count, plural, =1{1 sold} other{{count} sold}}",
+    "@popularNearYouSold": {
+        "placeholders": {
+            "count": {
+                "type": "int"
+            }
+        }
+    },
+    "popularNearYouFrom": "From",
     "orderFallbackName": "Order #{id}",
     "@orderFallbackName": {
         "placeholders": {

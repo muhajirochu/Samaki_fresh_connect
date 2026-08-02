@@ -11,6 +11,7 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 
 import '../../config/theme_extensions.dart';
 import '../../constants/app_sizes.dart';
+import '../../l10n/app_localizations.dart';
 import '../../models/enums/fish_type.dart';
 import '../../providers/buyer_provider.dart';
 import '../../utils/formatters.dart';
@@ -24,6 +25,7 @@ class PopularFishSection extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final popular = ref.watch(popularNearbyFishProvider);
+    final l10n = AppLocalizations.of(context);
     final cs = Theme.of(context).colorScheme;
 
     if (popular.isEmpty) {
@@ -33,7 +35,7 @@ class PopularFishSection extends ConsumerWidget {
           vertical: AppSizes.paddingMD,
         ),
         child: Text(
-          'Mapendekezo yatapatikana hapa baada ya wauzaji kuchapisha samaki wengi.',
+          l10n.popularNearYouEmpty,
           style: TextStyle(
             color: cs.onSurface.withValues(alpha: 0.55),
           ),
@@ -54,6 +56,7 @@ class PopularFishSection extends ConsumerWidget {
           return _PopularTile(
             fishName: p.fishName,
             listingCount: p.listingCount,
+            demandCount: p.demandCount,
             pricePerKg: p.lowestPricePerKg,
             imageUrl: p.imageUrl,
             onTap: () => onTap(p.fishName, _fishTypeValueFor(p.fishName)),
@@ -85,6 +88,7 @@ class PopularFishSection extends ConsumerWidget {
 class _PopularTile extends StatelessWidget {
   final String fishName;
   final int listingCount;
+  final int demandCount;
   final double? pricePerKg;
   final String? imageUrl;
   final VoidCallback onTap;
@@ -92,6 +96,7 @@ class _PopularTile extends StatelessWidget {
   const _PopularTile({
     required this.fishName,
     required this.listingCount,
+    required this.demandCount,
     required this.onTap,
     this.pricePerKg,
     this.imageUrl,
@@ -102,6 +107,7 @@ class _PopularTile extends StatelessWidget {
     final cs = Theme.of(context).colorScheme;
     final tokens = BackgroundStyle.of(context);
     final isDark = Theme.of(context).brightness == Brightness.dark;
+    final l10n = AppLocalizations.of(context);
     return GestureDetector(
       onTap: onTap,
       child: Container(
@@ -158,49 +164,27 @@ class _PopularTile extends StatelessWidget {
                       overflow: TextOverflow.ellipsis,
                     ),
                     const SizedBox(height: 4),
-                    Row(
-                      children: [
-                        Container(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 6,
-                            vertical: 2,
-                          ),
-                          decoration: BoxDecoration(
-                            // Popular-fire badge uses the tertiary
-                            // (amber on light / teal on dark) so it
-                            // stands out against the cool primary
-                            // surface.
-                            color:
-                                cs.tertiary.withValues(alpha: 0.12),
-                            borderRadius:
-                                BorderRadius.circular(AppSizes.radiusSM),
-                          ),
-                          child: Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Icon(
-                                Icons.local_fire_department_rounded,
-                                color: cs.tertiary,
-                                size: 12,
-                              ),
-                              const SizedBox(width: 2),
-                              Text(
-                                '$listingCount listings',
-                                style: TextStyle(
-                                  color: cs.tertiary,
-                                  fontSize: 10,
-                                  fontWeight: FontWeight.w700,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ],
-                    ),
+                    // Demand-driven badge: "N sold near you" is the
+                    // primary signal that drives the ranking, so it
+                    // takes the fire-icon amber tile. Falls back
+                    // to "N listings" only when there is no demand
+                    // data yet (a brand-new buyer with no orders).
+                    if (demandCount > 0)
+                      _PopularBadge(
+                        color: cs.tertiary,
+                        icon: Icons.local_fire_department_rounded,
+                        label: l10n.popularNearYouSold(demandCount),
+                      )
+                    else
+                      _PopularBadge(
+                        color: cs.tertiary,
+                        icon: Icons.storefront_rounded,
+                        label: l10n.popularNearYouListings(listingCount),
+                      ),
                     const SizedBox(height: 4),
                     if (pricePerKg != null)
                       Text(
-                        'Kuanzia ${Formatters.formatCurrency(pricePerKg!)}/kg',
+                        '${l10n.popularNearYouFrom} ${Formatters.formatCurrency(pricePerKg!)}/kg',
                         style: Theme.of(context)
                             .textTheme
                             .bodySmall
@@ -229,6 +213,47 @@ class _PopularTile extends StatelessWidget {
         Icons.set_meal_rounded,
         color: cs.onSurface.withValues(alpha: 0.45),
         size: 28,
+      ),
+    );
+  }
+}
+
+/// Small amber pill used for the listing/sold badge on a Popular
+/// Near You tile. Kept as its own widget so the two branches of the
+/// parent `if`/`else` don't have to repeat the same `Container` +
+/// `Row` + `Icon` + `Text` boilerplate.
+class _PopularBadge extends StatelessWidget {
+  final Color color;
+  final IconData icon;
+  final String label;
+  const _PopularBadge({
+    required this.color,
+    required this.icon,
+    required this.label,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+      decoration: BoxDecoration(
+        color: color.withValues(alpha: 0.12),
+        borderRadius: BorderRadius.circular(AppSizes.radiusSM),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(icon, color: color, size: 12),
+          const SizedBox(width: 2),
+          Text(
+            label,
+            style: TextStyle(
+              color: color,
+              fontSize: 10,
+              fontWeight: FontWeight.w700,
+            ),
+          ),
+        ],
       ),
     );
   }

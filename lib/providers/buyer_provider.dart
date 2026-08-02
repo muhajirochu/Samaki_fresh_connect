@@ -25,15 +25,26 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import '../models/buyer_dashboard_state.dart';
 import '../models/fish_item_model.dart';
 import '../models/fish_request_model.dart';
+import '../models/order_model.dart';
 import '../models/street_seller_model.dart';
 import '../models/enums/fish_type.dart';
+import '../models/enums/listing_status.dart';
 import '../models/enums/user_role.dart';
 import '../models/user_model.dart';
 import '../services/buyer_dashboard_service.dart';
 import '../utils/logger.dart';
 import 'auth_provider.dart';
+import 'listing_provider.dart';
+import 'order_provider.dart';
 import 'seller_location_provider.dart'
     show activeStreetSellersProviderRemote;
+
+/// Radius (km) and recency window (days) used by the
+/// "Popular Near You" demand aggregation. Matches the live feed's
+/// 10km geo filter so demand and supply are computed over the same
+/// buyer neighbourhood.
+const double _popularRadiusKm = 10.0;
+const int _popularRecencyDays = 30;
 
 // ── Service provider ──────────────────────────────────────────────────────────
 final buyerDashboardServiceProvider = Provider<BuyerDashboardService>(
@@ -383,30 +394,92 @@ final nearestSellerProvider = Provider<NearestSeller?>((ref) {
   );
 });
 
-/// "Popular Near You" — the fish types most frequently listed by sellers
-/// in the buyer's area. In production this would use real order-history
-/// signals; the local heuristic is "fish type with the most listings
-/// among nearby brokers".
+/// "Popular Near You" — recommendations driven by the buyer's local
+/// marketplace. Blends two signals:
+///
+///   1. **Demand** — how many *completed* orders each fish type has
+///      accumulated within `_popularRadiusKm` of the buyer, weighted
+///      toward the last `_popularRecencyDays` days. Uses the
+///      denormalized `fishType` / `sellerLat` / `sellerLng` fields
+///      stamped onto each order at create time, so no per-order join
+///      back to the listing collection is needed.
+///   2. **Supply** — fallback when a fish type has no nearby completed
+///      orders yet, the existing "most-listed nearby" heuristic kicks
+///      in so a brand-new buyer (zero order history) still sees fish.
+///
+/// Demand counts 4x as much as supply, so a fish that's quietly
+/// selling out every day in the buyer's neighbourhood rises above one
+/// that 30 sellers list but no one buys.
 class PopularFish {
   final String fishName;
   final int listingCount;
+  final int demandCount;
   final double? lowestPricePerKg;
   final String? imageUrl;
   const PopularFish({
     required this.fishName,
     required this.listingCount,
+    required this.demandCount,
     this.lowestPricePerKg,
     this.imageUrl,
   });
 }
 
+/// Per-fishType completed-order count near the buyer, with a recency
+/// multiplier. Returns a map of `fishType.value -> weighted demand`.
+/// Re-emits whenever the buyer's order stream or their location
+/// changes.
+class _PopularDemand {
+  final Map<String, double> weighted;
+  final int totalCompleted;
+  const _PopularDemand(this.weighted, this.totalCompleted);
+}
+
+final _popularDemandProvider = Provider<_PopularDemand>((ref) {
+  final dash = ref.watch(buyerDashboardProvider).valueOrNull;
+  if (dash == null) return const _PopularDemand({}, 0);
+  final session = ref.watch(currentBuyerSessionProvider);
+  if (session == null) return const _PopularDemand({}, 0);
+
+  final ordersAsync = ref.watch(buyerOrdersProvider(session.buyerId));
+  final orders = ordersAsync.valueOrNull ?? const <OrderModel>[];
+
+  // Only count completed orders. Pending / confirmed are still in
+  // motion and the buyer might cancel; `in_transit` is still in
+  // motion too. `cancelled` is excluded by definition.
+  final completed = orders.where((o) => o.orderStatus == 'completed');
+  if (completed.isEmpty) return const _PopularDemand({}, 0);
+
+  final now = DateTime.now();
+  final weighted = <String, double>{};
+  for (final o in completed) {
+    final type = o.fishType;
+    if (type == null || type.isEmpty) continue;
+    if (o.sellerLat == null || o.sellerLng == null) continue;
+    if (dash.buyerLatitude == null || dash.buyerLongitude == null) continue;
+    final dist = _haversineKm(
+      dash.buyerLatitude!,
+      dash.buyerLongitude!,
+      o.sellerLat!,
+      o.sellerLng!,
+    );
+    if (dist > _popularRadiusKm) continue;
+    // Recency multiplier: a fish sold today scores 2.0, one sold
+    // 30 days ago scores 1.0, anything older is excluded.
+    final daysAgo = now.difference(o.createdAt).inDays;
+    if (daysAgo < 0 || daysAgo > _popularRecencyDays) continue;
+    final recency = 1.0 + (1.0 - daysAgo / _popularRecencyDays);
+    weighted[type] = (weighted[type] ?? 0) + recency;
+  }
+  return _PopularDemand(weighted, completed.length);
+});
+
 final popularNearbyFishProvider = Provider<List<PopularFish>>((ref) {
   final dash = ref.watch(buyerDashboardProvider).valueOrNull;
   if (dash == null) return const [];
 
-  // Group listings by fish type. We only consider fish within the buyer's
-  // 10km radius (which is the same radius used by buyerFishFeedProvider).
-  final byType = <String, List<FishItemModel>>{};
+  // ── Supply: group live listings by fishType within radius. ─────────────
+  final supplyByType = <String, List<FishItemModel>>{};
   for (final f in dash.fishAvailableNearby) {
     if (f.latitude == null || f.longitude == null) continue;
     if (dash.buyerLatitude == null || dash.buyerLongitude == null) continue;
@@ -416,24 +489,108 @@ final popularNearbyFishProvider = Provider<List<PopularFish>>((ref) {
       f.latitude!,
       f.longitude!,
     );
-    if (dist > 10.0) continue;
-    byType.putIfAbsent(f.fishType.value, () => []).add(f);
+    if (dist > _popularRadiusKm) continue;
+    supplyByType.putIfAbsent(f.fishType.value, () => []).add(f);
   }
-  final entries = byType.entries.map((e) {
-    final prices =
-        e.value.map((i) => i.pricePerKg).toList()..sort();
+
+  // ── Demand: completed-order counts from the aggregation above. ─────────
+  final demand = ref.watch(_popularDemandProvider).weighted;
+  // Cache the cheapest listing per type so the result still surfaces
+  // price + image even when a type has no demand data yet.
+  final cheapestByType = <String, FishItemModel>{};
+  for (final entry in supplyByType.entries) {
+    FishItemModel? cheapest;
+    for (final f in entry.value) {
+      if (cheapest == null || f.pricePerKg < cheapest.pricePerKg) {
+        cheapest = f;
+      }
+    }
+    if (cheapest != null) cheapestByType[entry.key] = cheapest;
+  }
+
+  // For demand-only types (no live supply), look at the buyer's
+  // most recent completed order of that type and re-fetch that
+  // listing so the card has a real image and price. Falls back to
+  // the placeholder if the listing has been deleted since.
+  final demandOnlyTypes = demand.keys.where((t) => !supplyByType.containsKey(t));
+  final session = ref.watch(currentBuyerSessionProvider);
+  for (final type in demandOnlyTypes) {
+    if (session == null) continue;
+    final orders = ref.watch(buyerOrdersProvider(session.buyerId)).valueOrNull ??
+        const <OrderModel>[];
+    final recent = orders
+        .where((o) =>
+            o.orderStatus == 'completed' &&
+            o.fishType == type &&
+            o.sellerLat != null &&
+            o.sellerLng != null)
+        .toList()
+      ..sort((a, b) => b.createdAt.compareTo(a.createdAt));
+    if (recent.isEmpty) continue;
+    final detail =
+        ref.watch(listingDetailProvider(recent.first.listingId)).valueOrNull;
+    if (detail == null) continue;
+    cheapestByType[type] = FishItemModel.fromMap(detail.toJson(),
+        docId: detail.listingId);
+  }
+
+  // ── Union: every type with either demand OR supply. ────────────────────
+  final allTypes = {...supplyByType.keys, ...demand.keys};
+  final entries = allTypes.map((type) {
+    final supplyCount = supplyByType[type]?.length ?? 0;
+    final demandScore = demand[type] ?? 0.0;
+    final representative = cheapestByType[type] ??
+        // Demand-only entry with no live supply AND no completed
+        // order to backfill from: use the display name from the
+        // FishType enum so the card still renders meaningfully.
+        _placeholderForType(type);
     return PopularFish(
-      fishName: e.value.first.displayName,
-      listingCount: e.value.length,
-      lowestPricePerKg: prices.isEmpty ? null : prices.first,
-      imageUrl: e.value.first.imageUrls.isEmpty
+      fishName: representative.displayName,
+      listingCount: supplyCount,
+      demandCount: demandScore.round(),
+      lowestPricePerKg: representative.pricePerKg > 0
+          ? representative.pricePerKg
+          : null,
+      imageUrl: representative.imageUrls.isEmpty
           ? null
-          : e.value.first.imageUrls.first,
+          : representative.imageUrls.first,
     );
   }).toList();
-  entries.sort((a, b) => b.listingCount.compareTo(a.listingCount));
+
+  // Final score: demand weighted 4:1 over supply, so a fish with
+  // 2 completed orders beats one with 6 listings. Ties break on
+  // the higher raw demand count (then supply count).
+  entries.sort((a, b) {
+    final sa = a.demandCount * 4 + a.listingCount;
+    final sb = b.demandCount * 4 + b.listingCount;
+    if (sa != sb) return sb.compareTo(sa);
+    if (a.demandCount != b.demandCount) {
+      return b.demandCount.compareTo(a.demandCount);
+    }
+    return b.listingCount.compareTo(a.listingCount);
+  });
   return entries.take(8).toList();
 });
+
+/// Stand-in FishItemModel used when a fish has demand entries (sold
+/// nearby) but no live supply (every listing is currently sold out or
+/// out of range). Carries just enough for `displayName` / image / price
+/// to render the card; the listing fields stay at safe defaults.
+FishItemModel _placeholderForType(String typeValue) {
+  return FishItemModel(
+    itemId: '',
+    listingId: '',
+    sellerId: '',
+    fishType: FishTypeExtension.fromString(typeValue),
+    quantityKg: 0,
+    pricePerKg: 0,
+    totalPrice: 0,
+    imageUrls: const [],
+    isBrokerApproved: true,
+    status: ListingStatus.sold,
+    createdAt: DateTime.fromMillisecondsSinceEpoch(0),
+  );
+}
 
 /// Autocomplete suggestions for the search bar. Returns up to 8 matches
 /// across fish name, custom name, and the Swahili/common synonyms

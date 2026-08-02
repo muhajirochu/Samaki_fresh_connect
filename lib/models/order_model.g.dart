@@ -26,6 +26,9 @@ _$OrderModelImpl _$$OrderModelImplFromJson(Map<String, dynamic> json) =>
           const OptionalTimestampConverter().fromJson(json['completedAt']),
       cancelledAt:
           const OptionalTimestampConverter().fromJson(json['cancelledAt']),
+      fishType: json['fishType'] as String?,
+      sellerLat: (json['sellerLat'] as num?)?.toDouble(),
+      sellerLng: (json['sellerLng'] as num?)?.toDouble(),
     );
 
 Map<String, dynamic> _$$OrderModelImplToJson(_$OrderModelImpl instance) =>
@@ -48,4 +51,7 @@ Map<String, dynamic> _$$OrderModelImplToJson(_$OrderModelImpl instance) =>
           const OptionalTimestampConverter().toJson(instance.completedAt),
       'cancelledAt':
           const OptionalTimestampConverter().toJson(instance.cancelledAt),
+      'fishType': instance.fishType,
+      'sellerLat': instance.sellerLat,
+      'sellerLng': instance.sellerLng,
     };

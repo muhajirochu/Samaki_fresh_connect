@@ -346,6 +346,13 @@ class _BuyButton extends HookConsumerWidget {
         // transitions the order to `confirmed` AND the listing to
         // `sold`. If two buyers race, both orders stay `pending`
         // and the seller manually picks one.
+        final loc = listing.location;
+        final sellerLat = loc != null && loc['latitude'] is num
+            ? (loc['latitude'] as num).toDouble()
+            : null;
+        final sellerLng = loc != null && loc['longitude'] is num
+            ? (loc['longitude'] as num).toDouble()
+            : null;
         final order = OrderModel(
           orderId: '', // Service sets this
           orderPath: OrderPath.directFromSeller.name,
@@ -371,6 +378,9 @@ class _BuyButton extends HookConsumerWidget {
           pickupConfirmed: false,
           deliveryConfirmed: false,
           createdAt: DateTime.now(),
+          fishType: listing.fishType.isEmpty ? null : listing.fishType,
+          sellerLat: sellerLat,
+          sellerLng: sellerLng,
         );
 
         final orderId = await orderService.createOrder(order);

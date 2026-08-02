@@ -164,6 +164,14 @@ class CartScreen extends HookConsumerWidget {
         // the single-listing buy flow applies in
         // `fish_listing_detail_screen.dart`.
         final originalPrice = listing.pricePerKg * qty;
+        // Pull lat/lng off the listing for the demand-aggregation
+        // denormalization (Popular Near You). Null-safe so a
+        // legacy listing without a `location` map still writes.
+        final loc = listing.location;
+        final sellerLat =
+            loc != null && loc['latitude'] is num ? (loc['latitude'] as num).toDouble() : null;
+        final sellerLng =
+            loc != null && loc['longitude'] is num ? (loc['longitude'] as num).toDouble() : null;
         final order = OrderModel(
           orderId: '',
           orderPath: OrderPath.directFromSeller.name,
@@ -179,6 +187,9 @@ class CartScreen extends HookConsumerWidget {
           pickupConfirmed: false,
           deliveryConfirmed: false,
           createdAt: DateTime.now(),
+          fishType: listing.fishType.isEmpty ? null : listing.fishType,
+          sellerLat: sellerLat,
+          sellerLng: sellerLng,
         );
 
         final orderId = await orderService.createOrder(order);

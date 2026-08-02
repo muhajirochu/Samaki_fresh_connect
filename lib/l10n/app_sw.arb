@@ -791,6 +791,10 @@
     "recentlyBoughtChip": "Iliyopita",
     "popularNearYouTitle": "Maarufu Karibu Nawe",
     "popularNearYouSubtitle": "Mapendekezo kwa eneo lako",
+    "popularNearYouEmpty": "Mapendekezo yatapatikana hapa baada ya wauzaji kuchapisha samaki wengi karibu nawe.",
+    "popularNearYouListings": "{count, plural, =1{Orodha 1} other{Maorodha {count}}}",
+    "popularNearYouSold": "{count, plural, =1{Iliyouzwa 1} other{Iliyouzwa {count}}}",
+    "popularNearYouFrom": "Kuanzia",
     "orderFallbackName": "Orderi #{id}",
     "@orderFallbackName": {
         "placeholders": {
