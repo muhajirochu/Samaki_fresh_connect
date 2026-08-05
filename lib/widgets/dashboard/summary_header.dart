@@ -23,6 +23,7 @@ import '../../l10n/app_localizations.dart';
 import '../../providers/buyer_provider.dart';
 import '../../services/location_service.dart';
 import '../common/premium_components.dart';
+import '../../models/enums/order_status.dart';
 
 class DashboardSummaryHeader extends ConsumerWidget {
   const DashboardSummaryHeader({super.key});
@@ -49,7 +50,11 @@ class DashboardSummaryHeader extends ConsumerWidget {
     // is null — show a shimmer until the first real value arrives.
     final requestsAsync  = ref.watch(buyerActiveRequestsProvider);
     final activeRequests = requestsAsync.valueOrNull
-            ?.where((r) => r.countsAsActive)
+            ?.where((r) => 
+                r.status == OrderStatus.pending || 
+                r.status == OrderStatus.accepted || 
+                r.status == OrderStatus.pickupGenerated || 
+                r.status == OrderStatus.arriving)
             .length ??
         0;
     final requestsLoading = requestsAsync.isLoading;

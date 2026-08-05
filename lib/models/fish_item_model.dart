@@ -80,12 +80,20 @@ class FishItemModel {
 
   factory FishItemModel.fromMap(Map<String, dynamic> data, {String? docId}) {
     final typeStr = (data['fishType'] as String?) ?? 'other';
+    final parsedType = FishTypeExtension.fromString(typeStr);
+    
+    // If the seller typed a custom name directly into the fishType field,
+    // parsedType will be 'other'. We preserve their string here.
+    final customName = (data['customFishName'] as String?)?.isNotEmpty == true 
+        ? data['customFishName']! 
+        : (parsedType == FishType.other && typeStr.toLowerCase() != 'other' ? typeStr : '');
+
     return FishItemModel(
       itemId: docId ?? (data['itemId'] as String? ?? ''),
       listingId: (data['listingId'] as String?) ?? (docId ?? ''),
       sellerId: (data['sellerId'] ?? '') as String,
-      fishType: FishTypeExtension.fromString(typeStr),
-      customFishName: (data['customFishName'] as String?) ?? '',
+      fishType: parsedType,
+      customFishName: customName,
       quantityKg: (data['quantityKg'] as num?)?.toDouble() ?? 0.0,
       pricePerKg: (data['pricePerKg'] as num?)?.toDouble() ?? 0.0,
       totalPrice: (data['totalPrice'] as num?)?.toDouble() ?? 0.0,

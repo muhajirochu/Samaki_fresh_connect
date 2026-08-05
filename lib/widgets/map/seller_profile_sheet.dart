@@ -659,16 +659,13 @@ class _LocationCardState extends State<_LocationCard> {
   void _initFuture() {
     _lat = widget.seller.latitude;
     _lng = widget.seller.longitude;
-    if (widget.seller.isOnline) {
-      _addressFuture = ListingLocationService().reverseGeocodeLabel(_lat, _lng);
-    }
+    _addressFuture = ListingLocationService().reverseGeocodeLabel(_lat, _lng);
   }
 
   @override
   void didUpdateWidget(_LocationCard oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if (widget.seller.isOnline &&
-        (widget.seller.latitude != _lat || widget.seller.longitude != _lng)) {
+    if (widget.seller.latitude != _lat || widget.seller.longitude != _lng) {
       _initFuture();
     }
   }
@@ -761,10 +758,19 @@ class _LocationCardState extends State<_LocationCard> {
               label: 'Region',
               value: widget.seller.regionName ?? 'Zanzibar',
             ),
-            _LocationRow(
-              icon: Icons.signpost_outlined,
-              label: 'Street',
-              value: widget.seller.streetName ?? '—',
+            FutureBuilder<String?>(
+              future: _addressFuture,
+              builder: (context, snapshot) {
+                final address = snapshot.data;
+                final resolvedAddress = snapshot.connectionState == ConnectionState.waiting
+                    ? 'Resolving...'
+                    : (address ?? widget.seller.streetName ?? '—');
+                return _LocationRow(
+                  icon: Icons.signpost_outlined,
+                  label: 'Street',
+                  value: resolvedAddress,
+                );
+              },
             ),
           ],
         ],

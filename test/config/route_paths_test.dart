@@ -34,21 +34,19 @@ void main() {
       // Builders read state.pathParameters['sellerId'] / ['id'] /
       // ['userId'] / ['orderId']. If the template ever drifts away
       // from those keys, deep links break at runtime.
-      expect(AppRoutes.buyerSellerTrackingPath, contains(':sellerId'));
+      expect(AppRoutes.buyerTrackOrderPath, contains(':orderId'));
       expect(AppRoutes.listingDetailPath, contains(':id'));
       expect(AppRoutes.listingEditPath, contains(':id'));
-      expect(AppRoutes.orderDetailPath, contains(':id'));
+      expect(AppRoutes.sellerTrackDeliveryPath, contains(':orderId'));
       expect(AppRoutes.adminUserProfilePath, contains(':userId'));
-      expect(AppRoutes.adminOrderDetailPath, contains(':orderId'));
     });
 
     test('interpolated helpers build the same template as the path', () {
-      expect(AppRoutes.buyerSellerTracking('abc'), '/buyer/seller/abc');
+      expect(AppRoutes.buyerTrackOrder('abc'), '/buyer/track-order/abc');
       expect(AppRoutes.listingDetail('xyz'), '/listings/xyz');
       expect(AppRoutes.listingEdit('xyz'), '/listings/xyz/edit');
-      expect(AppRoutes.orderDetail('order-1'), '/orders/order-1');
+      expect(AppRoutes.sellerTrackDelivery('order-1'), '/seller/track-delivery/order-1');
       expect(AppRoutes.adminUserProfile('u-9'), '/admin/users/u-9');
-      expect(AppRoutes.adminOrderDetail('o-3'), '/admin/orders/o-3');
     });
 
     test('all admin paths are namespaced under /admin', () {
@@ -122,14 +120,14 @@ void main() {
         AppRouteNames.buyerNotifications,
         AppRouteNames.buyerWishlist,
         AppRouteNames.buyerRequests,
-        AppRouteNames.buyerSellerTracking,
+        AppRouteNames.buyerTrackOrder,
+        AppRoutes.orders,
+        AppRoutes.sellerTrackDeliveryPath,
         AppRouteNames.listings,
         AppRouteNames.listingsCreate,
         AppRouteNames.listingsMine,
         AppRouteNames.listingDetail,
         AppRouteNames.listingEdit,
-        AppRouteNames.orders,
-        AppRouteNames.orderDetail,
         AppRouteNames.profile,
         AppRouteNames.profileEdit,
         AppRouteNames.settings,
@@ -143,7 +141,6 @@ void main() {
         AppRouteNames.adminLogs,
         AppRouteNames.adminSettings,
         AppRouteNames.adminUserProfile,
-        AppRouteNames.adminOrderDetail,
       ];
       expect(names, isNotEmpty);
       for (final n in names) {

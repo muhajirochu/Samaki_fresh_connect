@@ -107,8 +107,8 @@ class _SalesTab extends ConsumerWidget {
 
   double _sumRevenue(List<OrderModel> orders) {
     return orders
-        .where((o) => o.orderStatus == 'completed')
-        .fold<double>(0, (acc, o) => acc + (o.finalPrice * o.quantityKg));
+        .where((o) => o.status.name == 'completed')
+        .fold<double>(0, (acc, o) => acc + o.totalPrice);
   }
 }
 
@@ -180,10 +180,10 @@ class _WeeklyBars extends StatelessWidget {
       final next = d.add(const Duration(days: 1));
       final total = orders
           .where((o) =>
-              o.orderStatus == 'completed' &&
+              o.status.name == 'completed' &&
               o.createdAt.isAfter(d) &&
               o.createdAt.isBefore(next))
-          .fold<double>(0, (acc, o) => acc + (o.finalPrice * o.quantityKg));
+          .fold<double>(0, (acc, o) => acc + o.totalPrice);
       return total;
     }).toList();
 
@@ -247,7 +247,7 @@ class _OrdersTab extends ConsumerWidget {
     }
     final byStatus = <String, int>{};
     for (final o in all) {
-      byStatus[o.orderStatus] = (byStatus[o.orderStatus] ?? 0) + 1;
+      byStatus[o.status.name] = (byStatus[o.status.name] ?? 0) + 1;
     }
     return ListView(
       padding: const EdgeInsets.all(AppSizes.paddingLG),
@@ -494,8 +494,8 @@ class _DailySalesCard extends ConsumerWidget {
     final l10n = AppLocalizations.of(context);
     final orders = ref.watch(adminDailyOrdersProvider).valueOrNull ?? [];
     final revenue = orders
-        .where((o) => o.orderStatus == 'completed')
-        .fold<double>(0, (acc, o) => acc + (o.finalPrice * o.quantityKg));
+        .where((o) => o.status.name == 'completed')
+        .fold<double>(0, (acc, o) => acc + o.totalPrice);
     return _StatCard(
       title: l10n.dailySales,
       value: 'TZS ${(revenue / 1000).toStringAsFixed(0)}K',
@@ -511,8 +511,8 @@ class _WeeklySalesCard extends ConsumerWidget {
     final l10n = AppLocalizations.of(context);
     final orders = ref.watch(adminWeeklyOrdersProvider).valueOrNull ?? [];
     final revenue = orders
-        .where((o) => o.orderStatus == 'completed')
-        .fold<double>(0, (acc, o) => acc + (o.finalPrice * o.quantityKg));
+        .where((o) => o.status.name == 'completed')
+        .fold<double>(0, (acc, o) => acc + o.totalPrice);
     return _StatCard(
       title: l10n.weeklySales,
       value: 'TZS ${(revenue / 1000).toStringAsFixed(0)}K',
@@ -528,8 +528,8 @@ class _MonthlySalesCard extends ConsumerWidget {
     final l10n = AppLocalizations.of(context);
     final orders = ref.watch(adminMonthlyOrdersProvider).valueOrNull ?? [];
     final revenue = orders
-        .where((o) => o.orderStatus == 'completed')
-        .fold<double>(0, (acc, o) => acc + (o.finalPrice * o.quantityKg));
+        .where((o) => o.status.name == 'completed')
+        .fold<double>(0, (acc, o) => acc + o.totalPrice);
     return _StatCard(
       title: l10n.monthlySales,
       value: 'TZS ${(revenue / 1000).toStringAsFixed(0)}K',

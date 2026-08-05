@@ -146,7 +146,8 @@ class AppLocalizationsSw extends AppLocalizations {
   }
 
   @override
-  String get noSellersHaveSubtitle => 'Hakuna muuzaji anayebeba samaki wa aina hii kwa sasa. Jaribu jina lingine.';
+  String get noSellersHaveSubtitle =>
+      'Hakuna muuzaji anayebeba samaki wa aina hii kwa sasa. Jaribu jina lingine.';
 
   @override
   String get loading => 'Inapakia…';
@@ -426,7 +427,8 @@ class AppLocalizationsSw extends AppLocalizations {
   String get verificationRequired => 'Uthibitisho wa akaunti unahitajika';
 
   @override
-  String get verificationMessage => 'Tafadhali angalia barua pepe yako na uthibitishe akaunti yako kabla ya kuendelea.';
+  String get verificationMessage =>
+      'Tafadhali angalia barua pepe yako na uthibitishe akaunti yako kabla ya kuendelea.';
 
   @override
   String get verifyNow => 'Thibitisha Sasa';
@@ -441,25 +443,29 @@ class AppLocalizationsSw extends AppLocalizations {
   String get noWishlistItems => 'Orodha yako ya matumaini ni tupu';
 
   @override
-  String get noWishlistSubtitle => 'Gusa moyo kwenye zabuni yoyote ya samaki kuihifadhi hapa.';
+  String get noWishlistSubtitle =>
+      'Gusa moyo kwenye zabuni yoyote ya samaki kuihifadhi hapa.';
 
   @override
   String get noActiveRequests => 'Hakuna maombi hai ya samaki';
 
   @override
-  String get noActiveRequestsSubtitle => 'Utapoweka ombi la samaki, litaonekana hapa.';
+  String get noActiveRequestsSubtitle =>
+      'Utapoweka ombi la samaki, litaonekana hapa.';
 
   @override
   String get noListings => 'Bado hakuna zabuni';
 
   @override
-  String get noListingsSubtitle => 'Gusa kitufe cha + kuongeza zabuni yako ya kwanza.';
+  String get noListingsSubtitle =>
+      'Gusa kitufe cha + kuongeza zabuni yako ya kwanza.';
 
   @override
   String get noOrders => 'Bado hakuna maagizo';
 
   @override
-  String get noOrdersSubtitle => 'Utakaponunua au kuuza samaki, maagizo yataonekana hapa.';
+  String get noOrdersSubtitle =>
+      'Utakaponunua au kuuza samaki, maagizo yataonekana hapa.';
 
   @override
   String get offlineState => 'Muuzaji huyu kwa sasa yuko nje ya mtandao';
@@ -473,7 +479,8 @@ class AppLocalizationsSw extends AppLocalizations {
   String get selectLanguageTitle => 'Chagua Lugha';
 
   @override
-  String get selectLanguageDescription => 'Programu nzima itabadilika mara moja. Chaguo lako linawekwa kwenye kifaa hiki.';
+  String get selectLanguageDescription =>
+      'Programu nzima itabadilika mara moja. Chaguo lako linawekwa kwenye kifaa hiki.';
 
   @override
   String get languageSaved => 'Lugha imehifadhiwa';
@@ -499,7 +506,8 @@ class AppLocalizationsSw extends AppLocalizations {
   String get editListing => 'Hariri Orodha';
 
   @override
-  String get logoutConfirmationMessage => 'Utarudishwa kwenye skrini ya kuingia.';
+  String get logoutConfirmationMessage =>
+      'Utarudishwa kwenye skrini ya kuingia.';
 
   @override
   String get km => 'km';
@@ -517,7 +525,8 @@ class AppLocalizationsSw extends AppLocalizations {
   String get reportListing => 'Ripoti zabuni';
 
   @override
-  String get deleteListingConfirmation => 'Futa zabuni hii? Hii haiwezi kubatilishwa.';
+  String get deleteListingConfirmation =>
+      'Futa zabuni hii? Hii haiwezi kubatilishwa.';
 
   @override
   String get markAsSold => 'Weka alama ya kuuza';
@@ -1017,13 +1026,16 @@ class AppLocalizationsSw extends AppLocalizations {
   String get manageStreetSellers => 'Simamia Wauzaji wa Barabarani';
 
   @override
-  String get manageStreetSellersSubtitle => 'Kubali, kagua au zuia wauzaji kwenye jukwaa';
+  String get manageStreetSellersSubtitle =>
+      'Kubali, kagua au zuia wauzaji kwenye jukwaa';
 
   @override
-  String get noStreetSellers => 'Bado hakuna wauzaji wa barabarani waliosajiliwa';
+  String get noStreetSellers =>
+      'Bado hakuna wauzaji wa barabarani waliosajiliwa';
 
   @override
-  String get noStreetSellersSubtitle => 'Wauzaji wanaposajili, wataonekana hapa kwa ukaguzi.';
+  String get noStreetSellersSubtitle =>
+      'Wauzaji wanaposajili, wataonekana hapa kwa ukaguzi.';
 
   @override
   String get viewProfile => 'Ona wasifu';
@@ -1041,7 +1053,8 @@ class AppLocalizationsSw extends AppLocalizations {
   String get userUnblocked => 'Kuzuia kumeondolewa';
 
   @override
-  String get confirmBlockUser => 'Zuia muuzaji huyu? Hataweza kuingia hadi uondoe kizuizi.';
+  String get confirmBlockUser =>
+      'Zuia muuzaji huyu? Hataweza kuingia hadi uondoe kizuizi.';
 
   @override
   String get adminAllListingsSubtitle => 'Kagua zabuni zote kwenye soko';
@@ -1050,10 +1063,12 @@ class AppLocalizationsSw extends AppLocalizations {
   String get noListingsFound => 'Hakuna zabuni zilizopatikana';
 
   @override
-  String get noListingsFoundSubtitle => 'Wanunuzi au wauzaji wanapounda zabuni, zitaonekana hapa.';
+  String get noListingsFoundSubtitle =>
+      'Wanunuzi au wauzaji wanapounda zabuni, zitaonekana hapa.';
 
   @override
-  String get deleteListingConfirmationAdmin => 'Futa kabisa zabuni hii? Hii haiwezi kubatilishwa.';
+  String get deleteListingConfirmationAdmin =>
+      'Futa kabisa zabuni hii? Hii haiwezi kubatilishwa.';
 
   @override
   String get listingDeleted => 'Orodha imefutwa';
@@ -1103,7 +1118,8 @@ class AppLocalizationsSw extends AppLocalizations {
   }
 
   @override
-  String get appearanceLiveHint => 'Uchaguzi wako unatumika papo hapo kwenye kila skrini na kuhifadhiwa kwa wakati ujao.';
+  String get appearanceLiveHint =>
+      'Uchaguzi wako unatumika papo hapo kwenye kila skrini na kuhifadhiwa kwa wakati ujao.';
 
   @override
   String get adminDashboardSubtitle => 'Muhtasari wa jukwaa na usimamizi';
@@ -1172,7 +1188,8 @@ class AppLocalizationsSw extends AppLocalizations {
   String get filterActive => 'Hai';
 
   @override
-  String get noMatchingBuyers => 'Hakuna wanunuzi wanaolingana na utafutaji wako';
+  String get noMatchingBuyers =>
+      'Hakuna wanunuzi wanaolingana na utafutaji wako';
 
   @override
   String get userSuspended => 'Mnunuzi amesimamishwa';
@@ -1181,7 +1198,8 @@ class AppLocalizationsSw extends AppLocalizations {
   String get userReactivated => 'Mnunuzi ameanzishwa tena';
 
   @override
-  String get userModerationFailed => 'Imeshindwa kusasisha mnunuzi huyu. Tafadhali jaribu tena.';
+  String get userModerationFailed =>
+      'Imeshindwa kusasisha mnunuzi huyu. Tafadhali jaribu tena.';
 
   @override
   String get listingDetails => 'Maelezo ya Orodha';
@@ -1217,7 +1235,8 @@ class AppLocalizationsSw extends AppLocalizations {
   String get noOrdersYet => 'Hakuna Maagizo';
 
   @override
-  String get orderTrackingExplanation => 'Ufuatiliaji wa maagizo ni kwa wanunuzi na wauzaji.';
+  String get orderTrackingExplanation =>
+      'Ufuatiliaji wa maagizo ni kwa wanunuzi na wauzaji.';
 
   @override
   String get noOrdersFound => 'Hakuna Maagizo Yaliyopatikana';
@@ -1295,7 +1314,8 @@ class AppLocalizationsSw extends AppLocalizations {
   }
 
   @override
-  String get listingAlreadySold => 'Orodha hii haipatikani tena — mnunuzi mwingine amenunua samaki huyu.';
+  String get listingAlreadySold =>
+      'Orodha hii haipatikani tena — mnunuzi mwingine amenunua samaki huyu.';
 
   @override
   String get profileUpdatedSuccess => 'Wasifu umesasishwa';
@@ -1329,7 +1349,8 @@ class AppLocalizationsSw extends AppLocalizations {
   String get manageCategories => 'Aina za Samaki';
 
   @override
-  String get manageCategoriesSubtitle => 'Ongeza, hariri au futa aina za samaki';
+  String get manageCategoriesSubtitle =>
+      'Ongeza, hariri au futa aina za samaki';
 
   @override
   String get newCategory => 'Aina mpya';
@@ -1386,7 +1407,8 @@ class AppLocalizationsSw extends AppLocalizations {
   String get logsTitle => 'Kumbukumbu za Shughuli';
 
   @override
-  String get logsSubtitle => 'Historia ya kuingia, usajili na vitendo vya admin';
+  String get logsSubtitle =>
+      'Historia ya kuingia, usajili na vitendo vya admin';
 
   @override
   String get loginEvents => 'Kuingia';
@@ -1413,7 +1435,8 @@ class AppLocalizationsSw extends AppLocalizations {
   String get platformMaintenance => 'Hali ya matengenezo';
 
   @override
-  String get platformMaintenanceSubtitle => 'Lemaza kuingia kwa wanunuzi na wauzaji kwa muda';
+  String get platformMaintenanceSubtitle =>
+      'Lemaza kuingia kwa wanunuzi na wauzaji kwa muda';
 
   @override
   String get refreshData => 'Onyesha upya data';
@@ -1503,13 +1526,15 @@ class AppLocalizationsSw extends AppLocalizations {
   String get transactionsTitle => 'Miamala';
 
   @override
-  String get transactionsScreenSubtitle => 'Maagizo yote yaliyowekwa kwenye jukwaa';
+  String get transactionsScreenSubtitle =>
+      'Maagizo yote yaliyowekwa kwenye jukwaa';
 
   @override
   String get noTransactions => 'Bado hakuna miamala';
 
   @override
-  String get noTransactionsSubtitle => 'Wanunuzi wanapoagiza, yataonekana hapa.';
+  String get noTransactionsSubtitle =>
+      'Wanunuzi wanapoagiza, yataonekana hapa.';
 
   @override
   String revenueLabel(String amount) {
@@ -1558,7 +1583,8 @@ class AppLocalizationsSw extends AppLocalizations {
   String get cartEmptyTitle => 'Kikapu chako ni kitupu';
 
   @override
-  String get cartEmptySubtitle => 'Tafuta samaki na uwaongeze kwenye kikapu ili uwaagize wote kwa pamoja.';
+  String get cartEmptySubtitle =>
+      'Tafuta samaki na uwaongeze kwenye kikapu ili uwaagize wote kwa pamoja.';
 
   @override
   String get cartBrowseFish => 'Tafuta samaki';
@@ -1576,7 +1602,8 @@ class AppLocalizationsSw extends AppLocalizations {
   String get cartClearConfirmTitle => 'Futa kikapu?';
 
   @override
-  String get cartClearConfirmBody => 'Hii itaondoa kila kitu kwenye kikapu chako. Haiwezi kurudishwa.';
+  String get cartClearConfirmBody =>
+      'Hii itaondoa kila kitu kwenye kikapu chako. Haiwezi kurudishwa.';
 
   @override
   String get cartItemRemoved => 'Imeondolewa kwenye kikapu';
@@ -1607,7 +1634,8 @@ class AppLocalizationsSw extends AppLocalizations {
   }
 
   @override
-  String get cartCheckoutFailed => 'Imeshindwa kuweka agizo lako. Tafadhali jaribu tena.';
+  String get cartCheckoutFailed =>
+      'Imeshindwa kuweka agizo lako. Tafadhali jaribu tena.';
 
   @override
   String get cartUnavailable => 'Haipatikani tena';
@@ -1624,7 +1652,8 @@ class AppLocalizationsSw extends AppLocalizations {
   String get contactsEmptyTitle => 'Bado hakuna wanunuzi';
 
   @override
-  String get contactsEmptySubtitle => 'Mtu akikuagizia, ataonekana hapa ili uweze kumpigia simu au kumtumia ujumbe.';
+  String get contactsEmptySubtitle =>
+      'Mtu akikuagizia, ataonekana hapa ili uweze kumpigia simu au kumtumia ujumbe.';
 
   @override
   String contactsOrderCount(int count) {
@@ -1688,7 +1717,8 @@ class AppLocalizationsSw extends AppLocalizations {
   String get recentlyBoughtTitle => 'Iliyonunuliwa Hivi Karibuni';
 
   @override
-  String get recentlyBoughtSubtitle => 'Rudi kwenye ununuzi wako wa hivi karibuni';
+  String get recentlyBoughtSubtitle =>
+      'Rudi kwenye ununuzi wako wa hivi karibuni';
 
   @override
   String get recentlyBoughtChip => 'Iliyopita';
@@ -1700,7 +1730,8 @@ class AppLocalizationsSw extends AppLocalizations {
   String get popularNearYouSubtitle => 'Mapendekezo kwa eneo lako';
 
   @override
-  String get popularNearYouEmpty => 'Mapendekezo yatapatikana hapa baada ya wauzaji kuchapisha samaki wengi karibu nawe.';
+  String get popularNearYouEmpty =>
+      'Mapendekezo yatapatikana hapa baada ya wauzaji kuchapisha samaki wengi karibu nawe.';
 
   @override
   String popularNearYouListings(int count) {

@@ -17,7 +17,7 @@ import 'package:url_launcher/url_launcher.dart';
 import '../../constants/app_sizes.dart';
 import '../../l10n/app_localizations.dart';
 import '../../providers/auth_provider.dart';
-import '../../providers/order_provider.dart';
+import '../../providers/order_tracking_provider.dart';
 import '../../widgets/common/common_widgets.dart';
 import '../../widgets/common/top_app_bar.dart';
 
@@ -59,7 +59,7 @@ final sellerContactsProvider =
   if (seller == null) return const [];
 
   final orders =
-      await ref.watch(streetSellerOrdersProvider(seller.userId).future);
+      await ref.watch(sellerOrdersProvider(seller.userId).future);
   if (orders.isEmpty) return const [];
 
   // Collapse to one entry per buyer, counting orders and keeping the

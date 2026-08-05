@@ -12,7 +12,7 @@ import '../screens/buyer/buyer_fish_search_screen.dart';
 import '../screens/buyer/buyer_map_screen.dart';
 import '../screens/buyer/buyer_notifications_screen.dart';
 import '../screens/buyer/buyer_requests_screen.dart';
-import '../screens/buyer/buyer_seller_tracking_screen.dart';
+import '../screens/buyer/buyer_track_order_screen.dart';
 import '../screens/buyer/buyer_wishlist_screen.dart';
 import '../screens/street_seller/seller_shell_screen.dart';
 import '../screens/street_seller/seller_contacts_screen.dart';
@@ -22,7 +22,7 @@ import '../screens/admin/manage_buyers_screen.dart';
 import '../screens/admin/admin_user_profile_screen.dart';
 import '../screens/admin/admin_all_listings_screen.dart';
 import '../screens/admin/admin_transactions_screen.dart';
-import '../screens/admin/admin_order_detail_screen.dart';
+
 import '../screens/admin/fish_categories_screen.dart';
 import '../screens/admin/admin_reports_screen.dart';
 import '../screens/admin/admin_activity_logs_screen.dart';
@@ -33,7 +33,7 @@ import '../screens/common/fish_listing_detail_screen.dart';
 import '../screens/common/edit_listing_screen.dart';
 import '../screens/common/my_listings_screen.dart';
 import '../screens/common/my_orders_screen.dart';
-import '../screens/common/order_detail_screen.dart';
+import '../screens/street_seller/seller_track_delivery_screen.dart';
 import '../screens/common/profile_screen.dart';
 import '../screens/common/edit_profile_screen.dart';
 import '../screens/common/settings_screen.dart';
@@ -196,10 +196,10 @@ final List<GoRoute> _appRoutes = [
     builder: (context, state) => const SellerContactsScreen(),
   ),
   GoRoute(
-    path: AppRoutes.buyerSellerTrackingPath,
-    name: AppRouteNames.buyerSellerTracking,
-    builder: (context, state) => BuyerSellerTrackingScreen(
-      sellerId: state.pathParameters['sellerId']!,
+    path: AppRoutes.buyerTrackOrderPath,
+    name: AppRouteNames.buyerTrackOrder,
+    builder: (context, state) => BuyerTrackOrderScreen(
+      orderId: state.pathParameters['orderId']!,
     ),
   ),
 
@@ -243,11 +243,11 @@ final List<GoRoute> _appRoutes = [
     builder: (context, state) => const MyOrdersScreen(),
   ),
   GoRoute(
-    path: AppRoutes.orderDetailPath,
-    name: AppRouteNames.orderDetail,
+    path: AppRoutes.sellerTrackDeliveryPath,
+    name: AppRouteNames.sellerTrackDelivery,
     builder: (context, state) {
-      final id = state.pathParameters['id']!;
-      return OrderDetailScreen(orderId: id);
+      final id = state.pathParameters['orderId']!;
+      return SellerTrackDeliveryScreen(orderId: id);
     },
   ),
 
@@ -322,14 +322,7 @@ final List<GoRoute> _appRoutes = [
       return AdminUserProfileScreen(userId: id);
     },
   ),
-  GoRoute(
-    path: AppRoutes.adminOrderDetailPath,
-    name: AppRouteNames.adminOrderDetail,
-    builder: (context, state) {
-      final id = state.pathParameters['orderId']!;
-      return AdminOrderDetailScreen(orderId: id);
-    },
-  ),
+
 
   // ── Role-aware notifications ─────────────────────────────────
   // The TopAppBar bell routes admins and street sellers here.

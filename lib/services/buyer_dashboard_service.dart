@@ -68,6 +68,8 @@ class BuyerDashboardService {
 
   /// Variant: a buyer's "nearby" feed. `radiusKm` is applied in-memory
   /// because Firestore geo queries need a separate geo library.
+  /// Listings without coordinates are always included so they're never
+  /// silently hidden from the marketplace.
   Stream<List<FishItemModel>> streamApprovedFishNear(
     double buyerLat,
     double buyerLng, {
@@ -75,7 +77,9 @@ class BuyerDashboardService {
   }) {
     return streamApprovedFish().map((items) {
       return items.where((item) {
-        if (item.latitude == null || item.longitude == null) return false;
+        // Include listings without coordinates — they just can't be
+        // distance-filtered, so treat them as "nearby enough".
+        if (item.latitude == null || item.longitude == null) return true;
         final dist = _haversineKm(
           buyerLat,
           buyerLng,

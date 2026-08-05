@@ -19,11 +19,11 @@ import '../models/user_model.dart';
 import '../services/activity_log_service.dart';
 import '../services/fish_category_service.dart';
 import '../services/fish_listing_service.dart';
-import '../services/order_service.dart';
+import '../services/order_tracking_service.dart';
 import '../services/user_service.dart';
 import 'auth_provider.dart';
 import 'listing_provider.dart';
-import 'order_provider.dart';
+
 
 // ── Service providers ─────────────────────────────────────────────
 final adminUserServiceProvider = Provider<UserService>((ref) => UserService());
@@ -32,8 +32,8 @@ final adminListingServiceProvider = Provider<FishListingService>(
   (ref) => ref.watch(fishListingServiceProvider),
 );
 
-final adminOrderServiceProvider = Provider<OrderService>(
-  (ref) => ref.watch(orderServiceProvider),
+final adminOrderServiceProvider = Provider<OrderTrackingService>(
+  (ref) => ref.watch(orderTrackingServiceProvider),
 );
 
 final adminCategoryServiceProvider = Provider<FishCategoryService>(
@@ -158,11 +158,11 @@ final adminDailyRevenueProvider = StreamProvider<double>((ref) {
   return ref.watch(adminDailyOrdersProvider).when(
         data: (orders) {
           final completed =
-              orders.where((o) => o.orderStatus == 'completed').toList();
+              orders.where((o) => o.status.name == 'completed').toList();
           return Stream.value(
             completed.fold<double>(
               0,
-              (acc, o) => acc + (o.finalPrice * o.quantityKg),
+              (acc, o) => acc + o.totalPrice,
             ),
           );
         },
@@ -175,11 +175,11 @@ final adminWeeklyRevenueProvider = StreamProvider<double>((ref) {
   return ref.watch(adminWeeklyOrdersProvider).when(
         data: (orders) {
           final completed =
-              orders.where((o) => o.orderStatus == 'completed').toList();
+              orders.where((o) => o.status.name == 'completed').toList();
           return Stream.value(
             completed.fold<double>(
               0,
-              (acc, o) => acc + (o.finalPrice * o.quantityKg),
+              (acc, o) => acc + o.totalPrice,
             ),
           );
         },
@@ -192,11 +192,11 @@ final adminMonthlyRevenueProvider = StreamProvider<double>((ref) {
   return ref.watch(adminMonthlyOrdersProvider).when(
         data: (orders) {
           final completed =
-              orders.where((o) => o.orderStatus == 'completed').toList();
+              orders.where((o) => o.status.name == 'completed').toList();
           return Stream.value(
             completed.fold<double>(
               0,
-              (acc, o) => acc + (o.finalPrice * o.quantityKg),
+              (acc, o) => acc + o.totalPrice,
             ),
           );
         },
@@ -286,12 +286,12 @@ final adminPlatformRevenueProvider = StreamProvider<double>((ref) {
   return ref.watch(adminAllOrdersProvider).when(
         data: (orders) {
           final completed =
-              orders.where((o) => o.orderStatus == 'completed').toList();
+              orders.where((o) => o.status.name == 'completed').toList();
           if (completed.isEmpty) return Stream.value(0.0);
           return Stream.value(
             completed.fold<double>(
               0,
-              (acc, o) => acc + (o.finalPrice * o.quantityKg),
+              (acc, o) => acc + o.totalPrice,
             ),
           );
         },

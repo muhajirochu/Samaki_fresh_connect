@@ -7,8 +7,11 @@ import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
 import '../../constants/app_sizes.dart';
-import '../../models/fish_request_model.dart';
+import '../../models/order_model.dart';
+import '../../models/enums/order_status.dart';
 import '../../providers/buyer_provider.dart';
+import '../../providers/order_tracking_provider.dart';
+import 'package:go_router/go_router.dart';
 
 class BuyerRequestsScreen extends ConsumerStatefulWidget {
   const BuyerRequestsScreen({super.key});
@@ -74,15 +77,15 @@ class _BuyerRequestsScreenState extends ConsumerState<BuyerRequestsScreen>
         data: (all) {
           final active = all
               .where((r) =>
-                  r.status == FishRequestStatus.open ||
-                  r.status == FishRequestStatus.offered)
+                  r.status == OrderStatus.pending ||
+                  r.status == OrderStatus.accepted ||
+                  r.status == OrderStatus.pickupGenerated ||
+                  r.status == OrderStatus.arriving)
               .toList();
           final history = all
               .where((r) =>
-                  r.status == FishRequestStatus.cancelled ||
-                  r.status == FishRequestStatus.accepted ||
-                  r.status == FishRequestStatus.fulfilled ||
-                  r.status == FishRequestStatus.expired)
+                  r.status == OrderStatus.cancelled ||
+                  r.status == OrderStatus.completed)
               .toList();
           return TabBarView(
             controller: _tab,
@@ -98,33 +101,32 @@ class _BuyerRequestsScreenState extends ConsumerState<BuyerRequestsScreen>
 }
 
 class _RequestsList extends ConsumerWidget {
-  final List<FishRequestModel> requests;
+  final List<OrderModel> requests;
   final bool isActive;
   const _RequestsList({required this.requests, required this.isActive});
 
-  Future<void> _cancel(BuildContext context, WidgetRef ref, String id) async {
+  Future<void> _cancel(BuildContext context, WidgetRef ref, OrderModel order) async {
     final cs = Theme.of(context).colorScheme;
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
         shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(AppSizes.radiusLG)),
-        title: const Text('Cancel request?'),
+        title: const Text('Ghairi Oda?'),
         content: const Text(
-          'Sellers will no longer see this request. You can submit a new '
-          'one any time.',
+          'Je, una uhakika unataka kughairi oda hii?',
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(ctx).pop(false),
-            child: const Text('Keep'),
+            child: const Text('Hapana'),
           ),
           FilledButton(
             onPressed: () => Navigator.of(ctx).pop(true),
             style: FilledButton.styleFrom(
               backgroundColor: cs.error,
             ),
-            child: const Text('Cancel request'),
+            child: const Text('Ghairi Oda'),
           ),
         ],
       ),
@@ -132,12 +134,12 @@ class _RequestsList extends ConsumerWidget {
     if (confirmed != true) return;
     if (!context.mounted) return;
     final messenger = ScaffoldMessenger.of(context);
-    await ref
-        .read(buyerDashboardControllerProvider.notifier)
-        .cancelFishRequest(id);
+    
+    await ref.read(orderTrackingProvider).updateOrderStatus(order, OrderStatus.cancelled);
+    
     messenger.showSnackBar(
       SnackBar(
-        content: const Text('Request cancelled'),
+        content: const Text('Oda imeghairiwa'),
         backgroundColor: cs.secondary,
         behavior: SnackBarBehavior.floating,
       ),
@@ -205,140 +207,115 @@ class _RequestsList extends ConsumerWidget {
 }
 
 class _RequestTile extends ConsumerWidget {
-  final FishRequestModel request;
-  final Future<void> Function(BuildContext, WidgetRef, String) onCancel;
+  final OrderModel request;
+  final Future<void> Function(BuildContext, WidgetRef, OrderModel) onCancel;
   const _RequestTile({required this.request, required this.onCancel});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final cs = Theme.of(context).colorScheme;
     final (statusColor, statusLabel) = _statusVisuals(request.status, cs);
-    final cancellable =
-        request.status == FishRequestStatus.open ||
-            request.status == FishRequestStatus.offered;
-    return Material(
-      color: cs.surface,
-      borderRadius: BorderRadius.circular(AppSizes.radiusLG),
-      child: Padding(
-        padding: const EdgeInsets.all(AppSizes.paddingMD),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              children: [
-                Container(
-                  width: 44,
-                  height: 44,
-                  decoration: BoxDecoration(
-                    color: statusColor.withValues(alpha: 0.12),
-                    borderRadius: BorderRadius.circular(AppSizes.radiusMD),
-                  ),
-                  child: Icon(Icons.set_meal_rounded, color: statusColor),
-                ),
-                const SizedBox(width: AppSizes.paddingMD),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        request.displayName,
-                        style: const TextStyle(
-                            fontWeight: FontWeight.w700, fontSize: 15),
-                      ),
-                      const SizedBox(height: 2),
-                      Text(
-                        '${request.quantityKg.toStringAsFixed(1)} kg · '
-                        '${_relativeTime(request.createdAt)}',
-                        style: TextStyle(
-                            color: cs.onSurface.withValues(alpha: 0.65),
-                            fontSize: 12),
-                      ),
-                    ],
-                  ),
-                ),
-                Container(
-                  padding: const EdgeInsets.symmetric(
-                      horizontal: AppSizes.paddingSM, vertical: 4),
-                  decoration: BoxDecoration(
-                    color: statusColor.withValues(alpha: 0.12),
-                    borderRadius: BorderRadius.circular(AppSizes.radiusSM),
-                  ),
-                  child: Text(
-                    statusLabel,
-                    style: TextStyle(
-                        color: statusColor,
-                        fontWeight: FontWeight.w700,
-                        fontSize: 11),
-                  ),
-                ),
-              ],
-            ),
-            if (request.notes != null && request.notes!.isNotEmpty) ...[
-              const SizedBox(height: AppSizes.paddingSM),
-              Text(
-                request.notes!,
-                style: TextStyle(
-                    color: cs.onSurface.withValues(alpha: 0.80),
-                    fontSize: 13),
-              ),
-            ],
-            if (request.offersCount > 0) ...[
-              const SizedBox(height: AppSizes.paddingSM),
+    final cancellable = request.status == OrderStatus.pending;
+    
+    return InkWell(
+      onTap: () {
+        context.push('/buyer/track-order/${request.orderId}');
+      },
+      child: Material(
+        color: cs.surface,
+        borderRadius: BorderRadius.circular(AppSizes.radiusLG),
+        child: Padding(
+          padding: const EdgeInsets.all(AppSizes.paddingMD),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
               Row(
                 children: [
-                  Icon(Icons.chat_bubble_outline_rounded,
-                      size: 14, color: cs.primary),
-                  const SizedBox(width: 4),
-                  Text(
-                    '${request.offersCount} offer${request.offersCount == 1 ? '' : 's'}',
-                    style: TextStyle(
-                      color: cs.primary,
-                      fontSize: 12,
-                      fontWeight: FontWeight.w600,
+                  Container(
+                    width: 44,
+                    height: 44,
+                    decoration: BoxDecoration(
+                      color: statusColor.withValues(alpha: 0.12),
+                      borderRadius: BorderRadius.circular(AppSizes.radiusMD),
+                    ),
+                    child: Icon(Icons.shopping_bag_rounded, color: statusColor),
+                  ),
+                  const SizedBox(width: AppSizes.paddingMD),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Oda #${request.orderId.isNotEmpty ? request.orderId.substring(0, 5).toUpperCase() : "MPYA"}',
+                          style: const TextStyle(
+                              fontWeight: FontWeight.w700, fontSize: 15),
+                        ),
+                        const SizedBox(height: 2),
+                        Text(
+                          '${request.quantity} kg · TZS ${request.totalPrice.toStringAsFixed(0)}\n'
+                          '${_relativeTime(request.createdAt)}',
+                          style: TextStyle(
+                              color: cs.onSurface.withValues(alpha: 0.65),
+                              fontSize: 12),
+                        ),
+                      ],
+                    ),
+                  ),
+                  Container(
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: AppSizes.paddingSM, vertical: 4),
+                    decoration: BoxDecoration(
+                      color: statusColor.withValues(alpha: 0.12),
+                      borderRadius: BorderRadius.circular(AppSizes.radiusSM),
+                    ),
+                    child: Text(
+                      statusLabel,
+                      style: TextStyle(
+                          color: statusColor,
+                          fontWeight: FontWeight.w700,
+                          fontSize: 11),
                     ),
                   ),
                 ],
               ),
-            ],
-            if (cancellable) ...[
-              const SizedBox(height: AppSizes.paddingSM),
-              Divider(height: 1, color: cs.outlineVariant),
-              Align(
-                alignment: Alignment.centerRight,
-                child: TextButton.icon(
-                  onPressed: () => onCancel(context, ref, request.requestId),
-                  icon: Icon(Icons.cancel_outlined,
-                      color: cs.error, size: 18),
-                  label: Text(
-                    'Cancel request',
-                    style: TextStyle(color: cs.error),
+              if (cancellable) ...[
+                const SizedBox(height: AppSizes.paddingSM),
+                Divider(height: 1, color: cs.outlineVariant),
+                Align(
+                  alignment: Alignment.centerRight,
+                  child: TextButton.icon(
+                    onPressed: () => onCancel(context, ref, request),
+                    icon: Icon(Icons.cancel_outlined,
+                        color: cs.error, size: 18),
+                    label: Text(
+                      'Ghairi oda',
+                      style: TextStyle(color: cs.error),
+                    ),
                   ),
                 ),
-              ),
+              ],
             ],
-          ],
+          ),
         ),
       ),
     );
   }
 
-  (Color, String) _statusVisuals(FishRequestStatus s, ColorScheme cs) {
-    // Status colours intentionally use semantic tokens from the
-    // ColorScheme so they read correctly across light + dark. The
-    // labels stay localisable strings, defined inline.
+  (Color, String) _statusVisuals(OrderStatus s, ColorScheme cs) {
     switch (s) {
-      case FishRequestStatus.open:
-        return (cs.primary, 'Open');
-      case FishRequestStatus.offered:
-        return (cs.tertiary, 'Offers');
-      case FishRequestStatus.accepted:
-        return (cs.secondary, 'Accepted');
-      case FishRequestStatus.fulfilled:
-        return (cs.secondary, 'Done');
-      case FishRequestStatus.cancelled:
-        return (cs.error, 'Cancelled');
-      case FishRequestStatus.expired:
-        return (cs.onSurface.withValues(alpha: 0.50), 'Expired');
+      case OrderStatus.pending:
+        return (cs.primary, 'Inasubiri');
+      case OrderStatus.accepted:
+        return (cs.tertiary, 'Imekubaliwa');
+      case OrderStatus.preparing:
+        return (cs.tertiary, 'Inaandaliwa');
+      case OrderStatus.pickupGenerated:
+      case OrderStatus.arriving:
+        return (cs.secondary, 'Inakuja');
+      case OrderStatus.completed:
+        return (cs.secondary, 'Imekamilika');
+      case OrderStatus.cancelled:
+        return (cs.error, 'Imeghairiwa');
     }
   }
 

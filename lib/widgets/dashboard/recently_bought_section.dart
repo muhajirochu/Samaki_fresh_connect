@@ -34,7 +34,7 @@ import '../../models/fish_item_model.dart';
 import '../../models/order_model.dart';
 import '../../providers/buyer_provider.dart';
 import '../../providers/listing_provider.dart';
-import '../../providers/order_provider.dart';
+import '../../providers/order_tracking_provider.dart';
 import '../../utils/formatters.dart';
 
 /// A recent purchase enriched with whatever live listing data we can
@@ -60,10 +60,10 @@ class RecentPurchaseEntry {
   }
 
   String get formattedPrice =>
-      Formatters.formatCurrency(order.finalPrice);
+      Formatters.formatCurrency(order.totalPrice);
 
   String get formattedQuantity =>
-      Formatters.formatQuantity(order.quantityKg);
+      Formatters.formatQuantity(order.quantity.toDouble());
 
   static String _short(String id) =>
       id.length > 6 ? id.substring(0, 6).toUpperCase() : id.toUpperCase();
@@ -100,21 +100,19 @@ final recentPurchasesProvider = Provider<List<RecentPurchaseEntry>>((ref) {
   // the carousel never shows a card the buyer refunded / never
   // received.
   final terminal = orders.where((o) =>
-      o.orderStatus == 'completed' ||
-      o.orderStatus == 'confirmed' ||
-      o.orderStatus == 'in_transit' ||
-      o.orderStatus == 'delivered');
+      o.status.name == 'completed' ||
+      o.status.name == 'arriving');
 
   // De-dupe by listingId, keeping the most recent order.
   final seen = <String>{};
   final deduped = <OrderModel>[];
   for (final o in terminal) {
-    if (seen.add(o.listingId)) deduped.add(o);
+    if (seen.add(o.fishId)) deduped.add(o);
   }
 
   final entries = <RecentPurchaseEntry>[];
   for (final o in deduped.take(10)) {
-    FishItemModel? enriched = byListingId[o.listingId];
+    FishItemModel? enriched = byListingId[o.fishId];
     if (enriched == null) {
       // The live feed drops sold listings. Fall back to a one-shot
       // detail fetch — this is the path that surfaces the image for
@@ -122,7 +120,7 @@ final recentPurchasesProvider = Provider<List<RecentPurchaseEntry>>((ref) {
       // across re-mounts and `ref.watch` triggers a rebuild as soon
       // as the fetch lands.
       final detail =
-          ref.watch(listingDetailProvider(o.listingId)).valueOrNull;
+          ref.watch(listingDetailProvider(o.fishId)).valueOrNull;
       if (detail != null) {
         enriched = FishItemModel.fromMap(detail.toJson(),
             docId: detail.listingId);
@@ -254,7 +252,7 @@ class _RecentlyBoughtSectionState extends ConsumerState<RecentlyBoughtSection> {
               itemCount: entries.length,
               itemBuilder: (context, i) => _RecentPurchaseCard(
                 entry: entries[i],
-                onTap: () => widget.onTap(entries[i].order.listingId),
+                onTap: () => widget.onTap(entries[i].order.fishId),
                 l10n: widget.l10n,
               ),
             ),

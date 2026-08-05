@@ -11,6 +11,7 @@
 // so it renders correctly in both light and dark themes.
 
 import 'package:flutter/material.dart';
+import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
@@ -21,8 +22,7 @@ import '../../providers/auth_provider.dart';
 import '../../widgets/common/common_widgets.dart';
 import '../../widgets/common/premium_components.dart';
 import '../../l10n/app_localizations.dart';
-import '../../widgets/settings/theme_switcher_tile.dart';
-
+import '../../services/listing_location_service.dart';
 class ProfileScreen extends ConsumerWidget {
   const ProfileScreen({super.key});
 
@@ -217,26 +217,6 @@ class ProfileScreen extends ConsumerWidget {
 
                 const SizedBox(height: AppSizes.paddingLG),
 
-                // ── Appearance Section ─────────────────────────────────────────
-                const Padding(
-                  padding: EdgeInsets.symmetric(
-                      horizontal: AppSizes.paddingLG),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      SectionHeader(
-                        title: 'Appearance',
-                        subtitle: 'Switch between Light and Dark',
-                        leadingIcon: Icons.palette_rounded,
-                      ),
-                      SizedBox(height: AppSizes.paddingMD),
-                      ThemeSwitcherTile(),
-                    ],
-                  ),
-                ),
-
-                const SizedBox(height: AppSizes.paddingLG),
-
                 // ── Account info ──────────────────────────────────────────────
                 Padding(
                   padding: const EdgeInsets.symmetric(
@@ -265,16 +245,19 @@ class ProfileScreen extends ConsumerWidget {
                               subtitle: user.phoneNumber,
                               showDivider: true,
                             ),
-                            _ProfileInfoTile(
-                              icon: Icons.location_on_rounded,
-                              title: 'Location',
-                              subtitle: (user.location != null &&
-                                      user.location!['latitude'] != null &&
-                                      user.location!['longitude'] != null)
-                                  ? '${user.location!['latitude']}, ${user.location!['longitude']}'
-                                  : 'Not specified',
-                              showDivider: false,
-                            ),
+                            (user.location != null &&
+                                    user.location!['latitude'] != null &&
+                                    user.location!['longitude'] != null)
+                                ? _LocationProfileTile(
+                                    lat: (user.location!['latitude'] as num).toDouble(),
+                                    lng: (user.location!['longitude'] as num).toDouble(),
+                                  )
+                                : const _ProfileInfoTile(
+                                    icon: Icons.location_on_rounded,
+                                    title: 'Location',
+                                    subtitle: 'Not specified',
+                                    showDivider: false,
+                                  ),
                           ],
                         ),
                       ),
@@ -383,6 +366,28 @@ class _QuickAction extends StatelessWidget {
           ),
         ),
       ),
+    );
+  }
+}
+
+class _LocationProfileTile extends HookWidget {
+  final double lat;
+  final double lng;
+  
+  const _LocationProfileTile({required this.lat, required this.lng});
+
+  @override
+  Widget build(BuildContext context) {
+    final addressFuture = useMemoized(() => ListingLocationService().reverseGeocodeLabel(lat, lng), [lat, lng]);
+    final addressSnapshot = useFuture(addressFuture);
+
+    return _ProfileInfoTile(
+      icon: Icons.location_on_rounded,
+      title: 'Location',
+      subtitle: addressSnapshot.connectionState == ConnectionState.waiting
+          ? 'Loading...'
+          : (addressSnapshot.data ?? '$lat, $lng'),
+      showDivider: false,
     );
   }
 }

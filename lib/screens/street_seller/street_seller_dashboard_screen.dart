@@ -17,9 +17,10 @@ import '../../constants/app_sizes.dart';
 import '../../config/route_paths.dart';
 import '../../config/theme_extensions.dart';
 import '../../l10n/app_localizations.dart';
+import '../../models/order_model.dart';
 import '../../providers/auth_provider.dart';
 import '../../providers/listing_provider.dart';
-import '../../providers/order_provider.dart';
+import '../../providers/order_tracking_provider.dart';
 import '../../providers/seller_location_provider.dart';
 import '../../services/seller_location_tracker.dart';
 import '../../services/seller_mirror_service.dart';
@@ -51,11 +52,11 @@ class StreetSellerDashboardScreen extends ConsumerWidget {
     // Updates without navigation as soon as a buyer places an order.
     final pendingOrdersAsync = userAsync.maybeWhen(
       data: (user) => user == null
-          ? const AsyncValue.data(0)
-          : ref.watch(streetSellerPendingOrdersProvider(user.userId)),
-      orElse: () => const AsyncValue.data(0),
+          ? const AsyncValue.data(<OrderModel>[])
+          : ref.watch(sellerPendingOrdersProvider(user.userId)),
+      orElse: () => const AsyncValue.data(<OrderModel>[]),
     );
-    final pendingOrders = pendingOrdersAsync.valueOrNull ?? 0;
+    final pendingOrders = pendingOrdersAsync.valueOrNull?.length ?? 0;
 
     final activeListings = listingsAsync.valueOrNull ?? const [];
     final totalStockKg = activeListings
@@ -64,9 +65,8 @@ class StreetSellerDashboardScreen extends ConsumerWidget {
 
     return Scaffold(
       backgroundColor: Theme.of(context).scaffoldBackgroundColor,
-      // The new global TopAppBar carries the profile, notifications
-      // and theme toggle so seller + buyer share the same chrome.
-      appBar: const TopAppBar(),
+      // TopAppBar moved into the scrollable body so the hero gradient
+      // can seamlessly reach the top edge of the screen.
       // top: false — the AppBar owns the status-bar inset. The bottom
       // inset keeps the last grid row clear of the gesture nav pill on
       // real phones; emulators rarely show one.
@@ -624,7 +624,7 @@ class _SellerGreetingHeader extends StatelessWidget {
     final cs = Theme.of(context).colorScheme;
     return Container(
       decoration: BoxDecoration(
-        gradient: AppGradients.of(context).brand,
+        gradient: AppGradients.of(context).hero,
         borderRadius: const BorderRadius.only(
           bottomLeft: Radius.circular(AppSizes.radiusXL),
           bottomRight: Radius.circular(AppSizes.radiusXL),
@@ -675,15 +675,19 @@ class _SellerGreetingHeader extends StatelessWidget {
               ),
             ),
           ),
-          Padding(
-            padding: const EdgeInsets.fromLTRB(
-              AppSizes.paddingLG,
-              AppSizes.paddingMD,
-              AppSizes.paddingLG,
-              AppSizes.paddingLG,
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              const TopAppBar(transparentHero: true),
+              Padding(
+                padding: const EdgeInsets.fromLTRB(
+                  AppSizes.paddingLG,
+                  AppSizes.paddingSM,
+                  AppSizes.paddingLG,
+                  AppSizes.paddingLG,
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 // Top row: greeting + online toggle
                 Row(
@@ -722,6 +726,8 @@ class _SellerGreetingHeader extends StatelessWidget {
               ],
             ),
           ),
+        ],
+      ),
         ],
       ),
     );

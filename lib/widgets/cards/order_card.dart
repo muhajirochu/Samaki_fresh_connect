@@ -1,177 +1,129 @@
 import 'package:flutter/material.dart';
-import '../../constants/app_sizes.dart';
-import '../../models/order_model.dart';
 import '../../models/enums/order_status.dart';
-import '../../utils/formatters.dart';
-import '../common/premium_components.dart';
+import '../../models/order_model.dart';
 
 class OrderCard extends StatelessWidget {
   final OrderModel order;
-  final VoidCallback? onTap;
+  final VoidCallback onTap;
 
-  const OrderCard({super.key, required this.order, this.onTap});
+  const OrderCard({
+    super.key,
+    required this.order,
+    required this.onTap,
+  });
 
   @override
   Widget build(BuildContext context) {
-    final status = OrderStatusExtension.fromString(order.orderStatus);
-    final statusColor = _colorForStatus(status, Theme.of(context).colorScheme);
     final cs = Theme.of(context).colorScheme;
+    final textTheme = Theme.of(context).textTheme;
 
-    return PremiumCard(
-      onTap: onTap,
-      padding: const EdgeInsets.all(AppSizes.paddingMD),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // ── Header ──────────────────────────────────────────────────────
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+    return Card(
+      elevation: 2,
+      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      clipBehavior: Clip.antiAlias,
+      child: InkWell(
+        onTap: onTap,
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Container(
-                    padding: const EdgeInsets.all(8),
-                    decoration: BoxDecoration(
-                      color: cs.primary.withValues(alpha: 0.10),
-                      shape: BoxShape.circle,
-                    ),
-                    child: Icon(
-                      Icons.receipt_long,
-                      size: 18,
-                      color: cs.primary,
-                    ),
+                  Text(
+                    'Order #${order.orderId.substring(0, 8).toUpperCase()}',
+                    style: textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
                   ),
-                  const SizedBox(width: 10),
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        'Order #${_shortId(order.orderId)}',
-                        style: Theme.of(context)
-                            .textTheme
-                            .titleSmall
-                            ?.copyWith(fontWeight: FontWeight.bold),
-                      ),
-                      Text(
-                        Formatters.formatRelativeTime(order.createdAt),
-                        style: Theme.of(context)
-                            .textTheme
-                            .bodySmall
-                            ?.copyWith(
-                              color: cs.onSurface.withValues(alpha: 0.55),
-                            ),
-                      ),
-                    ],
+                  _StatusChip(status: order.status),
+                ],
+              ),
+              const SizedBox(height: 12),
+              Row(
+                children: [
+                  Icon(Icons.shopping_bag_outlined, size: 20, color: cs.primary),
+                  const SizedBox(width: 8),
+                  Text('${order.quantity}x Fish Item', style: textTheme.bodyLarge),
+                ],
+              ),
+              const SizedBox(height: 8),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    'Total:',
+                    style: textTheme.bodyMedium?.copyWith(color: cs.onSurfaceVariant),
+                  ),
+                  Text(
+                    'TZS ${order.totalPrice.toStringAsFixed(0)}',
+                    style: textTheme.titleMedium?.copyWith(color: cs.primary, fontWeight: FontWeight.bold),
                   ),
                 ],
               ),
-              // Status pill
-              StatusPill(label: status.displayName, color: statusColor),
             ],
           ),
-          const SizedBox(height: AppSizes.paddingMD),
-          Divider(height: 1, color: cs.outlineVariant),
-          const SizedBox(height: AppSizes.paddingMD),
-          // ── Details ─────────────────────────────────────────────────────
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              _DetailItem(
-                label: 'Quantity',
-                value: Formatters.formatQuantity(order.quantityKg),
-              ),
-              _DetailItem(
-                label: 'Amount',
-                value: Formatters.formatCurrency(order.finalPrice),
-                valueColor: cs.primary,
-              ),
-              _DetailItem(
-                label: 'Path',
-                value: order.orderPath
-                    .replaceAll(RegExp(r'(?=[A-Z])'), ' ')
-                    .trim(),
-              ),
-            ],
-          ),
-          if (onTap != null) ...[
-            const SizedBox(height: AppSizes.paddingMD),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.end,
-              children: [
-                Text(
-                  'View Details →',
-                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                        color: cs.primary,
-                        fontWeight: FontWeight.w600,
-                      ),
-                ),
-              ],
-            ),
-          ],
-        ],
+        ),
       ),
     );
   }
-
-  String _shortId(String id) =>
-      id.length > 8 ? id.substring(0, 8).toUpperCase() : id.toUpperCase();
-
-  Color _colorForStatus(OrderStatus status, ColorScheme cs) {
-    // Maps the implemented order lifecycle onto theme tokens. The
-    // happy path is `pending → confirmed → inTransit → completed`;
-    // `cancelled` is the terminal off-path state. The enum only
-    // contains these five values (see `OrderStatus`), so this
-    // switch is exhaustive by construction.
-    switch (status) {
-      case OrderStatus.pending:
-        // Buyer has placed the order; awaiting seller confirmation.
-        return cs.tertiary;
-      case OrderStatus.confirmed:
-        // Seller has accepted the order; brand-primary to read as
-        // an active milestone rather than a passive wait state.
-        return cs.primary;
-      case OrderStatus.inTransit:
-        // Seller has handed the order off; still brand-primary to
-        // signal an active, in-flight order.
-        return cs.primary;
-      case OrderStatus.completed:
-        // Terminal happy-path state — secondary reads as a quieter
-        // "done" colour distinct from the active primary.
-        return cs.secondary;
-      case OrderStatus.cancelled:
-        return cs.error;
-    }
-  }
 }
 
-class _DetailItem extends StatelessWidget {
-  final String label;
-  final String value;
-  final Color? valueColor;
-  const _DetailItem(
-      {required this.label, required this.value, this.valueColor});
+class _StatusChip extends StatelessWidget {
+  final OrderStatus status;
+
+  const _StatusChip({required this.status});
 
   @override
   Widget build(BuildContext context) {
-    final cs = Theme.of(context).colorScheme;
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          label,
-          style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                color: cs.onSurface.withValues(alpha: 0.55),
-              ),
+    Color bgColor;
+    Color textColor;
+    String label;
+
+    switch (status) {
+      case OrderStatus.pending:
+        bgColor = Colors.orange.shade100;
+        textColor = Colors.orange.shade800;
+        label = 'Pending';
+        break;
+      case OrderStatus.accepted:
+      case OrderStatus.preparing:
+        bgColor = Colors.blue.shade100;
+        textColor = Colors.blue.shade800;
+        label = 'Preparing';
+        break;
+      case OrderStatus.pickupGenerated:
+      case OrderStatus.arriving:
+        bgColor = Colors.purple.shade100;
+        textColor = Colors.purple.shade800;
+        label = 'On the Way';
+        break;
+      case OrderStatus.completed:
+        bgColor = Colors.green.shade100;
+        textColor = Colors.green.shade800;
+        label = 'Completed';
+        break;
+      case OrderStatus.cancelled:
+        bgColor = Colors.red.shade100;
+        textColor = Colors.red.shade800;
+        label = 'Cancelled';
+        break;
+    }
+
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+      decoration: BoxDecoration(
+        color: bgColor,
+        borderRadius: BorderRadius.circular(20),
+      ),
+      child: Text(
+        label,
+        style: TextStyle(
+          color: textColor,
+          fontWeight: FontWeight.bold,
+          fontSize: 12,
         ),
-        const SizedBox(height: 2),
-        Text(
-          value,
-          style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                fontWeight: FontWeight.w600,
-                color: valueColor,
-              ),
-        ),
-      ],
+      ),
     );
   }
 }

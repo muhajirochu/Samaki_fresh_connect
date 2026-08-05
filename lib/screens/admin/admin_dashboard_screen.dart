@@ -200,16 +200,32 @@ class _AdminDashboardAppBar extends ConsumerWidget
     final l10n = AppLocalizations.of(context);
     final user = ref.watch(currentUserStreamProvider).valueOrNull;
 
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        const TopAppBar(),
-        if (user != null)
-          _AdminGreetingHeader(
-            greeting: l10n.hello(user.fullName.split(' ').first),
-            subtitle: l10n.adminDashboardSubtitle,
+    return Container(
+      decoration: BoxDecoration(
+        gradient: AppGradients.of(context).hero,
+        borderRadius: const BorderRadius.only(
+          bottomLeft: Radius.circular(AppSizes.radiusXL),
+          bottomRight: Radius.circular(AppSizes.radiusXL),
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.20),
+            blurRadius: 18,
+            offset: const Offset(0, 8),
           ),
-      ],
+        ],
+      ),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          const TopAppBar(transparentHero: true),
+          if (user != null)
+            _AdminGreetingHeader(
+              greeting: l10n.hello(user.fullName.split(' ').first),
+              subtitle: l10n.adminDashboardSubtitle,
+            ),
+        ],
+      ),
     );
   }
 }
@@ -225,19 +241,8 @@ class _AdminGreetingHeader extends StatelessWidget {
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
     return Container(
-      decoration: BoxDecoration(
-        gradient: AppGradients.of(context).brand,
-        borderRadius: const BorderRadius.only(
-          bottomLeft: Radius.circular(AppSizes.radiusXL),
-          bottomRight: Radius.circular(AppSizes.radiusXL),
-        ),
-        boxShadow: [
-          BoxShadow(
-            color: cs.primary.withValues(alpha: 0.20),
-            blurRadius: 18,
-            offset: const Offset(0, 8),
-          ),
-        ],
+      decoration: const BoxDecoration(
+        color: Colors.transparent,
       ),
       child: Stack(
         children: [

@@ -30,7 +30,7 @@ android {
         // For more information, see: https://flutter.dev/to/review-gradle-config.
         // minSdk overridden to 23 because firebase-firestore 26.4.0 requires it
         // (Flutter 3.29 default is 21, which Firestore rejects).
-        minSdk = 23
+        minSdk = flutter.minSdkVersion
         targetSdk = flutter.targetSdkVersion
         versionCode = flutter.versionCode
         versionName = flutter.versionName

@@ -8,50 +8,49 @@ part of 'order_model.dart';
 
 _$OrderModelImpl _$$OrderModelImplFromJson(Map<String, dynamic> json) =>
     _$OrderModelImpl(
-      orderId: json['orderId'] as String,
-      orderPath: json['orderPath'] as String,
-      buyerId: json['buyerId'] as String,
-      streetSellerId: json['streetSellerId'] as String?,
-      listingId: json['listingId'] as String,
-      originalPrice: (json['originalPrice'] as num).toDouble(),
-      negotiatedPrice: (json['negotiatedPrice'] as num?)?.toDouble(),
-      finalPrice: (json['finalPrice'] as num).toDouble(),
-      quantityKg: (json['quantityKg'] as num).toDouble(),
-      orderStatus: json['orderStatus'] as String,
-      negotiationStatus: json['negotiationStatus'] as String?,
-      pickupConfirmed: json['pickupConfirmed'] as bool,
-      deliveryConfirmed: json['deliveryConfirmed'] as bool,
+      orderId: json['orderId'] as String? ?? '',
+      buyerId: json['buyerId'] as String? ?? '',
+      streetSellerId: json['streetSellerId'] as String? ?? '',
+      fishId: json['fishId'] as String? ?? '',
+      quantity: (json['quantity'] as num?)?.toInt() ?? 1,
+      totalPrice: (json['totalPrice'] as num?)?.toDouble() ?? 0.0,
+      pickupCode: json['pickupCode'] as String? ?? '',
+      status: $enumDecodeNullable(_$OrderStatusEnumMap, json['status']) ??
+          OrderStatus.pending,
+      estimatedArrival:
+          const OptionalTimestampConverter().fromJson(json['estimatedArrival']),
+      buyerLocation: const GeoPointConverter().fromJson(json['buyerLocation']),
+      streetSellerLocation:
+          const GeoPointConverter().fromJson(json['streetSellerLocation']),
       createdAt: const TimestampConverter().fromJson(json['createdAt']),
-      completedAt:
-          const OptionalTimestampConverter().fromJson(json['completedAt']),
-      cancelledAt:
-          const OptionalTimestampConverter().fromJson(json['cancelledAt']),
-      fishType: json['fishType'] as String?,
-      sellerLat: (json['sellerLat'] as num?)?.toDouble(),
-      sellerLng: (json['sellerLng'] as num?)?.toDouble(),
+      updatedAt: const TimestampConverter().fromJson(json['updatedAt']),
     );
 
 Map<String, dynamic> _$$OrderModelImplToJson(_$OrderModelImpl instance) =>
     <String, dynamic>{
       'orderId': instance.orderId,
-      'orderPath': instance.orderPath,
       'buyerId': instance.buyerId,
       'streetSellerId': instance.streetSellerId,
-      'listingId': instance.listingId,
-      'originalPrice': instance.originalPrice,
-      'negotiatedPrice': instance.negotiatedPrice,
-      'finalPrice': instance.finalPrice,
-      'quantityKg': instance.quantityKg,
-      'orderStatus': instance.orderStatus,
-      'negotiationStatus': instance.negotiationStatus,
-      'pickupConfirmed': instance.pickupConfirmed,
-      'deliveryConfirmed': instance.deliveryConfirmed,
+      'fishId': instance.fishId,
+      'quantity': instance.quantity,
+      'totalPrice': instance.totalPrice,
+      'pickupCode': instance.pickupCode,
+      'status': _$OrderStatusEnumMap[instance.status]!,
+      'estimatedArrival':
+          const OptionalTimestampConverter().toJson(instance.estimatedArrival),
+      'buyerLocation': const GeoPointConverter().toJson(instance.buyerLocation),
+      'streetSellerLocation':
+          const GeoPointConverter().toJson(instance.streetSellerLocation),
       'createdAt': const TimestampConverter().toJson(instance.createdAt),
-      'completedAt':
-          const OptionalTimestampConverter().toJson(instance.completedAt),
-      'cancelledAt':
-          const OptionalTimestampConverter().toJson(instance.cancelledAt),
-      'fishType': instance.fishType,
-      'sellerLat': instance.sellerLat,
-      'sellerLng': instance.sellerLng,
+      'updatedAt': const TimestampConverter().toJson(instance.updatedAt),
     };
+
+const _$OrderStatusEnumMap = {
+  OrderStatus.pending: 'pending',
+  OrderStatus.accepted: 'accepted',
+  OrderStatus.preparing: 'preparing',
+  OrderStatus.pickupGenerated: 'pickupGenerated',
+  OrderStatus.arriving: 'arriving',
+  OrderStatus.completed: 'completed',
+  OrderStatus.cancelled: 'cancelled',
+};

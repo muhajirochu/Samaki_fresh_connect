@@ -8,6 +8,7 @@
 // from Phase 1 and the wishlist controller to remember the fish type
 // (so the Phase-4 cross-trigger can fire when stock returns).
 
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
@@ -17,13 +18,17 @@ import '../../constants/app_sizes.dart';
 import '../../l10n/app_localizations.dart';
 import '../../models/enums/fish_type.dart';
 import '../../models/enums/notification_type.dart';
-import '../../models/enums/order_path.dart';
 import '../../models/enums/order_status.dart';
 import '../../models/map_filter_model.dart';
 import '../../models/order_model.dart';
+import '../../models/fish_item_model.dart';
 import '../../providers/auth_provider.dart';
 import '../../providers/notification_provider.dart';
-import '../../providers/order_provider.dart';
+
+import '../../services/order_tracking_service.dart';
+import '../../services/location_service.dart';
+import '../../utils/formatters.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 
 class SendRequestSheet extends ConsumerStatefulWidget {
   /// Pre-fills the fish-type dropdown with whatever the seller is
@@ -65,8 +70,7 @@ class SendRequestSheet extends ConsumerStatefulWidget {
 }
 
 class _SendRequestSheetState extends ConsumerState<SendRequestSheet> {
-  late FishType _selectedType;
-  late TextEditingController _customNameCtrl;
+  FishItemModel? _selectedItem;
   late TextEditingController _notesCtrl;
   double _quantityKg = 2.0;
   bool _submitting = false;
@@ -74,23 +78,22 @@ class _SendRequestSheetState extends ConsumerState<SendRequestSheet> {
   @override
   void initState() {
     super.initState();
-    // Pre-fill order: explicit prefilled type → first item in the
-    // seller's matchingItems (if any) → Tuna. The `isNotEmpty` guard
-    // matters because `matchingItems` can legitimately be empty when
-    // a seller has no fish matching the current filter — in that
-    // case `.first` would throw `Bad state: No element` and crash
-    // the bottom sheet during the first frame.
-    final firstItem = widget.selectedSeller?.matchingItems.isNotEmpty == true
-        ? widget.selectedSeller!.matchingItems.first.fishType
-        : null;
-    _selectedType = widget.prefillFishType ?? firstItem ?? FishType.tuna;
-    _customNameCtrl = TextEditingController();
+    final items = widget.selectedSeller?.matchingItems ?? [];
+    if (items.isNotEmpty) {
+      if (widget.prefillFishType != null) {
+        _selectedItem = items.firstWhere(
+          (i) => i.fishType == widget.prefillFishType,
+          orElse: () => items.first,
+        );
+      } else {
+        _selectedItem = items.first;
+      }
+    }
     _notesCtrl = TextEditingController();
   }
 
   @override
   void dispose() {
-    _customNameCtrl.dispose();
     _notesCtrl.dispose();
     super.dispose();
   }
@@ -113,37 +116,38 @@ class _SendRequestSheetState extends ConsumerState<SendRequestSheet> {
         return;
       }
 
-      // Pick the listing that matches the requested fish type. If the
-      // user is asking for "Tuna" we want the seller's tuna listing,
-      // not their grouper one. Fall back to the largest stock item.
-      final primary = seller.primaryItem;
-      final item = seller.matchingItems.firstWhere(
-        (i) => i.fishType == _selectedType,
-        orElse: () => primary,
-      );
+      final item = _selectedItem;
+      if (item == null) {
+        messenger.showSnackBar(const SnackBar(
+          content: Text('Tafadhali chagua samaki kwanza.'),
+          backgroundColor: AppColors.errorRed,
+        ));
+        return;
+      }
 
-      final orderService = ref.read(orderServiceProvider);
+      final orderService = ref.read(orderTrackingServiceProvider);
+      // Fetch buyer's location
+      final buyerLoc = await ref.read(currentBuyerLocationProvider.future);
+      
       // Stamp denormalized fields for Popular Near You demand
       // aggregation. `FishItemModel` is the buyer-facing feed
       // projection of the listing, so it carries the same
       // `fishType` + lat/lng surface as the source.
       final order = OrderModel(
         orderId: '', // service stamps this
-        orderPath: OrderPath.directFromSeller.name,
         buyerId: buyer.userId,
         streetSellerId: item.sellerId,
-        listingId: item.listingId,
-        originalPrice: item.totalPrice,
+        fishId: item.listingId,
         // 7% service fee — matches fish_listing_detail_screen.dart:368.
-        finalPrice: item.totalPrice * 1.07,
-        quantityKg: item.quantityKg,
-        orderStatus: OrderStatus.pending.name,
-        pickupConfirmed: false,
-        deliveryConfirmed: false,
+        totalPrice: item.totalPrice * 1.07,
+        quantity: item.quantityKg.toInt(),
+        status: OrderStatus.pending,
+        buyerLocation: GeoPoint(buyerLoc.latitude, buyerLoc.longitude),
+        streetSellerLocation: (item.latitude != null && item.longitude != null) 
+            ? GeoPoint(item.latitude!, item.longitude!) 
+            : null,
         createdAt: DateTime.now(),
-        fishType: item.fishType.value,
-        sellerLat: item.latitude,
-        sellerLng: item.longitude,
+        updatedAt: DateTime.now(),
       );
 
       final orderId = await orderService.createOrder(order);
@@ -274,58 +278,92 @@ class _SendRequestSheetState extends ConsumerState<SendRequestSheet> {
                 ),
                 const SizedBox(height: AppSizes.paddingLG),
 
-                // ── Fish type dropdown ─────────────────────────────────────
+                // ── Fish Selection ─────────────────────────────────────────
                 Text(
-                  'Aina ya samaki',
+                  'Chagua Samaki',
                   style: theme.textTheme.bodyMedium?.copyWith(
                     fontWeight: FontWeight.w600,
                     color: cs.onSurface.withValues(alpha: 0.80),
                   ),
                 ),
                 const SizedBox(height: AppSizes.paddingXS),
-                DropdownButtonFormField<FishType>(
-                  value: _selectedType,
-                  isExpanded: true,
-                  decoration: InputDecoration(
-                    filled: true,
-                    fillColor: cs.surfaceContainerHighest,
-                    border: OutlineInputBorder(
-                      borderRadius:
-                          BorderRadius.circular(AppSizes.radiusMD),
-                      borderSide: BorderSide.none,
+                if (seller != null && seller.matchingItems.isNotEmpty)
+                  SizedBox(
+                    height: 120,
+                    child: ListView.separated(
+                      scrollDirection: Axis.horizontal,
+                      itemCount: seller.matchingItems.length,
+                      separatorBuilder: (_, __) => const SizedBox(width: AppSizes.paddingSM),
+                      itemBuilder: (context, index) {
+                        final item = seller.matchingItems[index];
+                        final isSelected = _selectedItem?.itemId == item.itemId;
+                        
+                        return GestureDetector(
+                          onTap: () => setState(() => _selectedItem = item),
+                          child: Container(
+                            width: 100,
+                            decoration: BoxDecoration(
+                              color: isSelected ? cs.primary.withValues(alpha: 0.1) : cs.surfaceContainerHighest,
+                              borderRadius: BorderRadius.circular(AppSizes.radiusMD),
+                              border: Border.all(
+                                color: isSelected ? cs.primary : Colors.transparent,
+                                width: 2,
+                              ),
+                            ),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.stretch,
+                              children: [
+                                Expanded(
+                                  child: ClipRRect(
+                                    borderRadius: const BorderRadius.vertical(top: Radius.circular(AppSizes.radiusMD - 2)),
+                                    child: item.imageUrls.isNotEmpty
+                                        ? CachedNetworkImage(
+                                            imageUrl: item.imageUrls.first,
+                                            fit: BoxFit.cover,
+                                            placeholder: (_, __) => const Center(child: CircularProgressIndicator(strokeWidth: 2)),
+                                            errorWidget: (_, __, ___) => const Icon(Icons.set_meal, color: Colors.grey),
+                                          )
+                                        : const Icon(Icons.set_meal, color: Colors.grey, size: 40),
+                                  ),
+                                ),
+                                Padding(
+                                  padding: const EdgeInsets.all(4.0),
+                                  child: Column(
+                                    children: [
+                                      Text(
+                                        item.displayName,
+                                        style: theme.textTheme.labelMedium?.copyWith(
+                                          fontWeight: FontWeight.w700,
+                                          color: isSelected ? cs.primary : cs.onSurface,
+                                        ),
+                                        maxLines: 1,
+                                        overflow: TextOverflow.ellipsis,
+                                        textAlign: TextAlign.center,
+                                      ),
+                                      Text(
+                                        '${item.pricePerKg.toStringAsFixed(0)} /kg',
+                                        style: theme.textTheme.labelSmall?.copyWith(
+                                          color: cs.onSurface.withValues(alpha: 0.7),
+                                        ),
+                                        maxLines: 1,
+                                        overflow: TextOverflow.ellipsis,
+                                        textAlign: TextAlign.center,
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        );
+                      },
                     ),
-                    contentPadding: const EdgeInsets.symmetric(
-                      horizontal: AppSizes.paddingMD,
-                      vertical: AppSizes.paddingSM,
-                    ),
+                  )
+                else
+                  Text(
+                    'Hakuna samaki wanaopatikana.',
+                    style: TextStyle(color: cs.error),
                   ),
-                  items: FishType.values
-                      .map((t) => DropdownMenuItem<FishType>(
-                            value: t,
-                            child: Text(t.displayName),
-                          ))
-                      .toList(),
-                  onChanged: (v) {
-                    if (v == null) return;
-                    setState(() => _selectedType = v);
-                  },
-                ),
-                if (_selectedType == FishType.other) ...[
-                  const SizedBox(height: AppSizes.paddingSM),
-                  TextField(
-                    controller: _customNameCtrl,
-                    decoration: InputDecoration(
-                      hintText: 'Andika jina la samaki',
-                      filled: true,
-                      fillColor: cs.surfaceContainerHighest,
-                      border: OutlineInputBorder(
-                        borderRadius:
-                            BorderRadius.circular(AppSizes.radiusMD),
-                        borderSide: BorderSide.none,
-                      ),
-                    ),
-                  ),
-                ],
 
                 const SizedBox(height: AppSizes.paddingLG),
 
@@ -395,7 +433,7 @@ class _SendRequestSheetState extends ConsumerState<SendRequestSheet> {
                             vertical: AppSizes.paddingSM,
                           ),
                         ),
-                        onSubmitted: (v) {
+                        onChanged: (v) {
                           final parsed = double.tryParse(v);
                           if (parsed != null && parsed > 0) {
                             setState(() => _quantityKg =
@@ -406,7 +444,40 @@ class _SendRequestSheetState extends ConsumerState<SendRequestSheet> {
                     ),
                   ],
                 ),
-
+                const SizedBox(height: AppSizes.paddingMD),
+                // ── Total Price ──────────────────────────────────────────────
+                if (_selectedItem != null)
+                  Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.all(AppSizes.paddingMD),
+                    decoration: BoxDecoration(
+                      color: AppColors.accentOrange.withValues(alpha: 0.1),
+                      borderRadius: BorderRadius.circular(AppSizes.radiusMD),
+                      border: Border.all(
+                        color: AppColors.accentOrange.withValues(alpha: 0.3),
+                      ),
+                    ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          'Jumla ya Malipo:',
+                          style: theme.textTheme.titleMedium?.copyWith(
+                            fontWeight: FontWeight.w700,
+                            color: cs.onSurface,
+                          ),
+                        ),
+                        Text(
+                          Formatters.formatCurrency(_quantityKg * _selectedItem!.pricePerKg),
+                          style: theme.textTheme.titleMedium?.copyWith(
+                            fontWeight: FontWeight.w800,
+                            color: AppColors.accentOrange,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                
                 const SizedBox(height: AppSizes.paddingLG),
 
                 // ── Notes ───────────────────────────────────────────────────

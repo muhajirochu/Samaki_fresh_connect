@@ -10,15 +10,17 @@ import '../../models/cart_model.dart';
 import '../../models/fish_listing_model.dart';
 import '../../models/order_model.dart';
 import '../../models/enums/order_status.dart';
-import '../../models/enums/order_path.dart';
 import '../../models/enums/notification_type.dart';
 import '../../models/enums/user_role.dart';
+import '../../models/street_seller_model.dart';
 import '../../providers/admin_provider.dart';
 import '../../providers/auth_provider.dart';
 import '../../providers/cart_provider.dart';
 import '../../providers/listing_provider.dart';
 import '../../providers/notification_provider.dart';
-import '../../providers/order_provider.dart';
+import '../../providers/order_tracking_provider.dart';
+import '../../providers/seller_location_provider.dart';
+import '../../services/order_tracking_service.dart';
 import '../../utils/formatters.dart';
 import '../../widgets/common/common_widgets.dart';
 import '../../widgets/common/premium_components.dart';
@@ -78,6 +80,17 @@ class FishListingDetailScreen extends HookConsumerWidget {
                 title: l10n.listingNotFound,
                 subtitle: l10n.listingMayBeRemoved,
               );
+            }
+
+            final allSellersAsync = ref.watch(activeStreetSellersProviderRemote);
+            StreetSellerModel? seller;
+            if (allSellersAsync.valueOrNull != null) {
+              for (final s in allSellersAsync.valueOrNull!) {
+                if (s.sellerId == listing.sellerId) {
+                  seller = s;
+                  break;
+                }
+              }
             }
 
             final isOwner = currentUser?.userId == listing.sellerId;
@@ -250,6 +263,22 @@ class FishListingDetailScreen extends HookConsumerWidget {
                           ),
                           const SizedBox(height: AppSizes.paddingXXL),
 
+                          if (seller != null) ...[
+                            Text(
+                              'Seller Information',
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .titleMedium
+                                  ?.copyWith(
+                                    fontWeight: FontWeight.w800,
+                                    letterSpacing: -0.3,
+                                  ),
+                            ),
+                            const SizedBox(height: 12),
+                            _SellerInfoCard(seller: seller),
+                            const SizedBox(height: AppSizes.paddingXXL),
+                          ],
+
                           // Action Buttons
                           if (!isOwner && listing.status == 'active') ...[
                             _AddToCartButton(
@@ -333,54 +362,19 @@ class _BuyButton extends HookConsumerWidget {
       final messenger = ScaffoldMessenger.of(context);
 
       try {
-        final orderService = ref.read(orderServiceProvider);
+        final orderService = ref.read(orderTrackingServiceProvider);
 
-        // Buyer creates a pending order. The Firestore rules at
-        // `firestore.rules` match /orders/{orderId} require
-        // `orderStatus == 'pending'` on create, and they let the
-        // buyer write that order — but the buyer is NOT allowed to
-        // flip the listing's `status` (that would require seller
-        // ownership). So the listing stays `active` until the seller
-        // confirms; the seller's confirmation path in
-        // `OrderService.confirmOrderAndMarkListingSold` atomically
-        // transitions the order to `confirmed` AND the listing to
-        // `sold`. If two buyers race, both orders stay `pending`
-        // and the seller manually picks one.
-        final loc = listing.location;
-        final sellerLat = loc != null && loc['latitude'] is num
-            ? (loc['latitude'] as num).toDouble()
-            : null;
-        final sellerLng = loc != null && loc['longitude'] is num
-            ? (loc['longitude'] as num).toDouble()
-            : null;
+        // Buyer creates a pending order.
         final order = OrderModel(
           orderId: '', // Service sets this
-          orderPath: OrderPath.directFromSeller.name,
           buyerId: currentUser!.userId,
-          // Stamp the order with the LISTING'S seller — that's who
-          // needs to see this order in their queue and who will
-          // confirm the order. The previous role-check
-          // (`currentUser!.role == UserRole.streetSeller`) only
-          // worked for street-seller-bought-from-street-seller
-          // flows; in the (common) buyer-from-seller case it
-          // resolved to `null`, so the seller's
-          // `streamOrdersByStreetSeller` query (filtered by
-          // `streetSellerId == sellerId`) silently missed every
-          // order. Buyers can also act as sellers — see the
-          // `currentUser.role == streetSeller` branch — so this is
-          // a per-listing decision, not a per-user decision.
           streetSellerId: listing.sellerId,
-          listingId: listing.listingId,
-          originalPrice: listing.totalPrice,
-          finalPrice: listing.totalPrice * 1.07,
-          quantityKg: listing.quantityKg,
-          orderStatus: OrderStatus.pending.name,
-          pickupConfirmed: false,
-          deliveryConfirmed: false,
+          fishId: listing.listingId,
+          totalPrice: listing.totalPrice * 1.07,
+          quantity: listing.quantityKg.toInt(),
+          status: OrderStatus.pending,
           createdAt: DateTime.now(),
-          fishType: listing.fishType.isEmpty ? null : listing.fishType,
-          sellerLat: sellerLat,
-          sellerLng: sellerLng,
+          updatedAt: DateTime.now(),
         );
 
         final orderId = await orderService.createOrder(order);
@@ -392,7 +386,8 @@ class _BuyButton extends HookConsumerWidget {
         ref.invalidate(activeListingsProvider);
         ref.invalidate(adminAllListingsProvider);
         ref.invalidate(buyerOrdersProvider(currentUser!.userId));
-        ref.invalidate(streetSellerOrdersProvider(listing.sellerId));
+        ref.invalidate(sellerOrdersProvider(listing.sellerId));
+        ref.invalidate(sellerPendingOrdersProvider(listing.sellerId));
 
         // Notify the seller so the order shows up on their bell +
         // dashboard's pending-orders badge. `writeNotification`
@@ -426,8 +421,8 @@ class _BuyButton extends HookConsumerWidget {
             ),
           );
           context.pushReplacementNamed(
-            AppRouteNames.orderDetail,
-            pathParameters: {'id': orderId},
+            AppRouteNames.buyerTrackOrder,
+            pathParameters: {'orderId': orderId},
           );
         }
       } catch (e) {
@@ -562,6 +557,133 @@ class _AddToCartButton extends HookConsumerWidget {
           fontSize: 15,
           fontWeight: FontWeight.w700,
         ),
+      ),
+    );
+  }
+}
+
+class _SellerInfoCard extends StatelessWidget {
+  final StreetSellerModel seller;
+  const _SellerInfoCard({required this.seller});
+
+  String _initials(String name) {
+    final parts = name.trim().split(RegExp(r'\s+'));
+    if (parts.isEmpty || parts.first.isEmpty) return '?';
+    if (parts.length == 1) return parts[0].substring(0, 1).toUpperCase();
+    return (parts[0].substring(0, 1) + parts[1].substring(0, 1)).toUpperCase();
+  }
+
+  Color _tintFor(String seed) {
+    const palette = [
+      Color(0xFF2563EB), // Modern Blue
+      Color(0xFF14B8A6), // Teal
+      Color(0xFFF59E0B), // Amber
+      Color(0xFF16A34A), // Elegant Green
+      Color(0xFF3B82F6), // Bright Blue
+      Color(0xFFEF4444), // Red
+    ];
+    final hash = seed.codeUnits.fold<int>(0, (a, b) => a + b);
+    return palette[hash % palette.length];
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    final tt = Theme.of(context).textTheme;
+    final tint = _tintFor(seller.sellerId);
+    
+    return PremiumCard(
+      padding: const EdgeInsets.all(AppSizes.paddingLG),
+      child: Row(
+        children: [
+          Container(
+            width: 48,
+            height: 48,
+            decoration: BoxDecoration(
+              color: tint.withValues(alpha: 0.18),
+              shape: BoxShape.circle,
+            ),
+            alignment: Alignment.center,
+            child: Text(
+              _initials(seller.fullName),
+              style: tt.titleMedium?.copyWith(
+                color: tint,
+                fontWeight: FontWeight.w800,
+              ),
+            ),
+          ),
+          const SizedBox(width: AppSizes.paddingMD),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    Expanded(
+                      child: Text(
+                        seller.fullName,
+                        style: tt.titleMedium?.copyWith(fontWeight: FontWeight.w700),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                    if (seller.isOnline)
+                      Container(
+                        margin: const EdgeInsets.only(left: 8),
+                        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                        decoration: BoxDecoration(
+                          color: cs.secondary.withValues(alpha: 0.2),
+                          borderRadius: BorderRadius.circular(4),
+                        ),
+                        child: Text(
+                          'ONLINE',
+                          style: tt.labelSmall?.copyWith(
+                            color: cs.secondary,
+                            fontWeight: FontWeight.w800,
+                            letterSpacing: 0.5,
+                          ),
+                        ),
+                      ),
+                  ],
+                ),
+                const SizedBox(height: 4),
+                Row(
+                  children: [
+                    const Icon(Icons.star_rounded, color: Color(0xFFF59E0B), size: 16),
+                    const SizedBox(width: 4),
+                    Text(
+                      seller.totalRatings == 0
+                          ? 'No ratings yet'
+                          : '${seller.averageRating.toStringAsFixed(1)} (${seller.totalRatings})',
+                      style: tt.bodySmall?.copyWith(
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ],
+                ),
+                if (seller.marketName != null && seller.marketName!.isNotEmpty) ...[
+                  const SizedBox(height: 4),
+                  Row(
+                    children: [
+                      Icon(Icons.storefront_rounded, size: 14, color: cs.onSurface.withValues(alpha: 0.5)),
+                      const SizedBox(width: 4),
+                      Expanded(
+                        child: Text(
+                          seller.marketName!,
+                          style: tt.bodySmall?.copyWith(
+                            color: cs.onSurface.withValues(alpha: 0.65),
+                          ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ],
+            ),
+          ),
+        ],
       ),
     );
   }

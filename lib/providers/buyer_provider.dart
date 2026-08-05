@@ -24,7 +24,6 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 
 import '../models/buyer_dashboard_state.dart';
 import '../models/fish_item_model.dart';
-import '../models/fish_request_model.dart';
 import '../models/order_model.dart';
 import '../models/street_seller_model.dart';
 import '../models/enums/fish_type.dart';
@@ -34,17 +33,14 @@ import '../models/user_model.dart';
 import '../services/buyer_dashboard_service.dart';
 import '../utils/logger.dart';
 import 'auth_provider.dart';
-import 'listing_provider.dart';
-import 'order_provider.dart';
+
+import '../services/order_tracking_service.dart';
 import 'seller_location_provider.dart'
     show activeStreetSellersProviderRemote;
+import '../models/enums/order_status.dart';
 
-/// Radius (km) and recency window (days) used by the
-/// "Popular Near You" demand aggregation. Matches the live feed's
-/// 10km geo filter so demand and supply are computed over the same
-/// buyer neighbourhood.
+/// Radius (km) used by the
 const double _popularRadiusKm = 10.0;
-const int _popularRecencyDays = 30;
 
 // ── Service provider ──────────────────────────────────────────────────────────
 final buyerDashboardServiceProvider = Provider<BuyerDashboardService>(
@@ -116,25 +112,30 @@ final buyerFishFeedProvider = StreamProvider<List<FishItemModel>>((ref) {
   });
 });
 
-// ── This buyer's active fish requests ────────────────────────────────────────
+// ── This buyer's active fish requests (Orders) ────────────────────────────────────────
 
 final buyerActiveRequestsProvider =
-    StreamProvider<List<FishRequestModel>>((ref) {
+    StreamProvider<List<OrderModel>>((ref) {
   final session = ref.watch(currentBuyerSessionProvider);
   if (session == null) return const Stream.empty();
-  final service = ref.watch(buyerDashboardServiceProvider);
-  return service.streamRequestsForBuyer(session.buyerId).map((all) =>
-      all.where((r) => r.countsAsActive).toList());
+  final service = ref.watch(orderTrackingServiceProvider);
+  return service.streamBuyerOrders(session.buyerId).map((all) =>
+      all.where((r) => 
+        r.status == OrderStatus.pending || 
+        r.status == OrderStatus.accepted || 
+        r.status == OrderStatus.pickupGenerated || 
+        r.status == OrderStatus.arriving
+      ).toList());
 });
 
-/// All fish requests owned by this buyer, regardless of status. Powers
+/// All fish requests (Orders) owned by this buyer, regardless of status. Powers
 /// the "My Requests" screen's Active + History tabs.
 final buyerAllRequestsProvider =
-    StreamProvider<List<FishRequestModel>>((ref) {
+    StreamProvider<List<OrderModel>>((ref) {
   final session = ref.watch(currentBuyerSessionProvider);
   if (session == null) return const Stream.empty();
-  final service = ref.watch(buyerDashboardServiceProvider);
-  return service.streamRequestsForBuyer(session.buyerId);
+  final service = ref.watch(orderTrackingServiceProvider);
+  return service.streamBuyerOrders(session.buyerId);
 });
 
 // ── Recent searches (per-buyer, capped) ───────────────────────────────────────
@@ -273,53 +274,8 @@ class BuyerDashboardController extends StateNotifier<BuyerDashboardState?> {
     }
   }
 
-  Future<String?> createFishRequest({
-    required FishType fishType,
-    String customFishName = '',
-    required double quantityKg,
-    double? maxPricePerKg,
-    String? notes,
-    String? regionName,
-    String? marketName,
-    DateTime? needsBy,
-    bool deliveryRequired = false,
-  }) async {
-    final buyerId = _requireSession();
-    if (buyerId == null) return null;
-    final now = DateTime.now();
-    final request = FishRequestModel(
-      requestId: '',
-      buyerId: buyerId,
-      fishType: fishType,
-      customFishName: customFishName,
-      quantityKg: quantityKg,
-      maxPricePerKg: maxPricePerKg,
-      notes: notes,
-      regionName: regionName,
-      marketName: marketName,
-      needsBy: needsBy,
-      deliveryRequired: deliveryRequired,
-      createdAt: now,
-      updatedAt: now,
-    );
-    try {
-      final id = await _service.createRequest(request);
-      return id;
-    } catch (e) {
-      AppLogger.error('createFishRequest failed: $e');
-      return null;
-    }
-  }
-
-  Future<void> cancelFishRequest(String requestId) async {
-    final buyerId = _requireSession();
-    if (buyerId == null) return;
-    try {
-      await _service.cancelRequest(requestId);
-    } catch (e) {
-      AppLogger.error('cancelFishRequest failed: $e');
-    }
-  }
+  // `createFishRequest` and `cancelFishRequest` were removed because they were replaced
+  // by the new OrderTrackingSystem. Orders are now created via `OrderTrackingService`.
 }
 
 final buyerDashboardControllerProvider = StateNotifierProvider<
@@ -411,14 +367,16 @@ final nearestSellerProvider = Provider<NearestSeller?>((ref) {
 /// selling out every day in the buyer's neighbourhood rises above one
 /// that 30 sellers list but no one buys.
 class PopularFish {
+  final String listingId;
   final String fishName;
-  final int listingCount;
+  final int stockKg;
   final int demandCount;
   final double? lowestPricePerKg;
   final String? imageUrl;
   const PopularFish({
+    required this.listingId,
     required this.fishName,
-    required this.listingCount,
+    required this.stockKg,
     required this.demandCount,
     this.lowestPricePerKg,
     this.imageUrl,
@@ -441,134 +399,60 @@ final _popularDemandProvider = Provider<_PopularDemand>((ref) {
   final session = ref.watch(currentBuyerSessionProvider);
   if (session == null) return const _PopularDemand({}, 0);
 
-  final ordersAsync = ref.watch(buyerOrdersProvider(session.buyerId));
-  final orders = ordersAsync.valueOrNull ?? const <OrderModel>[];
-
-  // Only count completed orders. Pending / confirmed are still in
-  // motion and the buyer might cancel; `in_transit` is still in
-  // motion too. `cancelled` is excluded by definition.
-  final completed = orders.where((o) => o.orderStatus == 'completed');
-  if (completed.isEmpty) return const _PopularDemand({}, 0);
-
-  final now = DateTime.now();
-  final weighted = <String, double>{};
-  for (final o in completed) {
-    final type = o.fishType;
-    if (type == null || type.isEmpty) continue;
-    if (o.sellerLat == null || o.sellerLng == null) continue;
-    if (dash.buyerLatitude == null || dash.buyerLongitude == null) continue;
-    final dist = _haversineKm(
-      dash.buyerLatitude!,
-      dash.buyerLongitude!,
-      o.sellerLat!,
-      o.sellerLng!,
-    );
-    if (dist > _popularRadiusKm) continue;
-    // Recency multiplier: a fish sold today scores 2.0, one sold
-    // 30 days ago scores 1.0, anything older is excluded.
-    final daysAgo = now.difference(o.createdAt).inDays;
-    if (daysAgo < 0 || daysAgo > _popularRecencyDays) continue;
-    final recency = 1.0 + (1.0 - daysAgo / _popularRecencyDays);
-    weighted[type] = (weighted[type] ?? 0) + recency;
-  }
-  return _PopularDemand(weighted, completed.length);
+  // With the new OrderTrackingSystem, order models no longer denormalize
+  // fishType, sellerLat, or sellerLng. Rather than converting this entire
+  // provider chain to async to join back to listings, we degrade gracefully
+  // to the supply-based heuristic.
+  return const _PopularDemand({}, 0);
 });
 
 final popularNearbyFishProvider = Provider<List<PopularFish>>((ref) {
   final dash = ref.watch(buyerDashboardProvider).valueOrNull;
   if (dash == null) return const [];
 
-  // ── Supply: group live listings by fishType within radius. ─────────────
-  final supplyByType = <String, List<FishItemModel>>{};
-  for (final f in dash.fishAvailableNearby) {
-    if (f.latitude == null || f.longitude == null) continue;
-    if (dash.buyerLatitude == null || dash.buyerLongitude == null) continue;
-    final dist = _haversineKm(
-      dash.buyerLatitude!,
-      dash.buyerLongitude!,
-      f.latitude!,
-      f.longitude!,
-    );
-    if (dist > _popularRadiusKm) continue;
-    supplyByType.putIfAbsent(f.fishType.value, () => []).add(f);
-  }
-
-  // ── Demand: completed-order counts from the aggregation above. ─────────
   final demand = ref.watch(_popularDemandProvider).weighted;
-  // Cache the cheapest listing per type so the result still surfaces
-  // price + image even when a type has no demand data yet.
-  final cheapestByType = <String, FishItemModel>{};
-  for (final entry in supplyByType.entries) {
-    FishItemModel? cheapest;
-    for (final f in entry.value) {
-      if (cheapest == null || f.pricePerKg < cheapest.pricePerKg) {
-        cheapest = f;
-      }
+
+  final hasBuyerLoc = dash.buyerLatitude != null && dash.buyerLongitude != null;
+  final nearbyListings = <FishItemModel>[];
+
+  for (final f in dash.fishAvailableNearby) {
+    final hasFishLoc = f.latitude != null && f.longitude != null;
+    if (hasBuyerLoc && hasFishLoc) {
+      final dist = _haversineKm(
+        dash.buyerLatitude!,
+        dash.buyerLongitude!,
+        f.latitude!,
+        f.longitude!,
+      );
+      if (dist > _popularRadiusKm) continue;
     }
-    if (cheapest != null) cheapestByType[entry.key] = cheapest;
+    nearbyListings.add(f);
   }
 
-  // For demand-only types (no live supply), look at the buyer's
-  // most recent completed order of that type and re-fetch that
-  // listing so the card has a real image and price. Falls back to
-  // the placeholder if the listing has been deleted since.
-  final demandOnlyTypes = demand.keys.where((t) => !supplyByType.containsKey(t));
-  final session = ref.watch(currentBuyerSessionProvider);
-  for (final type in demandOnlyTypes) {
-    if (session == null) continue;
-    final orders = ref.watch(buyerOrdersProvider(session.buyerId)).valueOrNull ??
-        const <OrderModel>[];
-    final recent = orders
-        .where((o) =>
-            o.orderStatus == 'completed' &&
-            o.fishType == type &&
-            o.sellerLat != null &&
-            o.sellerLng != null)
-        .toList()
-      ..sort((a, b) => b.createdAt.compareTo(a.createdAt));
-    if (recent.isEmpty) continue;
-    final detail =
-        ref.watch(listingDetailProvider(recent.first.listingId)).valueOrNull;
-    if (detail == null) continue;
-    cheapestByType[type] = FishItemModel.fromMap(detail.toJson(),
-        docId: detail.listingId);
-  }
-
-  // ── Union: every type with either demand OR supply. ────────────────────
-  final allTypes = {...supplyByType.keys, ...demand.keys};
-  final entries = allTypes.map((type) {
-    final supplyCount = supplyByType[type]?.length ?? 0;
-    final demandScore = demand[type] ?? 0.0;
-    final representative = cheapestByType[type] ??
-        // Demand-only entry with no live supply AND no completed
-        // order to backfill from: use the display name from the
-        // FishType enum so the card still renders meaningfully.
-        _placeholderForType(type);
+  // Map each individual listing to a PopularFish object.
+  final entries = nearbyListings.map((f) {
+    final demandScore = demand[f.displayName] ?? 0.0;
     return PopularFish(
-      fishName: representative.displayName,
-      listingCount: supplyCount,
+      listingId: f.listingId,
+      fishName: f.customFishName.isNotEmpty ? f.customFishName : f.displayName,
+      stockKg: f.quantityKg.toInt(),
       demandCount: demandScore.round(),
-      lowestPricePerKg: representative.pricePerKg > 0
-          ? representative.pricePerKg
-          : null,
-      imageUrl: representative.imageUrls.isEmpty
-          ? null
-          : representative.imageUrls.first,
+      lowestPricePerKg: f.pricePerKg > 0 ? f.pricePerKg : null,
+      imageUrl: f.imageUrls.isEmpty ? null : f.imageUrls.first,
     );
   }).toList();
 
-  // Final score: demand weighted 4:1 over supply, so a fish with
-  // 2 completed orders beats one with 6 listings. Ties break on
-  // the higher raw demand count (then supply count).
+  // Sort by demand, then by stock, then by price (lowest first)
   entries.sort((a, b) {
-    final sa = a.demandCount * 4 + a.listingCount;
-    final sb = b.demandCount * 4 + b.listingCount;
-    if (sa != sb) return sb.compareTo(sa);
     if (a.demandCount != b.demandCount) {
       return b.demandCount.compareTo(a.demandCount);
     }
-    return b.listingCount.compareTo(a.listingCount);
+    if (a.stockKg != b.stockKg) {
+      return b.stockKg.compareTo(a.stockKg);
+    }
+    return (a.lowestPricePerKg ?? 0).compareTo(b.lowestPricePerKg ?? 0);
   });
+
   return entries.take(8).toList();
 });
 

@@ -33,9 +33,9 @@ class AppRoutes {
   static const buyerWishlist = '/buyer/wishlist';
   static const buyerRequests = '/buyer/requests';
   static const buyerCart = '/buyer/cart';
-  static const buyerSellerTrackingPath = '/buyer/seller/:sellerId';
-  static String buyerSellerTracking(String sellerId) =>
-      '/buyer/seller/$sellerId';
+  static const buyerTrackOrderPath = '/buyer/track-order/:orderId';
+  static String buyerTrackOrder(String orderId) =>
+      '/buyer/track-order/$orderId';
 
   // ── Listings ────────────────────────────────────────────────────
   static const listings = '/listings';
@@ -46,10 +46,9 @@ class AppRoutes {
   static String listingDetail(String id) => '/listings/$id';
   static String listingEdit(String id) => '/listings/$id/edit';
 
-  // ── Orders ──────────────────────────────────────────────────────
   static const orders = '/orders';
-  static const orderDetailPath = '/orders/:id';
-  static String orderDetail(String id) => '/orders/$id';
+  static const sellerTrackDeliveryPath = '/seller/track-delivery/:orderId';
+  static String sellerTrackDelivery(String orderId) => '/seller/track-delivery/$orderId';
 
   // ── Profile / Settings ──────────────────────────────────────────
   static const profile = '/profile';
@@ -67,9 +66,7 @@ class AppRoutes {
   static const adminLogs = '/admin/logs';
   static const adminSettings = '/admin/settings';
   static const adminUserProfilePath = '/admin/users/:userId';
-  static const adminOrderDetailPath = '/admin/orders/:orderId';
   static String adminUserProfile(String userId) => '/admin/users/$userId';
-  static String adminOrderDetail(String orderId) => '/admin/orders/$orderId';
 
   // ── Notifications (role-aware) ─────────────────────────────────────
   // The TopAppBar's notifications bell already routes admins and
@@ -128,7 +125,7 @@ class AppRouteNames {
   static const buyerWishlist = 'buyerWishlist';
   static const buyerRequests = 'buyerRequests';
   static const buyerCart = 'buyerCart';
-  static const buyerSellerTracking = 'buyerSellerTracking';
+  static const buyerTrackOrder = 'buyerTrackOrder';
 
   // ── Listings ────────────────────────────────────────────────────
   static const listings = 'listings';
@@ -137,9 +134,8 @@ class AppRouteNames {
   static const listingDetail = 'listingDetail';
   static const listingEdit = 'listingEdit';
 
-  // ── Orders ──────────────────────────────────────────────────────
   static const orders = 'orders';
-  static const orderDetail = 'orderDetail';
+  static const sellerTrackDelivery = 'sellerTrackDelivery';
 
   // ── Profile / Settings ──────────────────────────────────────────
   static const profile = 'profile';
@@ -157,7 +153,6 @@ class AppRouteNames {
   static const adminLogs = 'adminLogs';
   static const adminSettings = 'adminSettings';
   static const adminUserProfile = 'adminUserProfile';
-  static const adminOrderDetail = 'adminOrderDetail';
 
   // Notifications
   static const adminNotifications = 'adminNotifications';

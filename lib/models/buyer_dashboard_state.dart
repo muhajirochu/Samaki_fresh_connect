@@ -7,8 +7,9 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 import 'fish_item_model.dart';
-import 'fish_request_model.dart';
+import 'order_model.dart';
 import 'street_seller_model.dart';
+import 'enums/order_status.dart';
 import '../utils/timestamp_converter.dart';
 
 class RecentSearch {
@@ -46,8 +47,8 @@ class BuyerDashboardState {
   /// filtered through [FishItemModel.isBuyable].
   final List<FishItemModel> fishAvailableNearby;
 
-  /// All active FishRequests owned by this buyer.
-  final List<FishRequestModel> activeRequests;
+  /// All active Orders owned by this buyer.
+  final List<OrderModel> activeRequests;
 
   /// Recent search history (most recent first, capped at 10).
   final List<RecentSearch> recentSearches;
@@ -83,12 +84,17 @@ class BuyerDashboardState {
 
   int get fishCount => fishAvailableNearby.length;
   int get activeRequestCount =>
-      activeRequests.where((r) => r.countsAsActive).length;
+      activeRequests.where((r) => 
+        r.status == OrderStatus.pending || 
+        r.status == OrderStatus.accepted || 
+        r.status == OrderStatus.pickupGenerated || 
+        r.status == OrderStatus.arriving
+      ).length;
 
   BuyerDashboardState copyWith({
     String? buyerId,
     List<FishItemModel>? fishAvailableNearby,
-    List<FishRequestModel>? activeRequests,
+    List<OrderModel>? activeRequests,
     List<RecentSearch>? recentSearches,
     double? buyerLatitude,
     double? buyerLongitude,

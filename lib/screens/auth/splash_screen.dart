@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
@@ -9,11 +10,10 @@ import '../../widgets/common/app_logo.dart';
 // Splash-specific brand colours. Read at build-time so they survive
 // even before `Theme.of(context)` is fully resolved (the route
 // handler resolves the splash with a minimal `MaterialApp`).
-const _splashBackground = Color(0xFF0B1220);          // deep navy
-const _splashMid = Color(0xFF001E45);                 // mid navy
-const _splashNear = Color(0xFF003567);                // near-blue
-const _splashHalo = Color(0xFF3B82F6);                // bright blue halo
-const _splashHaloDeep = Color(0xFF2563EB);            // brand blue
+const _splashBackground = Color(0xFF06B6D4);          // cyan end of hero gradient
+const _splashTop = Color(0xFF0284C7);                 // teal start of hero gradient
+const _splashHalo = Color(0xFFFFFFFF);                // bright white halo
+const _splashHaloDeep = Color(0x66FFFFFF);            // semi-transparent white
 const _splashBrandTextTint = Color(0xFFAADFFF);       // cyan tint
 const _splashChipTint = Color(0xFF7DD3FC);            // light cyan
 
@@ -38,6 +38,7 @@ class SplashScreen extends ConsumerStatefulWidget {
 class _SplashScreenState extends ConsumerState<SplashScreen>
     with SingleTickerProviderStateMixin {
   late AnimationController _pulseCtrl;
+  Timer? _timer;
 
   @override
   void initState() {
@@ -53,19 +54,14 @@ class _SplashScreenState extends ConsumerState<SplashScreen>
 
     // Navigate after a brief, deterministic hold so users always see
     // the brand moment — even on a fast sign-in.
-    _start();
+    _timer = Timer(const Duration(milliseconds: 1600), _navigate);
   }
 
   @override
   void dispose() {
+    _timer?.cancel();
     _pulseCtrl.dispose();
     super.dispose();
-  }
-
-  Future<void> _start() async {
-    await Future<void>.delayed(const Duration(milliseconds: 1600));
-    if (!mounted) return;
-    _navigate();
   }
 
   Future<void> _navigate() async {
@@ -115,12 +111,11 @@ class _SplashScreenState extends ConsumerState<SplashScreen>
       backgroundColor: _splashBackground,
       body: DecoratedBox(
         decoration: const BoxDecoration(
-          gradient: RadialGradient(
-            center: Alignment(0.0, -0.3),
-            radius: 1.4,
+          gradient: LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
             colors: [
-              _splashNear,
-              _splashMid,
+              _splashTop,
               _splashBackground,
             ],
           ),
@@ -190,8 +185,31 @@ class _SplashScreenState extends ConsumerState<SplashScreen>
 }
 
 /// Static brand name. Rendered once during build, never per frame.
-class _BrandName extends StatelessWidget {
+class _BrandName extends StatefulWidget {
   const _BrandName();
+
+  @override
+  State<_BrandName> createState() => _BrandNameState();
+}
+
+class _BrandNameState extends State<_BrandName> with SingleTickerProviderStateMixin {
+  late AnimationController _controller;
+  final String _text = 'SamakiFresh';
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 1000), // 1 second typing
+    )..forward();
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -202,16 +220,34 @@ class _BrandName extends StatelessWidget {
         colors: [AppColors.white, _splashBrandTextTint],
       ).createShader(r),
       blendMode: BlendMode.srcIn,
-      child: const Text(
-        'SamakiFresh',
-        textAlign: TextAlign.center,
-        style: TextStyle(
-          fontSize: 38,
-          fontWeight: FontWeight.w900,
-          color: AppColors.white,
-          letterSpacing: -1.0,
-          height: 1.0,
-        ),
+      child: AnimatedBuilder(
+        animation: _controller,
+        builder: (context, child) {
+          // Calculate how many characters to show based on progress
+          final charCount = (_controller.value * _text.length).round();
+          final visibleText = _text.substring(0, charCount);
+          final hiddenText = _text.substring(charCount);
+
+          return Text.rich(
+            TextSpan(
+              children: [
+                TextSpan(text: visibleText),
+                TextSpan(
+                  text: hiddenText,
+                  style: const TextStyle(color: Colors.transparent),
+                ),
+              ],
+            ),
+            textAlign: TextAlign.center,
+            style: const TextStyle(
+              fontSize: 38,
+              fontWeight: FontWeight.w900,
+              color: AppColors.white,
+              letterSpacing: -1.0,
+              height: 1.0,
+            ),
+          );
+        },
       ),
     );
   }

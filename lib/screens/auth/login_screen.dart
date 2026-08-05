@@ -42,13 +42,18 @@ class LoginScreen extends HookConsumerWidget {
 
     return Scaffold(
       backgroundColor: tokens.background,
-      body: Column(
-        children: [
+      body: CustomScrollView(
+        slivers: [
           // ── Ocean hero header (centered logo + brand) ───────────────────
-          _HeroHeader(gradient: gradients.hero),
+          SliverToBoxAdapter(
+            child: _HeroHeader(gradient: gradients.hero),
+          ),
 
           // ── Form body ───────────────────────────────────────────────────────
-          const Expanded(child: _SignInTab()),
+          const SliverFillRemaining(
+            hasScrollBody: false,
+            child: _SignInTab(),
+          ),
         ],
       ),
     );
@@ -102,27 +107,6 @@ class _HeroHeader extends StatelessWidget {
         ),
         child: Stack(
         children: [
-          // Two faint fish silhouettes flanking the header, mirroring
-          // the design. Using `Icons.set_meal_rounded` as a stylized
-          // fish stand-in (no extra asset).
-          Positioned(
-            top: statusBarH + 8,
-            left: 18,
-            child: Icon(
-              Icons.set_meal_rounded,
-              color: cs.onPrimary.withValues(alpha: 0.35),
-              size: 26,
-            ),
-          ),
-          Positioned(
-            top: statusBarH + 8,
-            right: 18,
-            child: Icon(
-              Icons.set_meal_rounded,
-              color: cs.onPrimary.withValues(alpha: 0.35),
-              size: 26,
-            ),
-          ),
           // Soft radial glow blob behind the logo for depth.
           Positioned(
             top: 24,
@@ -145,10 +129,9 @@ class _HeroHeader extends StatelessWidget {
             ),
           ),
           Padding(
-            // Bumped the bottom padding from 28 → 92 so the brand
-            // content (logo + SamakiFresh Connect + Welcome Back)
-            // sits comfortably above the new 64px overlap zone.
-            padding: EdgeInsets.only(top: statusBarH + 40, bottom: 92),
+            // padding so the brand content (logo + SamakiFresh Connect + Welcome Back)
+            // sits comfortably.
+            padding: EdgeInsets.only(top: statusBarH + 40, bottom: 40),
             // Wrap the column in a width-stretching Align so its
             // children actually center horizontally inside the
             // hero's full width. Without this, the column collapses
@@ -221,9 +204,6 @@ class _HeroHeader extends StatelessWidget {
                       ],
                     ),
                   ),
-                  const SizedBox(height: 6),
-                  // Tiny fish-divider — a single-line ornamental piece.
-                  _FishDivider(color: cs.onPrimary.withValues(alpha: 0.55)),
                   const SizedBox(height: 14),
                   Text(
                     'Welcome Back',
@@ -563,29 +543,17 @@ class _SignInTab extends HookConsumerWidget {
       }
     }
 
-    // LayoutBuilder + ConstrainedBox(minHeight: viewport) is the
-    // standard Flutter pattern for centering a SingleChildScrollView
-    // vertically: the column gets the full screen height when it
-    // fits, but if its content overflows the scroll view takes over
-    // and the user can still reach the bottom of the form.
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        return SingleChildScrollView(
-          padding: const EdgeInsets.fromLTRB(24, 8, 24, 24),
-          child: ConstrainedBox(
-            constraints: BoxConstraints(minHeight: constraints.maxHeight),
-            child: Center(
-              // Nudge the form upward so it doesn't sit perfectly
-              // centered against the hero — the visual center feels
-              // lower when the hero above is heavy, so we offset by
-              // -24px from true center.
-              child: Transform.translate(
-                offset: const Offset(0, -24),
-                // Cap the form width on tablets / wide screens so the
-                // email/password fields don't stretch to absurd lengths.
-                child: ConstrainedBox(
-                  constraints: const BoxConstraints(maxWidth: 480),
-                  child: Form(
+    // Uses SliverFillRemaining in the parent CustomScrollView
+    // so the entire login screen can scroll out of the way of the keyboard.
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(24, 24, 24, 24),
+      child: Align(
+        alignment: Alignment.topCenter,
+        // Cap the form width on tablets / wide screens so the
+        // email/password fields don't stretch to absurd lengths.
+        child: ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 480),
+            child: Form(
                     key: formKey,
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
@@ -659,10 +627,6 @@ class _SignInTab extends HookConsumerWidget {
                   ),
                 ),
               ),
-            ),
-          ),
-        );
-      },
     );
   }
 }

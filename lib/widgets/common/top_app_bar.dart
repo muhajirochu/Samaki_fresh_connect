@@ -37,7 +37,12 @@ import '../../providers/theme_provider.dart';
 /// widget works for buyer, street seller and admin without callers
 /// having to opt in.
 class TopAppBar extends ConsumerWidget implements PreferredSizeWidget {
-  const TopAppBar({super.key});
+  final bool transparentHero;
+
+  const TopAppBar({
+    super.key,
+    this.transparentHero = false,
+  });
 
   /// Standard AppBar height so we still satisfy `PreferredSizeWidget`.
   @override
@@ -85,7 +90,9 @@ class TopAppBar extends ConsumerWidget implements PreferredSizeWidget {
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Material(
-      color: Theme.of(context).appBarTheme.backgroundColor ?? cs.surface,
+      color: transparentHero
+          ? Colors.transparent
+          : (Theme.of(context).appBarTheme.backgroundColor ?? cs.surface),
       child: SafeArea(
         bottom: false,
         child: SizedBox(
@@ -94,11 +101,11 @@ class TopAppBar extends ConsumerWidget implements PreferredSizeWidget {
             padding: const EdgeInsets.symmetric(horizontal: AppSizes.paddingSM),
             child: Row(
               children: [
-                // ── Profile avatar (far left) ────────────────────────────────
                 _ProfileAvatar(
                   displayName: user?.fullName ?? '',
                   photoUrl: user?.profilePictureUrl,
                   onTap: () => context.push('/settings'),
+                  transparentHero: transparentHero,
                 ),
                 const Spacer(),
                 // ── Notifications bell ────────────────────────────────────────
@@ -106,6 +113,7 @@ class TopAppBar extends ConsumerWidget implements PreferredSizeWidget {
                   tooltip: l10n.notifications,
                   onTap: () => context.push(notificationsPathFor(role)),
                   badgeCount: unreadCount,
+                  transparentHero: transparentHero,
                   child: const Icon(
                     Icons.notifications_outlined,
                     size: 26,
@@ -117,6 +125,7 @@ class TopAppBar extends ConsumerWidget implements PreferredSizeWidget {
                   tooltip:
                       isDark ? l10n.switchToLightTheme : l10n.switchToDarkTheme,
                   badgeCount: 0,
+                  transparentHero: transparentHero,
                   onTap: () => ref
                       .read(themeControllerProvider.notifier)
                       .setMode(isDark ? AppThemeMode.light : AppThemeMode.dark),
@@ -156,11 +165,13 @@ class _ProfileAvatar extends StatelessWidget {
     required this.displayName,
     required this.photoUrl,
     required this.onTap,
+    this.transparentHero = false,
   });
 
   final String displayName;
   final String? photoUrl;
   final VoidCallback onTap;
+  final bool transparentHero;
 
   String _initials(String name) {
     final parts = name.trim().split(RegExp(r'\s+'));
@@ -191,9 +202,13 @@ class _ProfileAvatar extends StatelessWidget {
             height: 32,
             decoration: BoxDecoration(
               shape: BoxShape.circle,
-              color: cs.primary.withValues(alpha: 0.12),
+              color: transparentHero 
+                  ? Colors.white.withValues(alpha: 0.12)
+                  : cs.primary.withValues(alpha: 0.12),
               border: Border.all(
-                color: cs.primary.withValues(alpha: 0.35),
+                color: transparentHero
+                    ? Colors.white.withValues(alpha: 0.35)
+                    : cs.primary.withValues(alpha: 0.35),
                 width: 1,
               ),
             ),
@@ -207,10 +222,11 @@ class _ProfileAvatar extends StatelessWidget {
                       errorBuilder: (_, __, ___) => _AvatarFallback(
                         initials: initials,
                         cs: cs,
+                        transparentHero: transparentHero,
                       ),
                     ),
                   )
-                : _AvatarFallback(initials: initials, cs: cs),
+                : _AvatarFallback(initials: initials, cs: cs, transparentHero: transparentHero),
           ),
         ),
       ),
@@ -219,25 +235,32 @@ class _ProfileAvatar extends StatelessWidget {
 }
 
 class _AvatarFallback extends StatelessWidget {
-  const _AvatarFallback({required this.initials, required this.cs});
+  const _AvatarFallback({
+    required this.initials,
+    required this.cs,
+    this.transparentHero = false,
+  });
 
   final String initials;
   final ColorScheme cs;
+  final bool transparentHero;
 
   @override
   Widget build(BuildContext context) {
+    final fg = transparentHero ? Colors.white : cs.primary;
+
     if (initials.isEmpty) {
       return Icon(
         Icons.person_rounded,
         size: 20,
-        color: cs.primary,
+        color: fg,
       );
     }
     return Center(
       child: Text(
         initials,
         style: TextStyle(
-          color: cs.primary,
+          color: fg,
           fontWeight: FontWeight.w700,
           fontSize: 12,
           letterSpacing: 0.3,
@@ -254,17 +277,21 @@ class _IconAction extends StatelessWidget {
     required this.onTap,
     required this.child,
     required this.badgeCount,
+    this.transparentHero = false,
   });
 
   final String tooltip;
   final VoidCallback onTap;
   final Widget child;
   final int badgeCount;
+  final bool transparentHero;
 
   @override
   Widget build(BuildContext context) {
-    final fg = Theme.of(context).appBarTheme.foregroundColor ??
-        Theme.of(context).colorScheme.onSurface;
+    final fg = transparentHero
+        ? Colors.white
+        : (Theme.of(context).appBarTheme.foregroundColor ??
+            Theme.of(context).colorScheme.onSurface);
 
     final button = SizedBox(
       width: 48,

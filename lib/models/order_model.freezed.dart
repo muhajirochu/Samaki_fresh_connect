@@ -21,33 +21,23 @@ OrderModel _$OrderModelFromJson(Map<String, dynamic> json) {
 /// @nodoc
 mixin _$OrderModel {
   String get orderId => throw _privateConstructorUsedError;
-  String get orderPath => throw _privateConstructorUsedError;
   String get buyerId => throw _privateConstructorUsedError;
-  String? get streetSellerId => throw _privateConstructorUsedError;
-  String get listingId => throw _privateConstructorUsedError;
-  double get originalPrice => throw _privateConstructorUsedError;
-  double? get negotiatedPrice => throw _privateConstructorUsedError;
-  double get finalPrice => throw _privateConstructorUsedError;
-  double get quantityKg => throw _privateConstructorUsedError;
-  String get orderStatus => throw _privateConstructorUsedError;
-  String? get negotiationStatus => throw _privateConstructorUsedError;
-  bool get pickupConfirmed => throw _privateConstructorUsedError;
-  bool get deliveryConfirmed => throw _privateConstructorUsedError;
+  String get streetSellerId => throw _privateConstructorUsedError;
+  String get fishId => throw _privateConstructorUsedError;
+  int get quantity => throw _privateConstructorUsedError;
+  double get totalPrice => throw _privateConstructorUsedError;
+  String get pickupCode => throw _privateConstructorUsedError;
+  OrderStatus get status => throw _privateConstructorUsedError;
+  @OptionalTimestampConverter()
+  DateTime? get estimatedArrival => throw _privateConstructorUsedError;
+  @GeoPointConverter()
+  GeoPoint? get buyerLocation => throw _privateConstructorUsedError;
+  @GeoPointConverter()
+  GeoPoint? get streetSellerLocation => throw _privateConstructorUsedError;
   @TimestampConverter()
   DateTime get createdAt => throw _privateConstructorUsedError;
-  @OptionalTimestampConverter()
-  DateTime? get completedAt => throw _privateConstructorUsedError;
-  @OptionalTimestampConverter()
-  DateTime? get cancelledAt =>
-      throw _privateConstructorUsedError; // ── Denormalized for "Popular Near You" demand aggregation ──────────
-// Stamped at order-create from the source listing so the buyer
-// dashboard can rank fish by completed-order volume without
-// joining back to the listing collection. All three are
-// optional so legacy orders written before this change still
-// deserialize — they just won't contribute to the demand map.
-  String? get fishType => throw _privateConstructorUsedError;
-  double? get sellerLat => throw _privateConstructorUsedError;
-  double? get sellerLng => throw _privateConstructorUsedError;
+  @TimestampConverter()
+  DateTime get updatedAt => throw _privateConstructorUsedError;
 
   /// Serializes this OrderModel to a JSON map.
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
@@ -67,24 +57,18 @@ abstract class $OrderModelCopyWith<$Res> {
   @useResult
   $Res call(
       {String orderId,
-      String orderPath,
       String buyerId,
-      String? streetSellerId,
-      String listingId,
-      double originalPrice,
-      double? negotiatedPrice,
-      double finalPrice,
-      double quantityKg,
-      String orderStatus,
-      String? negotiationStatus,
-      bool pickupConfirmed,
-      bool deliveryConfirmed,
+      String streetSellerId,
+      String fishId,
+      int quantity,
+      double totalPrice,
+      String pickupCode,
+      OrderStatus status,
+      @OptionalTimestampConverter() DateTime? estimatedArrival,
+      @GeoPointConverter() GeoPoint? buyerLocation,
+      @GeoPointConverter() GeoPoint? streetSellerLocation,
       @TimestampConverter() DateTime createdAt,
-      @OptionalTimestampConverter() DateTime? completedAt,
-      @OptionalTimestampConverter() DateTime? cancelledAt,
-      String? fishType,
-      double? sellerLat,
-      double? sellerLng});
+      @TimestampConverter() DateTime updatedAt});
 }
 
 /// @nodoc
@@ -103,102 +87,72 @@ class _$OrderModelCopyWithImpl<$Res, $Val extends OrderModel>
   @override
   $Res call({
     Object? orderId = null,
-    Object? orderPath = null,
     Object? buyerId = null,
-    Object? streetSellerId = freezed,
-    Object? listingId = null,
-    Object? originalPrice = null,
-    Object? negotiatedPrice = freezed,
-    Object? finalPrice = null,
-    Object? quantityKg = null,
-    Object? orderStatus = null,
-    Object? negotiationStatus = freezed,
-    Object? pickupConfirmed = null,
-    Object? deliveryConfirmed = null,
+    Object? streetSellerId = null,
+    Object? fishId = null,
+    Object? quantity = null,
+    Object? totalPrice = null,
+    Object? pickupCode = null,
+    Object? status = null,
+    Object? estimatedArrival = freezed,
+    Object? buyerLocation = freezed,
+    Object? streetSellerLocation = freezed,
     Object? createdAt = null,
-    Object? completedAt = freezed,
-    Object? cancelledAt = freezed,
-    Object? fishType = freezed,
-    Object? sellerLat = freezed,
-    Object? sellerLng = freezed,
+    Object? updatedAt = null,
   }) {
     return _then(_value.copyWith(
       orderId: null == orderId
           ? _value.orderId
           : orderId // ignore: cast_nullable_to_non_nullable
               as String,
-      orderPath: null == orderPath
-          ? _value.orderPath
-          : orderPath // ignore: cast_nullable_to_non_nullable
-              as String,
       buyerId: null == buyerId
           ? _value.buyerId
           : buyerId // ignore: cast_nullable_to_non_nullable
               as String,
-      streetSellerId: freezed == streetSellerId
+      streetSellerId: null == streetSellerId
           ? _value.streetSellerId
           : streetSellerId // ignore: cast_nullable_to_non_nullable
-              as String?,
-      listingId: null == listingId
-          ? _value.listingId
-          : listingId // ignore: cast_nullable_to_non_nullable
               as String,
-      originalPrice: null == originalPrice
-          ? _value.originalPrice
-          : originalPrice // ignore: cast_nullable_to_non_nullable
-              as double,
-      negotiatedPrice: freezed == negotiatedPrice
-          ? _value.negotiatedPrice
-          : negotiatedPrice // ignore: cast_nullable_to_non_nullable
-              as double?,
-      finalPrice: null == finalPrice
-          ? _value.finalPrice
-          : finalPrice // ignore: cast_nullable_to_non_nullable
-              as double,
-      quantityKg: null == quantityKg
-          ? _value.quantityKg
-          : quantityKg // ignore: cast_nullable_to_non_nullable
-              as double,
-      orderStatus: null == orderStatus
-          ? _value.orderStatus
-          : orderStatus // ignore: cast_nullable_to_non_nullable
+      fishId: null == fishId
+          ? _value.fishId
+          : fishId // ignore: cast_nullable_to_non_nullable
               as String,
-      negotiationStatus: freezed == negotiationStatus
-          ? _value.negotiationStatus
-          : negotiationStatus // ignore: cast_nullable_to_non_nullable
-              as String?,
-      pickupConfirmed: null == pickupConfirmed
-          ? _value.pickupConfirmed
-          : pickupConfirmed // ignore: cast_nullable_to_non_nullable
-              as bool,
-      deliveryConfirmed: null == deliveryConfirmed
-          ? _value.deliveryConfirmed
-          : deliveryConfirmed // ignore: cast_nullable_to_non_nullable
-              as bool,
+      quantity: null == quantity
+          ? _value.quantity
+          : quantity // ignore: cast_nullable_to_non_nullable
+              as int,
+      totalPrice: null == totalPrice
+          ? _value.totalPrice
+          : totalPrice // ignore: cast_nullable_to_non_nullable
+              as double,
+      pickupCode: null == pickupCode
+          ? _value.pickupCode
+          : pickupCode // ignore: cast_nullable_to_non_nullable
+              as String,
+      status: null == status
+          ? _value.status
+          : status // ignore: cast_nullable_to_non_nullable
+              as OrderStatus,
+      estimatedArrival: freezed == estimatedArrival
+          ? _value.estimatedArrival
+          : estimatedArrival // ignore: cast_nullable_to_non_nullable
+              as DateTime?,
+      buyerLocation: freezed == buyerLocation
+          ? _value.buyerLocation
+          : buyerLocation // ignore: cast_nullable_to_non_nullable
+              as GeoPoint?,
+      streetSellerLocation: freezed == streetSellerLocation
+          ? _value.streetSellerLocation
+          : streetSellerLocation // ignore: cast_nullable_to_non_nullable
+              as GeoPoint?,
       createdAt: null == createdAt
           ? _value.createdAt
           : createdAt // ignore: cast_nullable_to_non_nullable
               as DateTime,
-      completedAt: freezed == completedAt
-          ? _value.completedAt
-          : completedAt // ignore: cast_nullable_to_non_nullable
-              as DateTime?,
-      cancelledAt: freezed == cancelledAt
-          ? _value.cancelledAt
-          : cancelledAt // ignore: cast_nullable_to_non_nullable
-              as DateTime?,
-      fishType: freezed == fishType
-          ? _value.fishType
-          : fishType // ignore: cast_nullable_to_non_nullable
-              as String?,
-      sellerLat: freezed == sellerLat
-          ? _value.sellerLat
-          : sellerLat // ignore: cast_nullable_to_non_nullable
-              as double?,
-      sellerLng: freezed == sellerLng
-          ? _value.sellerLng
-          : sellerLng // ignore: cast_nullable_to_non_nullable
-              as double?,
+      updatedAt: null == updatedAt
+          ? _value.updatedAt
+          : updatedAt // ignore: cast_nullable_to_non_nullable
+              as DateTime,
     ) as $Val);
   }
 }
@@ -213,24 +167,18 @@ abstract class _$$OrderModelImplCopyWith<$Res>
   @useResult
   $Res call(
       {String orderId,
-      String orderPath,
       String buyerId,
-      String? streetSellerId,
-      String listingId,
-      double originalPrice,
-      double? negotiatedPrice,
-      double finalPrice,
-      double quantityKg,
-      String orderStatus,
-      String? negotiationStatus,
-      bool pickupConfirmed,
-      bool deliveryConfirmed,
+      String streetSellerId,
+      String fishId,
+      int quantity,
+      double totalPrice,
+      String pickupCode,
+      OrderStatus status,
+      @OptionalTimestampConverter() DateTime? estimatedArrival,
+      @GeoPointConverter() GeoPoint? buyerLocation,
+      @GeoPointConverter() GeoPoint? streetSellerLocation,
       @TimestampConverter() DateTime createdAt,
-      @OptionalTimestampConverter() DateTime? completedAt,
-      @OptionalTimestampConverter() DateTime? cancelledAt,
-      String? fishType,
-      double? sellerLat,
-      double? sellerLng});
+      @TimestampConverter() DateTime updatedAt});
 }
 
 /// @nodoc
@@ -247,102 +195,72 @@ class __$$OrderModelImplCopyWithImpl<$Res>
   @override
   $Res call({
     Object? orderId = null,
-    Object? orderPath = null,
     Object? buyerId = null,
-    Object? streetSellerId = freezed,
-    Object? listingId = null,
-    Object? originalPrice = null,
-    Object? negotiatedPrice = freezed,
-    Object? finalPrice = null,
-    Object? quantityKg = null,
-    Object? orderStatus = null,
-    Object? negotiationStatus = freezed,
-    Object? pickupConfirmed = null,
-    Object? deliveryConfirmed = null,
+    Object? streetSellerId = null,
+    Object? fishId = null,
+    Object? quantity = null,
+    Object? totalPrice = null,
+    Object? pickupCode = null,
+    Object? status = null,
+    Object? estimatedArrival = freezed,
+    Object? buyerLocation = freezed,
+    Object? streetSellerLocation = freezed,
     Object? createdAt = null,
-    Object? completedAt = freezed,
-    Object? cancelledAt = freezed,
-    Object? fishType = freezed,
-    Object? sellerLat = freezed,
-    Object? sellerLng = freezed,
+    Object? updatedAt = null,
   }) {
     return _then(_$OrderModelImpl(
       orderId: null == orderId
           ? _value.orderId
           : orderId // ignore: cast_nullable_to_non_nullable
               as String,
-      orderPath: null == orderPath
-          ? _value.orderPath
-          : orderPath // ignore: cast_nullable_to_non_nullable
-              as String,
       buyerId: null == buyerId
           ? _value.buyerId
           : buyerId // ignore: cast_nullable_to_non_nullable
               as String,
-      streetSellerId: freezed == streetSellerId
+      streetSellerId: null == streetSellerId
           ? _value.streetSellerId
           : streetSellerId // ignore: cast_nullable_to_non_nullable
-              as String?,
-      listingId: null == listingId
-          ? _value.listingId
-          : listingId // ignore: cast_nullable_to_non_nullable
               as String,
-      originalPrice: null == originalPrice
-          ? _value.originalPrice
-          : originalPrice // ignore: cast_nullable_to_non_nullable
-              as double,
-      negotiatedPrice: freezed == negotiatedPrice
-          ? _value.negotiatedPrice
-          : negotiatedPrice // ignore: cast_nullable_to_non_nullable
-              as double?,
-      finalPrice: null == finalPrice
-          ? _value.finalPrice
-          : finalPrice // ignore: cast_nullable_to_non_nullable
-              as double,
-      quantityKg: null == quantityKg
-          ? _value.quantityKg
-          : quantityKg // ignore: cast_nullable_to_non_nullable
-              as double,
-      orderStatus: null == orderStatus
-          ? _value.orderStatus
-          : orderStatus // ignore: cast_nullable_to_non_nullable
+      fishId: null == fishId
+          ? _value.fishId
+          : fishId // ignore: cast_nullable_to_non_nullable
               as String,
-      negotiationStatus: freezed == negotiationStatus
-          ? _value.negotiationStatus
-          : negotiationStatus // ignore: cast_nullable_to_non_nullable
-              as String?,
-      pickupConfirmed: null == pickupConfirmed
-          ? _value.pickupConfirmed
-          : pickupConfirmed // ignore: cast_nullable_to_non_nullable
-              as bool,
-      deliveryConfirmed: null == deliveryConfirmed
-          ? _value.deliveryConfirmed
-          : deliveryConfirmed // ignore: cast_nullable_to_non_nullable
-              as bool,
+      quantity: null == quantity
+          ? _value.quantity
+          : quantity // ignore: cast_nullable_to_non_nullable
+              as int,
+      totalPrice: null == totalPrice
+          ? _value.totalPrice
+          : totalPrice // ignore: cast_nullable_to_non_nullable
+              as double,
+      pickupCode: null == pickupCode
+          ? _value.pickupCode
+          : pickupCode // ignore: cast_nullable_to_non_nullable
+              as String,
+      status: null == status
+          ? _value.status
+          : status // ignore: cast_nullable_to_non_nullable
+              as OrderStatus,
+      estimatedArrival: freezed == estimatedArrival
+          ? _value.estimatedArrival
+          : estimatedArrival // ignore: cast_nullable_to_non_nullable
+              as DateTime?,
+      buyerLocation: freezed == buyerLocation
+          ? _value.buyerLocation
+          : buyerLocation // ignore: cast_nullable_to_non_nullable
+              as GeoPoint?,
+      streetSellerLocation: freezed == streetSellerLocation
+          ? _value.streetSellerLocation
+          : streetSellerLocation // ignore: cast_nullable_to_non_nullable
+              as GeoPoint?,
       createdAt: null == createdAt
           ? _value.createdAt
           : createdAt // ignore: cast_nullable_to_non_nullable
               as DateTime,
-      completedAt: freezed == completedAt
-          ? _value.completedAt
-          : completedAt // ignore: cast_nullable_to_non_nullable
-              as DateTime?,
-      cancelledAt: freezed == cancelledAt
-          ? _value.cancelledAt
-          : cancelledAt // ignore: cast_nullable_to_non_nullable
-              as DateTime?,
-      fishType: freezed == fishType
-          ? _value.fishType
-          : fishType // ignore: cast_nullable_to_non_nullable
-              as String?,
-      sellerLat: freezed == sellerLat
-          ? _value.sellerLat
-          : sellerLat // ignore: cast_nullable_to_non_nullable
-              as double?,
-      sellerLng: freezed == sellerLng
-          ? _value.sellerLng
-          : sellerLng // ignore: cast_nullable_to_non_nullable
-              as double?,
+      updatedAt: null == updatedAt
+          ? _value.updatedAt
+          : updatedAt // ignore: cast_nullable_to_non_nullable
+              as DateTime,
     ));
   }
 }
@@ -351,80 +269,66 @@ class __$$OrderModelImplCopyWithImpl<$Res>
 @JsonSerializable()
 class _$OrderModelImpl implements _OrderModel {
   const _$OrderModelImpl(
-      {required this.orderId,
-      required this.orderPath,
-      required this.buyerId,
-      this.streetSellerId,
-      required this.listingId,
-      required this.originalPrice,
-      this.negotiatedPrice,
-      required this.finalPrice,
-      required this.quantityKg,
-      required this.orderStatus,
-      this.negotiationStatus,
-      required this.pickupConfirmed,
-      required this.deliveryConfirmed,
+      {this.orderId = '',
+      this.buyerId = '',
+      this.streetSellerId = '',
+      this.fishId = '',
+      this.quantity = 1,
+      this.totalPrice = 0.0,
+      this.pickupCode = '',
+      this.status = OrderStatus.pending,
+      @OptionalTimestampConverter() this.estimatedArrival,
+      @GeoPointConverter() this.buyerLocation,
+      @GeoPointConverter() this.streetSellerLocation,
       @TimestampConverter() required this.createdAt,
-      @OptionalTimestampConverter() this.completedAt,
-      @OptionalTimestampConverter() this.cancelledAt,
-      this.fishType,
-      this.sellerLat,
-      this.sellerLng});
+      @TimestampConverter() required this.updatedAt});
 
   factory _$OrderModelImpl.fromJson(Map<String, dynamic> json) =>
       _$$OrderModelImplFromJson(json);
 
   @override
+  @JsonKey()
   final String orderId;
   @override
-  final String orderPath;
-  @override
+  @JsonKey()
   final String buyerId;
   @override
-  final String? streetSellerId;
+  @JsonKey()
+  final String streetSellerId;
   @override
-  final String listingId;
+  @JsonKey()
+  final String fishId;
   @override
-  final double originalPrice;
+  @JsonKey()
+  final int quantity;
   @override
-  final double? negotiatedPrice;
+  @JsonKey()
+  final double totalPrice;
   @override
-  final double finalPrice;
+  @JsonKey()
+  final String pickupCode;
   @override
-  final double quantityKg;
+  @JsonKey()
+  final OrderStatus status;
   @override
-  final String orderStatus;
+  @OptionalTimestampConverter()
+  final DateTime? estimatedArrival;
   @override
-  final String? negotiationStatus;
+  @GeoPointConverter()
+  final GeoPoint? buyerLocation;
   @override
-  final bool pickupConfirmed;
-  @override
-  final bool deliveryConfirmed;
+  @GeoPointConverter()
+  final GeoPoint? streetSellerLocation;
   @override
   @TimestampConverter()
   final DateTime createdAt;
   @override
-  @OptionalTimestampConverter()
-  final DateTime? completedAt;
-  @override
-  @OptionalTimestampConverter()
-  final DateTime? cancelledAt;
-// ── Denormalized for "Popular Near You" demand aggregation ──────────
-// Stamped at order-create from the source listing so the buyer
-// dashboard can rank fish by completed-order volume without
-// joining back to the listing collection. All three are
-// optional so legacy orders written before this change still
-// deserialize — they just won't contribute to the demand map.
-  @override
-  final String? fishType;
-  @override
-  final double? sellerLat;
-  @override
-  final double? sellerLng;
+  @TimestampConverter()
+  final DateTime updatedAt;
 
   @override
   String toString() {
-    return 'OrderModel(orderId: $orderId, orderPath: $orderPath, buyerId: $buyerId, streetSellerId: $streetSellerId, listingId: $listingId, originalPrice: $originalPrice, negotiatedPrice: $negotiatedPrice, finalPrice: $finalPrice, quantityKg: $quantityKg, orderStatus: $orderStatus, negotiationStatus: $negotiationStatus, pickupConfirmed: $pickupConfirmed, deliveryConfirmed: $deliveryConfirmed, createdAt: $createdAt, completedAt: $completedAt, cancelledAt: $cancelledAt, fishType: $fishType, sellerLat: $sellerLat, sellerLng: $sellerLng)';
+    return 'OrderModel(orderId: $orderId, buyerId: $buyerId, streetSellerId: $streetSellerId, fishId: $fishId, quantity: $quantity, totalPrice: $totalPrice, pickupCode: $pickupCode, status: $status, estimatedArrival: $estimatedArrival, buyerLocation: $buyerLocation, streetSellerLocation: $streetSellerLocation, createdAt: $createdAt, updatedAt: $updatedAt)';
   }
 
   @override
@@ -433,67 +337,46 @@ class _$OrderModelImpl implements _OrderModel {
         (other.runtimeType == runtimeType &&
             other is _$OrderModelImpl &&
             (identical(other.orderId, orderId) || other.orderId == orderId) &&
-            (identical(other.orderPath, orderPath) ||
-                other.orderPath == orderPath) &&
             (identical(other.buyerId, buyerId) || other.buyerId == buyerId) &&
             (identical(other.streetSellerId, streetSellerId) ||
                 other.streetSellerId == streetSellerId) &&
-            (identical(other.listingId, listingId) ||
-                other.listingId == listingId) &&
-            (identical(other.originalPrice, originalPrice) ||
-                other.originalPrice == originalPrice) &&
-            (identical(other.negotiatedPrice, negotiatedPrice) ||
-                other.negotiatedPrice == negotiatedPrice) &&
-            (identical(other.finalPrice, finalPrice) ||
-                other.finalPrice == finalPrice) &&
-            (identical(other.quantityKg, quantityKg) ||
-                other.quantityKg == quantityKg) &&
-            (identical(other.orderStatus, orderStatus) ||
-                other.orderStatus == orderStatus) &&
-            (identical(other.negotiationStatus, negotiationStatus) ||
-                other.negotiationStatus == negotiationStatus) &&
-            (identical(other.pickupConfirmed, pickupConfirmed) ||
-                other.pickupConfirmed == pickupConfirmed) &&
-            (identical(other.deliveryConfirmed, deliveryConfirmed) ||
-                other.deliveryConfirmed == deliveryConfirmed) &&
+            (identical(other.fishId, fishId) || other.fishId == fishId) &&
+            (identical(other.quantity, quantity) ||
+                other.quantity == quantity) &&
+            (identical(other.totalPrice, totalPrice) ||
+                other.totalPrice == totalPrice) &&
+            (identical(other.pickupCode, pickupCode) ||
+                other.pickupCode == pickupCode) &&
+            (identical(other.status, status) || other.status == status) &&
+            (identical(other.estimatedArrival, estimatedArrival) ||
+                other.estimatedArrival == estimatedArrival) &&
+            (identical(other.buyerLocation, buyerLocation) ||
+                other.buyerLocation == buyerLocation) &&
+            (identical(other.streetSellerLocation, streetSellerLocation) ||
+                other.streetSellerLocation == streetSellerLocation) &&
             (identical(other.createdAt, createdAt) ||
                 other.createdAt == createdAt) &&
-            (identical(other.completedAt, completedAt) ||
-                other.completedAt == completedAt) &&
-            (identical(other.cancelledAt, cancelledAt) ||
-                other.cancelledAt == cancelledAt) &&
-            (identical(other.fishType, fishType) ||
-                other.fishType == fishType) &&
-            (identical(other.sellerLat, sellerLat) ||
-                other.sellerLat == sellerLat) &&
-            (identical(other.sellerLng, sellerLng) ||
-                other.sellerLng == sellerLng));
+            (identical(other.updatedAt, updatedAt) ||
+                other.updatedAt == updatedAt));
   }
 
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
-  int get hashCode => Object.hashAll([
-        runtimeType,
-        orderId,
-        orderPath,
-        buyerId,
-        streetSellerId,
-        listingId,
-        originalPrice,
-        negotiatedPrice,
-        finalPrice,
-        quantityKg,
-        orderStatus,
-        negotiationStatus,
-        pickupConfirmed,
-        deliveryConfirmed,
-        createdAt,
-        completedAt,
-        cancelledAt,
-        fishType,
-        sellerLat,
-        sellerLng
-      ]);
+  int get hashCode => Object.hash(
+      runtimeType,
+      orderId,
+      buyerId,
+      streetSellerId,
+      fishId,
+      quantity,
+      totalPrice,
+      pickupCode,
+      status,
+      estimatedArrival,
+      buyerLocation,
+      streetSellerLocation,
+      createdAt,
+      updatedAt);
 
   /// Create a copy of OrderModel
   /// with the given fields replaced by the non-null parameter values.
@@ -513,25 +396,20 @@ class _$OrderModelImpl implements _OrderModel {
 
 abstract class _OrderModel implements OrderModel {
   const factory _OrderModel(
-      {required final String orderId,
-      required final String orderPath,
-      required final String buyerId,
-      final String? streetSellerId,
-      required final String listingId,
-      required final double originalPrice,
-      final double? negotiatedPrice,
-      required final double finalPrice,
-      required final double quantityKg,
-      required final String orderStatus,
-      final String? negotiationStatus,
-      required final bool pickupConfirmed,
-      required final bool deliveryConfirmed,
-      @TimestampConverter() required final DateTime createdAt,
-      @OptionalTimestampConverter() final DateTime? completedAt,
-      @OptionalTimestampConverter() final DateTime? cancelledAt,
-      final String? fishType,
-      final double? sellerLat,
-      final double? sellerLng}) = _$OrderModelImpl;
+          {final String orderId,
+          final String buyerId,
+          final String streetSellerId,
+          final String fishId,
+          final int quantity,
+          final double totalPrice,
+          final String pickupCode,
+          final OrderStatus status,
+          @OptionalTimestampConverter() final DateTime? estimatedArrival,
+          @GeoPointConverter() final GeoPoint? buyerLocation,
+          @GeoPointConverter() final GeoPoint? streetSellerLocation,
+          @TimestampConverter() required final DateTime createdAt,
+          @TimestampConverter() required final DateTime updatedAt}) =
+      _$OrderModelImpl;
 
   factory _OrderModel.fromJson(Map<String, dynamic> json) =
       _$OrderModelImpl.fromJson;
@@ -539,50 +417,34 @@ abstract class _OrderModel implements OrderModel {
   @override
   String get orderId;
   @override
-  String get orderPath;
-  @override
   String get buyerId;
   @override
-  String? get streetSellerId;
+  String get streetSellerId;
   @override
-  String get listingId;
+  String get fishId;
   @override
-  double get originalPrice;
+  int get quantity;
   @override
-  double? get negotiatedPrice;
+  double get totalPrice;
   @override
-  double get finalPrice;
+  String get pickupCode;
   @override
-  double get quantityKg;
+  OrderStatus get status;
   @override
-  String get orderStatus;
+  @OptionalTimestampConverter()
+  DateTime? get estimatedArrival;
   @override
-  String? get negotiationStatus;
+  @GeoPointConverter()
+  GeoPoint? get buyerLocation;
   @override
-  bool get pickupConfirmed;
-  @override
-  bool get deliveryConfirmed;
+  @GeoPointConverter()
+  GeoPoint? get streetSellerLocation;
   @override
   @TimestampConverter()
   DateTime get createdAt;
   @override
-  @OptionalTimestampConverter()
-  DateTime? get completedAt;
-  @override
-  @OptionalTimestampConverter()
-  DateTime?
-      get cancelledAt; // ── Denormalized for "Popular Near You" demand aggregation ──────────
-// Stamped at order-create from the source listing so the buyer
-// dashboard can rank fish by completed-order volume without
-// joining back to the listing collection. All three are
-// optional so legacy orders written before this change still
-// deserialize — they just won't contribute to the demand map.
-  @override
-  String? get fishType;
-  @override
-  double? get sellerLat;
-  @override
-  double? get sellerLng;
+  @TimestampConverter()
+  DateTime get updatedAt;
 
   /// Create a copy of OrderModel
   /// with the given fields replaced by the non-null parameter values.

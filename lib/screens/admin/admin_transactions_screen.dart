@@ -186,14 +186,14 @@ class _OrderRow extends StatelessWidget {
 
   Color _statusColor(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
-    switch (order.orderStatus) {
+    switch (order.status.name) {
       case 'completed':
         return cs.secondary;
       case 'cancelled':
         return cs.error;
       case 'pending':
         return cs.tertiary;
-      case 'inTransit':
+      case 'arriving':
         return cs.primary;
       default:
         return cs.outline;
@@ -205,7 +205,7 @@ class _OrderRow extends StatelessWidget {
     final cs = Theme.of(context).colorScheme;
     final tt = Theme.of(context).textTheme;
     final statusColor = _statusColor(context);
-    final total = order.finalPrice * order.quantityKg;
+    final total = order.totalPrice;
 
     return Container(
       padding: const EdgeInsets.all(AppSizes.paddingMD),
@@ -244,7 +244,7 @@ class _OrderRow extends StatelessWidget {
                   ),
                 ),
                 Text(
-                  '${order.quantityKg.toStringAsFixed(1)} kg · ${order.orderStatus}',
+                  '${order.quantity} kg · ${order.status.name}',
                   style: tt.bodySmall?.copyWith(
                     color: cs.onSurface.withValues(alpha: 0.65),
                   ),
@@ -260,7 +260,7 @@ class _OrderRow extends StatelessWidget {
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: Text(
-                    order.orderStatus.toUpperCase(),
+                    order.status.name.toUpperCase(),
                     style: TextStyle(
                       color: statusColor,
                       fontWeight: FontWeight.w700,

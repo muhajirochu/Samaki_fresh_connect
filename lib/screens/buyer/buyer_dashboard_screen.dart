@@ -64,14 +64,8 @@ class BuyerDashboardScreen extends ConsumerWidget {
 
     return Scaffold(
       backgroundColor: Theme.of(context).scaffoldBackgroundColor,
-      // The new global TopAppBar carries the profile, notifications
-      // and theme toggle. It slots straight into the Scaffold's appBar
-      // slot so Material handles status-bar / safe-area / elevation.
-      appBar: const TopAppBar(),
-      // top: false — the AppBar already owns the status-bar inset. The
-      // bottom inset is the one that mattered: on phones with gesture
-      // navigation the last cards were drawn underneath the nav pill,
-      // which never shows up on a desktop emulator.
+      // TopAppBar moved into the scrollable body so the hero gradient
+      // can seamlessly reach the top edge of the screen.
       body: SafeArea(
         top: false,
         child: _buildBody(user, l10n),
@@ -137,32 +131,74 @@ class _DashboardBody extends ConsumerWidget {
         slivers: [
           // ── 1. Greeting header ──────────────────────────────────────────
           SliverToBoxAdapter(
-            child: Padding(
-              padding: const EdgeInsets.fromLTRB(
-                AppSizes.paddingLG,
-                AppSizes.paddingMD,
-                AppSizes.paddingLG,
-                AppSizes.paddingSM,
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    l10n.buyerGreeting(userName.split(' ').first),
-                    style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                          fontWeight: FontWeight.w800,
-                          letterSpacing: -0.4,
-                        ),
+            child: Container(
+              decoration: BoxDecoration(
+                gradient: AppGradients.of(context).hero,
+                borderRadius: const BorderRadius.only(
+                  bottomLeft: Radius.circular(AppSizes.radiusXL),
+                  bottomRight: Radius.circular(AppSizes.radiusXL),
+                ),
+                boxShadow: [
+                  BoxShadow(
+                    color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.20),
+                    blurRadius: 18,
+                    offset: const Offset(0, 8),
                   ),
-                  const SizedBox(height: 4),
-                  Text(
-                    l10n.buyerGreetingSubtitle,
-                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                          color: Theme.of(context)
-                              .colorScheme
-                              .onSurface
-                              .withValues(alpha: 0.65),
+                ],
+              ),
+              child: Stack(
+                children: [
+                  // Decorative glow blob top-right
+                  Positioned(
+                    top: -40,
+                    right: -40,
+                    child: Container(
+                      width: 160,
+                      height: 160,
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        gradient: RadialGradient(
+                          colors: [
+                            Theme.of(context).colorScheme.onPrimary.withValues(alpha: 0.18),
+                            Theme.of(context).colorScheme.onPrimary.withValues(alpha: 0),
+                          ],
                         ),
+                      ),
+                    ),
+                  ),
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      const TopAppBar(transparentHero: true),
+                      Padding(
+                        padding: const EdgeInsets.fromLTRB(
+                          AppSizes.paddingLG,
+                          AppSizes.paddingSM,
+                          AppSizes.paddingLG,
+                          AppSizes.paddingXL,
+                        ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              l10n.buyerGreeting(userName.split(' ').first),
+                              style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                                    color: Colors.white,
+                                    fontWeight: FontWeight.w800,
+                                    letterSpacing: -0.4,
+                                  ),
+                            ),
+                            const SizedBox(height: 4),
+                            Text(
+                              l10n.buyerGreetingSubtitle,
+                              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                                    color: Colors.white.withValues(alpha: 0.85),
+                                  ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
                   ),
                 ],
               ),
@@ -274,8 +310,8 @@ class _DashboardBody extends ConsumerWidget {
           ),
           SliverToBoxAdapter(
             child: PopularFishSection(
-              onTap: (String fishName, String? fishTypeValue) =>
-                  _openMap(context, fishType: fishTypeValue, query: fishName),
+              onTap: (String listingId) =>
+                  context.push('/listings/$listingId'),
             ),
           ),
 
@@ -304,7 +340,7 @@ class _MapCtaCard extends StatelessWidget {
         borderRadius: BorderRadius.circular(AppSizes.radiusLG),
         child: Ink(
           decoration: BoxDecoration(
-            gradient: AppGradients.of(context).brand,
+            gradient: AppGradients.of(context).hero,
             borderRadius: BorderRadius.circular(AppSizes.radiusLG),
             boxShadow: [
               BoxShadow(

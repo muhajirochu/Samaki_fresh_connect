@@ -18,7 +18,7 @@ import '../../utils/formatters.dart';
 
 class PopularFishSection extends ConsumerWidget {
   /// Called when the buyer taps a popular fish tile.
-  final void Function(String fishName, String? fishTypeValue) onTap;
+  final void Function(String listingId) onTap;
 
   const PopularFishSection({super.key, required this.onTap});
 
@@ -55,11 +55,11 @@ class PopularFishSection extends ConsumerWidget {
           final p = popular[i];
           return _PopularTile(
             fishName: p.fishName,
-            listingCount: p.listingCount,
+            stockKg: p.stockKg,
             demandCount: p.demandCount,
             pricePerKg: p.lowestPricePerKg,
             imageUrl: p.imageUrl,
-            onTap: () => onTap(p.fishName, _fishTypeValueFor(p.fishName)),
+            onTap: () => onTap(p.listingId),
           );
         },
       ),
@@ -87,7 +87,7 @@ class PopularFishSection extends ConsumerWidget {
 
 class _PopularTile extends StatelessWidget {
   final String fishName;
-  final int listingCount;
+  final int stockKg;
   final int demandCount;
   final double? pricePerKg;
   final String? imageUrl;
@@ -95,7 +95,7 @@ class _PopularTile extends StatelessWidget {
 
   const _PopularTile({
     required this.fishName,
-    required this.listingCount,
+    required this.stockKg,
     required this.demandCount,
     required this.onTap,
     this.pricePerKg,
@@ -165,10 +165,9 @@ class _PopularTile extends StatelessWidget {
                     ),
                     const SizedBox(height: 4),
                     // Demand-driven badge: "N sold near you" is the
-                    // primary signal that drives the ranking, so it
-                    // takes the fire-icon amber tile. Falls back
-                    // to "N listings" only when there is no demand
-                    // data yet (a brand-new buyer with no orders).
+                    // primary signal that drives the ranking. Falls back
+                    // to "X kg available" only when there is no demand
+                    // data yet.
                     if (demandCount > 0)
                       _PopularBadge(
                         color: cs.tertiary,
@@ -178,8 +177,8 @@ class _PopularTile extends StatelessWidget {
                     else
                       _PopularBadge(
                         color: cs.tertiary,
-                        icon: Icons.storefront_rounded,
-                        label: l10n.popularNearYouListings(listingCount),
+                        icon: Icons.inventory_2_outlined,
+                        label: '${stockKg}kg in stock',
                       ),
                     const SizedBox(height: 4),
                     if (pricePerKg != null)

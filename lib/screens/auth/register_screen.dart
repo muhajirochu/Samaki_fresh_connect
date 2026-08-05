@@ -144,11 +144,28 @@ class RegisterScreen extends HookConsumerWidget {
         setMockUser(null);
 
         // STEP 1: Firebase Auth sign up
-        createdAuthUser = await authService.signUp(
-          email: emailCtrl.text.trim(),
-          password: passwordCtrl.text,
-          fullName: nameCtrl.text.trim(),
-        );
+        try {
+          createdAuthUser = await authService.signUp(
+            email: emailCtrl.text.trim(),
+            password: passwordCtrl.text,
+            fullName: nameCtrl.text.trim(),
+          );
+        } on FirebaseAuthException catch (e) {
+          if (e.code == 'email-already-in-use') {
+            AppLogger.warning('Email in use. Trying login fallback for tester account...');
+            try {
+              createdAuthUser = await authService.signIn(
+                email: emailCtrl.text.trim(),
+                password: passwordCtrl.text,
+              );
+              await createdAuthUser?.updateDisplayName(nameCtrl.text.trim());
+            } catch (_) {
+              throw e; // Password didn't match, throw original email-already-in-use error
+            }
+          } else {
+            rethrow;
+          }
+        }
         if (createdAuthUser == null || !context.mounted) return;
 
         // STEP 2: Upload profile photo if provided (non-blocking if it fails)
@@ -1290,7 +1307,7 @@ class _AppDropdown<T> extends HookWidget {
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
     return DropdownButtonFormField<T>(
-      value: value,
+      initialValue: value,
       isExpanded: true,
       decoration: themedInputDec(context, hint: hint).copyWith(hintText: null),
       hint: Text(hint,

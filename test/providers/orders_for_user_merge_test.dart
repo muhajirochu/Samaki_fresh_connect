@@ -21,17 +21,14 @@ import 'package:samakifresh_connect/models/order_model.dart';
 OrderModel _order(String id, {String? buyerId, String? sellerId}) =>
     OrderModel(
       orderId: id,
-      orderPath: 'direct',
       buyerId: buyerId ?? '',
-      streetSellerId: sellerId,
-      listingId: 'l1',
-      originalPrice: 1000,
-      finalPrice: 1000,
-      quantityKg: 1,
-      orderStatus: OrderStatus.confirmed.name,
-      pickupConfirmed: false,
-      deliveryConfirmed: false,
-      createdAt: DateTime(2026, 1, 1),
+      streetSellerId: sellerId ?? '',
+      fishId: 'f1',
+      totalPrice: 20.0,
+      quantity: 2,
+      status: OrderStatus.pending,
+      createdAt: DateTime.parse('2024-01-01T10:00:00Z'),
+      updatedAt: DateTime.parse('2024-01-01T10:00:00Z'),
     );
 
 /// Simple merge engine that mirrors ordersForUserProvider's

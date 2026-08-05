@@ -22,14 +22,14 @@ import '../../constants/app_sizes.dart';
 import '../../l10n/app_localizations.dart';
 import '../../models/cart_model.dart';
 import '../../models/enums/notification_type.dart';
-import '../../models/enums/order_path.dart';
 import '../../models/enums/order_status.dart';
 import '../../models/order_model.dart';
 import '../../providers/auth_provider.dart';
 import '../../providers/cart_provider.dart';
 import '../../providers/listing_provider.dart';
 import '../../providers/notification_provider.dart';
-import '../../providers/order_provider.dart';
+import '../../providers/order_tracking_provider.dart';
+import '../../services/order_tracking_service.dart';
 import '../../utils/formatters.dart';
 import '../../widgets/common/common_widgets.dart';
 import '../../widgets/common/top_app_bar.dart';
@@ -141,7 +141,7 @@ class CartScreen extends HookConsumerWidget {
     isCheckingOut.value = true;
     try {
       final listingService = ref.read(fishListingServiceProvider);
-      final orderService = ref.read(orderServiceProvider);
+      final orderService = ref.read(orderTrackingServiceProvider);
       final notifSvc = ref.read(notificationServiceProvider);
 
       final placed = <String>[];
@@ -165,31 +165,16 @@ class CartScreen extends HookConsumerWidget {
         // `fish_listing_detail_screen.dart`.
         final originalPrice = listing.pricePerKg * qty;
         // Pull lat/lng off the listing for the demand-aggregation
-        // denormalization (Popular Near You). Null-safe so a
-        // legacy listing without a `location` map still writes.
-        final loc = listing.location;
-        final sellerLat =
-            loc != null && loc['latitude'] is num ? (loc['latitude'] as num).toDouble() : null;
-        final sellerLng =
-            loc != null && loc['longitude'] is num ? (loc['longitude'] as num).toDouble() : null;
         final order = OrderModel(
           orderId: '',
-          orderPath: OrderPath.directFromSeller.name,
           buyerId: buyer.userId,
-          // The listing's seller — not the buyer's role — decides
-          // whose queue this lands in. Same rule as the detail screen.
           streetSellerId: listing.sellerId,
-          listingId: listing.listingId,
-          originalPrice: originalPrice,
-          finalPrice: originalPrice * 1.07,
-          quantityKg: qty,
-          orderStatus: OrderStatus.pending.name,
-          pickupConfirmed: false,
-          deliveryConfirmed: false,
+          fishId: listing.listingId,
+          totalPrice: originalPrice * 1.07,
+          quantity: qty.toInt(),
+          status: OrderStatus.pending,
           createdAt: DateTime.now(),
-          fishType: listing.fishType.isEmpty ? null : listing.fishType,
-          sellerLat: sellerLat,
-          sellerLng: sellerLng,
+          updatedAt: DateTime.now(),
         );
 
         final orderId = await orderService.createOrder(order);
@@ -211,7 +196,8 @@ class CartScreen extends HookConsumerWidget {
         await ref.read(cartActionsProvider).removeMany(placed);
         ref.invalidate(buyerOrdersProvider(buyer.userId));
         for (final sellerId in touchedSellers) {
-          ref.invalidate(streetSellerOrdersProvider(sellerId));
+          ref.invalidate(sellerOrdersProvider(sellerId));
+          ref.invalidate(sellerPendingOrdersProvider(sellerId));
         }
       }
 
@@ -233,7 +219,7 @@ class CartScreen extends HookConsumerWidget {
           backgroundColor: cs.secondary,
           behavior: SnackBarBehavior.floating,
         ));
-        context.pushNamed(AppRouteNames.orders);
+        context.goNamed(AppRouteNames.dashboardBuyer);
       }
     } catch (_) {
       if (!context.mounted) return;

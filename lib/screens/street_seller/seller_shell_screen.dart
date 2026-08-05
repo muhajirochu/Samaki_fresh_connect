@@ -16,11 +16,10 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 
 import '../../l10n/app_localizations.dart';
 import '../../providers/auth_provider.dart';
-import '../../providers/order_provider.dart';
-import '../common/my_listings_screen.dart';
+import '../../providers/order_tracking_provider.dart';
 import '../common/my_orders_screen.dart';
-import '../common/settings_screen.dart';
-import 'seller_contacts_screen.dart';
+import '../common/profile_screen.dart';
+import 'seller_active_delivery_tab.dart';
 import 'street_seller_dashboard_screen.dart';
 
 class SellerShellScreen extends ConsumerStatefulWidget {
@@ -38,10 +37,9 @@ class _SellerShellScreenState extends ConsumerState<SellerShellScreen> {
 
   static const _screens = [
     StreetSellerDashboardScreen(),
-    MyListingsScreen(),
     MyOrdersScreen(),
-    SellerContactsScreen(),
-    SettingsScreen(),
+    SellerActiveDeliveryTab(),
+    ProfileScreen(),
   ];
 
   @override
@@ -55,13 +53,10 @@ class _SellerShellScreenState extends ConsumerState<SellerShellScreen> {
     final l10n = AppLocalizations.of(context);
     final cs = Theme.of(context).colorScheme;
 
-    // Same pending-order signal the dashboard's "My Orders" tile
-    // badges, surfaced on the nav bar so the seller sees it from any
-    // tab. Resolves to 0 until the profile doc loads.
     final sellerId = ref.watch(currentUserStreamProvider).valueOrNull?.userId;
     final pending = sellerId == null
         ? 0
-        : ref.watch(streetSellerPendingOrdersProvider(sellerId)).valueOrNull ??
+        : ref.watch(sellerPendingOrdersProvider(sellerId)).valueOrNull?.length ??
             0;
 
     return Scaffold(
@@ -76,20 +71,12 @@ class _SellerShellScreenState extends ConsumerState<SellerShellScreen> {
         indicatorColor: cs.primary.withValues(alpha: 0.15),
         shadowColor: cs.shadow,
         elevation: 4,
-        // Five destinations on a 360dp phone leaves ~72dp per label.
-        // Showing labels only for the selected tab keeps the longer
-        // Swahili words ("Dashibodi", "Bidhaa Zangu") from clipping.
         labelBehavior: NavigationDestinationLabelBehavior.onlyShowSelected,
         destinations: [
           NavigationDestination(
             icon: const Icon(Icons.dashboard_outlined),
             selectedIcon: Icon(Icons.dashboard_rounded, color: cs.primary),
             label: l10n.dashboard,
-          ),
-          NavigationDestination(
-            icon: const Icon(Icons.inventory_2_outlined),
-            selectedIcon: Icon(Icons.inventory_2_rounded, color: cs.primary),
-            label: l10n.myProducts,
           ),
           NavigationDestination(
             icon: Badge(
@@ -105,14 +92,14 @@ class _SellerShellScreenState extends ConsumerState<SellerShellScreen> {
             label: l10n.orders,
           ),
           NavigationDestination(
-            icon: const Icon(Icons.forum_outlined),
-            selectedIcon: Icon(Icons.forum_rounded, color: cs.primary),
-            label: l10n.messages,
+            icon: const Icon(Icons.map_outlined),
+            selectedIcon: Icon(Icons.map_rounded, color: cs.primary),
+            label: 'Track Delivery',
           ),
           NavigationDestination(
-            icon: const Icon(Icons.settings_outlined),
-            selectedIcon: Icon(Icons.settings_rounded, color: cs.primary),
-            label: l10n.settings,
+            icon: const Icon(Icons.person_outline),
+            selectedIcon: Icon(Icons.person, color: cs.primary),
+            label: l10n.profile,
           ),
         ],
       ),

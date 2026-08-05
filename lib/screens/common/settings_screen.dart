@@ -598,7 +598,7 @@ class _FaceIdTileState extends State<_FaceIdTile> {
             );
           }
         },
-        activeColor: Theme.of(context).colorScheme.primary,
+        activeThumbColor: Theme.of(context).colorScheme.primary,
       ),
       onTap: () {
         setState(() {
