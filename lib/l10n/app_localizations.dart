@@ -665,14 +665,26 @@ abstract class AppLocalizations {
   /// No description provided for @habari.
   ///
   /// In en, this message translates to:
-  /// **'Hello, {name}! 🛒'**
+  /// **'Hello,\n{name}'**
   String habari(String name);
+
+  /// No description provided for @hello.
+  ///
+  /// In en, this message translates to:
+  /// **'Hello, {name}!'**
+  String hello(String name);
 
   /// No description provided for @yourStreetSellingHub.
   ///
   /// In en, this message translates to:
   /// **'Your street selling hub'**
   String get yourStreetSellingHub;
+
+  /// No description provided for @buyerGreeting.
+  ///
+  /// In en, this message translates to:
+  /// **'Hello,\n{name}'**
+  String buyerGreeting(String name);
 
   /// No description provided for @quickActions.
   ///
@@ -1970,12 +1982,6 @@ abstract class AppLocalizations {
   /// **'View payment history'**
   String get transactionsSubtitle;
 
-  /// No description provided for @hello.
-  ///
-  /// In en, this message translates to:
-  /// **'Hello, {name}!'**
-  String hello(String name);
-
   /// No description provided for @manageStreetSellers.
   ///
   /// In en, this message translates to:
@@ -3128,12 +3134,6 @@ abstract class AppLocalizations {
   /// **'Could not open messages'**
   String get contactsSmsFailed;
 
-  /// No description provided for @buyerGreeting.
-  ///
-  /// In en, this message translates to:
-  /// **'Hello, {name} 👋'**
-  String buyerGreeting(String name);
-
   /// No description provided for @buyerGreetingSubtitle.
   ///
   /// In en, this message translates to:
@@ -3229,6 +3229,48 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Order #{id}'**
   String orderFallbackName(String id);
+
+  /// No description provided for @sellersMapTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Sellers Map'**
+  String get sellersMapTitle;
+
+  /// No description provided for @showAllTypes.
+  ///
+  /// In en, this message translates to:
+  /// **'Show all types'**
+  String get showAllTypes;
+
+  /// No description provided for @markAllAsRead.
+  ///
+  /// In en, this message translates to:
+  /// **'Mark all as read'**
+  String get markAllAsRead;
+
+  /// No description provided for @distanceLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Distance'**
+  String get distanceLabel;
+
+  /// No description provided for @estimatedTimeLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Estimated time'**
+  String get estimatedTimeLabel;
+
+  /// No description provided for @trackDeliveryTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Track Delivery'**
+  String get trackDeliveryTitle;
+
+  /// No description provided for @locationNotAvailable.
+  ///
+  /// In en, this message translates to:
+  /// **'Location not available'**
+  String get locationNotAvailable;
 }
 
 class _AppLocalizationsDelegate

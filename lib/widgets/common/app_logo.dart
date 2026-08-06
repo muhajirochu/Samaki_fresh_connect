@@ -33,7 +33,7 @@ class AppLogo extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final double r = borderRadius ?? size * 0.22;
+    final double r = borderRadius ?? size * 0.5;
 
     // The clipped image — BoxFit.contain so nothing is cropped.
     final Widget img = ClipRRect(

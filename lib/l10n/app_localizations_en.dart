@@ -307,11 +307,21 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String habari(String name) {
-    return 'Hello, $name! 🛒';
+    return 'Hello,\n$name';
+  }
+
+  @override
+  String hello(String name) {
+    return 'Hello, $name!';
   }
 
   @override
   String get yourStreetSellingHub => 'Your street selling hub';
+
+  @override
+  String buyerGreeting(String name) {
+    return 'Hello,\n$name';
+  }
 
   @override
   String get quickActions => 'Quick Actions';
@@ -1021,11 +1031,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get transactionsSubtitle => 'View payment history';
 
   @override
-  String hello(String name) {
-    return 'Hello, $name!';
-  }
-
-  @override
   String get manageStreetSellers => 'Manage Street Sellers';
 
   @override
@@ -1681,11 +1686,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get contactsSmsFailed => 'Could not open messages';
 
   @override
-  String buyerGreeting(String name) {
-    return 'Hello, $name 👋';
-  }
-
-  @override
   String get buyerGreetingSubtitle => 'Find fresh fish near you';
 
   @override
@@ -1761,4 +1761,25 @@ class AppLocalizationsEn extends AppLocalizations {
   String orderFallbackName(String id) {
     return 'Order #$id';
   }
+
+  @override
+  String get sellersMapTitle => 'Sellers Map';
+
+  @override
+  String get showAllTypes => 'Show all types';
+
+  @override
+  String get markAllAsRead => 'Mark all as read';
+
+  @override
+  String get distanceLabel => 'Distance';
+
+  @override
+  String get estimatedTimeLabel => 'Estimated time';
+
+  @override
+  String get trackDeliveryTitle => 'Track Delivery';
+
+  @override
+  String get locationNotAvailable => 'Location not available';
 }

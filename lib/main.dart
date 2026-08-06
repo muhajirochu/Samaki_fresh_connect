@@ -161,12 +161,7 @@ class SamakiFreshApp extends ConsumerWidget {
               maxScaleFactor: 1.20,
             ),
           ),
-          child: AnimatedTheme(
-            data: Theme.of(context),
-            duration: const Duration(milliseconds: 320),
-            curve: Curves.easeOutCubic,
-            child: child ?? const SizedBox.shrink(),
-          ),
+          child: child ?? const SizedBox.shrink(),
         );
       },
       // The router is built inside the Riverpod scope so it can

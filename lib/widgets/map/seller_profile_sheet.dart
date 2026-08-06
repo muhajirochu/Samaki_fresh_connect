@@ -134,7 +134,7 @@ class SellerProfileSheet extends StatelessWidget {
                     ),
                     const SizedBox(height: AppSizes.paddingLG),
                     if (fishItems.isNotEmpty) ...[
-                      _SellerFishGallery(fishItems: fishItems),
+                      SellerFishGallery(fishItems: fishItems),
                       const SizedBox(height: AppSizes.paddingLG),
                     ],
                     _ActionRow(onSendRequest: onSendRequest),
@@ -825,9 +825,9 @@ class _LocationRow extends StatelessWidget {
   }
 }
 
-class _SellerFishGallery extends StatelessWidget {
+class SellerFishGallery extends StatelessWidget {
   final List<FishItemModel> fishItems;
-  const _SellerFishGallery({required this.fishItems});
+  const SellerFishGallery({super.key, required this.fishItems});
 
   @override
   Widget build(BuildContext context) {

@@ -54,12 +54,11 @@ class ThemeModeNotifier extends ChangeNotifier {
     _mode = mode;
     notifyListeners();
     _bridge?.call(mode);
-    final key = _uid.isEmpty
-        ? AppThemeMode.prefKeyAnonymous
-        : AppThemeMode.prefKeyFor(_uid);
-    // Try to persist; failure here shouldn't crash the UI.
     try {
-      await StorageService.instance.setString(key, mode.name);
+      if (_uid.isNotEmpty) {
+        await StorageService.instance.setString(AppThemeMode.prefKeyFor(_uid), mode.name);
+      }
+      await StorageService.instance.setString(AppThemeMode.prefKeyAnonymous, mode.name);
     } on Object catch (e) {
       debugPrint('Failed to persist theme mode: $e');
     }
@@ -85,10 +84,11 @@ class ThemeModeNotifier extends ChangeNotifier {
         : AppThemeMode.prefKeyFor(uid);
     AppThemeMode next;
     try {
-      final raw = StorageService.instance.getString(key);
-      next = AppThemeMode.fromName(raw);
+      final raw = StorageService.instance.getString(key) ??
+          StorageService.instance.getString(AppThemeMode.prefKeyAnonymous);
+      next = raw != null ? AppThemeMode.fromName(raw) : _mode;
     } on Object catch (_) {
-      next = AppThemeMode.light;
+      next = _mode;
     }
     if (next == _mode) return;
     _mode = next;

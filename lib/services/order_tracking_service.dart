@@ -135,9 +135,12 @@ class OrderTrackingService {
     return _ordersRef
         .where('streetSellerId', isEqualTo: sellerId)
         .where('status', isEqualTo: OrderStatus.pending.name)
-        .orderBy('createdAt', descending: true)
         .snapshots()
-        .map((snapshot) => snapshot.docs.map((d) => d.data()).toList());
+        .map((snapshot) {
+      final list = snapshot.docs.map((d) => d.data()).toList();
+      list.sort((a, b) => b.createdAt.compareTo(a.createdAt));
+      return list;
+    });
   }
 
   Stream<List<OrderModel>> streamAllOrders() {

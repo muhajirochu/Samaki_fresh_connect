@@ -162,20 +162,10 @@ class _HeroHeader extends StatelessWidget {
                     ),
                     child: ClipOval(
                       child: Container(
-                        decoration: BoxDecoration(
-                          gradient: LinearGradient(
-                            begin: Alignment.topLeft,
-                            end: Alignment.bottomRight,
-                            colors: [
-                              cs.primary,
-                              cs.secondary,
-                            ],
-                          ),
-                        ),
+                        color: Colors.white,
                         alignment: Alignment.center,
                         child: const AppLogo(
-                          size: 72,
-                          borderRadius: 32,
+                          size: 84,
                         ),
                       ),
                     ),
@@ -232,34 +222,6 @@ class _HeroHeader extends StatelessWidget {
           ),
         ],
       ),
-      ),
-    );
-  }
-}
-
-/// Horizontal fish-divider line. Uses a dash + fish icon + dash
-/// composition that renders crisply without a custom SVG asset.
-class _FishDivider extends StatelessWidget {
-  final Color color;
-  const _FishDivider({required this.color});
-
-  @override
-  Widget build(BuildContext context) {
-    return SizedBox(
-      width: 180,
-      child: Row(
-        children: [
-          Expanded(child: Divider(color: color, thickness: 1)),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 8),
-            child: Icon(
-              Icons.set_meal_rounded,
-              size: 14,
-              color: color,
-            ),
-          ),
-          Expanded(child: Divider(color: color, thickness: 1)),
-        ],
       ),
     );
   }

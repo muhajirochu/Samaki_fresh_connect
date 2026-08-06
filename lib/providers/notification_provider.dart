@@ -23,6 +23,7 @@ import '../models/fish_item_model.dart';
 import '../models/wishlist_model.dart';
 import '../services/notification_service.dart';
 import '../services/wishlist_service.dart';
+import 'auth_provider.dart';
 import 'buyer_provider.dart';
 
 // ── Service singletons ───────────────────────────────────────────────────────
@@ -37,17 +38,17 @@ final wishlistServiceProvider = Provider<WishlistService>(
 // ── Notifications stream ─────────────────────────────────────────────────────
 
 final notificationsProvider = StreamProvider<List<NotificationItem>>((ref) {
-  final session = ref.watch(currentBuyerSessionProvider);
-  if (session == null) return const Stream.empty();
+  final user = ref.watch(currentUserProvider);
+  if (user == null || user.uid.isEmpty) return const Stream.empty();
   final svc = ref.watch(notificationServiceProvider);
-  return svc.streamForUser(session.buyerId);
+  return svc.streamForUser(user.uid);
 });
 
 final unreadNotificationsCountProvider = StreamProvider<int>((ref) {
-  final session = ref.watch(currentBuyerSessionProvider);
-  if (session == null) return Stream.value(0);
+  final user = ref.watch(currentUserProvider);
+  if (user == null || user.uid.isEmpty) return Stream.value(0);
   final svc = ref.watch(notificationServiceProvider);
-  return svc.unreadCount(session.buyerId);
+  return svc.unreadCount(user.uid);
 });
 
 // ── Session-agnostic variants ─────────────────────────────────────────────────
@@ -179,7 +180,7 @@ class BuyerNotificationController extends StateNotifier<int> {
   BuyerNotificationController(this._ref) : super(0);
   final Ref _ref;
 
-  String? _requireSession() => _ref.read(currentBuyerSessionProvider)?.buyerId;
+  String? _requireSession() => _ref.read(currentUserProvider)?.uid;
 
   Future<void> markAsRead(String notificationId) async {
     await _ref.read(notificationServiceProvider).markAsRead(notificationId);
@@ -189,6 +190,12 @@ class BuyerNotificationController extends StateNotifier<int> {
     final id = _requireSession();
     if (id == null) return;
     await _ref.read(notificationServiceProvider).markAllAsRead(id);
+  }
+
+  Future<void> clearAllNotifications() async {
+    final id = _requireSession();
+    if (id == null) return;
+    await _ref.read(notificationServiceProvider).clearAllNotifications(id);
   }
 }
 

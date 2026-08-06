@@ -136,7 +136,7 @@
             }
         }
     },
-    "habari": "Hello, {name}! 🛒",
+    "habari": "Hello,\n{name}",
     "@habari": {
         "placeholders": {
             "name": {
@@ -144,7 +144,9 @@
             }
         }
     },
+    "hello": "Hello,\n{name}",
     "yourStreetSellingHub": "Your street selling hub",
+    "buyerGreeting": "Hello,\n{name}",
     "quickActions": "Quick Actions",
     "noImage": "No image",
     "expiresIn": "Expires in {duration}",
@@ -772,7 +774,7 @@
     "contactsNoPhone": "No phone number on file",
     "contactsCallFailed": "Could not start the call",
     "contactsSmsFailed": "Could not open messages",
-    "buyerGreeting": "Hello, {name} 👋",
+    "buyerGreeting": "Hello,\n{name}",
     "@buyerGreeting": {
         "placeholders": {
             "name": {
@@ -823,5 +825,12 @@
                 "type": "String"
             }
         }
-    }
+    },
+    "sellersMapTitle": "Sellers Map",
+    "showAllTypes": "Show all types",
+    "markAllAsRead": "Mark all as read",
+    "distanceLabel": "Distance",
+    "estimatedTimeLabel": "Estimated time",
+    "trackDeliveryTitle": "Track Delivery",
+    "locationNotAvailable": "Location not available"
 }

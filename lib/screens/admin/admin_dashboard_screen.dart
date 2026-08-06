@@ -221,7 +221,7 @@ class _AdminDashboardAppBar extends ConsumerWidget
           const TopAppBar(transparentHero: true),
           if (user != null)
             _AdminGreetingHeader(
-              greeting: l10n.hello(user.fullName.split(' ').first),
+              greeting: l10n.hello(user.fullName),
               subtitle: l10n.adminDashboardSubtitle,
             ),
         ],
@@ -239,7 +239,6 @@ class _AdminGreetingHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final cs = Theme.of(context).colorScheme;
     return Container(
       decoration: const BoxDecoration(
         color: Colors.transparent,
@@ -256,8 +255,8 @@ class _AdminGreetingHeader extends StatelessWidget {
                 shape: BoxShape.circle,
                 gradient: RadialGradient(
                   colors: [
-                    cs.onPrimary.withValues(alpha: 0.18),
-                    cs.onPrimary.withValues(alpha: 0),
+                    Colors.white.withValues(alpha: 0.18),
+                    Colors.white.withValues(alpha: 0),
                   ],
                 ),
               ),
@@ -273,26 +272,15 @@ class _AdminGreetingHeader extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Row(
-                  children: [
-                    Icon(Icons.admin_panel_settings_rounded,
-                        color: cs.onPrimary, size: 28),
-                    const SizedBox(width: 10),
-                    Expanded(
-                      child: Text(
-                        greeting,
-                        maxLines: 1,
-                        softWrap: false,
-                        overflow: TextOverflow.fade,
-                        style: TextStyle(
-                          color: cs.onPrimary,
-                          fontSize: 22,
-                          fontWeight: FontWeight.w700,
-                          letterSpacing: -0.3,
-                        ),
-                      ),
-                    ),
-                  ],
+                Text(
+                  greeting,
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 22,
+                    fontWeight: FontWeight.w700,
+                    letterSpacing: -0.3,
+                    height: 1.25,
+                  ),
                 ),
                 const SizedBox(height: 4),
                 Text(
@@ -301,7 +289,7 @@ class _AdminGreetingHeader extends StatelessWidget {
                   overflow: TextOverflow.fade,
                   softWrap: false,
                   style: TextStyle(
-                    color: cs.onPrimary.withValues(alpha: 0.85),
+                    color: Colors.white.withValues(alpha: 0.85),
                     fontSize: 13,
                   ),
                 ),

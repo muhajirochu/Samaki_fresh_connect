@@ -136,7 +136,7 @@
             }
         }
     },
-    "habari": "Habari, {name}! 🛒",
+    "habari": "Habari,\n{name}",
     "@habari": {
         "placeholders": {
             "name": {
@@ -772,7 +772,7 @@
     "contactsNoPhone": "Hakuna namba ya simu",
     "contactsCallFailed": "Imeshindwa kupiga simu",
     "contactsSmsFailed": "Imeshindwa kufungua ujumbe",
-    "buyerGreeting": "Habari, {name} 👋",
+    "buyerGreeting": "Habari,\n{name}",
     "buyerGreetingSubtitle": "Pata samaki fresh karibu nawe",
     "mapCtaTitle": "Fungua Ramani",
     "mapCtaSubtitle": "Wauzaji karibu, njia, na muda unaotarajiwa",
@@ -802,5 +802,12 @@
                 "type": "String"
             }
         }
-    }
+    },
+    "sellersMapTitle": "Ramani ya Wauzaji",
+    "showAllTypes": "Onyesha aina zote",
+    "markAllAsRead": "Weka zote zimesomwa",
+    "distanceLabel": "Umbali",
+    "estimatedTimeLabel": "Muda unaotarajiwa",
+    "trackDeliveryTitle": "Fuatilia Uwasilishaji",
+    "locationNotAvailable": "Hakuna taarifa za eneo"
 }

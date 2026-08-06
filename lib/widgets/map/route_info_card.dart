@@ -8,6 +8,7 @@
 
 import 'package:flutter/material.dart';
 
+import '../../l10n/app_localizations.dart';
 import '../../config/theme_extensions.dart';
 import '../../constants/app_sizes.dart';
 import '../../utils/gps_helper.dart';
@@ -15,6 +16,7 @@ import '../../models/map_filter_model.dart';
 import '../../models/street_seller_model.dart';
 import '../../services/routing_service.dart';
 import '../common/premium_components.dart';
+import 'seller_profile_sheet.dart';
 
 class RouteInfoCard extends StatelessWidget {
   final SellerWithFish seller;
@@ -34,6 +36,7 @@ class RouteInfoCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
     final tokens = BackgroundStyle.of(context);
+    final l10n = AppLocalizations.of(context);
     return Material(
       color: tokens.surface,
       elevation: 8,
@@ -72,9 +75,6 @@ class RouteInfoCard extends StatelessWidget {
                     width: 44,
                     height: 44,
                     decoration: BoxDecoration(
-                      // Tertiary (amber on light / teal on dark)
-                      // gives the route card a warm, distinct accent
-                      // that contrasts with the cool primary tiles.
                       color: cs.tertiary.withValues(alpha: 0.12),
                       borderRadius: BorderRadius.circular(AppSizes.radiusMD),
                     ),
@@ -99,7 +99,7 @@ class RouteInfoCard extends StatelessWidget {
                         Text(
                           seller.seller.marketName ??
                               seller.seller.streetName ??
-                              'Street seller',
+                              l10n.seller,
                           style: Theme.of(context)
                               .textTheme
                               .bodySmall
@@ -116,7 +116,7 @@ class RouteInfoCard extends StatelessWidget {
                     onPressed: onClose,
                     icon: const Icon(Icons.close_rounded),
                     color: cs.onSurface.withValues(alpha: 0.55),
-                    tooltip: 'Funga',
+                    tooltip: l10n.close,
                   ),
                 ],
               ),
@@ -131,7 +131,7 @@ class RouteInfoCard extends StatelessWidget {
                 children: [
                   Expanded(child: _MetricTile(
                     icon: Icons.straighten_rounded,
-                    label: 'Umbali',
+                    label: l10n.distanceLabel,
                     value: route == null
                         ? '...'
                         : _formatDistance(route!.distanceKm),
@@ -140,12 +140,10 @@ class RouteInfoCard extends StatelessWidget {
                   const SizedBox(width: AppSizes.paddingSM),
                   Expanded(child: _MetricTile(
                     icon: Icons.access_time_rounded,
-                    label: 'Muda unaotarajiwa',
+                    label: l10n.estimatedTimeLabel,
                     value: route == null
                         ? '...'
                         : _formatEta(route!.durationMinutes),
-                    // ETA uses tertiary so the two metric tiles share
-                    // the brand palette without duplicating colours.
                     color: cs.tertiary,
                   )),
                 ],
@@ -156,36 +154,13 @@ class RouteInfoCard extends StatelessWidget {
               ],
               const SizedBox(height: AppSizes.paddingMD),
               // Fish summary.
-              Container(
-                padding: const EdgeInsets.all(AppSizes.paddingSM),
-                decoration: BoxDecoration(
-                  color: cs.surfaceContainerHighest,
-                  borderRadius: BorderRadius.circular(AppSizes.radiusMD),
-                ),
-                child: Row(
-                  children: [
-                    Icon(Icons.set_meal_rounded,
-                        color: cs.primary, size: 20),
-                    const SizedBox(width: AppSizes.paddingSM),
-                    Expanded(
-                      child: Text(
-                        _fishSummary(seller),
-                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                              color: cs.onSurface.withValues(alpha: 0.75),
-                            ),
-                        maxLines: 2,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
+              SellerFishGallery(fishItems: seller.matchingItems),
               if (onSendRequest != null) ...[
                 const SizedBox(height: AppSizes.paddingMD),
                 SizedBox(
                   width: double.infinity,
                   child: GradientButton(
-                    label: 'Tuma Ombi',
+                    label: l10n.sendRequest,
                     onPressed: onSendRequest,
                     prefixIcon: Icons.send_rounded,
                   ),
@@ -196,18 +171,6 @@ class RouteInfoCard extends StatelessWidget {
         ),
       ),
     );
-  }
-
-  String _fishSummary(SellerWithFish s) {
-    final total = s.matchingItems.fold<double>(
-      0,
-      (acc, item) => acc + item.quantityKg,
-    );
-    if (s.matchingItems.length == 1) {
-      return '${s.matchingItems.first.displayName} · '
-          '${s.matchingItems.first.quantityKg.toStringAsFixed(1)} kg';
-    }
-    return '${s.matchingItems.length} aina · ${total.toStringAsFixed(1)} kg jumla';
   }
 
   static String _formatEta(double minutes) {

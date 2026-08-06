@@ -181,7 +181,7 @@ class _DashboardBody extends ConsumerWidget {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              l10n.buyerGreeting(userName.split(' ').first),
+                              l10n.buyerGreeting(userName),
                               style: Theme.of(context).textTheme.headlineSmall?.copyWith(
                                     color: Colors.white,
                                     fontWeight: FontWeight.w800,
@@ -258,7 +258,7 @@ class _DashboardBody extends ConsumerWidget {
           SliverToBoxAdapter(
             child: _SellersNearYouSection(
               onTapSeller: (sellerId) =>
-                  context.push('/buyer/seller/$sellerId'),
+                  context.push('/buyer/map?sellerId=$sellerId'),
             ),
           ),
 

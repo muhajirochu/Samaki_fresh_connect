@@ -11,6 +11,7 @@
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
+import '../../l10n/app_localizations.dart';
 import '../../constants/app_sizes.dart';
 import '../../models/enums/fish_type.dart';
 import '../../models/fish_item_model.dart';
@@ -23,7 +24,6 @@ import '../../services/location_service.dart';
 import '../../widgets/map/empty_map_state.dart';
 import '../../widgets/map/route_info_card.dart';
 import '../../widgets/map/seller_map.dart';
-import '../../widgets/map/seller_profile_sheet.dart';
 import '../../widgets/requests/send_request_sheet.dart';
 
 class BuyerMapScreen extends ConsumerStatefulWidget {
@@ -127,16 +127,17 @@ class _BuyerMapScreenState extends ConsumerState<BuyerMapScreen> {
     final noMatches = ref.watch(noMatchingSellersProvider);
     final cs = Theme.of(context).colorScheme;
 
+    final l10n = AppLocalizations.of(context);
     return Scaffold(
       backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       appBar: AppBar(
-        title: const Text('Ramani ya Wauzaji'),
+        title: Text(l10n.sellersMapTitle),
         backgroundColor: cs.primary,
         foregroundColor: cs.onPrimary,
         elevation: 0,
         actions: [
           IconButton(
-            tooltip: 'Onyesha aina zote',
+            tooltip: l10n.showAllTypes,
             icon: const Icon(Icons.refresh_rounded),
             onPressed: () {
               ref.read(mapFilterControllerProvider.notifier).reset();
@@ -184,26 +185,10 @@ class _BuyerMapScreenState extends ConsumerState<BuyerMapScreen> {
                 activeRoute: routeAsync.valueOrNull,
                 selectedSeller: selection,
                 onSellerTap: (s) {
-                  // Select the seller (which shows the route card) and
-                  // also open the full profile sheet so the buyer
-                  // can see the seller's complete info + photo.
+                  // Select the seller to show the route card at the bottom.
                   ref
                       .read(selectedSellerControllerProvider.notifier)
                       .select(s);
-                  SellerProfileSheet.show(
-                    context,
-                    seller: s.seller,
-                    fishItems: s.matchingItems,
-                    buyerLatitude: fallbackLoc.latitude,
-                    buyerLongitude: fallbackLoc.longitude,
-                    onSendRequest: () {
-                      Navigator.of(context).pop();
-                      SendRequestSheet.show(
-                        context: context,
-                        seller: s,
-                      );
-                    },
-                  );
                 },
               );
             }(),

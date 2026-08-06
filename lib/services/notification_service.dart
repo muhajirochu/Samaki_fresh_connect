@@ -181,9 +181,10 @@ class NotificationService {
     return _firestore
         .collection(_collection)
         .where('userId', isEqualTo: userId)
-        .where('isRead', isEqualTo: false)
         .snapshots()
-        .map((snap) => snap.docs.length);
+        .map((snap) => snap.docs
+            .where((d) => (d.data()['isRead'] as bool? ?? false) == false)
+            .length);
   }
 
   Future<void> markAsRead(String notificationId) async {
@@ -213,6 +214,23 @@ class NotificationService {
       await batch.commit();
     } catch (e) {
       AppLogger.error('markAllAsRead failed: $e');
+    }
+  }
+
+  Future<void> clearAllNotifications(String userId) async {
+    if (!_isAvailable) return;
+    try {
+      final batch = _firestore.batch();
+      final snap = await _firestore
+          .collection(_collection)
+          .where('userId', isEqualTo: userId)
+          .get();
+      for (final doc in snap.docs) {
+        batch.delete(doc.reference);
+      }
+      await batch.commit();
+    } catch (e) {
+      AppLogger.error('clearAllNotifications failed: $e');
     }
   }
 

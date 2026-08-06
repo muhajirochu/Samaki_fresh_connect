@@ -305,11 +305,21 @@ class AppLocalizationsSw extends AppLocalizations {
 
   @override
   String habari(String name) {
-    return 'Habari, $name! 🛒';
+    return 'Habari,\n$name';
+  }
+
+  @override
+  String hello(String name) {
+    return 'Habari, $name!';
   }
 
   @override
   String get yourStreetSellingHub => 'Kituo chako cha kuuza barabarani';
+
+  @override
+  String buyerGreeting(String name) {
+    return 'Habari,\n$name';
+  }
 
   @override
   String get quickActions => 'Vitendo vya Haraka';
@@ -1018,11 +1028,6 @@ class AppLocalizationsSw extends AppLocalizations {
   String get transactionsSubtitle => 'Ona historia ya malipo';
 
   @override
-  String hello(String name) {
-    return 'Habari, $name!';
-  }
-
-  @override
   String get manageStreetSellers => 'Simamia Wauzaji wa Barabarani';
 
   @override
@@ -1682,11 +1687,6 @@ class AppLocalizationsSw extends AppLocalizations {
   String get contactsSmsFailed => 'Imeshindwa kufungua ujumbe';
 
   @override
-  String buyerGreeting(String name) {
-    return 'Habari, $name 👋';
-  }
-
-  @override
   String get buyerGreetingSubtitle => 'Pata samaki fresh karibu nawe';
 
   @override
@@ -1762,4 +1762,25 @@ class AppLocalizationsSw extends AppLocalizations {
   String orderFallbackName(String id) {
     return 'Orderi #$id';
   }
+
+  @override
+  String get sellersMapTitle => 'Ramani ya Wauzaji';
+
+  @override
+  String get showAllTypes => 'Onyesha aina zote';
+
+  @override
+  String get markAllAsRead => 'Weka zote zimesomwa';
+
+  @override
+  String get distanceLabel => 'Umbali';
+
+  @override
+  String get estimatedTimeLabel => 'Muda unaotarajiwa';
+
+  @override
+  String get trackDeliveryTitle => 'Fuatilia Uwasilishaji';
+
+  @override
+  String get locationNotAvailable => 'Hakuna taarifa za eneo';
 }

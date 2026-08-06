@@ -5,6 +5,8 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
+import '../../models/enums/user_role.dart';
+import '../../providers/auth_provider.dart';
 import '../../providers/notification_provider.dart';
 
 class NotificationsBell extends ConsumerWidget {
@@ -14,6 +16,7 @@ class NotificationsBell extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final unreadAsync = ref.watch(unreadNotificationsCountProvider);
     final count = unreadAsync.valueOrNull ?? 0;
+    final role = ref.watch(currentUserRoleProvider);
     final cs = Theme.of(context).colorScheme;
     return Stack(
       clipBehavior: Clip.none,
@@ -21,7 +24,15 @@ class NotificationsBell extends ConsumerWidget {
         IconButton(
           icon: const Icon(Icons.notifications_rounded),
           color: cs.onSurface,
-          onPressed: () => context.push('/buyer/notifications'),
+          onPressed: () {
+            if (role == UserRole.streetSeller) {
+              context.push('/seller/notifications');
+            } else if (role == UserRole.admin) {
+              context.push('/admin/notifications');
+            } else {
+              context.push('/buyer/notifications');
+            }
+          },
         ),
         if (count > 0)
           Positioned(

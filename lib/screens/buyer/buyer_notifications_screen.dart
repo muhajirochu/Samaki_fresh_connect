@@ -6,9 +6,12 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
+import '../../l10n/app_localizations.dart';
 import '../../constants/app_colors.dart';
 import '../../constants/app_sizes.dart';
 import '../../models/enums/notification_type.dart';
+import '../../models/enums/user_role.dart';
+import '../../providers/auth_provider.dart';
 import '../../providers/notification_provider.dart';
 import '../../services/notification_service.dart';
 import '../../widgets/common/app_bar_actions_bar.dart';
@@ -20,27 +23,61 @@ class BuyerNotificationsScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final notifsAsync = ref.watch(notificationsProvider);
     final cs = Theme.of(context).colorScheme;
+    final l10n = AppLocalizations.of(context);
 
     return Scaffold(
       backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       appBar: AppBar(
-        title: const Text('Arifa'),
+        title: Text(l10n.notifications),
         backgroundColor: cs.primary,
         foregroundColor: cs.onPrimary,
         elevation: 0,
         actions: [
+          IconButton(
+            icon: const Icon(Icons.delete_sweep_rounded),
+            color: cs.onPrimary,
+            tooltip: l10n.clearAll,
+            onPressed: () async {
+              final confirm = await showDialog<bool>(
+                context: context,
+                builder: (ctx) => AlertDialog(
+                  title: Text(l10n.clearAll),
+                  content: Text(
+                    l10n.deleteListingsConfirmationAdmin(
+                      notifsAsync.valueOrNull?.length ?? 0,
+                    ),
+                  ),
+                  actions: [
+                    TextButton(
+                      onPressed: () => Navigator.pop(ctx, false),
+                      child: Text(l10n.cancel),
+                    ),
+                    TextButton(
+                      onPressed: () => Navigator.pop(ctx, true),
+                      child: Text(
+                        l10n.delete,
+                        style: const TextStyle(color: Colors.red),
+                      ),
+                    ),
+                  ],
+                ),
+              );
+              if (confirm == true) {
+                await ref
+                    .read(buyerNotificationControllerProvider.notifier)
+                    .clearAllNotifications();
+              }
+            },
+          ),
           TextButton(
             onPressed: () => ref
                 .read(buyerNotificationControllerProvider.notifier)
                 .markAllAsRead(),
             child: Text(
-              'Weka zote zimesomwa',
+              l10n.markAllAsRead,
               style: TextStyle(color: cs.onPrimary, fontSize: 12),
             ),
           ),
-          // Theme switcher (visible across all buyer-facing screens so
-          // the user can flip White / Cream / Dark without leaving
-          // their current context).
           const AppBarActionsBar(showNotifications: false),
         ],
       ),
@@ -83,6 +120,7 @@ class BuyerNotificationsScreen extends ConsumerWidget {
         .markAsRead(n.id);
     final related = n.relatedId;
     if (related == null) return;
+    final role = ref.read(currentUserRoleProvider);
     switch (n.type) {
       case NotificationType.fishAvailableNow:
       case NotificationType.newSellerHasFish:
@@ -91,10 +129,12 @@ class BuyerNotificationsScreen extends ConsumerWidget {
       case NotificationType.requestAccepted:
       case NotificationType.requestRejected:
       case NotificationType.requestOffered:
-        context.push('/orders');
-        break;
       case NotificationType.orderStatusChanged:
-        context.push('/orders/$related');
+        if (role == UserRole.streetSeller) {
+          context.push('/seller/track-delivery/$related');
+        } else {
+          context.push('/buyer/track-order/$related');
+        }
         break;
       case NotificationType.generic:
         break;
@@ -237,6 +277,7 @@ class _EmptyState extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
+    final l10n = AppLocalizations.of(context);
     return Center(
       child: Padding(
         padding: const EdgeInsets.all(AppSizes.paddingXL),
@@ -258,7 +299,7 @@ class _EmptyState extends StatelessWidget {
             ),
             const SizedBox(height: AppSizes.paddingMD),
             Text(
-              'Hakuna arifa bado',
+              l10n.noNotificationsYet,
               style: Theme.of(context).textTheme.titleMedium?.copyWith(
                     fontWeight: FontWeight.w700,
                     color: cs.onSurface,
@@ -266,8 +307,7 @@ class _EmptyState extends StatelessWidget {
             ),
             const SizedBox(height: AppSizes.paddingSM),
             Text(
-              'Arifa za maombi yako, samaki wapya, na '
-              'maendeleo ya oda zitaonekana hapa.',
+              l10n.noNotificationsSubtitle,
               textAlign: TextAlign.center,
               style: TextStyle(
                 color: cs.onSurface.withValues(alpha: 0.65),

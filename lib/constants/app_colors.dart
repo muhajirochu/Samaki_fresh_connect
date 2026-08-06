@@ -129,11 +129,11 @@ class AppColors {
     colors: [primaryTealLight, accentTeal],
   );
 
-  // Dark hero: deep navy → midnight blue with teal tint
+  // Dark hero: vibrant ocean navy → rich teal gradient for dark mode header contrast
   static const LinearGradient deepNavyGradient = LinearGradient(
     begin: Alignment.topCenter,
     end: Alignment.bottomCenter,
-    colors: [Color(0xFF0D1B2A), Color(0xFF0E2A45)],
+    colors: [Color(0xFF0C4A6E), Color(0xFF0284C7)],
   );
 
   // Login/splash button gradient: blue-left → teal-right (matches the image)

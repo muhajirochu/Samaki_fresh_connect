@@ -21,8 +21,6 @@ import '../../models/order_model.dart';
 import '../../providers/auth_provider.dart';
 import '../../providers/listing_provider.dart';
 import '../../providers/order_tracking_provider.dart';
-import '../../providers/seller_location_provider.dart';
-import '../../services/seller_location_tracker.dart';
 import '../../services/seller_mirror_service.dart';
 import '../../utils/formatters.dart';
 import '../../widgets/common/premium_components.dart';
@@ -86,9 +84,8 @@ class StreetSellerDashboardScreen extends ConsumerWidget {
                 // ── Brand gradient greeting header ───────────────────────────
                 SliverToBoxAdapter(
                   child: _SellerGreetingHeader(
-                    greeting: l10n.habari(user.fullName.split(' ').first),
+                    greeting: l10n.habari(user.fullName),
                     subtitle: l10n.yourStreetSellingHub,
-                    onlineToggle: _OnlineToggleButton(),
                   ),
                 ),
 
@@ -434,119 +431,7 @@ class _ActionCard extends StatelessWidget {
   }
 }
 
-/// Pulsing "Go online / Go offline" pill button. Stays in the dashboard
-/// app bar so the seller can flip their live status without entering a
-/// dedicated screen. Uses `Elegant Green` for online (matches buyer
-/// dashboard semantic colour) and white-tint for offline.
-class _OnlineToggleButton extends ConsumerWidget {
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final status = ref.watch(sellerOnlineStatusProvider);
-    final tracker = ref.watch(sellerLocationTrackerProvider);
-    final isOnline = status == SellerTrackerStatus.online;
-    final isBusy = status == SellerTrackerStatus.waitingForPermission;
-    final cs = Theme.of(context).colorScheme;
 
-    final (label, icon) = switch (status) {
-      SellerTrackerStatus.online => (
-          AppLocalizations.of(context).online,
-          Icons.radio_button_checked_rounded
-        ),
-      SellerTrackerStatus.waitingForPermission => (
-          AppLocalizations.of(context).starting,
-          Icons.hourglass_top_rounded
-        ),
-      SellerTrackerStatus.error => (
-          tracker.errorMessage ?? AppLocalizations.of(context).offline,
-          Icons.error_outline_rounded
-        ),
-      SellerTrackerStatus.idle => (
-          AppLocalizations.of(context).offline,
-          Icons.radio_button_unchecked_rounded
-        ),
-    };
-
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 8),
-      child: Material(
-        color: isOnline ? cs.secondary : cs.onPrimary.withValues(alpha: 0.18),
-        borderRadius: BorderRadius.circular(20),
-        child: InkWell(
-          borderRadius: BorderRadius.circular(20),
-          onTap: isBusy
-              ? null
-              : () async {
-                  final messenger = ScaffoldMessenger.of(context);
-                  final actions = ref.read(sellerOnlineActionsProvider);
-                  final l10n = AppLocalizations.of(context);
-                  if (isOnline) {
-                    await actions.goOffline();
-                    if (!context.mounted) return;
-                    messenger.showSnackBar(
-                      SnackBar(
-                        content: Text(l10n.youAreNowOffline),
-                        behavior: SnackBarBehavior.floating,
-                      ),
-                    );
-                  } else {
-                    final ok = await actions.goOnline();
-                    if (!context.mounted) return;
-                    if (!ok) {
-                      messenger.showSnackBar(
-                        SnackBar(
-                          content: Text(
-                            tracker.errorMessage ?? l10n.callFailed,
-                          ),
-                          backgroundColor: cs.error,
-                          behavior: SnackBarBehavior.floating,
-                        ),
-                      );
-                    } else {
-                      messenger.showSnackBar(
-                        SnackBar(
-                          content: Text(l10n.youAreNowOnline),
-                          backgroundColor: cs.secondary,
-                          behavior: SnackBarBehavior.floating,
-                        ),
-                      );
-                    }
-                  }
-                },
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                if (isOnline)
-                  const _PulsingDot()
-                else
-                  Icon(icon, color: cs.onPrimary, size: 14),
-                const SizedBox(width: 6),
-                // Bounded: in the error state `label` is a raw
-                // `tracker.errorMessage` sentence, not a short status
-                // word. Unbounded it blew the greeting row off the
-                // right edge of a 360dp phone.
-                ConstrainedBox(
-                  constraints: const BoxConstraints(maxWidth: 96),
-                  child: Text(
-                    label,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: TextStyle(
-                      color: cs.onPrimary,
-                      fontWeight: FontWeight.w700,
-                      fontSize: 12,
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-}
 
 class _PulsingDot extends StatefulWidget {
   const _PulsingDot();
@@ -611,12 +496,10 @@ class _PulsingDotState extends State<_PulsingDot>
 class _SellerGreetingHeader extends StatelessWidget {
   final String greeting;
   final String subtitle;
-  final Widget onlineToggle;
 
   const _SellerGreetingHeader({
     required this.greeting,
     required this.subtitle,
-    required this.onlineToggle,
   });
 
   @override
@@ -650,8 +533,8 @@ class _SellerGreetingHeader extends StatelessWidget {
                 shape: BoxShape.circle,
                 gradient: RadialGradient(
                   colors: [
-                    cs.onPrimary.withValues(alpha: 0.18),
-                    cs.onPrimary.withValues(alpha: 0),
+                    Colors.white.withValues(alpha: 0.18),
+                    Colors.white.withValues(alpha: 0),
                   ],
                 ),
               ),
@@ -668,8 +551,8 @@ class _SellerGreetingHeader extends StatelessWidget {
                 shape: BoxShape.circle,
                 gradient: RadialGradient(
                   colors: [
-                    cs.onPrimary.withValues(alpha: 0.10),
-                    cs.onPrimary.withValues(alpha: 0),
+                    Colors.white.withValues(alpha: 0.10),
+                    Colors.white.withValues(alpha: 0),
                   ],
                 ),
               ),
@@ -688,46 +571,30 @@ class _SellerGreetingHeader extends StatelessWidget {
                 ),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // Top row: greeting + online toggle
-                Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Icon(Icons.storefront_rounded,
-                        color: cs.onPrimary, size: 28),
-                    const SizedBox(width: 10),
-                    Expanded(
-                      child: Text(
-                        greeting,
-                        maxLines: 2,
-                        softWrap: true,
-                        overflow: TextOverflow.ellipsis,
-                        style: TextStyle(
-                          color: cs.onPrimary,
-                          fontSize: 22,
-                          fontWeight: FontWeight.w700,
-                          letterSpacing: -0.3,
-                        ),
+                    Text(
+                      greeting,
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 22,
+                        fontWeight: FontWeight.w700,
+                        letterSpacing: -0.3,
+                        height: 1.25,
                       ),
                     ),
-                    onlineToggle,
+                    const SizedBox(height: 6),
+                    Text(
+                      subtitle,
+                      style: TextStyle(
+                        color: Colors.white.withValues(alpha: 0.85),
+                        fontSize: 13,
+                      ),
+                    ),
                   ],
                 ),
-                const SizedBox(height: 4),
-                Text(
-                  subtitle,
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
-                  style: TextStyle(
-                    color: cs.onPrimary.withValues(alpha: 0.85),
-                    fontSize: 14,
-                  ),
-                ),
-              ],
-            ),
+              ),
+            ],
           ),
-        ],
-      ),
         ],
       ),
     );

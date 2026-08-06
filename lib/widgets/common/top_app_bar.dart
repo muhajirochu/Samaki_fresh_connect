@@ -87,7 +87,8 @@ class TopAppBar extends ConsumerWidget implements PreferredSizeWidget {
     );
     final unreadCount = unreadAsync.valueOrNull ?? 0;
 
-    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final mode = ref.watch(themeModeProvider);
+    final isDark = mode == AppThemeMode.dark;
 
     return Material(
       color: transparentHero
@@ -128,7 +129,7 @@ class TopAppBar extends ConsumerWidget implements PreferredSizeWidget {
                   transparentHero: transparentHero,
                   onTap: () => ref
                       .read(themeControllerProvider.notifier)
-                      .setMode(isDark ? AppThemeMode.light : AppThemeMode.dark),
+                      .toggle(),
                   // Wrap the icon in an AnimatedSwitcher so it
                   // cross-fades + rotates when the theme flips.
                   child: AnimatedSwitcher(
