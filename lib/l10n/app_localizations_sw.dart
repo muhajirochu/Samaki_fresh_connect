@@ -1783,4 +1783,140 @@ class AppLocalizationsSw extends AppLocalizations {
 
   @override
   String get locationNotAvailable => 'Hakuna taarifa za eneo';
+
+  @override
+  String get appDownloadTitle => 'Pakua Programu';
+
+  @override
+  String get appDownloadScanHeader => 'Skani ili Usakinishe';
+
+  @override
+  String get appDownloadScanHint =>
+      'Elekeza kamera kwenye msimbo au gusa ili kuukuza.';
+
+  @override
+  String get appDownloadDirectUrlLabel => 'URL ya Pakua Moja kwa Moja:';
+
+  @override
+  String appDownloadDetectedYou(String platform) {
+    return 'Imegunduliwa: $platform';
+  }
+
+  @override
+  String appDownloadDownloadApk(String size) {
+    return 'Pakua APK ($size)';
+  }
+
+  @override
+  String get appDownloadInstallIos => 'Sakinisha kwenye iPhone';
+
+  @override
+  String get appDownloadInstallAndroid => 'Sakinisha kwenye Android';
+
+  @override
+  String get appDownloadManualHeader => 'Au sakinisha mwenyewe';
+
+  @override
+  String get appDownloadIosComingSoon =>
+      'Inakuja hivi karibuni — mwaliko wa TestFlight utatolewa wakati wa uzinduzi.';
+
+  @override
+  String get appDownloadShareLink => 'Shiriki Kiungo cha Pakua';
+
+  @override
+  String get appDownloadCopyLink => 'Nakili Kiungo cha Pakua';
+
+  @override
+  String get appDownloadCopied => 'URL ya pakua imenakiliwa kwenye clipboard!';
+
+  @override
+  String get appDownloadSharedSuccess =>
+      'Kiungo cha pakua kimeshirikiwa kikamilifu!';
+
+  @override
+  String get appDownloadShareFailed =>
+      'Imeshindwa kushiriki. Badala yake kiungo kimenakiliwa kwenye clipboard.';
+
+  @override
+  String get appDownloadEnlargeQr => 'Kuza QR';
+
+  @override
+  String get appDownloadQrDialogTitle => 'Skani Msimbo wa QR';
+
+  @override
+  String get appDownloadQrDialogHelp =>
+      'Elekeza kamera ya simu yoyote au skana ili kupakua';
+
+  @override
+  String get appDownloadPdfCard => 'Pakua Kadi ya Usakinishaji (PDF)';
+
+  @override
+  String get appDownloadPdfShare => 'Shiriki PDF';
+
+  @override
+  String get appDownloadPdfShareFailed => 'Imeshindwa kutengeneza PDF.';
+
+  @override
+  String get appDownloadPdfGenerating => 'Inatengeneza kadi ya usakinishaji…';
+
+  @override
+  String get appDownloadSpecsHeader => 'Vipimo vya Programu';
+
+  @override
+  String get appDownloadSpecsSubtitle => 'Maelezo ya kiufundi wa toleo hili';
+
+  @override
+  String get appDownloadSpecsPlatform => 'Jukwaa';
+
+  @override
+  String get appDownloadSpecsVersion => 'Toleo';
+
+  @override
+  String get appDownloadSpecsSize => 'Saizi ya Kifurushi';
+
+  @override
+  String get appDownloadSpecsOs => 'Ulinganifu wa OS';
+
+  @override
+  String get appDownloadSpecsRelease => 'Tarehe ya Kutolewa';
+
+  @override
+  String get appDownloadSpecsStatus => 'Hali';
+
+  @override
+  String get appDownloadSpecsPlatformAndroid => 'Android APK Moja kwa Moja';
+
+  @override
+  String get appDownloadSpecsPlatformIos => 'iOS TestFlight / Duka la Programu';
+
+  @override
+  String get appDownloadInstallGuide => 'Maelekezo ya Usakinishaji';
+
+  @override
+  String get appDownloadInstallGuideSubtitle =>
+      'Sakinisha kwenye simu yako — hakuna USB wahiyo kusanidi.';
+
+  @override
+  String get appDownloadScanOrTap => 'Gusa ili kukuza kwa skrini nzima';
+
+  @override
+  String get appDownloadFooter => 'Mfumo wa SamakiFresh Connect © 2026';
+
+  @override
+  String get appDownloadShareSubject => 'Pakua SamakiFresh Connect';
+
+  @override
+  String appDownloadShareBody(String appName, String version, String url) {
+    return 'Sakinisha SamakiFresh Connect — $appName $version. Skani msimbo wa QR au fungua kiungo hiki: $url';
+  }
+
+  @override
+  String get appDownloadAndroidStepsTitle => 'Android';
+
+  @override
+  String get appDownloadIosStepsTitle => 'iPhone';
+
+  @override
+  String get appDownloadIosComingSoonSteps =>
+      'Mwaliko wa TestFlight utatolewa wakati wa uzinduzi. Skani QR au rudi tena hivi karibuni.';
 }

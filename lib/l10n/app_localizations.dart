@@ -3271,6 +3271,252 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Location not available'**
   String get locationNotAvailable;
+
+  /// No description provided for @appDownloadTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Download App'**
+  String get appDownloadTitle;
+
+  /// No description provided for @appDownloadScanHeader.
+  ///
+  /// In en, this message translates to:
+  /// **'Scan to Install'**
+  String get appDownloadScanHeader;
+
+  /// No description provided for @appDownloadScanHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Point your camera at the code or tap to enlarge.'**
+  String get appDownloadScanHint;
+
+  /// No description provided for @appDownloadDirectUrlLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Direct Download URL:'**
+  String get appDownloadDirectUrlLabel;
+
+  /// No description provided for @appDownloadDetectedYou.
+  ///
+  /// In en, this message translates to:
+  /// **'Detected: {platform}'**
+  String appDownloadDetectedYou(String platform);
+
+  /// No description provided for @appDownloadDownloadApk.
+  ///
+  /// In en, this message translates to:
+  /// **'Download APK ({size})'**
+  String appDownloadDownloadApk(String size);
+
+  /// No description provided for @appDownloadInstallIos.
+  ///
+  /// In en, this message translates to:
+  /// **'Install on iPhone'**
+  String get appDownloadInstallIos;
+
+  /// No description provided for @appDownloadInstallAndroid.
+  ///
+  /// In en, this message translates to:
+  /// **'Install on Android'**
+  String get appDownloadInstallAndroid;
+
+  /// No description provided for @appDownloadManualHeader.
+  ///
+  /// In en, this message translates to:
+  /// **'Or install manually'**
+  String get appDownloadManualHeader;
+
+  /// No description provided for @appDownloadIosComingSoon.
+  ///
+  /// In en, this message translates to:
+  /// **'Coming soon — TestFlight invite will be provided at release.'**
+  String get appDownloadIosComingSoon;
+
+  /// No description provided for @appDownloadShareLink.
+  ///
+  /// In en, this message translates to:
+  /// **'Share Download Link'**
+  String get appDownloadShareLink;
+
+  /// No description provided for @appDownloadCopyLink.
+  ///
+  /// In en, this message translates to:
+  /// **'Copy Download Link'**
+  String get appDownloadCopyLink;
+
+  /// No description provided for @appDownloadCopied.
+  ///
+  /// In en, this message translates to:
+  /// **'Download URL copied to clipboard!'**
+  String get appDownloadCopied;
+
+  /// No description provided for @appDownloadSharedSuccess.
+  ///
+  /// In en, this message translates to:
+  /// **'Download link shared successfully!'**
+  String get appDownloadSharedSuccess;
+
+  /// No description provided for @appDownloadShareFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not share. Link copied to clipboard instead.'**
+  String get appDownloadShareFailed;
+
+  /// No description provided for @appDownloadEnlargeQr.
+  ///
+  /// In en, this message translates to:
+  /// **'Enlarge QR'**
+  String get appDownloadEnlargeQr;
+
+  /// No description provided for @appDownloadQrDialogTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Scan QR Code'**
+  String get appDownloadQrDialogTitle;
+
+  /// No description provided for @appDownloadQrDialogHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'Point camera from any phone or scanner to download'**
+  String get appDownloadQrDialogHelp;
+
+  /// No description provided for @appDownloadPdfCard.
+  ///
+  /// In en, this message translates to:
+  /// **'Download Installation Card (PDF)'**
+  String get appDownloadPdfCard;
+
+  /// No description provided for @appDownloadPdfShare.
+  ///
+  /// In en, this message translates to:
+  /// **'Share PDF'**
+  String get appDownloadPdfShare;
+
+  /// No description provided for @appDownloadPdfShareFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not generate PDF.'**
+  String get appDownloadPdfShareFailed;
+
+  /// No description provided for @appDownloadPdfGenerating.
+  ///
+  /// In en, this message translates to:
+  /// **'Generating installation card…'**
+  String get appDownloadPdfGenerating;
+
+  /// No description provided for @appDownloadSpecsHeader.
+  ///
+  /// In en, this message translates to:
+  /// **'App Specifications'**
+  String get appDownloadSpecsHeader;
+
+  /// No description provided for @appDownloadSpecsSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Technical details for this release'**
+  String get appDownloadSpecsSubtitle;
+
+  /// No description provided for @appDownloadSpecsPlatform.
+  ///
+  /// In en, this message translates to:
+  /// **'Platform'**
+  String get appDownloadSpecsPlatform;
+
+  /// No description provided for @appDownloadSpecsVersion.
+  ///
+  /// In en, this message translates to:
+  /// **'Version'**
+  String get appDownloadSpecsVersion;
+
+  /// No description provided for @appDownloadSpecsSize.
+  ///
+  /// In en, this message translates to:
+  /// **'Package Size'**
+  String get appDownloadSpecsSize;
+
+  /// No description provided for @appDownloadSpecsOs.
+  ///
+  /// In en, this message translates to:
+  /// **'OS Compatibility'**
+  String get appDownloadSpecsOs;
+
+  /// No description provided for @appDownloadSpecsRelease.
+  ///
+  /// In en, this message translates to:
+  /// **'Release Date'**
+  String get appDownloadSpecsRelease;
+
+  /// No description provided for @appDownloadSpecsStatus.
+  ///
+  /// In en, this message translates to:
+  /// **'Status'**
+  String get appDownloadSpecsStatus;
+
+  /// No description provided for @appDownloadSpecsPlatformAndroid.
+  ///
+  /// In en, this message translates to:
+  /// **'Android APK Direct'**
+  String get appDownloadSpecsPlatformAndroid;
+
+  /// No description provided for @appDownloadSpecsPlatformIos.
+  ///
+  /// In en, this message translates to:
+  /// **'iOS TestFlight / App Store'**
+  String get appDownloadSpecsPlatformIos;
+
+  /// No description provided for @appDownloadInstallGuide.
+  ///
+  /// In en, this message translates to:
+  /// **'Installation Instructions'**
+  String get appDownloadInstallGuide;
+
+  /// No description provided for @appDownloadInstallGuideSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Install on your phone — no USB or wireless debugging needed.'**
+  String get appDownloadInstallGuideSubtitle;
+
+  /// No description provided for @appDownloadScanOrTap.
+  ///
+  /// In en, this message translates to:
+  /// **'Tap to expand for full screen'**
+  String get appDownloadScanOrTap;
+
+  /// No description provided for @appDownloadFooter.
+  ///
+  /// In en, this message translates to:
+  /// **'SamakiFresh Connect Ecosystem © 2026'**
+  String get appDownloadFooter;
+
+  /// No description provided for @appDownloadShareSubject.
+  ///
+  /// In en, this message translates to:
+  /// **'Download SamakiFresh Connect'**
+  String get appDownloadShareSubject;
+
+  /// No description provided for @appDownloadShareBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Install SamakiFresh Connect — {appName} {version}. Scan the QR code or open this link: {url}'**
+  String appDownloadShareBody(String appName, String version, String url);
+
+  /// No description provided for @appDownloadAndroidStepsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Android'**
+  String get appDownloadAndroidStepsTitle;
+
+  /// No description provided for @appDownloadIosStepsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'iPhone'**
+  String get appDownloadIosStepsTitle;
+
+  /// No description provided for @appDownloadIosComingSoonSteps.
+  ///
+  /// In en, this message translates to:
+  /// **'TestFlight invite will be provided at release. Scan the QR or check back soon.'**
+  String get appDownloadIosComingSoonSteps;
 }
 
 class _AppLocalizationsDelegate

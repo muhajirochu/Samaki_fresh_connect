@@ -1782,4 +1782,139 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get locationNotAvailable => 'Location not available';
+
+  @override
+  String get appDownloadTitle => 'Download App';
+
+  @override
+  String get appDownloadScanHeader => 'Scan to Install';
+
+  @override
+  String get appDownloadScanHint =>
+      'Point your camera at the code or tap to enlarge.';
+
+  @override
+  String get appDownloadDirectUrlLabel => 'Direct Download URL:';
+
+  @override
+  String appDownloadDetectedYou(String platform) {
+    return 'Detected: $platform';
+  }
+
+  @override
+  String appDownloadDownloadApk(String size) {
+    return 'Download APK ($size)';
+  }
+
+  @override
+  String get appDownloadInstallIos => 'Install on iPhone';
+
+  @override
+  String get appDownloadInstallAndroid => 'Install on Android';
+
+  @override
+  String get appDownloadManualHeader => 'Or install manually';
+
+  @override
+  String get appDownloadIosComingSoon =>
+      'Coming soon — TestFlight invite will be provided at release.';
+
+  @override
+  String get appDownloadShareLink => 'Share Download Link';
+
+  @override
+  String get appDownloadCopyLink => 'Copy Download Link';
+
+  @override
+  String get appDownloadCopied => 'Download URL copied to clipboard!';
+
+  @override
+  String get appDownloadSharedSuccess => 'Download link shared successfully!';
+
+  @override
+  String get appDownloadShareFailed =>
+      'Could not share. Link copied to clipboard instead.';
+
+  @override
+  String get appDownloadEnlargeQr => 'Enlarge QR';
+
+  @override
+  String get appDownloadQrDialogTitle => 'Scan QR Code';
+
+  @override
+  String get appDownloadQrDialogHelp =>
+      'Point camera from any phone or scanner to download';
+
+  @override
+  String get appDownloadPdfCard => 'Download Installation Card (PDF)';
+
+  @override
+  String get appDownloadPdfShare => 'Share PDF';
+
+  @override
+  String get appDownloadPdfShareFailed => 'Could not generate PDF.';
+
+  @override
+  String get appDownloadPdfGenerating => 'Generating installation card…';
+
+  @override
+  String get appDownloadSpecsHeader => 'App Specifications';
+
+  @override
+  String get appDownloadSpecsSubtitle => 'Technical details for this release';
+
+  @override
+  String get appDownloadSpecsPlatform => 'Platform';
+
+  @override
+  String get appDownloadSpecsVersion => 'Version';
+
+  @override
+  String get appDownloadSpecsSize => 'Package Size';
+
+  @override
+  String get appDownloadSpecsOs => 'OS Compatibility';
+
+  @override
+  String get appDownloadSpecsRelease => 'Release Date';
+
+  @override
+  String get appDownloadSpecsStatus => 'Status';
+
+  @override
+  String get appDownloadSpecsPlatformAndroid => 'Android APK Direct';
+
+  @override
+  String get appDownloadSpecsPlatformIos => 'iOS TestFlight / App Store';
+
+  @override
+  String get appDownloadInstallGuide => 'Installation Instructions';
+
+  @override
+  String get appDownloadInstallGuideSubtitle =>
+      'Install on your phone — no USB or wireless debugging needed.';
+
+  @override
+  String get appDownloadScanOrTap => 'Tap to expand for full screen';
+
+  @override
+  String get appDownloadFooter => 'SamakiFresh Connect Ecosystem © 2026';
+
+  @override
+  String get appDownloadShareSubject => 'Download SamakiFresh Connect';
+
+  @override
+  String appDownloadShareBody(String appName, String version, String url) {
+    return 'Install SamakiFresh Connect — $appName $version. Scan the QR code or open this link: $url';
+  }
+
+  @override
+  String get appDownloadAndroidStepsTitle => 'Android';
+
+  @override
+  String get appDownloadIosStepsTitle => 'iPhone';
+
+  @override
+  String get appDownloadIosComingSoonSteps =>
+      'TestFlight invite will be provided at release. Scan the QR or check back soon.';
 }

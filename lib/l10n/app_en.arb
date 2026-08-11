@@ -832,5 +832,68 @@
     "distanceLabel": "Distance",
     "estimatedTimeLabel": "Estimated time",
     "trackDeliveryTitle": "Track Delivery",
-    "locationNotAvailable": "Location not available"
+    "locationNotAvailable": "Location not available",
+
+    "appDownloadTitle": "Download App",
+    "appDownloadScanHeader": "Scan to Install",
+    "appDownloadScanHint": "Point your camera at the code or tap to enlarge.",
+    "appDownloadDirectUrlLabel": "Direct Download URL:",
+    "appDownloadDetectedYou": "Detected: {platform}",
+    "@appDownloadDetectedYou": {
+        "placeholders": {
+            "platform": {
+                "type": "String"
+            }
+        }
+    },
+    "appDownloadDownloadApk": "Download APK ({size})",
+    "@appDownloadDownloadApk": {
+        "placeholders": {
+            "size": {
+                "type": "String"
+            }
+        }
+    },
+    "appDownloadInstallIos": "Install on iPhone",
+    "appDownloadInstallAndroid": "Install on Android",
+    "appDownloadManualHeader": "Or install manually",
+    "appDownloadIosComingSoon": "Coming soon — TestFlight invite will be provided at release.",
+    "appDownloadShareLink": "Share Download Link",
+    "appDownloadCopyLink": "Copy Download Link",
+    "appDownloadCopied": "Download URL copied to clipboard!",
+    "appDownloadSharedSuccess": "Download link shared successfully!",
+    "appDownloadShareFailed": "Could not share. Link copied to clipboard instead.",
+    "appDownloadEnlargeQr": "Enlarge QR",
+    "appDownloadQrDialogTitle": "Scan QR Code",
+    "appDownloadQrDialogHelp": "Point camera from any phone or scanner to download",
+    "appDownloadPdfCard": "Download Installation Card (PDF)",
+    "appDownloadPdfShare": "Share PDF",
+    "appDownloadPdfShareFailed": "Could not generate PDF.",
+    "appDownloadPdfGenerating": "Generating installation card…",
+    "appDownloadSpecsHeader": "App Specifications",
+    "appDownloadSpecsSubtitle": "Technical details for this release",
+    "appDownloadSpecsPlatform": "Platform",
+    "appDownloadSpecsVersion": "Version",
+    "appDownloadSpecsSize": "Package Size",
+    "appDownloadSpecsOs": "OS Compatibility",
+    "appDownloadSpecsRelease": "Release Date",
+    "appDownloadSpecsStatus": "Status",
+    "appDownloadSpecsPlatformAndroid": "Android APK Direct",
+    "appDownloadSpecsPlatformIos": "iOS TestFlight / App Store",
+    "appDownloadInstallGuide": "Installation Instructions",
+    "appDownloadInstallGuideSubtitle": "Install on your phone — no USB or wireless debugging needed.",
+    "appDownloadScanOrTap": "Tap to expand for full screen",
+    "appDownloadFooter": "SamakiFresh Connect Ecosystem © 2026",
+    "appDownloadShareSubject": "Download SamakiFresh Connect",
+    "appDownloadShareBody": "Install SamakiFresh Connect — {appName} {version}. Scan the QR code or open this link: {url}",
+    "@appDownloadShareBody": {
+        "placeholders": {
+            "appName": {"type": "String"},
+            "version": {"type": "String"},
+            "url": {"type": "String"}
+        }
+    },
+    "appDownloadAndroidStepsTitle": "Android",
+    "appDownloadIosStepsTitle": "iPhone",
+    "appDownloadIosComingSoonSteps": "TestFlight invite will be provided at release. Scan the QR or check back soon."
 }
