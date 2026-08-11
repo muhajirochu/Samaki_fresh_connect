@@ -14,7 +14,7 @@ class AppReleaseConfig {
   static const String buildNumber = '1';
   static const String fullVersion = 'v$version+$buildNumber';
   static const String releaseDate = 'August 2026';
-  static const String apkSize = '64.5 MB';
+  static const String apkSize = '67 MB';
   static const String minAndroidVersion = 'Android 7.0 (API 24)+';
   static const String minIosVersion = 'iOS 13.0+';
   static const String status = 'Official Public Release';
@@ -28,7 +28,7 @@ class AppReleaseConfig {
   /// to point at the deployed landing page (Firebase Hosting,
   /// GitHub Pages, custom domain, …).
   static const String publicDownloadPageUrl =
-      'https://samakifresh.example/download';
+      'https://github.com/muhajirochu/Samaki_fresh_connect/releases/tag/v1.0.0';
 
   /// Direct-download HTTPS link for the Release Android APK.
   ///
@@ -37,7 +37,8 @@ class AppReleaseConfig {
   /// directly onto the phone without opening GitHub or any intermediate
   /// web page. Mirrored by the Android install button on the Download
   /// page and the Android card in the PDF.
-  static const String downloadUrl = 'https://files.catbox.moe/yfmqat.apk';
+  static const String downloadUrl =
+      'https://github.com/muhajirochu/Samaki_fresh_connect/releases/download/v1.0.0/app-release.apk';
 
   /// iOS distribution URL — TestFlight invite link or App Store URL.
   ///

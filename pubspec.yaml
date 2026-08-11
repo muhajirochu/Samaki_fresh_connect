@@ -93,4 +93,5 @@ flutter:
   assets:
     - assets/images/
     - assets/images/logo/logo.png
+    - assets/qr/install-card-qr.png
   generate: true
