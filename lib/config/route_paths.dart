@@ -55,6 +55,7 @@ class AppRoutes {
   static const profileEdit = '/profile/edit';
   static const settings = '/settings';
   static const languageSelector = '/settings/language';
+  static const appDownload = '/app-download';
 
   // ── Admin ───────────────────────────────────────────────────────
   static const adminSellers = '/admin/sellers';
@@ -142,6 +143,7 @@ class AppRouteNames {
   static const profileEdit = 'profileEdit';
   static const settings = 'settings';
   static const languageSelector = 'languageSelector';
+  static const appDownload = 'appDownload';
 
   // ── Admin ───────────────────────────────────────────────────────
   static const adminSellers = 'adminSellers';

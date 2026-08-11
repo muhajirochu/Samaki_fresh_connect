@@ -33,9 +33,10 @@ String? resolveAuthRedirect({
   required bool hasAuthUser,
   required String location,
 }) {
-  // 1. Splash is exempt. The splash holds a brand moment and
-  //    navigates itself once the brand animation finishes.
-  if (location == AppRoutes.splash) return null;
+  // 1. Splash & App Download are exempt.
+  if (location == AppRoutes.splash || location == AppRoutes.appDownload) {
+    return null;
+  }
 
   final isAuthRoute =
       location == AppRoutes.login || location == AppRoutes.register;
