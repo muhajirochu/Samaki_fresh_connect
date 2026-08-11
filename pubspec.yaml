@@ -49,6 +49,13 @@ dependencies:
   url_launcher: ^6.2.0
   permission_handler: ^11.3.0
   flutter_local_notifications: ^17.2.4
+  qr_flutter: ^4.1.0
+  share_plus: ^10.0.0
+
+  # App distribution — install card PDF
+  pdf: ^3.11.3
+  printing: ^5.13.1
+  path_provider: ^2.1.0
   
   # Localization
   flutter_localizations:
