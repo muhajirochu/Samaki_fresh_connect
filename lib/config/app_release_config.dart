@@ -27,8 +27,7 @@ class AppReleaseConfig {
   /// (or `iosDownloadUrl`) below changes. Update this single string
   /// to point at the deployed landing page (Firebase Hosting,
   /// GitHub Pages, custom domain, …).
-  static const String publicDownloadPageUrl =
-      'https://github.com/muhajirochu/Samaki_fresh_connect/releases/tag/v1.0.0';
+  static const String publicDownloadPageUrl = 'https://samakifresh.surge.sh';
 
   /// Direct-download HTTPS link for the Release Android APK.
   ///
