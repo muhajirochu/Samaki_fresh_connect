@@ -27,7 +27,6 @@ import '../models/fish_item_model.dart';
 import '../models/order_model.dart';
 import '../models/street_seller_model.dart';
 import '../models/enums/fish_type.dart';
-import '../models/enums/listing_status.dart';
 import '../models/enums/user_role.dart';
 import '../models/user_model.dart';
 import '../services/buyer_dashboard_service.dart';
@@ -455,26 +454,6 @@ final popularNearbyFishProvider = Provider<List<PopularFish>>((ref) {
 
   return entries.take(8).toList();
 });
-
-/// Stand-in FishItemModel used when a fish has demand entries (sold
-/// nearby) but no live supply (every listing is currently sold out or
-/// out of range). Carries just enough for `displayName` / image / price
-/// to render the card; the listing fields stay at safe defaults.
-FishItemModel _placeholderForType(String typeValue) {
-  return FishItemModel(
-    itemId: '',
-    listingId: '',
-    sellerId: '',
-    fishType: FishTypeExtension.fromString(typeValue),
-    quantityKg: 0,
-    pricePerKg: 0,
-    totalPrice: 0,
-    imageUrls: const [],
-    isBrokerApproved: true,
-    status: ListingStatus.sold,
-    createdAt: DateTime.fromMillisecondsSinceEpoch(0),
-  );
-}
 
 /// Autocomplete suggestions for the search bar. Returns up to 8 matches
 /// across fish name, custom name, and the Swahili/common synonyms

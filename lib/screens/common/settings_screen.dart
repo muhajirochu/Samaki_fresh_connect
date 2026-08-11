@@ -219,9 +219,14 @@ class SettingsScreen extends ConsumerWidget {
               _SettingsCard(
                 children: [
                   _SettingsTile(
+                    title: 'Download App & QR Code',
+                    icon: Icons.qr_code_scanner_rounded,
+                    onTap: () => context.pushNamed(AppRouteNames.appDownload),
+                  ),
+                  _SettingsTile(
                     title: 'Update',
                     icon: Icons.system_update_rounded,
-                    onTap: showComingSoon,
+                    onTap: () => context.pushNamed(AppRouteNames.appDownload),
                   ),
                   _SettingsTile(
                     title: 'Privacy Terms and Condition',

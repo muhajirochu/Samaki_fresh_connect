@@ -24,6 +24,15 @@ void main() {
       expect(AppRoutes.register, startsWith('/'));
     });
 
+    test('app download route is wired (settings / profile / login entry points)', () {
+      // `SettingsScreen`, `ProfileScreen`, and the login footer all
+      // navigate here via `context.pushNamed(AppRouteNames.appDownload)`.
+      // If the path drifts or the name is removed the Download page
+      // becomes unreachable.
+      expect(AppRoutes.appDownload, '/app-download');
+      expect(AppRouteNames.appDownload, isNotEmpty);
+    });
+
     test('dashboard routes match role expectations', () {
       expect(AppRoutes.dashboardBuyer, '/dashboard/buyer');
       expect(AppRoutes.dashboardStreetSeller, '/dashboard/street_seller');

@@ -12,7 +12,6 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import '../../config/theme_extensions.dart';
 import '../../constants/app_sizes.dart';
 import '../../l10n/app_localizations.dart';
-import '../../models/enums/fish_type.dart';
 import '../../providers/buyer_provider.dart';
 import '../../utils/formatters.dart';
 
@@ -66,23 +65,6 @@ class PopularFishSection extends ConsumerWidget {
     );
   }
 
-  /// Map display-name back to FishType.value for query-param routing.
-  /// Returns null if the name isn't recognized (UI still navigates with q=).
-  String? _fishTypeValueFor(String name) {
-    final lower = name.toLowerCase();
-    for (final t in [
-      FishType.tilapia,
-      FishType.tuna,
-      FishType.mackerel,
-      FishType.sardine,
-      FishType.grouper,
-      FishType.snapper,
-      FishType.other,
-    ]) {
-      if (t.displayName.toLowerCase() == lower) return t.value;
-    }
-    return null;
-  }
 }
 
 class _PopularTile extends StatelessWidget {

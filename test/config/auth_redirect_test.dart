@@ -180,7 +180,7 @@ void main() {
   });
 
   group('edge cases', () {
-    test('/splash is exempt in both directions', () {
+    test('/splash and /app-download are exempt in both directions', () {
       expect(
         resolveAuthRedirect(
           user: null,
@@ -191,9 +191,25 @@ void main() {
       );
       expect(
         resolveAuthRedirect(
+          user: null,
+          hasAuthUser: false,
+          location: AppRoutes.appDownload,
+        ),
+        isNull,
+      );
+      expect(
+        resolveAuthRedirect(
           user: _user(UserRole.buyer),
           hasAuthUser: true,
           location: AppRoutes.splash,
+        ),
+        isNull,
+      );
+      expect(
+        resolveAuthRedirect(
+          user: _user(UserRole.buyer),
+          hasAuthUser: true,
+          location: AppRoutes.appDownload,
         ),
         isNull,
       );

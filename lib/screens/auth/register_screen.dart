@@ -31,8 +31,8 @@ const _deliveryTimes = ['Morning', 'Afternoon', 'Evening', 'Anytime'];
 // user should be able to recognise the role at a glance regardless
 // of light/dark mode. They're declared at the call-site rather than
 // in AppColors because they're only meaningful here.
-const _streetSellerAccent = Color(0xFFE65100);
-const _buyerAccent = Color(0xFF2E8B57);
+const _streetSellerAccent = Color(0xFF0EA5E9);
+const _buyerAccent = Color(0xFF0284C7);
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Route helper

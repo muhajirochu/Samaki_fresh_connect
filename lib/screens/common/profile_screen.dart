@@ -15,6 +15,7 @@ import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../config/route_paths.dart';
 import '../../config/theme_extensions.dart';
 import '../../constants/app_sizes.dart';
 import '../../models/enums/user_role.dart';
@@ -261,7 +262,27 @@ class ProfileScreen extends ConsumerWidget {
                           ],
                         ),
                       ),
-                      const SizedBox(height: AppSizes.paddingXXL),
+                      const SizedBox(height: AppSizes.paddingLG),
+                      ElevatedButton.icon(
+                        onPressed: () => context.pushNamed(AppRouteNames.appDownload),
+                        icon: const Icon(Icons.qr_code_scanner_rounded, size: 20),
+                        label: const Text('Share / Download APK & QR Code'),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: cs.primary.withValues(alpha: 0.12),
+                          foregroundColor: cs.primary,
+                          elevation: 0,
+                          minimumSize: const Size.fromHeight(52),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(AppSizes.radiusLG),
+                            side: BorderSide(color: cs.primary.withValues(alpha: 0.3)),
+                          ),
+                          textStyle: const TextStyle(
+                            fontWeight: FontWeight.w700,
+                            fontSize: AppSizes.fontMD,
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: AppSizes.paddingMD),
                       OutlinedButton.icon(
                         // Single source of truth — delegates to the
                         // AuthController notifier. The router's

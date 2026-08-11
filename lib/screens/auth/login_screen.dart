@@ -580,6 +580,18 @@ class _SignInTab extends HookConsumerWidget {
 
                         // Footer
                         _SignupFooter(),
+                        const SizedBox(height: 12),
+
+                        // App Download & QR Code shortcut
+                        TextButton.icon(
+                          onPressed: () => context.pushNamed(AppRouteNames.appDownload),
+                          icon: const Icon(Icons.qr_code_scanner_rounded, size: 18),
+                          label: const Text('Get Android APK & QR Code'),
+                          style: TextButton.styleFrom(
+                            foregroundColor: Theme.of(context).colorScheme.primary,
+                            textStyle: const TextStyle(fontWeight: FontWeight.w700, fontSize: 13),
+                          ),
+                        ),
 
                         // Social sign-in block — Google + Apple + Facebook.
                         // UI only (no auth wiring yet, per the request).

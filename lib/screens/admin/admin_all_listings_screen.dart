@@ -20,9 +20,14 @@
 // (a Firestore WriteBatch) so 100 listings commit in a single
 // network round trip.
 
+import 'dart:io';
+
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
+import '../../config/route_paths.dart';
 import '../../constants/app_colors.dart';
 import '../../constants/app_sizes.dart';
 import '../../l10n/app_localizations.dart';
@@ -252,7 +257,11 @@ class _AdminAllListingsScreenState
                       selectMode: _selectMode,
                       selected: selected,
                       onTap: () {
-                        if (_selectMode) _toggleSelection(listing.listingId);
+                        if (_selectMode) {
+                          _toggleSelection(listing.listingId);
+                        } else {
+                          context.push(AppRoutes.listingDetail(listing.listingId));
+                        }
                       },
                       onLongPress: () {
                         if (!_selectMode) {
@@ -451,15 +460,7 @@ class _ListingRow extends StatelessWidget {
                     ),
                   ),
                 ),
-              Container(
-                width: 56,
-                height: 56,
-                decoration: BoxDecoration(
-                  color: cs.primary.withValues(alpha: 0.10),
-                  borderRadius: BorderRadius.circular(AppSizes.radiusMD),
-                ),
-                child: const Icon(Icons.set_meal_rounded),
-              ),
+              _buildImageThumbnail(context),
               const SizedBox(width: AppSizes.paddingMD),
               Expanded(
                 child: Column(
@@ -515,6 +516,63 @@ class _ListingRow extends StatelessWidget {
           ),
         ),
       ),
+    );
+  }
+
+  Widget _buildImageThumbnail(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    final imageUrl =
+        listing.imageUrls.isNotEmpty ? listing.imageUrls.first : null;
+
+    Widget fallback = Container(
+      width: 56,
+      height: 56,
+      decoration: BoxDecoration(
+        color: cs.primary.withValues(alpha: 0.10),
+        borderRadius: BorderRadius.circular(AppSizes.radiusMD),
+      ),
+      child: Icon(
+        Icons.set_meal_rounded,
+        color: cs.primary,
+      ),
+    );
+
+    if (imageUrl == null || imageUrl.trim().isEmpty) {
+      return fallback;
+    }
+
+    final isNetwork =
+        imageUrl.startsWith('http://') || imageUrl.startsWith('https://');
+    final isFile = imageUrl.startsWith('/') || imageUrl.startsWith('file://');
+
+    Widget imageWidget;
+    if (isNetwork) {
+      imageWidget = CachedNetworkImage(
+        imageUrl: imageUrl,
+        width: 56,
+        height: 56,
+        fit: BoxFit.cover,
+        placeholder: (_, __) => fallback,
+        errorWidget: (_, __, ___) => fallback,
+      );
+    } else if (isFile) {
+      final cleanPath =
+          imageUrl.startsWith('file://') ? imageUrl.substring(7) : imageUrl;
+      final file = File(cleanPath);
+      imageWidget = Image.file(
+        file,
+        width: 56,
+        height: 56,
+        fit: BoxFit.cover,
+        errorBuilder: (_, __, ___) => fallback,
+      );
+    } else {
+      return fallback;
+    }
+
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(AppSizes.radiusMD),
+      child: imageWidget,
     );
   }
 }
