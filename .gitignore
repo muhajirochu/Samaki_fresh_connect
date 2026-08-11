@@ -50,6 +50,14 @@ app.*.map.json
 /android/app/profile
 /android/app/release
 
+# Android signing config — never commit. Keep the keystore + key.properties local
+# and back them up somewhere safe (1Password, encrypted disk, etc). Losing them
+# means you can never publish updates under the same package name.
+**/upload-keystore.jks
+**/*.jks
+**/key.properties
+**/upload-keystore.jks.old
+
 # Firebase platform configs contain project IDs and API keys — keep them local.
 /android/app/google-services.json
 /ios/Runner/GoogleService-Info.plist
@@ -61,3 +69,9 @@ app.*.map.json
 # Claude Code agent state — contains auth tokens and is regenerated per session.
 /.claude/
 /.flutter-plugins
+
+# App Distribution — generated PDF card lives outside the build tree so a
+# future `git add .` does not sweep it in. The in-app generator
+# (lib/services/installation_card_pdf_service.dart) is the single source of
+# truth.
+SamakiFresh_Connect_App_Download_QR.pdf
