@@ -477,6 +477,38 @@ service cloud.firestore {
       allow update, delete: if isAdmin();
     }
 
+    // ─────────────── deliveries/{deliveryId} ───────────────
+    // One delivery doc per order — created when a seller accepts
+    // an order and transitions it to `preparing`. Tracks
+    // per-order delivery state independent of the order state
+    // machine.
+    //
+    // NOTE: while the temporary `match /{document=**}` allow-all
+    // catch-all at the top of this file is in effect, this block
+    // is documentation only. It WILL apply once that catch-all is
+    // tightened.
+    match /deliveries/{deliveryId} {
+      allow read: if (isSignedIn() && (
+            resource.data.buyerId == request.auth.uid
+            || resource.data.sellerId == request.auth.uid
+          ))
+        || isAdmin();
+
+      allow create: if isSignedIn()
+        && request.resource.data.sellerId == request.auth.uid
+        && request.resource.data.orderId is string
+        && request.resource.data.status == 'pending';
+
+      allow update: if isAdmin()
+        || ((resource.data.buyerId == request.auth.uid
+             || resource.data.sellerId == request.auth.uid)
+            && fieldUnchanged('orderId')
+            && fieldUnchanged('buyerId')
+            && fieldUnchanged('sellerId'));
+
+      allow delete: if isAdmin();
+    }
+
     // ─────────────── Catch-all ───────────────
     // Deny every other collection by default. Any new collection
     // added without a corresponding `match` block is refused.

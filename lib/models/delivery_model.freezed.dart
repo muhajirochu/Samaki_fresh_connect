@@ -23,10 +23,11 @@ mixin _$DeliveryModel {
   String get deliveryId => throw _privateConstructorUsedError;
   String get orderId => throw _privateConstructorUsedError;
   String get sellerId => throw _privateConstructorUsedError;
-  Map<String, dynamic>? get pickupLocation =>
-      throw _privateConstructorUsedError;
-  Map<String, dynamic>? get dropoffLocation =>
-      throw _privateConstructorUsedError;
+  String get buyerId => throw _privateConstructorUsedError;
+  @GeoPointConverter()
+  GeoPoint? get pickupLocation => throw _privateConstructorUsedError;
+  @GeoPointConverter()
+  GeoPoint? get dropoffLocation => throw _privateConstructorUsedError;
   String get status => throw _privateConstructorUsedError;
   DateTime? get pickedUpAt => throw _privateConstructorUsedError;
   DateTime? get deliveredAt => throw _privateConstructorUsedError;
@@ -52,8 +53,9 @@ abstract class $DeliveryModelCopyWith<$Res> {
       {String deliveryId,
       String orderId,
       String sellerId,
-      Map<String, dynamic>? pickupLocation,
-      Map<String, dynamic>? dropoffLocation,
+      String buyerId,
+      @GeoPointConverter() GeoPoint? pickupLocation,
+      @GeoPointConverter() GeoPoint? dropoffLocation,
       String status,
       DateTime? pickedUpAt,
       DateTime? deliveredAt,
@@ -78,6 +80,7 @@ class _$DeliveryModelCopyWithImpl<$Res, $Val extends DeliveryModel>
     Object? deliveryId = null,
     Object? orderId = null,
     Object? sellerId = null,
+    Object? buyerId = null,
     Object? pickupLocation = freezed,
     Object? dropoffLocation = freezed,
     Object? status = null,
@@ -98,14 +101,18 @@ class _$DeliveryModelCopyWithImpl<$Res, $Val extends DeliveryModel>
           ? _value.sellerId
           : sellerId // ignore: cast_nullable_to_non_nullable
               as String,
+      buyerId: null == buyerId
+          ? _value.buyerId
+          : buyerId // ignore: cast_nullable_to_non_nullable
+              as String,
       pickupLocation: freezed == pickupLocation
           ? _value.pickupLocation
           : pickupLocation // ignore: cast_nullable_to_non_nullable
-              as Map<String, dynamic>?,
+              as GeoPoint?,
       dropoffLocation: freezed == dropoffLocation
           ? _value.dropoffLocation
           : dropoffLocation // ignore: cast_nullable_to_non_nullable
-              as Map<String, dynamic>?,
+              as GeoPoint?,
       status: null == status
           ? _value.status
           : status // ignore: cast_nullable_to_non_nullable
@@ -138,8 +145,9 @@ abstract class _$$DeliveryModelImplCopyWith<$Res>
       {String deliveryId,
       String orderId,
       String sellerId,
-      Map<String, dynamic>? pickupLocation,
-      Map<String, dynamic>? dropoffLocation,
+      String buyerId,
+      @GeoPointConverter() GeoPoint? pickupLocation,
+      @GeoPointConverter() GeoPoint? dropoffLocation,
       String status,
       DateTime? pickedUpAt,
       DateTime? deliveredAt,
@@ -162,6 +170,7 @@ class __$$DeliveryModelImplCopyWithImpl<$Res>
     Object? deliveryId = null,
     Object? orderId = null,
     Object? sellerId = null,
+    Object? buyerId = null,
     Object? pickupLocation = freezed,
     Object? dropoffLocation = freezed,
     Object? status = null,
@@ -182,14 +191,18 @@ class __$$DeliveryModelImplCopyWithImpl<$Res>
           ? _value.sellerId
           : sellerId // ignore: cast_nullable_to_non_nullable
               as String,
+      buyerId: null == buyerId
+          ? _value.buyerId
+          : buyerId // ignore: cast_nullable_to_non_nullable
+              as String,
       pickupLocation: freezed == pickupLocation
-          ? _value._pickupLocation
+          ? _value.pickupLocation
           : pickupLocation // ignore: cast_nullable_to_non_nullable
-              as Map<String, dynamic>?,
+              as GeoPoint?,
       dropoffLocation: freezed == dropoffLocation
-          ? _value._dropoffLocation
+          ? _value.dropoffLocation
           : dropoffLocation // ignore: cast_nullable_to_non_nullable
-              as Map<String, dynamic>?,
+              as GeoPoint?,
       status: null == status
           ? _value.status
           : status // ignore: cast_nullable_to_non_nullable
@@ -217,14 +230,13 @@ class _$DeliveryModelImpl implements _DeliveryModel {
       {required this.deliveryId,
       required this.orderId,
       required this.sellerId,
-      final Map<String, dynamic>? pickupLocation,
-      final Map<String, dynamic>? dropoffLocation,
-      required this.status,
+      this.buyerId = '',
+      @GeoPointConverter() this.pickupLocation,
+      @GeoPointConverter() this.dropoffLocation,
+      this.status = 'pending',
       this.pickedUpAt,
       this.deliveredAt,
-      required this.deliveryFee})
-      : _pickupLocation = pickupLocation,
-        _dropoffLocation = dropoffLocation;
+      this.deliveryFee = 0.0});
 
   factory _$DeliveryModelImpl.fromJson(Map<String, dynamic> json) =>
       _$$DeliveryModelImplFromJson(json);
@@ -235,38 +247,29 @@ class _$DeliveryModelImpl implements _DeliveryModel {
   final String orderId;
   @override
   final String sellerId;
-  final Map<String, dynamic>? _pickupLocation;
   @override
-  Map<String, dynamic>? get pickupLocation {
-    final value = _pickupLocation;
-    if (value == null) return null;
-    if (_pickupLocation is EqualUnmodifiableMapView) return _pickupLocation;
-    // ignore: implicit_dynamic_type
-    return EqualUnmodifiableMapView(value);
-  }
-
-  final Map<String, dynamic>? _dropoffLocation;
+  @JsonKey()
+  final String buyerId;
   @override
-  Map<String, dynamic>? get dropoffLocation {
-    final value = _dropoffLocation;
-    if (value == null) return null;
-    if (_dropoffLocation is EqualUnmodifiableMapView) return _dropoffLocation;
-    // ignore: implicit_dynamic_type
-    return EqualUnmodifiableMapView(value);
-  }
-
+  @GeoPointConverter()
+  final GeoPoint? pickupLocation;
   @override
+  @GeoPointConverter()
+  final GeoPoint? dropoffLocation;
+  @override
+  @JsonKey()
   final String status;
   @override
   final DateTime? pickedUpAt;
   @override
   final DateTime? deliveredAt;
   @override
+  @JsonKey()
   final double deliveryFee;
 
   @override
   String toString() {
-    return 'DeliveryModel(deliveryId: $deliveryId, orderId: $orderId, sellerId: $sellerId, pickupLocation: $pickupLocation, dropoffLocation: $dropoffLocation, status: $status, pickedUpAt: $pickedUpAt, deliveredAt: $deliveredAt, deliveryFee: $deliveryFee)';
+    return 'DeliveryModel(deliveryId: $deliveryId, orderId: $orderId, sellerId: $sellerId, buyerId: $buyerId, pickupLocation: $pickupLocation, dropoffLocation: $dropoffLocation, status: $status, pickedUpAt: $pickedUpAt, deliveredAt: $deliveredAt, deliveryFee: $deliveryFee)';
   }
 
   @override
@@ -279,10 +282,11 @@ class _$DeliveryModelImpl implements _DeliveryModel {
             (identical(other.orderId, orderId) || other.orderId == orderId) &&
             (identical(other.sellerId, sellerId) ||
                 other.sellerId == sellerId) &&
-            const DeepCollectionEquality()
-                .equals(other._pickupLocation, _pickupLocation) &&
-            const DeepCollectionEquality()
-                .equals(other._dropoffLocation, _dropoffLocation) &&
+            (identical(other.buyerId, buyerId) || other.buyerId == buyerId) &&
+            (identical(other.pickupLocation, pickupLocation) ||
+                other.pickupLocation == pickupLocation) &&
+            (identical(other.dropoffLocation, dropoffLocation) ||
+                other.dropoffLocation == dropoffLocation) &&
             (identical(other.status, status) || other.status == status) &&
             (identical(other.pickedUpAt, pickedUpAt) ||
                 other.pickedUpAt == pickedUpAt) &&
@@ -299,8 +303,9 @@ class _$DeliveryModelImpl implements _DeliveryModel {
       deliveryId,
       orderId,
       sellerId,
-      const DeepCollectionEquality().hash(_pickupLocation),
-      const DeepCollectionEquality().hash(_dropoffLocation),
+      buyerId,
+      pickupLocation,
+      dropoffLocation,
       status,
       pickedUpAt,
       deliveredAt,
@@ -327,12 +332,13 @@ abstract class _DeliveryModel implements DeliveryModel {
       {required final String deliveryId,
       required final String orderId,
       required final String sellerId,
-      final Map<String, dynamic>? pickupLocation,
-      final Map<String, dynamic>? dropoffLocation,
-      required final String status,
+      final String buyerId,
+      @GeoPointConverter() final GeoPoint? pickupLocation,
+      @GeoPointConverter() final GeoPoint? dropoffLocation,
+      final String status,
       final DateTime? pickedUpAt,
       final DateTime? deliveredAt,
-      required final double deliveryFee}) = _$DeliveryModelImpl;
+      final double deliveryFee}) = _$DeliveryModelImpl;
 
   factory _DeliveryModel.fromJson(Map<String, dynamic> json) =
       _$DeliveryModelImpl.fromJson;
@@ -344,9 +350,13 @@ abstract class _DeliveryModel implements DeliveryModel {
   @override
   String get sellerId;
   @override
-  Map<String, dynamic>? get pickupLocation;
+  String get buyerId;
   @override
-  Map<String, dynamic>? get dropoffLocation;
+  @GeoPointConverter()
+  GeoPoint? get pickupLocation;
+  @override
+  @GeoPointConverter()
+  GeoPoint? get dropoffLocation;
   @override
   String get status;
   @override
