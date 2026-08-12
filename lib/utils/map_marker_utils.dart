@@ -61,6 +61,6 @@ class MapMarkerUtils {
     if (byteData == null) {
       return BitmapDescriptor.defaultMarker;
     }
-    return BitmapDescriptor.fromBytes(byteData.buffer.asUint8List());
+    return BitmapDescriptor.bytes(byteData.buffer.asUint8List());
   }
 }
