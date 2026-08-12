@@ -100,7 +100,7 @@ void main() {
 
       expect(
         _destinationLabels(tester),
-        ['Home', 'Search', 'Cart', 'Orders', 'Settings'],
+        ['Home', 'Search', 'Orders', 'Track Order', 'Profile'],
       );
     });
 
@@ -111,8 +111,8 @@ void main() {
           tester.widget<NavigationBar>(find.byType(NavigationBar));
       expect(bar().selectedIndex, 0);
 
-      // Tap "Settings" — the last destination.
-      await tester.tap(find.byIcon(Icons.settings_outlined));
+      // Tap "Profile" — the last destination.
+      await tester.tap(find.byIcon(Icons.person_outline));
       await tester.pump();
 
       expect(bar().selectedIndex, 4);
@@ -166,13 +166,12 @@ void main() {
       expect(search.autofocus, isFalse);
     });
 
-    testWidgets('hides the cart badge when the cart is empty', (tester) async {
+    testWidgets('renders five buyer destinations with no exceptions',
+        (tester) async {
+      // Smoke check: all five tabs pump without throwing under the test
+      // binding's mocked storage and provider overrides.
       await _pump(tester, const BuyerShellScreen());
-
-      // No signed-in buyer → cartCountProvider is 0 → badge hidden.
-      final badges = tester.widgetList<Badge>(find.byType(Badge));
-      expect(badges, isNotEmpty);
-      expect(badges.every((b) => b.isLabelVisible == false), isTrue);
+      expect(tester.takeException(), isNull);
     });
   });
 
@@ -182,7 +181,7 @@ void main() {
 
       expect(
         _destinationLabels(tester),
-        ['Dashboard', 'My Products', 'Orders', 'Messages', 'Settings'],
+        ['Dashboard', 'Orders', 'Track Delivery', 'Profile'],
       );
     });
 
@@ -193,7 +192,8 @@ void main() {
           tester.widget<NavigationBar>(find.byType(NavigationBar));
       expect(bar().selectedIndex, 0);
 
-      await tester.tap(find.byIcon(Icons.forum_outlined));
+      // Tap "Profile" — the last destination.
+      await tester.tap(find.byIcon(Icons.person_outline));
       await tester.pump();
 
       expect(bar().selectedIndex, 3);
@@ -222,7 +222,7 @@ void main() {
 
       expect(
         _destinationLabels(tester),
-        ['Mwanzo', 'Tafuta', 'Kikapu', 'Maagizo', 'Mipango'],
+        ['Mwanzo', 'Tafuta', 'Maagizo', 'Fuatilia agizo', 'Wasifu'],
       );
     });
 
@@ -235,7 +235,7 @@ void main() {
 
       expect(
         _destinationLabels(tester),
-        ['Dashibodi', 'Bidhaa Zangu', 'Maagizo', 'Ujumbe', 'Mipango'],
+        ['Dashibodi', 'Maagizo', 'Fuatilia Uwasilishaji', 'Wasifu'],
       );
     });
   });
