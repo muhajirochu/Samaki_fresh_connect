@@ -1,25 +1,35 @@
+import 'dart:async';
 import 'dart:math';
 
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
 import '../models/enums/notification_type.dart';
 import '../models/enums/order_status.dart';
 import '../models/order_model.dart';
+import '../services/delivery_service.dart';
 import '../services/notification_service.dart';
 import '../services/order_tracking_service.dart';
+import '../services/seller_location_tracker.dart';
+import '../utils/logger.dart';
 import 'notification_provider.dart';
 
 final orderTrackingProvider = Provider<OrderTrackingStateNotifier>((ref) {
   final service = ref.watch(orderTrackingServiceProvider);
   final notifSvc = ref.watch(notificationServiceProvider);
-  return OrderTrackingStateNotifier(service, notifSvc);
+  final deliverySvc = ref.watch(deliveryServiceProvider);
+  return OrderTrackingStateNotifier(service, notifSvc, deliverySvc);
 });
 
 class OrderTrackingStateNotifier {
   final OrderTrackingService _service;
   final NotificationService _notifSvc;
+  final DeliveryService _deliverySvc;
 
-  OrderTrackingStateNotifier(this._service, this._notifSvc);
+  OrderTrackingStateNotifier(this._service, this._notifSvc, this._deliverySvc);
+
+  Timer? _shareTimer;
+  String? _sharingForOrderId;
 
   /// Generates a random 4 digit pickup code
   String generatePickupCode() {
@@ -67,6 +77,17 @@ class OrderTrackingStateNotifier {
       body = 'Your order was cancelled.';
     }
     await _notifyBuyer(order.buyerId, order.orderId, title, body);
+
+    // Spin up a delivery doc the moment the seller starts preparing
+    // the order — gives analytics and post-hoc tracking a record
+    // independent of the order's status state machine.
+    if (newStatus == OrderStatus.preparing) {
+      try {
+        await _deliverySvc.createDeliveryForOrder(order);
+      } catch (e) {
+        AppLogger.warning('createDeliveryForOrder failed: $e');
+      }
+    }
   }
 
   Future<void> _notifyBuyer(String buyerId, String orderId, String title, String body) async {
@@ -82,6 +103,39 @@ class OrderTrackingStateNotifier {
       body: body,
       type: NotificationType.orderStatusChanged,
     );
+  }
+
+  /// Starts mirroring the seller's latest GPS fix into
+  /// `orders/{orderId}.streetSellerLocation` while delivery is in
+  /// flight. Idempotent — calling again with a different orderId
+  /// cancels the previous timer and re-binds.
+  void startSharingLocation({
+    required String orderId,
+    required SellerLocationTracker tracker,
+    Duration interval = const Duration(seconds: 10),
+  }) {
+    if (_sharingForOrderId == orderId && _shareTimer != null) return;
+    stopSharingLocation();
+    _sharingForOrderId = orderId;
+    _shareTimer = Timer.periodic(interval, (_) async {
+      final pos = tracker.lastPosition;
+      if (pos == null) return;
+      try {
+        await _service.updateSellerLocation(
+          orderId,
+          GeoPoint(pos.latitude, pos.longitude),
+        );
+      } catch (e) {
+        AppLogger.warning('Live seller position mirror failed: $e');
+      }
+    });
+  }
+
+  /// Cancels the live mirror. Safe to call when not running.
+  void stopSharingLocation() {
+    _shareTimer?.cancel();
+    _shareTimer = null;
+    _sharingForOrderId = null;
   }
 }
 

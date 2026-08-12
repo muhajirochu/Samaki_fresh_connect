@@ -69,6 +69,12 @@ class SellerLocationTracker extends ChangeNotifier {
   String? get errorMessage => _errorMessage;
   bool get isOnline => _status == SellerTrackerStatus.online;
 
+  /// The most recent fix we successfully wrote to Firestore (or the
+  /// last fix we observed). `null` until the OS delivers the first
+  /// GPS fix. Used by [OrderTrackingStateNotifier] to mirror the
+  /// seller's live position onto the active order doc.
+  Position? get lastPosition => _lastWrittenFix;
+
   Future<bool> start(String sellerId) async {
     if (_status == SellerTrackerStatus.online && _sellerId == sellerId) {
       // Idempotent — same seller already tracked.
