@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
+import '../../config/route_paths.dart';
 import '../../models/enums/order_status.dart';
 import '../../providers/auth_provider.dart';
 import '../../providers/order_tracking_provider.dart';
-import 'seller_track_delivery_screen.dart';
+import '../../widgets/cards/order_card.dart';
 
 class SellerActiveDeliveryTab extends ConsumerWidget {
   const SellerActiveDeliveryTab({super.key});
@@ -19,19 +21,37 @@ class SellerActiveDeliveryTab extends ConsumerWidget {
     final ordersAsync = ref.watch(sellerOrdersProvider(user.userId));
     return ordersAsync.when(
       data: (orders) {
-        final activeOrders = orders.where((o) => o.status.index < OrderStatus.completed.index && o.status != OrderStatus.cancelled).toList();
+        final activeOrders = orders
+            .where((o) =>
+                o.status.index < OrderStatus.completed.index &&
+                o.status != OrderStatus.cancelled)
+            .toList();
         if (activeOrders.isEmpty) {
           return const Scaffold(
             body: Center(
-              child: Text('No active deliveries to track', style: TextStyle(fontSize: 18, color: Colors.grey)),
+              child: Text(
+                'No active deliveries to track',
+                style: TextStyle(fontSize: 18, color: Colors.grey),
+              ),
             ),
           );
         }
-        // Show the most recent active order
-        return SellerTrackDeliveryScreen(orderId: activeOrders.first.orderId);
+        return ListView.builder(
+          itemCount: activeOrders.length,
+          itemBuilder: (context, index) {
+            final o = activeOrders[index];
+            return OrderCard(
+              order: o,
+              onTap: () => context.pushNamed(
+                AppRouteNames.sellerTrackDelivery,
+                pathParameters: {'orderId': o.orderId},
+              ),
+            );
+          },
+        );
       },
       loading: () => const Scaffold(body: Center(child: CircularProgressIndicator())),
-      error: (e, st) => Scaffold(body: Center(child: Text('Error: $e'))),
+      error: (e, _) => Scaffold(body: Center(child: Text('Error: $e'))),
     );
   }
 }

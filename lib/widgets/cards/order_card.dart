@@ -2,6 +2,12 @@ import 'package:flutter/material.dart';
 import '../../models/enums/order_status.dart';
 import '../../models/order_model.dart';
 
+/// Returns true when [s] is not a terminal state — i.e., the buyer or
+/// seller can still act on this order (accept, prepare, deliver, etc.).
+/// Used to decide whether the "Track" CTA is shown on the order card.
+bool isActiveOrderStatus(OrderStatus s) =>
+    s.index < OrderStatus.completed.index && s != OrderStatus.cancelled;
+
 class OrderCard extends StatelessWidget {
   final OrderModel order;
   final VoidCallback onTap;
@@ -61,6 +67,22 @@ class OrderCard extends StatelessWidget {
                   ),
                 ],
               ),
+              if (isActiveOrderStatus(order.status)) ...[
+                const SizedBox(height: 12),
+                SizedBox(
+                  width: double.infinity,
+                  child: FilledButton.icon(
+                    onPressed: onTap,
+                    icon: const Icon(Icons.directions),
+                    label: const Text('Track'),
+                    style: FilledButton.styleFrom(
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                    ),
+                  ),
+                ),
+              ],
             ],
           ),
         ),
