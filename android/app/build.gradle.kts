@@ -43,6 +43,17 @@ android {
         targetSdk = flutter.targetSdkVersion
         versionCode = flutter.versionCode
         versionName = flutter.versionName
+
+        // ABI splits: ship one APK per architecture instead of one fat APK
+        // that bundles all four ABIs. The QR install card points at a
+        // single APK, so we keep `arm64-v8a` as the universal default via
+        // `isUniversalApk = true` — modern phones (95%+ on the Play Store)
+        // are arm64, so the install path stays a single tap. Smaller APKs
+        // also mean a faster download, faster install on cold devices, and
+        // a smaller resident footprint after install.
+        ndk {
+            abiFilters += listOf("arm64-v8a", "armeabi-v7a")
+        }
     }
 
     signingConfigs {
@@ -59,6 +70,30 @@ android {
             // TODO: Add your own signing config for the release build.
             // Signing with the debug keys for now, so `flutter run --release` works.
             signingConfig = signingConfigs.getByName("release")
+            // R8 (the default replacement for ProGuard since AGP 8) strips
+            // unused Java/Kotlin classes and shrinks resources. Without
+            // this the release APK carries the entire Flutter plugin
+            // surface, native code, and string resources that no screen
+            // actually reads — adding tens of MB and slowing every cold
+            // install / cold launch.
+            isMinifyEnabled = true
+            isShrinkResources = true
+            proguardFiles(
+                getDefaultProguardFile("proguard-android-optimize.txt"),
+                "proguard-rules.pro",
+            )
+        }
+    }
+
+    splits {
+        // One APK per ABI; `isUniversalApk = true` also emits a fat APK
+        // so the QR install card still has a single, device-agnostic URL
+        // to point at.
+        abi {
+            isEnable = true
+            reset()
+            include("arm64-v8a", "armeabi-v7a")
+            isUniversalApk = true
         }
     }
 }

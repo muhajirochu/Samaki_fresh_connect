@@ -961,7 +961,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get rejectOrder => 'Reject order';
 
   @override
-  String get trackOrder => 'Track Order';
+  String get trackOrder => 'Track order';
 
   @override
   String get orderItems => 'Order items';

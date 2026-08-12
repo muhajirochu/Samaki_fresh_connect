@@ -68,7 +68,10 @@ dependencies:
   # Logging & Monitoring
   logger: ^2.0.0
   geocoding: ^4.0.0
-  google_maps_flutter: ^2.14.2
+  # google_maps_flutter removed — the app uses flutter_map (OSM tiles)
+  # everywhere and never instantiates a GoogleMap widget. Dropping the
+  # package saves ~5–10 MB of native code in the APK and trims the
+  # cold-install / first-launch cost noticeably.
 
 dev_dependencies:
   flutter_test:
