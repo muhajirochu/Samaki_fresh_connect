@@ -7,6 +7,9 @@ import '../../l10n/app_localizations.dart';
 import '../../models/enums/order_status.dart';
 import '../../models/order_model.dart';
 import '../../providers/order_tracking_provider.dart';
+import '../../providers/tracking_provider.dart';
+import '../../services/routing_service.dart';
+import '../../utils/route_format.dart';
 import '../../widgets/timelines/horizontal_order_timeline.dart';
 
 class BuyerTrackOrderScreen extends ConsumerStatefulWidget {
@@ -175,11 +178,26 @@ class _BuyerTrackOrderScreenState extends ConsumerState<BuyerTrackOrderScreen> {
     }
     
     if (buyerLatLng != null && sellerLatLng != null) {
+      final routeAsync = ref.watch(trackingRouteProvider(widget.orderId));
+      final routeResult = routeAsync.valueOrNull;
+      final isOsrm = routeResult != null &&
+          routeResult.points.length > 1 &&
+          routeResult.source == RouteSource.osrm;
+      final polylinePoints = isOsrm
+          ? routeResult.points
+          : <ll.LatLng>[sellerLatLng, buyerLatLng];
+      final isFallback = !isOsrm;
+
       polylines.add(
         Polyline(
-          points: [sellerLatLng, buyerLatLng],
+          points: polylinePoints,
           strokeWidth: 5,
-          color: cs.primary,
+          color: isFallback ? Colors.amber.shade700 : Colors.green.shade600,
+          pattern: isFallback
+              ? const StrokePattern.dotted()
+              : const StrokePattern.solid(),
+          borderColor: Colors.white,
+          borderStrokeWidth: 2,
         ),
       );
     }
@@ -224,35 +242,95 @@ class _BuyerTrackOrderScreenState extends ConsumerState<BuyerTrackOrderScreen> {
   }
 
   Widget _buildETASection(OrderModel order, ColorScheme cs) {
+    final routeAsync = ref.watch(trackingRouteProvider(widget.orderId));
+    final route = routeAsync.valueOrNull;
+    final isFallback = route == null || route.source == RouteSource.fallback;
+
+    Widget row({
+      required IconData icon,
+      required String label,
+      required String value,
+    }) {
+      return Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Row(
+            children: [
+              Icon(icon, color: Colors.grey, size: 24),
+              const SizedBox(width: 12),
+              Text(
+                label,
+                style: TextStyle(
+                  color: Colors.grey.shade700,
+                  fontSize: 16,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+            ],
+          ),
+          Text(
+            value,
+            style: TextStyle(
+              color: cs.primary,
+              fontSize: 18,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+        ],
+      );
+    }
+
+    String etaText() {
+      if (order.status == OrderStatus.completed) return 'Delivered';
+      if (order.status == OrderStatus.cancelled) return 'Cancelled';
+      if (route != null) return formatRouteEta(route.durationMinutes);
+      return 'Calculating...';
+    }
+
+    String distanceText() {
+      if (route == null) return '—';
+      return formatRouteDistance(route.distanceKm);
+    }
+
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
       decoration: BoxDecoration(
         border: Border.all(color: cs.primary.withValues(alpha: 0.3), width: 1.5),
         borderRadius: BorderRadius.circular(16),
       ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      child: Column(
         children: [
-          Row(
-            children: [
-              const Icon(Icons.access_time, color: Colors.grey, size: 24),
-              const SizedBox(width: 12),
-              Text(
-                'Estimated Arrival',
-                style: TextStyle(color: Colors.grey.shade700, fontSize: 16, fontWeight: FontWeight.w500),
+          row(icon: Icons.access_time, label: 'ETA', value: etaText()),
+          const Divider(height: 24),
+          row(icon: Icons.straighten, label: 'Distance', value: distanceText()),
+          if (isFallback) ...[
+            const SizedBox(height: 12),
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+              decoration: BoxDecoration(
+                color: Colors.amber.shade100,
+                borderRadius: BorderRadius.circular(20),
               ),
-            ],
-          ),
-          Text(
-            order.status == OrderStatus.completed
-                ? 'Delivered'
-                : order.status == OrderStatus.cancelled
-                    ? 'Cancelled'
-                    : order.estimatedArrival != null
-                        ? '${order.estimatedArrival!.hour}:${order.estimatedArrival!.minute.toString().padLeft(2, '0')} AM'
-                        : 'Calculating...',
-            style: TextStyle(color: cs.primary, fontSize: 18, fontWeight: FontWeight.bold),
-          ),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(
+                    Icons.info_outline,
+                    size: 14,
+                    color: Colors.amber.shade800,
+                  ),
+                  const SizedBox(width: 6),
+                  Text(
+                    'Estimate — live routing unavailable',
+                    style: TextStyle(
+                      color: Colors.amber.shade900,
+                      fontSize: 12,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
         ],
       ),
     );
