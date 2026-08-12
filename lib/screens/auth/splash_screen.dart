@@ -53,8 +53,10 @@ class _SplashScreenState extends ConsumerState<SplashScreen>
     )..repeat(reverse: true);
 
     // Navigate after a brief, deterministic hold so users always see
-    // the brand moment — even on a fast sign-in.
-    _timer = Timer(const Duration(milliseconds: 1600), _navigate);
+    // the brand moment — even on a fast sign-in. Kept short (was 1.6s
+    // pre-launch-polish, now 600ms) so the cold-start path is dominated
+    // by auth/profile resolution, not dead-air brand padding.
+    _timer = Timer(const Duration(milliseconds: 600), _navigate);
   }
 
   @override
@@ -67,10 +69,13 @@ class _SplashScreenState extends ConsumerState<SplashScreen>
   Future<void> _navigate() async {
     if (!mounted) return;
 
-    // Wait for Firebase Auth stream to settle (max 2s)
+    // Wait briefly for Firebase Auth stream to settle (max 500ms).
+    // The router also reads the synchronous Auth cache immediately,
+    // so this loop is only here to keep a signed-in user from being
+    // flashed to /login for one frame before the stream catches up.
     var authState = ref.read(authStateProvider);
     int waited = 0;
-    while (authState.isLoading && mounted && waited < 20) {
+    while (authState.isLoading && mounted && waited < 5) {
       await Future<void>.delayed(const Duration(milliseconds: 100));
       authState = ref.read(authStateProvider);
       waited++;
@@ -86,11 +91,12 @@ class _SplashScreenState extends ConsumerState<SplashScreen>
     }
 
     // Auth says signed-in. Try to load the user profile for role-based routing.
-    // If the profile fails to load (e.g. missing Firestore doc), go to login
-    // which will create the doc and route the user correctly.
+    // Profile fetch has a short timeout (2s, was 5s) — if Firestore is
+    // slow we still want the user to land on a real screen rather
+    // than staring at the splash.
     try {
       final userModel = await ref.read(currentUserDataProvider.future)
-          .timeout(const Duration(seconds: 5));
+          .timeout(const Duration(seconds: 2));
       if (userModel != null && mounted) {
         context.go(AppRoutesExtensions.dashboardFor(userModel.role));
         return;

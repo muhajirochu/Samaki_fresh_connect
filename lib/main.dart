@@ -23,60 +23,32 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   try {
-    // Initialize local storage first (before Firebase) and expose
-    // the global [StorageService.instance] so providers (notably the
-    // theme controller) can read/write persistent values.
-    await StorageService.bootstrap();
+    // Kick off all independent I/O in parallel — Firebase init
+    // (network), SharedPreferences bootstrap (disk), and migration
+    // reads. Each used to await serially in front of `runApp()`,
+    // stacking their latencies; parallelising shaves up to the
+    // slowest of these off the cold-start path.
+    final storageFuture = StorageService.bootstrap();
+    final firebaseFuture = _initFirebase();
 
-    // Read the persisted theme choice before the first build so the
-    // app launches in the right colour scheme — no flash of the
-    // wrong theme on cold start.
+    // Local-only init that must complete before the first frame so
+    // the user never sees a flash of the wrong theme / language.
+    await storageFuture;
     await migrateLegacyThemeSlot();
     await bootstrapThemeNotifier();
-
-    // Read the persisted language choice before the first build so
-    // the very first frame already renders in the right locale —
-    // no flash of English on launch for Kiswahili users.
     bootstrapLocale();
 
-    // Initialize Firebase only if not already initialized (prevents duplicate-app error on hot-restart)
-    if (Firebase.apps.isEmpty) {
-      try {
-        await Firebase.initializeApp(
-          options: DefaultFirebaseOptions.currentPlatform,
-        );
+    // Firebase init can finish in parallel with the above; await it
+    // right before runApp() so the auth state is ready by the time
+    // the router does its first redirect.
+    await firebaseFuture;
 
-        const useEmulator = bool.fromEnvironment(
-          'USE_FIREBASE_EMULATOR',
-          defaultValue: false,
-        );
-        if (useEmulator) {
-          final emulatorHost = kIsWeb ||
-                  defaultTargetPlatform != TargetPlatform.android
-              ? 'localhost'
-              : '10.0.2.2';
-          await FirebaseAuth.instance.useAuthEmulator(emulatorHost, 9099);
-          FirebaseFirestore.instance
-              .useFirestoreEmulator(emulatorHost, 8080);
-        }
-      } on FirebaseException catch (e) {
-        if (e.code != 'duplicate-app') {
-          AppLogger.error('Firebase initialization error: $e');
-          // App continues in offline/demo mode
-        }
-      } catch (e) {
-        AppLogger.error('Firebase initialization error: $e');
-        // App continues in offline/demo mode
-      }
-    }
-
-    // Firebase emulators are enabled with:
-    // flutter run --dart-define=USE_FIREBASE_EMULATOR=true
-    // Android emulators reach the host machine through 10.0.2.2.
-
-    // Initialize notification service
+    // Notification service init is non-blocking for first frame —
+    // permissions and channel registration only matter once a
+    // notification actually needs to fire. Fire-and-forget so it
+    // doesn't add to critical-path latency.
     final notificationService = NotificationService();
-    await notificationService.init();
+    notificationService.init(); // ignore: discarded_futures
 
     final container = ProviderContainer(
       overrides: [
@@ -93,6 +65,38 @@ void main() async {
   } catch (e) {
     AppLogger.error('Error during app initialization: $e');
     rethrow;
+  }
+}
+
+/// Initialises Firebase and (optionally) the local emulator suite.
+/// Returns when Firebase is ready to issue auth + firestore calls.
+Future<void> _initFirebase() async {
+  if (Firebase.apps.isNotEmpty) return;
+  try {
+    await Firebase.initializeApp(
+      options: DefaultFirebaseOptions.currentPlatform,
+    );
+
+    const useEmulator = bool.fromEnvironment(
+      'USE_FIREBASE_EMULATOR',
+      defaultValue: false,
+    );
+    if (useEmulator) {
+      final emulatorHost = kIsWeb ||
+              defaultTargetPlatform != TargetPlatform.android
+          ? 'localhost'
+          : '10.0.2.2';
+      await FirebaseAuth.instance.useAuthEmulator(emulatorHost, 9099);
+      FirebaseFirestore.instance.useFirestoreEmulator(emulatorHost, 8080);
+    }
+  } on FirebaseException catch (e) {
+    if (e.code != 'duplicate-app') {
+      AppLogger.error('Firebase initialization error: $e');
+      // App continues in offline/demo mode
+    }
+  } catch (e) {
+    AppLogger.error('Firebase initialization error: $e');
+    // App continues in offline/demo mode
   }
 }
 
