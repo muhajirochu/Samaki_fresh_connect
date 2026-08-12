@@ -85,7 +85,7 @@ class _BuyerShellScreenState extends ConsumerState<BuyerShellScreen> {
           NavigationDestination(
             icon: const Icon(Icons.map_outlined),
             selectedIcon: Icon(Icons.map_rounded, color: cs.primary),
-            label: 'Track Order',
+            label: l10n.trackOrder,
           ),
           NavigationDestination(
             icon: const Icon(Icons.person_outline),

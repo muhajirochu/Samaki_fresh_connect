@@ -94,7 +94,7 @@ class _SellerShellScreenState extends ConsumerState<SellerShellScreen> {
           NavigationDestination(
             icon: const Icon(Icons.map_outlined),
             selectedIcon: Icon(Icons.map_rounded, color: cs.primary),
-            label: 'Track Delivery',
+            label: l10n.trackDeliveryTitle,
           ),
           NavigationDestination(
             icon: const Icon(Icons.person_outline),
