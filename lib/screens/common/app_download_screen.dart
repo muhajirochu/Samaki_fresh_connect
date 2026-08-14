@@ -12,7 +12,12 @@ import '../../config/theme_extensions.dart';
 import '../../constants/app_colors.dart';
 import '../../constants/app_sizes.dart';
 import '../../l10n/app_localizations.dart';
-import '../../services/installation_card_pdf_service.dart';
+// Deferred so the heavy `pdf` + `printing` Dart libraries (and their
+// native dependencies) only land in the APK lazily, on the first tap
+// of "Share PDF installation card". Without this they ship in the
+// installable APK for every user, even though <1% of installs ever
+// open the Download page — i.e. almost no one ever needs the PDF.
+import '../../services/installation_card_pdf_service.dart' deferred as pdfsvc;
 import '../../widgets/common/app_logo.dart';
 import '../../widgets/common/premium_components.dart';
 
@@ -173,7 +178,17 @@ class AppDownloadScreen extends StatelessWidget {
       ),
     );
 
-    final ok = await InstallationCardPdfService.share(l10n: l10n);
+    // `deferred as pdfsvc` — first call triggers the lazy download of
+    // the `pdf` + `printing` libraries into the running isolate. After
+    // this once-off cost (~600 ms on a cold cache, free on subsequent
+    // taps) the rest of the call runs as a normal static method.
+    bool ok;
+    try {
+      await pdfsvc.loadLibrary();
+      ok = await pdfsvc.InstallationCardPdfService.share(l10n: l10n);
+    } on Object catch (_) {
+      ok = false;
+    }
     if (!context.mounted) return;
     if (!ok) {
       _showErrorSnackBar(context, l10n.appDownloadPdfShareFailed);

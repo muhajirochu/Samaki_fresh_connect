@@ -13,8 +13,15 @@ dependencies:
   
   # UI & Core
   cupertino_icons: ^1.0.6
-  google_fonts: ^6.2.1
-  
+  # google_fonts removed — was fetching Poppins from Google Fonts over the
+  # network on first cold start. With a fresh install + slow / patchy
+  # connection this could add several seconds before the splash resolved,
+  # and it never reused a cached copy across reinstalls because the
+  # package's cache directory was wiped with the app data. Poppins is now
+  # bundled under assets/fonts/ and applied via a tiny wrapper at
+  # lib/utils/app_fonts.dart so every `GoogleFonts.poppins(...)` call site
+  # becomes a synchronous bundled-font read — no network, no cache.
+
   # Navigation
   go_router: ^14.0.0
   
@@ -97,4 +104,33 @@ flutter:
     - assets/images/
     - assets/images/logo/logo.png
     - assets/qr/install-card-qr.png
+
+  # Poppins is shipped inside the APK so the first cold start never has
+  # to reach out to fonts.googleapis.com. Weights cover every usage in
+  # lib/config/{light,dark}_theme.dart — Regular, Medium, SemiBold, Bold
+  # each in upright and italic. The italic files are ~180 kB each but
+  # needed because at least one screen renders an italic emphasis.
+  fonts:
+    - family: Poppins
+      fonts:
+        - asset: assets/fonts/Poppins-Regular.ttf
+          weight: 400
+        - asset: assets/fonts/Poppins-Italic.ttf
+          weight: 400
+          style: italic
+        - asset: assets/fonts/Poppins-Medium.ttf
+          weight: 500
+        - asset: assets/fonts/Poppins-MediumItalic.ttf
+          weight: 500
+          style: italic
+        - asset: assets/fonts/Poppins-SemiBold.ttf
+          weight: 600
+        - asset: assets/fonts/Poppins-SemiBoldItalic.ttf
+          weight: 600
+          style: italic
+        - asset: assets/fonts/Poppins-Bold.ttf
+          weight: 700
+        - asset: assets/fonts/Poppins-BoldItalic.ttf
+          weight: 700
+          style: italic
   generate: true

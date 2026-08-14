@@ -12,10 +12,11 @@
 // ● Text                : deep navy (#0C1F2C) primary, blue-gray secondary
 
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
-
+// google_fonts replaced with the bundled-font wrapper at app_fonts.dart
+// (see top-level pubspec comment).
 import '../constants/app_colors.dart';
 import '../constants/app_sizes.dart';
+import '../utils/app_fonts.dart';
 import 'theme_extensions.dart';
 
 ThemeData buildLightTheme() {
@@ -72,7 +73,7 @@ ThemeData buildLightTheme() {
       scrolledUnderElevation: 0.5,
       centerTitle:          false,
       iconTheme:            IconThemeData(color: tokens.textPrimary),
-      titleTextStyle: GoogleFonts.poppins(
+      titleTextStyle: appPoppins(
         fontSize:     AppSizes.fontLG,
         fontWeight:   FontWeight.w600,
         color:        tokens.textPrimary,
@@ -104,7 +105,7 @@ ThemeData buildLightTheme() {
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(AppSizes.radiusMD),
         ),
-        textStyle: GoogleFonts.poppins(
+        textStyle: appPoppins(
           fontSize:   AppSizes.fontMD,
           fontWeight: FontWeight.w600,
         ),
@@ -124,7 +125,7 @@ ThemeData buildLightTheme() {
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(AppSizes.radiusMD),
         ),
-        textStyle: GoogleFonts.poppins(
+        textStyle: appPoppins(
           fontSize:   AppSizes.fontMD,
           fontWeight: FontWeight.w600,
         ),
@@ -142,7 +143,7 @@ ThemeData buildLightTheme() {
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(AppSizes.radiusMD),
         ),
-        textStyle: GoogleFonts.poppins(
+        textStyle: appPoppins(
           fontSize:   AppSizes.fontMD,
           fontWeight: FontWeight.w600,
         ),
@@ -156,7 +157,7 @@ ThemeData buildLightTheme() {
           horizontal: AppSizes.paddingMD,
           vertical:   AppSizes.paddingSM,
         ),
-        textStyle: GoogleFonts.poppins(
+        textStyle: appPoppins(
           fontSize:   AppSizes.fontMD,
           fontWeight: FontWeight.w600,
         ),
@@ -190,12 +191,12 @@ ThemeData buildLightTheme() {
         borderRadius: BorderRadius.circular(AppSizes.radiusMD),
         borderSide: BorderSide(color: tokens.error, width: 1.8),
       ),
-      hintStyle: GoogleFonts.poppins(
+      hintStyle: appPoppins(
         fontSize:   AppSizes.fontMD,
         fontWeight: FontWeight.normal,
         color:      tokens.textHint,
       ),
-      labelStyle: GoogleFonts.poppins(
+      labelStyle: appPoppins(
         fontSize:   AppSizes.fontMD,
         fontWeight: FontWeight.w500,
         color:      tokens.textSecondary,
@@ -221,7 +222,7 @@ ThemeData buildLightTheme() {
 
     snackBarTheme: SnackBarThemeData(
       backgroundColor: tokens.textPrimary,
-      contentTextStyle: GoogleFonts.poppins(
+      contentTextStyle: appPoppins(
         fontSize:   AppSizes.fontMD,
         fontWeight: FontWeight.w500,
         color:      tokens.background,
@@ -250,11 +251,11 @@ ThemeData buildLightTheme() {
       unselectedLabelColor: tokens.textSecondary,
       indicatorColor:       tokens.primary,
       indicatorSize:        TabBarIndicatorSize.label,
-      labelStyle: GoogleFonts.poppins(
+      labelStyle: appPoppins(
         fontSize:   AppSizes.fontMD,
         fontWeight: FontWeight.w600,
       ),
-      unselectedLabelStyle: GoogleFonts.poppins(
+      unselectedLabelStyle: appPoppins(
         fontSize:   AppSizes.fontMD,
         fontWeight: FontWeight.w500,
       ),
@@ -264,7 +265,7 @@ ThemeData buildLightTheme() {
       backgroundColor:  tokens.surface,
       indicatorColor:   tokens.primary.withValues(alpha: 0.12),
       labelTextStyle: WidgetStateProperty.resolveWith(
-        (states) => GoogleFonts.poppins(
+        (states) => appPoppins(
           fontSize:   AppSizes.fontXS,
           fontWeight: states.contains(WidgetState.selected)
               ? FontWeight.w600
@@ -291,12 +292,12 @@ ThemeData buildLightTheme() {
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(AppSizes.radiusXL),
       ),
-      titleTextStyle: GoogleFonts.poppins(
+      titleTextStyle: appPoppins(
         fontSize:   AppSizes.fontXL,
         fontWeight: FontWeight.w600,
         color:      tokens.textPrimary,
       ),
-      contentTextStyle: GoogleFonts.poppins(
+      contentTextStyle: appPoppins(
         fontSize:   AppSizes.fontMD,
         fontWeight: FontWeight.w400,
         color:      tokens.textSecondary,
@@ -306,7 +307,7 @@ ThemeData buildLightTheme() {
     chipTheme: ChipThemeData(
       backgroundColor: tokens.surfaceAlt,
       selectedColor:   tokens.primary,
-      labelStyle: GoogleFonts.poppins(
+      labelStyle: appPoppins(
         fontSize:   AppSizes.fontSM,
         fontWeight: FontWeight.w500,
         color:      tokens.textPrimary,
@@ -371,89 +372,91 @@ TextTheme buildPoppinsTextTheme({
   required Color textSecondary,
   required Color textHint,
 }) {
-  return GoogleFonts.poppinsTextTheme().copyWith(
-    displayLarge: GoogleFonts.poppins(
+  // Bundled Poppins via the wrapper — no network. Falls back to Roboto
+  // if Poppins somehow can't be loaded on an exotic OEM build.
+  return appPoppinsTextTheme(ThemeData.light().textTheme).copyWith(
+    displayLarge: appPoppins(
       fontSize:     AppSizes.font4XL,
       fontWeight:   FontWeight.w700,
       color:        textPrimary,
       letterSpacing: -0.5,
       height:       1.15,
     ),
-    displayMedium: GoogleFonts.poppins(
+    displayMedium: appPoppins(
       fontSize:     AppSizes.font3XL,
       fontWeight:   FontWeight.w700,
       color:        textPrimary,
       letterSpacing: -0.5,
       height:       1.2,
     ),
-    displaySmall: GoogleFonts.poppins(
+    displaySmall: appPoppins(
       fontSize:     AppSizes.fontXXL,
       fontWeight:   FontWeight.w700,
       color:        textPrimary,
       letterSpacing: -0.4,
       height:       1.2,
     ),
-    headlineLarge: GoogleFonts.poppins(
+    headlineLarge: appPoppins(
       fontSize:     AppSizes.fontXXL,
       fontWeight:   FontWeight.w600,
       color:        textPrimary,
       letterSpacing: -0.3,
     ),
-    headlineMedium: GoogleFonts.poppins(
+    headlineMedium: appPoppins(
       fontSize:     AppSizes.fontXL,
       fontWeight:   FontWeight.w600,
       color:        textPrimary,
       letterSpacing: -0.2,
     ),
-    headlineSmall: GoogleFonts.poppins(
+    headlineSmall: appPoppins(
       fontSize:     AppSizes.fontLG,
       fontWeight:   FontWeight.w600,
       color:        textPrimary,
     ),
-    titleLarge: GoogleFonts.poppins(
+    titleLarge: appPoppins(
       fontSize:   AppSizes.fontLG,
       fontWeight: FontWeight.w600,
       color:      textPrimary,
     ),
-    titleMedium: GoogleFonts.poppins(
+    titleMedium: appPoppins(
       fontSize:   AppSizes.fontMD,
       fontWeight: FontWeight.w600,
       color:      textPrimary,
     ),
-    titleSmall: GoogleFonts.poppins(
+    titleSmall: appPoppins(
       fontSize:   AppSizes.fontSM,
       fontWeight: FontWeight.w600,
       color:      textPrimary,
     ),
-    bodyLarge: GoogleFonts.poppins(
+    bodyLarge: appPoppins(
       fontSize:   AppSizes.fontMD,
       fontWeight: FontWeight.normal,
       color:      textPrimary,
       height:     1.5,
     ),
-    bodyMedium: GoogleFonts.poppins(
+    bodyMedium: appPoppins(
       fontSize:   AppSizes.fontSM,
       fontWeight: FontWeight.normal,
       color:      textSecondary,
       height:     1.5,
     ),
-    bodySmall: GoogleFonts.poppins(
+    bodySmall: appPoppins(
       fontSize:   AppSizes.fontXS,
       fontWeight: FontWeight.normal,
       color:      textSecondary,
       height:     1.5,
     ),
-    labelLarge: GoogleFonts.poppins(
+    labelLarge: appPoppins(
       fontSize:   AppSizes.fontMD,
       fontWeight: FontWeight.w600,
       color:      textPrimary,
     ),
-    labelMedium: GoogleFonts.poppins(
+    labelMedium: appPoppins(
       fontSize:   AppSizes.fontSM,
       fontWeight: FontWeight.w500,
       color:      textPrimary,
     ),
-    labelSmall: GoogleFonts.poppins(
+    labelSmall: appPoppins(
       fontSize:     AppSizes.fontXS,
       fontWeight:   FontWeight.w500,
       color:        textHint,

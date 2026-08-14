@@ -5,7 +5,7 @@
 //   • `buildDarkTheme()`  — Deep Navy background, Bright Blue primary,
 //     Teal Green accent. Modern enterprise dashboard feel.
 //
-// Both themes share the same typography (Poppins via google_fonts),
+// Both themes share the same typography (Poppins via bundled app_fonts wrapper),
 // the same component shapes/radii, and the same [BackgroundStyle],
 // [GlassStyle], and [AppGradients] token indirection. Switching is
 // cheap because widgets read colors through `Theme.of(context)` or

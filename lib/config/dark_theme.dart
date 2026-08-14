@@ -7,10 +7,10 @@
 // with teal highlights that pop against the dark.
 
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
-
+// google_fonts replaced with bundled-font wrapper (see app_fonts.dart).
 import '../constants/app_colors.dart';
 import '../constants/app_sizes.dart';
+import '../utils/app_fonts.dart';
 import 'light_theme.dart' show buildPoppinsTextTheme;
 import 'theme_extensions.dart';
 
@@ -68,7 +68,7 @@ ThemeData buildDarkTheme() {
       scrolledUnderElevation: 0.5,
       centerTitle:          false,
       iconTheme:            IconThemeData(color: tokens.textPrimary),
-      titleTextStyle: GoogleFonts.poppins(
+      titleTextStyle: appPoppins(
         fontSize:     AppSizes.fontLG,
         fontWeight:   FontWeight.w600,
         color:        tokens.textPrimary,
@@ -100,7 +100,7 @@ ThemeData buildDarkTheme() {
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(AppSizes.radiusMD),
         ),
-        textStyle: GoogleFonts.poppins(
+        textStyle: appPoppins(
           fontSize:   AppSizes.fontMD,
           fontWeight: FontWeight.w600,
         ),
@@ -120,7 +120,7 @@ ThemeData buildDarkTheme() {
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(AppSizes.radiusMD),
         ),
-        textStyle: GoogleFonts.poppins(
+        textStyle: appPoppins(
           fontSize:   AppSizes.fontMD,
           fontWeight: FontWeight.w600,
         ),
@@ -138,7 +138,7 @@ ThemeData buildDarkTheme() {
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(AppSizes.radiusMD),
         ),
-        textStyle: GoogleFonts.poppins(
+        textStyle: appPoppins(
           fontSize:   AppSizes.fontMD,
           fontWeight: FontWeight.w600,
         ),
@@ -152,7 +152,7 @@ ThemeData buildDarkTheme() {
           horizontal: AppSizes.paddingMD,
           vertical:   AppSizes.paddingSM,
         ),
-        textStyle: GoogleFonts.poppins(
+        textStyle: appPoppins(
           fontSize:   AppSizes.fontMD,
           fontWeight: FontWeight.w600,
         ),
@@ -186,12 +186,12 @@ ThemeData buildDarkTheme() {
         borderRadius: BorderRadius.circular(AppSizes.radiusMD),
         borderSide: BorderSide(color: tokens.error, width: 1.8),
       ),
-      hintStyle: GoogleFonts.poppins(
+      hintStyle: appPoppins(
         fontSize:   AppSizes.fontMD,
         fontWeight: FontWeight.normal,
         color:      tokens.textHint,
       ),
-      labelStyle: GoogleFonts.poppins(
+      labelStyle: appPoppins(
         fontSize:   AppSizes.fontMD,
         fontWeight: FontWeight.w500,
         color:      tokens.textSecondary,
@@ -217,7 +217,7 @@ ThemeData buildDarkTheme() {
 
     snackBarTheme: SnackBarThemeData(
       backgroundColor: tokens.surfaceAlt,
-      contentTextStyle: GoogleFonts.poppins(
+      contentTextStyle: appPoppins(
         fontSize:   AppSizes.fontMD,
         fontWeight: FontWeight.w500,
         color:      tokens.textPrimary,
@@ -246,11 +246,11 @@ ThemeData buildDarkTheme() {
       unselectedLabelColor: tokens.textSecondary,
       indicatorColor:       tokens.primary,
       indicatorSize:        TabBarIndicatorSize.label,
-      labelStyle: GoogleFonts.poppins(
+      labelStyle: appPoppins(
         fontSize:   AppSizes.fontMD,
         fontWeight: FontWeight.w600,
       ),
-      unselectedLabelStyle: GoogleFonts.poppins(
+      unselectedLabelStyle: appPoppins(
         fontSize:   AppSizes.fontMD,
         fontWeight: FontWeight.w500,
       ),
@@ -260,7 +260,7 @@ ThemeData buildDarkTheme() {
       backgroundColor: tokens.surface,
       indicatorColor:  tokens.primary.withValues(alpha: 0.18),
       labelTextStyle: WidgetStateProperty.resolveWith(
-        (states) => GoogleFonts.poppins(
+        (states) => appPoppins(
           fontSize:   AppSizes.fontXS,
           fontWeight: states.contains(WidgetState.selected)
               ? FontWeight.w600
@@ -287,12 +287,12 @@ ThemeData buildDarkTheme() {
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(AppSizes.radiusXL),
       ),
-      titleTextStyle: GoogleFonts.poppins(
+      titleTextStyle: appPoppins(
         fontSize:   AppSizes.fontXL,
         fontWeight: FontWeight.w600,
         color:      tokens.textPrimary,
       ),
-      contentTextStyle: GoogleFonts.poppins(
+      contentTextStyle: appPoppins(
         fontSize:   AppSizes.fontMD,
         fontWeight: FontWeight.w400,
         color:      tokens.textSecondary,
@@ -302,7 +302,7 @@ ThemeData buildDarkTheme() {
     chipTheme: ChipThemeData(
       backgroundColor: tokens.surfaceAlt,
       selectedColor:   tokens.primary,
-      labelStyle: GoogleFonts.poppins(
+      labelStyle: appPoppins(
         fontSize:   AppSizes.fontSM,
         fontWeight: FontWeight.w500,
         color:      tokens.textPrimary,
