@@ -30,7 +30,7 @@ class _BuyerSellerTrackingScreenState
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(message),
-        backgroundColor: AppColors.successGreen,
+        backgroundColor: AppColors.primaryTeal,
         duration: const Duration(seconds: 2),
       ),
     );

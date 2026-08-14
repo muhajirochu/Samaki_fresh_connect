@@ -124,7 +124,7 @@ class _RequestsList extends ConsumerWidget {
           FilledButton(
             onPressed: () => Navigator.of(ctx).pop(true),
             style: FilledButton.styleFrom(
-              backgroundColor: cs.error,
+              backgroundColor: cs.primary,
             ),
             child: const Text('Ghairi Oda'),
           ),
@@ -286,10 +286,10 @@ class _RequestTile extends ConsumerWidget {
                   child: TextButton.icon(
                     onPressed: () => onCancel(context, ref, request),
                     icon: Icon(Icons.cancel_outlined,
-                        color: cs.error, size: 18),
+                        color: cs.primary, size: 18),
                     label: Text(
                       'Ghairi oda',
-                      style: TextStyle(color: cs.error),
+                      style: TextStyle(color: cs.primary),
                     ),
                   ),
                 ),
@@ -306,16 +306,16 @@ class _RequestTile extends ConsumerWidget {
       case OrderStatus.pending:
         return (cs.primary, 'Inasubiri');
       case OrderStatus.accepted:
-        return (cs.tertiary, 'Imekubaliwa');
+        return (cs.primary, 'Imekubaliwa');
       case OrderStatus.preparing:
-        return (cs.tertiary, 'Inaandaliwa');
+        return (cs.primary, 'Inaandaliwa');
       case OrderStatus.pickupGenerated:
       case OrderStatus.arriving:
-        return (cs.secondary, 'Inakuja');
+        return (cs.primary, 'Inakuja');
       case OrderStatus.completed:
-        return (cs.secondary, 'Imekamilika');
+        return (cs.primary, 'Imekamilika');
       case OrderStatus.cancelled:
-        return (cs.error, 'Imeghairiwa');
+        return (const Color(0xFF1E3A55), 'Imeghairiwa');
     }
   }
 

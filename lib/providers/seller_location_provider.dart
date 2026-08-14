@@ -56,9 +56,10 @@ class SellerOnlineActions {
     if (user == null) {
       throw StateError('Not signed in');
     }
-    // Any signed-in user who has a streetSeller doc can flip the flag.
-    // We do not enforce role here — the seller dashboard is itself the
-    // role gate — but the call returns false on a permission failure.
+    if (!user.isApproved) {
+      AppLogger.warning('Seller ${user.userId} attempted goOnline without admin approval');
+      return false;
+    }
     final tracker = _ref.read(sellerLocationTrackerProvider);
     final ok = await tracker.start(user.userId);
     return ok;
@@ -127,11 +128,11 @@ final activeStreetSellersProviderRemote =
     StreamProvider<List<StreetSellerModel>>((ref) {
   if (Firebase.apps.isEmpty) return Stream.value(const []);
   return _sellersCollection
-      .where('isActive', isEqualTo: true)
       .limit(_maxActiveSellers)
       .snapshots()
       .map((snap) => snap.docs
           .map((d) => StreetSellerModel.fromMap(d.data(), docId: d.id))
+          .where((s) => s.isActive)
           .toList())
       .handleError((Object e, StackTrace s) {
     AppLogger.warning('activeStreetSellersProviderRemote error: $e');

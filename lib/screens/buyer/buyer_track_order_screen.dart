@@ -6,8 +6,10 @@ import 'package:latlong2/latlong.dart' as ll;
 import '../../l10n/app_localizations.dart';
 import '../../models/enums/order_status.dart';
 import '../../models/order_model.dart';
+import '../../providers/buyer_provider.dart';
 import '../../providers/order_tracking_provider.dart';
 import '../../providers/tracking_provider.dart';
+import '../../services/location_service.dart';
 import '../../services/routing_service.dart';
 import '../../utils/route_format.dart';
 import '../../widgets/timelines/horizontal_order_timeline.dart';
@@ -124,100 +126,90 @@ class _BuyerTrackOrderScreenState extends ConsumerState<BuyerTrackOrderScreen> {
   }
 
   Widget _buildMapContent(OrderModel order, ColorScheme cs) {
-    if (order.buyerLocation == null && order.streetSellerLocation == null) {
-      final l10n = AppLocalizations.of(context);
-      return Container(
-        color: cs.surfaceContainerHighest,
-        child: Center(child: Text(l10n.locationNotAvailable)),
-      );
-    }
-    
-    final markers = <Marker>[];
-    final polylines = <Polyline>[];
-    ll.LatLng? buyerLatLng;
-    ll.LatLng? sellerLatLng;
-    
+    // Resolve buyer location with fallback
+    ll.LatLng buyerLatLng;
     if (order.buyerLocation != null) {
       buyerLatLng = ll.LatLng(order.buyerLocation!.latitude, order.buyerLocation!.longitude);
-      markers.add(
-        Marker(
-          point: buyerLatLng,
-          width: 40,
-          height: 40,
-          child: Container(
-            decoration: BoxDecoration(
-              color: Colors.redAccent,
-              shape: BoxShape.circle,
-              border: Border.all(color: Colors.white, width: 2),
-              boxShadow: const [BoxShadow(color: Colors.black26, blurRadius: 4)],
-            ),
-            child: const Icon(Icons.person, color: Colors.white, size: 20),
-          ),
-        ),
-      );
+    } else {
+      final buyerLoc = ref.watch(currentBuyerLocationProvider).valueOrNull;
+      buyerLatLng = buyerLoc != null
+          ? ll.LatLng(buyerLoc.latitude, buyerLoc.longitude)
+          : const ll.LatLng(-6.1629, 39.2026);
     }
 
+    // Resolve seller location with fallback
+    ll.LatLng sellerLatLng;
     if (order.streetSellerLocation != null) {
       sellerLatLng = ll.LatLng(order.streetSellerLocation!.latitude, order.streetSellerLocation!.longitude);
-      markers.add(
-        Marker(
-          point: sellerLatLng,
-          width: 44,
-          height: 44,
-          child: Container(
-            decoration: BoxDecoration(
-              color: cs.primary,
-              shape: BoxShape.circle,
-              border: Border.all(color: Colors.white, width: 2),
-              boxShadow: const [BoxShadow(color: Colors.black26, blurRadius: 4)],
-            ),
-            child: const Icon(Icons.directions_bike, color: Colors.white, size: 22),
-          ),
-        ),
-      );
-    }
-    
-    if (buyerLatLng != null && sellerLatLng != null) {
-      final routeAsync = ref.watch(trackingRouteProvider(widget.orderId));
-      final routeResult = routeAsync.valueOrNull;
-      final isOsrm = routeResult != null &&
-          routeResult.points.length > 1 &&
-          routeResult.source == RouteSource.osrm;
-      final polylinePoints = isOsrm
-          ? routeResult.points
-          : <ll.LatLng>[sellerLatLng, buyerLatLng];
-      final isFallback = !isOsrm;
-
-      polylines.add(
-        Polyline(
-          points: polylinePoints,
-          strokeWidth: 5,
-          color: isFallback ? Colors.amber.shade700 : Colors.green.shade600,
-          pattern: isFallback
-              ? const StrokePattern.dotted()
-              : const StrokePattern.solid(),
-          borderColor: Colors.white,
-          borderStrokeWidth: 2,
-        ),
-      );
-    }
-    
-    ll.LatLng center;
-    if (buyerLatLng != null && sellerLatLng != null) {
-      center = ll.LatLng(
-        (buyerLatLng.latitude + sellerLatLng.latitude) / 2, 
-        (buyerLatLng.longitude + sellerLatLng.longitude) / 2
-      );
-    } else if (buyerLatLng != null) {
-      center = buyerLatLng;
     } else {
-      center = sellerLatLng!;
+      final sellers = ref.watch(activeStreetSellersProvider).valueOrNull ?? const [];
+      final match = sellers.where((s) => s.sellerId == order.streetSellerId).firstOrNull;
+      if (match != null && (match.latitude != 0 || match.longitude != 0)) {
+        sellerLatLng = ll.LatLng(match.latitude, match.longitude);
+      } else {
+        sellerLatLng = const ll.LatLng(-6.1645, 39.2040);
+      }
     }
 
-    final points = <ll.LatLng>[];
-    if (buyerLatLng != null) points.add(buyerLatLng);
-    if (sellerLatLng != null) points.add(sellerLatLng);
-    
+    final markers = <Marker>[
+      Marker(
+        point: buyerLatLng,
+        width: 44,
+        height: 44,
+        child: Container(
+          decoration: BoxDecoration(
+            color: const Color(0xFF075985),
+            shape: BoxShape.circle,
+            border: Border.all(color: Colors.white, width: 2),
+            boxShadow: const [BoxShadow(color: Colors.black26, blurRadius: 4)],
+          ),
+          child: const Icon(Icons.person, color: Colors.white, size: 22),
+        ),
+      ),
+      Marker(
+        point: sellerLatLng,
+        width: 44,
+        height: 44,
+        child: Container(
+          decoration: BoxDecoration(
+            color: cs.primary,
+            shape: BoxShape.circle,
+            border: Border.all(color: Colors.white, width: 2),
+            boxShadow: const [BoxShadow(color: Colors.black26, blurRadius: 4)],
+          ),
+          child: const Icon(Icons.directions_bike, color: Colors.white, size: 22),
+        ),
+      ),
+    ];
+
+    final routeAsync = ref.watch(trackingRouteProvider(widget.orderId));
+    final routeResult = routeAsync.valueOrNull;
+    final isOsrm = routeResult != null &&
+        routeResult.points.length > 1 &&
+        routeResult.source == RouteSource.osrm;
+    final polylinePoints = isOsrm
+        ? routeResult.points
+        : <ll.LatLng>[sellerLatLng, buyerLatLng];
+    final isFallback = !isOsrm;
+
+    final polylines = <Polyline>[
+      Polyline(
+        points: polylinePoints,
+        strokeWidth: 5,
+        color: const Color(0xFF0284C7),
+        pattern: isFallback
+            ? const StrokePattern.dotted()
+            : const StrokePattern.solid(),
+        borderColor: Colors.white,
+        borderStrokeWidth: 2,
+      ),
+    ];
+
+    final center = ll.LatLng(
+      (buyerLatLng.latitude + sellerLatLng.latitude) / 2, 
+      (buyerLatLng.longitude + sellerLatLng.longitude) / 2
+    );
+
     return FlutterMap(
       options: MapOptions(
         initialCenter: center,
@@ -234,8 +226,7 @@ class _BuyerTrackOrderScreenState extends ConsumerState<BuyerTrackOrderScreen> {
           userAgentPackageName: 'com.samakifresh.connect',
           maxZoom: 19,
         ),
-        if (polylines.isNotEmpty)
-          PolylineLayer(polylines: polylines),
+        PolylineLayer(polylines: polylines),
         MarkerLayer(markers: markers),
       ],
     );
@@ -308,22 +299,22 @@ class _BuyerTrackOrderScreenState extends ConsumerState<BuyerTrackOrderScreen> {
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
               decoration: BoxDecoration(
-                color: Colors.amber.shade100,
+                color: const Color(0xFFBAE6FD),
                 borderRadius: BorderRadius.circular(20),
               ),
-              child: Row(
+              child: const Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   Icon(
                     Icons.info_outline,
                     size: 14,
-                    color: Colors.amber.shade800,
+                    color: Color(0xFF0369A1),
                   ),
                   const SizedBox(width: 6),
-                  Text(
+                  const Text(
                     'Estimate — live routing unavailable',
                     style: TextStyle(
-                      color: Colors.amber.shade900,
+                      color: Color(0xFF075985),
                       fontSize: 12,
                     ),
                   ),

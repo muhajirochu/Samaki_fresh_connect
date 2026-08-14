@@ -227,7 +227,7 @@ class _ResultsBody extends StatelessWidget {
         icon: Icons.error_outline_rounded,
         title: l10n.searchFailed,
         subtitle: '$e',
-        color: AppColors.errorRed,
+        color: AppColors.primaryTealDark,
       ),
       data: (results) {
         if (results.isEmpty) {
@@ -337,7 +337,7 @@ class _SearchResultCard extends StatelessWidget {
                       vertical: 2,
                     ),
                     decoration: BoxDecoration(
-                      color: AppColors.successGreen.withValues(alpha: 0.12),
+                      color: AppColors.primaryTeal.withValues(alpha: 0.12),
                       borderRadius: BorderRadius.circular(AppSizes.radiusXS),
                     ),
                     child: Row(
@@ -347,7 +347,7 @@ class _SearchResultCard extends StatelessWidget {
                           width: 6,
                           height: 6,
                           decoration: const BoxDecoration(
-                            color: AppColors.successGreen,
+                            color: AppColors.primaryTeal,
                             shape: BoxShape.circle,
                           ),
                         ),
@@ -355,7 +355,7 @@ class _SearchResultCard extends StatelessWidget {
                         Text(
                           'Live',
                           style: theme.textTheme.labelSmall?.copyWith(
-                            color: AppColors.successGreen,
+                            color: AppColors.primaryTeal,
                             fontWeight: FontWeight.w700,
                           ),
                         ),
@@ -476,7 +476,7 @@ class _SellerRow extends StatelessWidget {
                           width: 8,
                           height: 8,
                           decoration: const BoxDecoration(
-                            color: AppColors.successGreen,
+                            color: AppColors.primaryTeal,
                             shape: BoxShape.circle,
                           ),
                         ),

@@ -11,33 +11,23 @@ class AppReleaseConfig {
   static const String appName = 'SamakiFresh Connect';
   static const String appTagline = 'Fair Price. Fresh Fish. Quick Delivery.';
   static const String version = '1.0.0';
-  static const String buildNumber = '1';
+  static const String buildNumber = '9';
   static const String fullVersion = 'v$version+$buildNumber';
   static const String releaseDate = 'August 2026';
-  static const String apkSize = '67 MB';
+  static const String apkSize = '25 MB';
   static const String minAndroidVersion = 'Android 7.0 (API 24)+';
   static const String minIosVersion = 'iOS 13.0+';
   static const String status = 'Official Public Release';
 
   /// Permanent public download page URL.
-  ///
-  /// The in-app QR code and the PDF QR code both encode *this* URL,
-  /// not the direct APK URL. Decoupling them means a new APK release
-  /// does not require regenerating the QR — only the `downloadUrl`
-  /// (or `iosDownloadUrl`) below changes. Update this single string
-  /// to point at the deployed landing page (Firebase Hosting,
-  /// GitHub Pages, custom domain, …).
   static const String publicDownloadPageUrl = 'https://samakifresh.surge.sh';
 
-  /// Direct-download HTTPS link for the Release Android APK.
+  /// Direct-download HTTPS link for the Release Android APK (arm64-v8a optimized).
   ///
-  /// Scanners and browsers receive HTTP 200 OK directly with the `.apk`
-  /// file binary stream and immediately start downloading the APK
-  /// directly onto the phone without opening GitHub or any intermediate
-  /// web page. Mirrored by the Android install button on the Download
-  /// page and the Android card in the PDF.
+  /// Points directly to the fast CDN arm64 APK (25MB instead of 67MB fat bundle)
+  /// so downloads complete in seconds over mobile networks.
   static const String downloadUrl =
-      'https://github.com/muhajirochu/Samaki_fresh_connect/releases/download/v1.0.0/app-release.apk';
+      'https://samakifresh.surge.sh/app-arm64-v8a-release.apk';
 
   /// iOS distribution URL — TestFlight invite link or App Store URL.
   ///

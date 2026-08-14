@@ -56,7 +56,7 @@ class BuyerNotificationsScreen extends ConsumerWidget {
                       onPressed: () => Navigator.pop(ctx, true),
                       child: Text(
                         l10n.delete,
-                        style: const TextStyle(color: Colors.red),
+                        style: TextStyle(color: cs.primary),
                       ),
                     ),
                   ],
@@ -257,16 +257,16 @@ class _TypeAvatar extends StatelessWidget {
   Color _colorFor(NotificationType t) {
     switch (t) {
       case NotificationType.requestAccepted:
-        return AppColors.successGreen;
+        return AppColors.primaryTeal;
       case NotificationType.requestRejected:
-        return AppColors.errorRed;
+        return AppColors.primaryTealDark;
       case NotificationType.requestOffered:
         return AppColors.infoBlue;
       case NotificationType.fishAvailableNow:
       case NotificationType.newSellerHasFish:
-        return AppColors.accentOrange;
+        return AppColors.primaryCyan;
       case NotificationType.orderStatusChanged:
-        return AppColors.secondaryTeal;
+        return AppColors.primaryTealLight;
       case NotificationType.generic:
         return AppColors.gray500;
     }

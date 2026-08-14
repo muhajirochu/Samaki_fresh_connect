@@ -73,11 +73,10 @@ class ListingManagementController extends StateNotifier<AsyncValue<void>> {
   /// Validates that the listing belongs to the currently signed-in
   /// seller before any write. Returns the listing, or null if the
   /// caller is not allowed to touch it.
-  FishListingModel? _assertOwnership(String listingId, String currentUserId) {
-    final listings = _ref.read(sellerListingsProvider(currentUserId)).valueOrNull;
-    if (listings == null) return null;
-    for (final l in listings) {
-      if (l.listingId == listingId) return l;
+  Future<FishListingModel?> _assertOwnership(String listingId, String currentUserId) async {
+    final listing = await _service.getListingById(listingId);
+    if (listing != null && listing.sellerId == currentUserId) {
+      return listing;
     }
     return null;
   }
@@ -95,7 +94,7 @@ class ListingManagementController extends StateNotifier<AsyncValue<void>> {
     if (session == null) {
       return const ListingActionResult.failure('Not signed in');
     }
-    final owned = _assertOwnership(listingId, session.userId);
+    final owned = await _assertOwnership(listingId, session.userId);
     if (owned == null) {
       return const ListingActionResult.failure(
         'Listing not found or not owned by you',
@@ -126,7 +125,7 @@ class ListingManagementController extends StateNotifier<AsyncValue<void>> {
     if (session == null) {
       return const ListingActionResult.failure('Not signed in');
     }
-    if (_assertOwnership(listingId, session.userId) == null) {
+    if (await _assertOwnership(listingId, session.userId) == null) {
       return const ListingActionResult.failure('Not your listing');
     }
     state = const AsyncValue.loading();
@@ -152,7 +151,7 @@ class ListingManagementController extends StateNotifier<AsyncValue<void>> {
     if (session == null) {
       return const ListingActionResult.failure('Not signed in');
     }
-    if (_assertOwnership(listingId, session.userId) == null) {
+    if (await _assertOwnership(listingId, session.userId) == null) {
       return const ListingActionResult.failure(
         'Listing not found or not owned by you',
       );

@@ -24,6 +24,7 @@ import '../../models/order_model.dart';
 import '../../models/fish_item_model.dart';
 import '../../providers/auth_provider.dart';
 import '../../providers/notification_provider.dart';
+import '../payment/test_payment_sheet.dart';
 
 import '../../services/order_tracking_service.dart';
 import '../../services/location_service.dart';
@@ -104,14 +105,13 @@ class _SendRequestSheetState extends ConsumerState<SendRequestSheet> {
     try {
       final l10n = AppLocalizations.of(context);
       final messenger = ScaffoldMessenger.of(context);
-      final cs = Theme.of(context).colorScheme;
 
       final seller = widget.selectedSeller;
       final buyer = ref.read(currentUserStreamProvider).valueOrNull;
       if (seller == null || seller.matchingItems.isEmpty || buyer == null) {
         messenger.showSnackBar(const SnackBar(
           content: Text('Imeshindwa kutuma agizo. Tafadhali jaribu tena.'),
-          backgroundColor: AppColors.errorRed,
+          backgroundColor: AppColors.primaryTealDark,
         ));
         return;
       }
@@ -125,23 +125,43 @@ class _SendRequestSheetState extends ConsumerState<SendRequestSheet> {
         return;
       }
 
+      final totalPrice = item.totalPrice * 1.07;
+
+      // 1. FIRST REQUIRE PAYMENT / PAYMENT CONFIRMATION STEP
+      final paymentResult = await TestPaymentSheet.show(
+        context: context,
+        orderId: 'TEMP-${DateTime.now().millisecondsSinceEpoch}',
+        amount: totalPrice,
+        fishName: item.displayName,
+        onPaymentSuccess: () {},
+      );
+
+      // If user canceled or payment failed, DO NOT CREATE ORDER / DO NOT SEND REQUEST
+      if (paymentResult == null || !paymentResult.isSuccess) {
+        if (mounted) {
+          messenger.showSnackBar(const SnackBar(
+            content: Text('Ombi halikutumwa kwa sababu malipo hajayathibitishwa.'),
+            backgroundColor: AppColors.errorRed,
+            behavior: SnackBarBehavior.floating,
+          ));
+        }
+        return;
+      }
+
       final orderService = ref.read(orderTrackingServiceProvider);
-      // Fetch buyer's location
       final buyerLoc = await ref.read(currentBuyerLocationProvider.future);
       
-      // Stamp denormalized fields for Popular Near You demand
-      // aggregation. `FishItemModel` is the buyer-facing feed
-      // projection of the listing, so it carries the same
-      // `fishType` + lat/lng surface as the source.
       final order = OrderModel(
-        orderId: '', // service stamps this
+        orderId: '',
         buyerId: buyer.userId,
         streetSellerId: item.sellerId,
         fishId: item.listingId,
-        // 7% service fee — matches fish_listing_detail_screen.dart:368.
-        totalPrice: item.totalPrice * 1.07,
+        totalPrice: totalPrice,
         quantity: item.quantityKg.toInt(),
         status: OrderStatus.pending,
+        isPaid: paymentResult.isPaid,
+        paymentMethod: paymentResult.paymentMethod,
+        paymentReference: paymentResult.paymentReference,
         buyerLocation: GeoPoint(buyerLoc.latitude, buyerLoc.longitude),
         streetSellerLocation: (item.latitude != null && item.longitude != null) 
             ? GeoPoint(item.latitude!, item.longitude!) 
@@ -182,13 +202,8 @@ class _SendRequestSheetState extends ConsumerState<SendRequestSheet> {
             'Agizo limepokelewa! ${item.displayName} · '
             '${item.quantityKg.toStringAsFixed(1)} kg',
           ),
-          backgroundColor: AppColors.successGreen,
+          backgroundColor: AppColors.primaryTeal,
           behavior: SnackBarBehavior.floating,
-          action: SnackBarAction(
-            label: 'Ona',
-            textColor: cs.onPrimary,
-            onPressed: () {},
-          ),
         ));
       }
     } catch (e) {

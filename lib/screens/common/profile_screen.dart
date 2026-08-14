@@ -407,7 +407,7 @@ class _LocationProfileTile extends HookWidget {
       title: 'Location',
       subtitle: addressSnapshot.connectionState == ConnectionState.waiting
           ? 'Loading...'
-          : (addressSnapshot.data ?? '$lat, $lng'),
+          : (addressSnapshot.data ?? 'Zanzibar'),
       showDivider: false,
     );
   }

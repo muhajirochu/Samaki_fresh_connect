@@ -46,6 +46,7 @@ import '../../widgets/dashboard/popular_fish_section.dart';
 import '../../widgets/dashboard/recently_bought_section.dart';
 import '../../widgets/dashboard/summary_header.dart';
 import '../../widgets/notifications/wishlist_match_banner.dart';
+import '../../widgets/map/seller_profile_sheet.dart';
 
 class BuyerDashboardScreen extends ConsumerWidget {
   const BuyerDashboardScreen({super.key});
@@ -257,8 +258,10 @@ class _DashboardBody extends ConsumerWidget {
           // ── 4b. Sellers near you (track-seller entry point) ─────────
           SliverToBoxAdapter(
             child: _SellersNearYouSection(
-              onTapSeller: (sellerId) =>
-                  context.push('/buyer/map?sellerId=$sellerId'),
+              onTapSeller: (seller) => SellerProfileSheet.show(
+                context,
+                seller: seller,
+              ),
             ),
           ),
 
@@ -512,7 +515,7 @@ class _RequestsCtaCard extends StatelessWidget {
 /// widget falls back to an empty-state tile when the live sellers
 /// stream is empty so the dashboard layout doesn't jump.
 class _SellersNearYouSection extends ConsumerWidget {
-  final void Function(String sellerId) onTapSeller;
+  final void Function(StreetSellerModel seller) onTapSeller;
   const _SellersNearYouSection({required this.onTapSeller});
 
   @override
@@ -539,7 +542,7 @@ class _SellersNearYouSection extends ConsumerWidget {
           ),
           child: Row(
             children: [
-              const Icon(Icons.error_outline, color: Colors.redAccent),
+              const Icon(Icons.error_outline, color: Color(0xFF0369A1)),
               const SizedBox(width: AppSizes.paddingSM),
               Expanded(
                 child: Text(
@@ -632,7 +635,7 @@ class _SellersNearYouSection extends ConsumerWidget {
                       const SizedBox(width: AppSizes.paddingMD),
                   itemBuilder: (context, i) => _SellerNearbyCard(
                     seller: sellers[i],
-                    onTap: () => onTapSeller(sellers[i].sellerId),
+                    onTap: () => onTapSeller(sellers[i]),
                   ),
                 ),
               ),

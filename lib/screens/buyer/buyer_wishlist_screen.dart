@@ -122,11 +122,11 @@ class _WishlistTile extends StatelessWidget {
           width: 40,
           height: 40,
           decoration: BoxDecoration(
-            color: AppColors.accentOrange.withValues(alpha: 0.12),
+            color: AppColors.primaryTeal.withValues(alpha: 0.12),
             borderRadius: BorderRadius.circular(AppSizes.radiusMD),
           ),
           child: const Icon(Icons.favorite_rounded,
-              color: AppColors.accentOrange),
+              color: AppColors.primaryTeal),
         ),
         title: Text(
           entry.fishType.displayName,
@@ -144,7 +144,7 @@ class _WishlistTile extends StatelessWidget {
         ),
         trailing: IconButton(
           icon: const Icon(Icons.delete_outline_rounded,
-              color: AppColors.errorRed),
+              color: AppColors.primaryTealDark),
           onPressed: onRemove,
         ),
       ),

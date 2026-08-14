@@ -22,6 +22,9 @@ class OrderModel with _$OrderModel {
     @OptionalTimestampConverter() DateTime? estimatedArrival,
     @GeoPointConverter() GeoPoint? buyerLocation,
     @GeoPointConverter() GeoPoint? streetSellerLocation,
+    @Default(false) bool isPaid,
+    @Default('') String paymentReference,
+    @Default('') String paymentMethod,
     @TimestampConverter() required DateTime createdAt,
     @TimestampConverter() required DateTime updatedAt,
   }) = _OrderModel;

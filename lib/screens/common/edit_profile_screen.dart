@@ -22,12 +22,11 @@ class EditProfileScreen extends HookConsumerWidget {
     final phoneController = useTextEditingController(text: user?.phoneNumber);
 
     final initialLocation = useMemoized(() {
-      final loc = user?.location;
-      if (loc != null && loc['latitude'] != null && loc['longitude'] != null) {
-        return '${loc['latitude']}, ${loc['longitude']}';
+      if (user?.fishMarketName != null && user!.fishMarketName!.isNotEmpty) {
+        return user.fishMarketName!;
       }
-      return '';
-    }, [user?.location]);
+      return 'Zanzibar';
+    }, [user?.fishMarketName]);
 
     final locationController = useTextEditingController(text: initialLocation);
     final isLoading = useState(false);
@@ -41,25 +40,17 @@ class EditProfileScreen extends HookConsumerWidget {
 
       isLoading.value = true;
       try {
-        Map<String, dynamic>? parsedLocation;
         final locText = locationController.text.trim();
+        Map<String, dynamic> updateData = {
+          'fullName': nameController.text.trim(),
+          'phoneNumber': phoneController.text.trim(),
+        };
         if (locText.isNotEmpty) {
-          final parts = locText.split(',');
-          if (parts.length == 2) {
-            final lat = double.tryParse(parts[0].trim());
-            final lon = double.tryParse(parts[1].trim());
-            if (lat != null && lon != null) {
-              parsedLocation = {'latitude': lat, 'longitude': lon};
-            }
-          }
+          updateData['fishMarketName'] = locText;
         }
 
         final userService = ref.read(userServiceProvider);
-        await userService.updateUserProfile(user.userId, {
-          'fullName': nameController.text.trim(),
-          'phoneNumber': phoneController.text.trim(),
-          'location': parsedLocation,
-        });
+        await userService.updateUserProfile(user.userId, updateData);
 
         if (context.mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
@@ -165,7 +156,7 @@ class EditProfileScreen extends HookConsumerWidget {
               const SizedBox(height: AppSizes.paddingLG),
 
               CustomTextField(
-                label: 'Location (Lat, Lng)',
+                label: 'Location / Market Name',
                 controller: locationController,
                 prefixIcon: Icons.location_on_outlined,
               ),

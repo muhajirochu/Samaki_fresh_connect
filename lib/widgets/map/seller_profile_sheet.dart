@@ -19,6 +19,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../../config/theme_extensions.dart';
@@ -28,7 +29,10 @@ import '../../services/listing_location_service.dart';
 import '../../l10n/app_localizations.dart';
 import '../../models/fish_item_model.dart';
 import '../../models/street_seller_model.dart';
+import '../../models/map_filter_model.dart';
+import '../../providers/buyer_provider.dart';
 import '../common/premium_components.dart';
+import '../requests/send_request_sheet.dart';
 
 // Semantic palette used by the avatar tint + trust tiles. These
 // colours are NOT theme tokens — they're identifier hues that stay
@@ -47,7 +51,7 @@ const _avatarPalette = <Color>[
 /// Modal sheet showing a seller's full profile. Open via the static
 /// [SellerProfileSheet.show] helper from anywhere that has a
 /// `BuildContext` and a `StreetSellerModel`.
-class SellerProfileSheet extends StatelessWidget {
+class SellerProfileSheet extends ConsumerWidget {
   final StreetSellerModel seller;
   final List<FishItemModel> fishItems;
   final double? buyerLatitude;
@@ -64,7 +68,7 @@ class SellerProfileSheet extends StatelessWidget {
   });
 
   /// Show the seller profile as a modal bottom sheet. Designed to be
-  /// called from `BuyerMapScreen.onSellerTap`.
+  /// called from `BuyerMapScreen.onSellerTap` or `BuyerDashboardScreen`.
   static Future<void> show(
     BuildContext context, {
     required StreetSellerModel seller,
@@ -89,11 +93,32 @@ class SellerProfileSheet extends StatelessWidget {
   }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final tokens = BackgroundStyle.of(context);
-    final distanceKm = (buyerLatitude != null && buyerLongitude != null)
-        ? seller.distanceKmFrom(buyerLatitude!, buyerLongitude!)
+    final session = ref.watch(currentBuyerSessionProvider);
+    final lat = buyerLatitude ?? (session?.user?.location?['latitude'] as double?);
+    final lng = buyerLongitude ?? (session?.user?.location?['longitude'] as double?);
+
+    final distanceKm = (lat != null && lng != null)
+        ? seller.distanceKmFrom(lat, lng)
         : null;
+
+    final allFish = ref.watch(buyerFishFeedProvider).valueOrNull ?? const [];
+    final sellerFish = fishItems.isNotEmpty
+        ? fishItems
+        : allFish.where((item) => item.sellerId == seller.sellerId).toList();
+
+    final effectiveOnSendRequest = onSendRequest ??
+        () {
+          final sellerWithFish = SellerWithFish(
+            seller: seller,
+            matchingItems: sellerFish,
+          );
+          SendRequestSheet.show(
+            context: context,
+            seller: sellerWithFish,
+          );
+        };
 
     return DraggableScrollableSheet(
       initialChildSize: 0.95,
@@ -133,11 +158,11 @@ class SellerProfileSheet extends StatelessWidget {
                       distanceKm: distanceKm,
                     ),
                     const SizedBox(height: AppSizes.paddingLG),
-                    if (fishItems.isNotEmpty) ...[
-                      SellerFishGallery(fishItems: fishItems),
+                    if (sellerFish.isNotEmpty) ...[
+                      SellerFishGallery(fishItems: sellerFish),
                       const SizedBox(height: AppSizes.paddingLG),
                     ],
-                    _ActionRow(onSendRequest: onSendRequest),
+                    _ActionRow(onSendRequest: effectiveOnSendRequest),
                   ],
                 ),
               ),
@@ -832,10 +857,6 @@ class SellerFishGallery extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (fishItems.isEmpty) return const SizedBox.shrink();
-    
-    // We want to extract all image URLs from the fish items.
-    final itemsWithImages = fishItems.where((item) => item.imageUrls.isNotEmpty).toList();
-    if (itemsWithImages.isEmpty) return const SizedBox.shrink();
 
     final cs = Theme.of(context).colorScheme;
     final textTheme = Theme.of(context).textTheme;
@@ -855,13 +876,14 @@ class SellerFishGallery extends StatelessWidget {
           height: 140,
           child: ListView.separated(
             scrollDirection: Axis.horizontal,
-            itemCount: itemsWithImages.length,
+            itemCount: fishItems.length,
             separatorBuilder: (_, __) => const SizedBox(width: AppSizes.paddingSM),
             itemBuilder: (context, index) {
-              final item = itemsWithImages[index];
+              final item = fishItems[index];
               return Container(
                 width: 140,
                 decoration: BoxDecoration(
+                  color: cs.surfaceContainerHighest,
                   borderRadius: BorderRadius.circular(AppSizes.radiusLG),
                   border: Border.all(
                     color: cs.outline.withValues(alpha: 0.15),
@@ -872,24 +894,30 @@ class SellerFishGallery extends StatelessWidget {
                   child: Stack(
                     fit: StackFit.expand,
                     children: [
-                      CachedNetworkImage(
-                        imageUrl: item.imageUrls.first,
-                        fit: BoxFit.cover,
-                        placeholder: (context, url) => Container(
-                          color: cs.surfaceContainerHighest,
-                          child: const Center(
-                            child: CircularProgressIndicator(strokeWidth: 2),
+                      if (item.imageUrls.isNotEmpty)
+                        CachedNetworkImage(
+                          imageUrl: item.imageUrls.first,
+                          fit: BoxFit.cover,
+                          placeholder: (context, url) => Container(
+                            color: cs.surfaceContainerHighest,
+                            child: const Center(
+                              child: CircularProgressIndicator(strokeWidth: 2),
+                            ),
                           ),
+                          errorWidget: (context, url, error) => Container(
+                            color: cs.surfaceContainerHighest,
+                            child: const Icon(Icons.set_meal_rounded, color: Colors.grey),
+                          ),
+                        )
+                      else
+                        Container(
+                          color: cs.primary.withValues(alpha: 0.1),
+                          child: Icon(Icons.set_meal_rounded, size: 44, color: cs.primary),
                         ),
-                        errorWidget: (context, url, error) => Container(
-                          color: cs.surfaceContainerHighest,
-                          child: const Icon(Icons.broken_image_rounded, color: Colors.grey),
-                        ),
-                      ),
                       // Gradient overlay for text readability
                       Positioned(
                         bottom: 0, left: 0, right: 0,
-                        height: 60,
+                        height: 64,
                         child: DecoratedBox(
                           decoration: BoxDecoration(
                             gradient: LinearGradient(
@@ -897,7 +925,7 @@ class SellerFishGallery extends StatelessWidget {
                               end: Alignment.bottomCenter,
                               colors: [
                                 Colors.transparent,
-                                Colors.black.withValues(alpha: 0.7),
+                                Colors.black.withValues(alpha: 0.75),
                               ],
                             ),
                           ),
@@ -920,11 +948,11 @@ class SellerFishGallery extends StatelessWidget {
                               overflow: TextOverflow.ellipsis,
                             ),
                             Text(
-                              '${item.quantityKg.toStringAsFixed(1)} kg',
+                              '${item.quantityKg.toStringAsFixed(1)} kg · TSh ${item.pricePerKg.toStringAsFixed(0)}/kg',
                               style: TextStyle(
-                                color: Colors.white.withValues(alpha: 0.8),
+                                color: Colors.white.withValues(alpha: 0.9),
                                 fontWeight: FontWeight.w600,
-                                fontSize: 11,
+                                fontSize: 10,
                               ),
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis,

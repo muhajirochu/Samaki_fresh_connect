@@ -100,7 +100,7 @@ void main() {
 
       expect(
         _destinationLabels(tester),
-        ['Home', 'Search', 'Orders', 'Track Order', 'Profile'],
+        ['Home', 'Search', 'Orders', 'Track order', 'Profile'],
       );
     });
 

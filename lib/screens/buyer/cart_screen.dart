@@ -33,6 +33,7 @@ import '../../services/order_tracking_service.dart';
 import '../../utils/formatters.dart';
 import '../../widgets/common/common_widgets.dart';
 import '../../widgets/common/top_app_bar.dart';
+import '../../widgets/payment/test_payment_sheet.dart';
 
 class CartScreen extends HookConsumerWidget {
   const CartScreen({super.key});
@@ -140,6 +141,26 @@ class CartScreen extends HookConsumerWidget {
 
     isCheckingOut.value = true;
     try {
+      final totalAmount = ref.read(cartTotalProvider);
+      final paymentResult = await TestPaymentSheet.show(
+        context: context,
+        orderId: 'CART-${DateTime.now().millisecondsSinceEpoch}',
+        amount: totalAmount > 0 ? totalAmount : 15000.0,
+        fishName: 'Oda za Kikapu (${items.length})',
+        onPaymentSuccess: () {},
+      );
+
+      if (paymentResult == null || !paymentResult.isSuccess) {
+        if (context.mounted) {
+          messenger.showSnackBar(SnackBar(
+            content: const Text('Maagizo hayakutumwa kwa sababu malipo hayajathibitishwa.'),
+            backgroundColor: cs.error,
+            behavior: SnackBarBehavior.floating,
+          ));
+        }
+        return;
+      }
+
       final listingService = ref.read(fishListingServiceProvider);
       final orderService = ref.read(orderTrackingServiceProvider);
       final notifSvc = ref.read(notificationServiceProvider);
@@ -152,19 +173,12 @@ class CartScreen extends HookConsumerWidget {
         final listing = await listingService.getListingById(item.listingId);
         if (listing == null || listing.status != 'active') continue;
 
-        // Clamp to what the seller actually still has. Ordering more
-        // than the listing holds would create an order the seller
-        // cannot fulfil.
         final qty = item.quantityKg > listing.quantityKg
             ? listing.quantityKg
             : item.quantityKg;
         if (qty <= 0) continue;
 
-        // Price off the LIVE listing, and the same 7% platform margin
-        // the single-listing buy flow applies in
-        // `fish_listing_detail_screen.dart`.
         final originalPrice = listing.pricePerKg * qty;
-        // Pull lat/lng off the listing for the demand-aggregation
         final order = OrderModel(
           orderId: '',
           buyerId: buyer.userId,
@@ -173,6 +187,9 @@ class CartScreen extends HookConsumerWidget {
           totalPrice: originalPrice * 1.07,
           quantity: qty.toInt(),
           status: OrderStatus.pending,
+          isPaid: paymentResult.isPaid,
+          paymentMethod: paymentResult.paymentMethod,
+          paymentReference: paymentResult.paymentReference,
           createdAt: DateTime.now(),
           updatedAt: DateTime.now(),
         );

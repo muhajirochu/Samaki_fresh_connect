@@ -62,37 +62,21 @@ class LoginScreen extends HookConsumerWidget {
 
 // ── Hero header — full-bleed ocean gradient with centered logo, two fish
 // silhouettes, and "Welcome Back" copy. ───────────────────────────────────────
-class _HeroHeader extends StatelessWidget {
+class _HeroHeader extends ConsumerWidget {
   final LinearGradient gradient;
   const _HeroHeader({required this.gradient});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final statusBarH = MediaQuery.of(context).padding.top;
     final cs = Theme.of(context).colorScheme;
     final tt = Theme.of(context).textTheme;
 
-    // The hero is given a taller, more substantial presence so it
-    // "interacts" with the login form below — the form's first
-    // field sits closer to the hero's curve, and the bottom
-    // border-radius now appears to wrap the form's top edge.
-    //
-    // We can't use negative padding/margin (Flutter asserts
-    // non-negative insets), so the interaction effect is achieved
-    // purely by increasing the hero's inner bottom padding and
-    // adding a SizedBox spacer above the form to nudge it up.
     return SizedBox(
-      // Adds 64px of extra bottom layout space *inside* the hero
-      // zone, which makes the form start 64px lower than the
-      // hero's painted bottom edge. Visually the hero bleeds over
-      // the form area because its decoration is taller than the
-      // space the column reserves for it.
       child: Container(
         width: double.infinity,
         decoration: BoxDecoration(
           gradient: gradient,
-          // Wave-like bottom edge so the form feels like it's emerging
-          // from water. `borderRadius` alone is too rigid.
           borderRadius: const BorderRadius.only(
             bottomLeft: Radius.circular(36),
             bottomRight: Radius.circular(36),
@@ -106,122 +90,113 @@ class _HeroHeader extends StatelessWidget {
           ],
         ),
         child: Stack(
-        children: [
-          // Soft radial glow blob behind the logo for depth.
-          Positioned(
-            top: 24,
-            left: 0,
-            right: 0,
-            child: Center(
-              child: Container(
-                width: 180,
-                height: 180,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  gradient: RadialGradient(
-                    colors: [
-                      cs.onPrimary.withValues(alpha: 0.18),
-                      cs.onPrimary.withValues(alpha: 0.0),
-                    ],
+          children: [
+            // Soft radial glow blob behind the logo for depth.
+            Positioned(
+              top: 24,
+              left: 0,
+              right: 0,
+              child: Center(
+                child: Container(
+                  width: 180,
+                  height: 180,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    gradient: RadialGradient(
+                      colors: [
+                        cs.onPrimary.withValues(alpha: 0.18),
+                        cs.onPrimary.withValues(alpha: 0.0),
+                      ],
+                    ),
                   ),
                 ),
               ),
             ),
-          ),
-          Padding(
-            // padding so the brand content (logo + SamakiFresh Connect + Welcome Back)
-            // sits comfortably.
-            padding: EdgeInsets.only(top: statusBarH + 40, bottom: 40),
-            // Wrap the column in a width-stretching Align so its
-            // children actually center horizontally inside the
-            // hero's full width. Without this, the column collapses
-            // to its widest child and "Welcome Back" / logo hug the
-            // start edge on some screens.
-            child: Align(
-              alignment: Alignment.topCenter,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  // Circular logo plate — matches the design's white
-                  // ring around the fish icon.
-                  Container(
-                    width: 96,
-                    height: 96,
-                    padding: const EdgeInsets.all(6),
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      color: cs.onPrimary,
-                      boxShadow: [
-                        BoxShadow(
-                          color: cs.shadow.withValues(alpha: 0.25),
-                          blurRadius: 18,
-                          offset: const Offset(0, 6),
-                        ),
-                      ],
-                    ),
-                    child: ClipOval(
-                      child: Container(
-                        color: Colors.white,
-                        alignment: Alignment.center,
-                        child: const AppLogo(
-                          size: 84,
-                        ),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 14),
-                  // Brand name — "SamakiFresh " bold + "Connect" lighter
-                  Text.rich(
-                    textAlign: TextAlign.center,
-                    TextSpan(
-                      style: tt.headlineSmall?.copyWith(
+
+            Padding(
+              padding: EdgeInsets.only(top: statusBarH + 24, bottom: 40),
+              child: Align(
+                alignment: Alignment.topCenter,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Container(
+                      width: 96,
+                      height: 96,
+                      padding: const EdgeInsets.all(6),
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
                         color: cs.onPrimary,
-                        letterSpacing: -0.4,
+                        boxShadow: [
+                          BoxShadow(
+                            color: cs.shadow.withValues(alpha: 0.25),
+                            blurRadius: 18,
+                            offset: const Offset(0, 6),
+                          ),
+                        ],
                       ),
-                      children: [
-                        const TextSpan(
-                          text: 'SamakiFresh ',
-                          style: TextStyle(fontWeight: FontWeight.w800),
-                        ),
-                        TextSpan(
-                          text: 'Connect',
-                          style: TextStyle(
-                            color: cs.onPrimary.withValues(alpha: 0.85),
-                            fontWeight: FontWeight.w500,
+                      child: ClipOval(
+                        child: Container(
+                          color: Colors.white,
+                          alignment: Alignment.center,
+                          child: const AppLogo(
+                            size: 84,
                           ),
                         ),
-                      ],
-                    ),
-                  ),
-                  const SizedBox(height: 14),
-                  Text(
-                    'Welcome Back',
-                    textAlign: TextAlign.center,
-                    style: tt.headlineSmall?.copyWith(
-                      color: cs.onPrimary,
-                      fontWeight: FontWeight.w700,
-                      letterSpacing: -0.3,
-                    ),
-                  ),
-                  const SizedBox(height: 6),
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 32),
-                    child: Text(
-                      'Sign in to continue to your dashboard.',
-                      textAlign: TextAlign.center,
-                      style: tt.bodyMedium?.copyWith(
-                        color: cs.onPrimary.withValues(alpha: 0.85),
-                        height: 1.35,
                       ),
                     ),
-                  ),
-                ],
+                    const SizedBox(height: 14),
+                    Text.rich(
+                      textAlign: TextAlign.center,
+                      TextSpan(
+                        style: tt.headlineSmall?.copyWith(
+                          color: cs.onPrimary,
+                          letterSpacing: -0.4,
+                        ),
+                        children: [
+                          const TextSpan(
+                            text: 'SamakiFresh ',
+                            style: TextStyle(fontWeight: FontWeight.w800),
+                          ),
+                          TextSpan(
+                            text: 'Connect',
+                            style: TextStyle(
+                              color: cs.onPrimary.withValues(alpha: 0.85),
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(height: 14),
+                    Text(
+                      'Welcome Back',
+                      textAlign: TextAlign.center,
+                      style: tt.headlineSmall?.copyWith(
+                        color: cs.onPrimary,
+                        fontWeight: FontWeight.w700,
+                        letterSpacing: -0.3,
+                      ),
+                    ),
+                    const SizedBox(height: 6),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 32),
+                      child: Text(
+                        'Sign in to continue to your dashboard.',
+                        textAlign: TextAlign.center,
+                        style: tt.bodyMedium?.copyWith(
+                          color: cs.onPrimary.withValues(alpha: 0.85),
+                          height: 1.35,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
               ),
             ),
-          ),
-        ],
-      ),
+          ],
+        ),
       ),
     );
   }
@@ -580,18 +555,6 @@ class _SignInTab extends HookConsumerWidget {
 
                         // Footer
                         _SignupFooter(),
-                        const SizedBox(height: 12),
-
-                        // App Download & QR Code shortcut
-                        TextButton.icon(
-                          onPressed: () => context.pushNamed(AppRouteNames.appDownload),
-                          icon: const Icon(Icons.qr_code_scanner_rounded, size: 18),
-                          label: const Text('Get Android APK & QR Code'),
-                          style: TextButton.styleFrom(
-                            foregroundColor: Theme.of(context).colorScheme.primary,
-                            textStyle: const TextStyle(fontWeight: FontWeight.w700, fontSize: 13),
-                          ),
-                        ),
 
                         // Social sign-in block — Google + Apple + Facebook.
                         // UI only (no auth wiring yet, per the request).
@@ -604,6 +567,8 @@ class _SignInTab extends HookConsumerWidget {
     );
   }
 }
+
+
 
 // ── Sign up footer ────────────────────────────────────────────────────────────
 class _SignupFooter extends StatelessWidget {

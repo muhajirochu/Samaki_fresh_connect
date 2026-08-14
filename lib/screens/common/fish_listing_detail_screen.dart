@@ -24,6 +24,7 @@ import '../../services/order_tracking_service.dart';
 import '../../utils/formatters.dart';
 import '../../widgets/common/common_widgets.dart';
 import '../../widgets/common/premium_components.dart';
+import '../../widgets/payment/test_payment_sheet.dart';
 
 class FishListingDetailScreen extends HookConsumerWidget {
   final String listingId;
@@ -362,6 +363,28 @@ class _BuyButton extends HookConsumerWidget {
       final messenger = ScaffoldMessenger.of(context);
 
       try {
+        final totalPrice = listing.totalPrice * 1.07;
+        final paymentResult = await TestPaymentSheet.show(
+          context: context,
+          orderId: 'TEMP-${DateTime.now().millisecondsSinceEpoch}',
+          amount: totalPrice,
+          fishName: listing.fishType,
+          onPaymentSuccess: () {},
+        );
+
+        if (paymentResult == null || !paymentResult.isSuccess) {
+          if (context.mounted) {
+            messenger.showSnackBar(
+              SnackBar(
+                content: const Text('Ombi halikutumwa kwa sababu malipo hayajathibitishwa.'),
+                backgroundColor: cs.error,
+                behavior: SnackBarBehavior.floating,
+              ),
+            );
+          }
+          return;
+        }
+
         final orderService = ref.read(orderTrackingServiceProvider);
 
         // Buyer creates a pending order.
@@ -370,9 +393,12 @@ class _BuyButton extends HookConsumerWidget {
           buyerId: currentUser!.userId,
           streetSellerId: listing.sellerId,
           fishId: listing.listingId,
-          totalPrice: listing.totalPrice * 1.07,
+          totalPrice: totalPrice,
           quantity: listing.quantityKg.toInt(),
           status: OrderStatus.pending,
+          isPaid: paymentResult.isPaid,
+          paymentMethod: paymentResult.paymentMethod,
+          paymentReference: paymentResult.paymentReference,
           createdAt: DateTime.now(),
           updatedAt: DateTime.now(),
         );

@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="sw">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SamakiFresh Connect — Pakua APK</title>
+  <meta name="description" content="Pakua SamakiFresh Connect APK moja kwa moja kwenye simu yako. Fair Price. Fresh Fish. Quick Delivery.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --primary: #0284C7;
+      --primary-dark: #001E45;
+      --primary-light: #0EA5E9;
+      --secondary: #0D9488;
+      --bg: #070F2B;
+      --surface: #0F172A;
+      --surface-light: #1E293B;
+      --text: #F8FAFC;
+      --text-muted: #94A3B8;
+      --accent: #38BDF8;
+      --accent-glow: rgba(56, 189, 248, 0.4);
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Plus Jakarta Sans', sans-serif; }
+
+    body {
+      background-color: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 24px 16px;
+      background-image:
+        radial-gradient(circle at 20% 15%, rgba(2, 132, 199, 0.25) 0%, transparent 45%),
+        radial-gradient(circle at 80% 85%, rgba(14, 165, 233, 0.20) 0%, transparent 45%);
+    }
+
+    .lang-switcher {
+      display: flex; align-items: center; gap: 0;
+      background: var(--surface-light);
+      border: 1px solid rgba(56, 189, 248, 0.25);
+      border-radius: 100px; padding: 4px; margin-bottom: 20px;
+      position: relative; box-shadow: 0 4px 16px rgba(0,0,0,0.3);
+    }
+    .lang-btn {
+      position: relative; z-index: 1; padding: 8px 20px;
+      border: none; background: transparent; color: var(--text-muted);
+      font-family: 'Plus Jakarta Sans', sans-serif; font-size: 13px;
+      font-weight: 700; border-radius: 100px; cursor: pointer;
+      transition: color 0.25s ease; display: flex; align-items: center;
+      gap: 6px; letter-spacing: 0.3px; white-space: nowrap;
+    }
+    .lang-btn.active { color: #FFFFFF; }
+    .lang-slider {
+      position: absolute; top: 4px; left: 4px;
+      height: calc(100% - 8px);
+      background: linear-gradient(135deg, var(--primary), var(--primary-light));
+      border-radius: 100px; box-shadow: 0 4px 12px rgba(2, 132, 199, 0.5);
+      transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      pointer-events: none;
+    }
+
+    .container { max-width: 480px; width: 100%; display: flex; flex-direction: column; align-items: center; }
+
+    .card {
+      background-color: var(--surface); border-radius: 32px; padding: 36px 28px;
+      border: 1px solid rgba(56, 189, 248, 0.2);
+      box-shadow: 0 24px 48px rgba(0, 30, 69, 0.6), 0 0 30px rgba(2, 132, 199, 0.15);
+      text-align: center; position: relative; overflow: hidden;
+      backdrop-filter: blur(10px); width: 100%;
+    }
+    .card::before {
+      content: ''; position: absolute; top: 0; left: 0; right: 0; height: 6px;
+      background: linear-gradient(90deg, var(--accent), var(--primary), var(--primary-light));
+    }
+
+    .logo-container {
+      width: 96px; height: 96px; margin: 0 auto 20px auto;
+      border-radius: 24px; overflow: hidden;
+      box-shadow: 0 14px 28px rgba(2, 132, 199, 0.45);
+      border: 2px solid rgba(56, 189, 248, 0.3); transition: transform 0.3s ease;
+    }
+    .logo-container:hover { transform: scale(1.05); }
+    .logo-container img { width: 100%; height: 100%; object-fit: cover; }
+
+    h1 {
+      font-size: 28px; font-weight: 800; letter-spacing: -0.5px; margin-bottom: 6px;
+      background: linear-gradient(135deg, #FFFFFF 0%, #BAE6FD 100%);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    }
+
+    .subtitle { font-size: 14px; color: var(--text-muted); margin-bottom: 24px; font-weight: 500; }
+
+    .badge-row { display: flex; justify-content: center; gap: 10px; margin-bottom: 26px; flex-wrap: wrap; }
+    .badge {
+      background-color: rgba(2, 132, 199, 0.15); padding: 7px 16px;
+      border-radius: 100px; font-size: 12px; font-weight: 700;
+      color: var(--accent); border: 1px solid rgba(56, 189, 248, 0.3);
+      display: inline-flex; align-items: center; gap: 6px;
+    }
+    .badge-green { background-color: rgba(13, 148, 136, 0.15); border-color: rgba(34, 197, 94, 0.4); color: #22C55E; }
+
+    .btn-download {
+      display: flex; align-items: center; justify-content: center; gap: 12px;
+      width: 100%; padding: 18px 24px;
+      background: linear-gradient(135deg, var(--primary), var(--primary-light));
+      color: #FFFFFF; text-decoration: none; font-weight: 800; font-size: 17px;
+      border-radius: 20px; box-shadow: 0 12px 24px var(--accent-glow);
+      transition: all 0.25s ease; border: 1px solid rgba(255, 255, 255, 0.2); cursor: pointer;
+      margin-bottom: 10px;
+    }
+    .btn-download:hover { transform: translateY(-3px); box-shadow: 0 16px 32px rgba(56, 189, 248, 0.5); }
+
+    .btn-secondary {
+      display: flex; align-items: center; justify-content: center; gap: 10px;
+      width: 100%; padding: 12px 20px;
+      background: transparent; color: var(--text-muted); text-decoration: none;
+      font-weight: 600; font-size: 13px; border-radius: 16px;
+      border: 1px solid rgba(56, 189, 248, 0.18); transition: all 0.2s ease;
+      cursor: pointer; margin-bottom: 6px;
+    }
+    .btn-secondary:hover { border-color: rgba(56, 189, 248, 0.5); color: var(--accent); background: rgba(56, 189, 248, 0.06); }
+
+    .size-label {
+      font-size: 12px; color: #22C55E; margin-bottom: 18px;
+      display: flex; align-items: center; justify-content: center; gap: 6px;
+    }
+    .size-dot { width: 7px; height: 7px; border-radius: 50%; background: #22C55E; display: inline-block; animation: pulse 1.5s infinite; }
+    @keyframes pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:0.6;transform:scale(1.3)} }
+
+    .steps { margin-top: 24px; text-align: left; border-top: 1px solid rgba(56, 189, 248, 0.15); padding-top: 22px; }
+    .steps-title { font-size: 13px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.8px; color: var(--accent); margin-bottom: 16px; }
+    .step-item { display: flex; align-items: flex-start; gap: 14px; margin-bottom: 14px; }
+    .step-num {
+      background: linear-gradient(135deg, var(--primary), var(--primary-light));
+      color: #FFFFFF; width: 26px; height: 26px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 12px; font-weight: 800; flex-shrink: 0;
+      box-shadow: 0 4px 8px rgba(2, 132, 199, 0.3);
+    }
+    .step-text { font-size: 13px; line-height: 1.5; color: #E2E8F0; }
+
+    .footer { margin-top: 28px; text-align: center; font-size: 12px; color: var(--text-muted); font-weight: 500; }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <div class="lang-switcher" id="langSwitcher" role="group" aria-label="Select language">
+      <div class="lang-slider" id="langSlider"></div>
+      <button class="lang-btn active" id="btnSw" onclick="setLang('sw')" aria-pressed="true">🇹🇿 Kiswahili</button>
+      <button class="lang-btn" id="btnEn" onclick="setLang('en')" aria-pressed="false">🇬🇧 English</button>
+    </div>
+
+    <div class="card">
+      <div class="logo-container">
+        <img src="app_logo.png" alt="SamakiFresh Logo">
+      </div>
+
+      <h1>SamakiFresh Connect</h1>
+      <p class="subtitle" id="subtitle">Bei Nzuri. Samaki Safi. Utoaji wa Haraka.</p>
+
+      <div class="badge-row">
+        <span class="badge">v1.0.0+9 (Official)</span>
+        <span class="badge badge-green" id="sizeBadge">⚡ 27 MB</span>
+      </div>
+
+      <!-- Main download button -->
+      <a id="downloadBtn" href="app-arm64-release.apk" class="btn-download">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+          <polyline points="7 10 12 15 17 10"/>
+          <line x1="12" y1="15" x2="12" y2="3"/>
+        </svg>
+        <span id="btnText">Pakua APK Sasa</span>
+      </a>
+
+      <div class="size-label">
+        <span class="size-dot"></span>
+        <span id="sizeInfo">Simu za kisasa (ARM64) · 27 MB</span>
+      </div>
+
+      <!-- Older phone fallback -->
+      <a id="fallbackBtn" href="app-armeabi-release.apk" class="btn-secondary">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
+        </svg>
+        <span id="fallbackText">Simu ya zamani? Pakua hapa (ARM · 25 MB)</span>
+      </a>
+
+      <!-- Universal APK -->
+      <a href="app-release.apk" class="btn-secondary">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+          <polyline points="7 10 12 15 17 10"/>
+          <line x1="12" y1="15" x2="12" y2="3"/>
+        </svg>
+        <span id="universalText">Tatizo? Jaribu APK Universal (69 MB)</span>
+      </a>
+
+      <div class="steps">
+        <div class="steps-title" id="stepsTitle">Hatua za Kusakinisha:</div>
+        <div class="step-item">
+          <div class="step-num">1</div>
+          <div class="step-text" id="step1">Gusa <strong>Pakua APK Sasa</strong> kuanza kupakua.</div>
+        </div>
+        <div class="step-item">
+          <div class="step-num">2</div>
+          <div class="step-text" id="step2">Fungua faili la APK kutoka notifications au downloads.</div>
+        </div>
+        <div class="step-item">
+          <div class="step-num">3</div>
+          <div class="step-text" id="step3">Kama simu ikiuliza, Ruhusu <em>"Install from unknown sources"</em>.</div>
+        </div>
+        <div class="step-item">
+          <div class="step-num">4</div>
+          <div class="step-text" id="step4">Bonyeza <strong>Install</strong> kisha fungua na uanze kutumia!</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="footer" id="footer">&copy; 2026 SamakiFresh Connect &middot; Ukurasa Rasmi wa Kutoa</div>
+  </div>
+
+  <script>
+    function detectArch() {
+      const ua = navigator.userAgent || '';
+      if (/arm64|aarch64|armv8/i.test(ua)) return 'arm64';
+      if (/armv7|armeabi/i.test(ua)) return 'armeabi';
+      return 'arm64'; // default: modern phones
+    }
+
+    const translations = {
+      sw: {
+        subtitle:     'Bei Nzuri. Samaki Safi. Utoaji wa Haraka.',
+        btnText:      'Pakua APK Sasa',
+        stepsTitle:   'Hatua za Kusakinisha:',
+        step1:        'Gusa <strong>Pakua APK Sasa</strong> kuanza kupakua.',
+        step2:        'Fungua faili la APK kutoka notifications au downloads.',
+        step3:        'Kama simu ikiuliza, Ruhusu <em>"Install from unknown sources"</em>.',
+        step4:        'Bonyeza <strong>Install</strong> kisha fungua na uanze kutumia!',
+        fallbackText: 'Simu ya zamani? Pakua hapa (ARM &middot; 25 MB)',
+        universalText:'Tatizo? Jaribu APK Universal (69 MB)',
+        footer:       '&copy; 2026 SamakiFresh Connect &middot; Ukurasa Rasmi wa Kutoa',
+        sizeArm64:    'Simu za kisasa (ARM64) &middot; 27 MB',
+        sizeArm:      'Simu za zamani (ARM 32-bit) &middot; 25 MB',
+      },
+      en: {
+        subtitle:     'Fair Price. Fresh Fish. Quick Delivery.',
+        btnText:      'Download APK Now',
+        stepsTitle:   'Installation Steps:',
+        step1:        'Tap <strong>Download APK Now</strong> to begin.',
+        step2:        'Open the downloaded APK file from notifications or downloads.',
+        step3:        'If prompted, allow <em>"Install from unknown sources"</em>.',
+        step4:        'Press <strong>Install</strong>, then open the app!',
+        fallbackText: 'Older phone? Download here (ARM &middot; 25 MB)',
+        universalText:'Issues? Try Universal APK (69 MB)',
+        footer:       '&copy; 2026 SamakiFresh Connect &middot; Official Release Page',
+        sizeArm64:    'Modern phones (ARM64) &middot; 27 MB',
+        sizeArm:      'Older phones (ARM 32-bit) &middot; 25 MB',
+      }
+    };
+
+    let currentLang = 'sw';
+    const arch = detectArch();
+
+    function positionSlider(lang) {
+      const slider = document.getElementById('langSlider');
+      const btnSw  = document.getElementById('btnSw');
+      const btnEn  = document.getElementById('btnEn');
+      slider.style.width     = (lang === 'sw' ? btnSw : btnEn).offsetWidth + 'px';
+      slider.style.transform = lang === 'sw' ? 'translateX(0)' : `translateX(${btnSw.offsetWidth}px)`;
+    }
+
+    function setLang(lang) {
+      currentLang = lang;
+      const t = translations[lang];
+      const ids = ['subtitle','btnText','stepsTitle','step1','step2','step3','step4','fallbackText','universalText','footer'];
+      ids.forEach(id => { const el = document.getElementById(id); if (el) el.style.opacity = '0'; });
+
+      setTimeout(() => {
+        ids.forEach(id => {
+          const el = document.getElementById(id);
+          if (el) { el.innerHTML = t[id]; el.style.opacity = '1'; }
+        });
+        const sizeInfo = document.getElementById('sizeInfo');
+        if (sizeInfo) sizeInfo.innerHTML = arch === 'armeabi' ? t.sizeArm : t.sizeArm64;
+      }, 180);
+
+      document.getElementById('btnSw').classList.toggle('active', lang === 'sw');
+      document.getElementById('btnEn').classList.toggle('active', lang === 'en');
+      document.getElementById('btnSw').setAttribute('aria-pressed', lang === 'sw');
+      document.getElementById('btnEn').setAttribute('aria-pressed', lang === 'en');
+      positionSlider(lang);
+      document.documentElement.lang = lang;
+      localStorage.setItem('samaki_lang', lang);
+    }
+
+    window.addEventListener('load', function () {
+      // Set correct APK link based on device
+      const btn = document.getElementById('downloadBtn');
+      const sizeBadge = document.getElementById('sizeBadge');
+      if (arch === 'armeabi') {
+        btn.href = 'app-armeabi-release.apk';
+        sizeBadge.textContent = '⚡ 25 MB';
+      } else {
+        btn.href = 'app-arm64-release.apk';
+        sizeBadge.textContent = '⚡ 27 MB';
+      }
+
+      const saved = localStorage.getItem('samaki_lang') || 'sw';
+      positionSlider(saved);
+      setLang(saved);
+    });
+  </script>
+
+</body>
+</html>

@@ -193,7 +193,7 @@ class _AdminDashboardAppBar extends ConsumerWidget
   const _AdminDashboardAppBar();
 
   @override
-  Size get preferredSize => const Size.fromHeight(164);
+  Size get preferredSize => const Size.fromHeight(176);
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {

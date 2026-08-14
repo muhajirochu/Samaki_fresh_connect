@@ -17,10 +17,12 @@
 // white inner disc stay constant across themes; only the drop-shadow
 // opacity tracks the current theme for visual cohesion.
 
+import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:latlong2/latlong.dart' hide Path;
+import 'package:cached_network_image/cached_network_image.dart';
 
 import '../../models/map_filter_model.dart';
 import '../../services/location_service.dart';
@@ -162,19 +164,8 @@ class _SellerMapState extends ConsumerState<SellerMap> {
               height: 40,
               child: const _BuyerMarker(),
             ),
-            // Seller markers.
-            for (final s in widget.sellers)
-              Marker(
-                point: s.position,
-                width: 52,
-                height: 60,
-                alignment: Alignment.topCenter,
-                child: _SellerMarker(
-                  seller: s,
-                  isSelected: s == widget.selectedSeller,
-                  onTap: () => widget.onSellerTap(s),
-                ),
-              ),
+            // Seller markers (spiderified so overlapping coordinates don't stack).
+            ..._buildSellerMarkers(),
           ],
         ),
 
@@ -186,6 +177,56 @@ class _SellerMapState extends ConsumerState<SellerMap> {
         ),
       ],
     );
+  }
+
+  /// Spreads sellers with identical coordinates into a small circle
+  /// so overlapping pins don't cover each other.
+  List<Marker> _buildSellerMarkers() {
+    final groups = <String, List<SellerWithFish>>{};
+    for (final s in widget.sellers) {
+      final key =
+          '${s.seller.latitude.toStringAsFixed(4)},${s.seller.longitude.toStringAsFixed(4)}';
+      groups.putIfAbsent(key, () => []).add(s);
+    }
+
+    final markers = <Marker>[];
+
+    for (final group in groups.values) {
+      final count = group.length;
+      for (var i = 0; i < count; i++) {
+        final s = group[i];
+        LatLng pos;
+        if (count == 1) {
+          pos = s.position;
+        } else {
+          // Spread multiple sellers at the exact same location in a small circle (~35m radius)
+          const radius = 0.00035;
+          final angle = (2 * math.pi * i) / count;
+          final latOffset = radius * math.cos(angle);
+          final lngOffset = radius * math.sin(angle);
+          pos = LatLng(
+            s.seller.latitude + latOffset,
+            s.seller.longitude + lngOffset,
+          );
+        }
+
+        markers.add(
+          Marker(
+            point: pos,
+            width: 52,
+            height: 60,
+            alignment: Alignment.topCenter,
+            child: _SellerMarker(
+              seller: s,
+              isSelected: s == widget.selectedSeller,
+              onTap: () => widget.onSellerTap(s),
+            ),
+          ),
+        );
+      }
+    }
+
+    return markers;
   }
 }
 
@@ -239,9 +280,11 @@ class _SellerMarker extends StatelessWidget {
     final isOnline = _isRecentlyOnline(seller);
     final baseColor = isOnline ? _liveColor : _offlineColor;
     final ringColor = isSelected ? _selectedColor : baseColor;
-    final dotSize = isSelected ? 38.0 : 32.0;
+    final dotSize = isSelected ? 42.0 : 36.0;
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final cs = Theme.of(context).colorScheme;
+    final photoUrl = seller.seller.profilePictureUrl;
+
     return GestureDetector(
       behavior: HitTestBehavior.opaque,
       onTap: onTap,
@@ -261,7 +304,7 @@ class _SellerMarker extends StatelessWidget {
                     shape: BoxShape.circle,
                   ),
                 ),
-              // White-bordered base.
+              // White-bordered base with profile avatar / icon
               Container(
                 width: dotSize + 6,
                 height: dotSize + 6,
@@ -270,9 +313,6 @@ class _SellerMarker extends StatelessWidget {
                   shape: BoxShape.circle,
                   boxShadow: [
                     BoxShadow(
-                      // Theme-aware marker shadow — slightly stronger
-                      // in dark mode so the pin still reads as raised
-                      // against the OSM tiles.
                       color: cs.shadow.withValues(alpha: isDark ? 0.70 : 0.35),
                       blurRadius: 6,
                       offset: const Offset(0, 2),
@@ -280,18 +320,28 @@ class _SellerMarker extends StatelessWidget {
                   ],
                   border: Border.all(color: ringColor, width: 2),
                 ),
-                padding: const EdgeInsets.all(3),
+                padding: const EdgeInsets.all(2),
                 child: Container(
                   decoration: BoxDecoration(
                     color: baseColor,
                     shape: BoxShape.circle,
                   ),
-                  child: Icon(
-                    isOnline
-                        ? Icons.store_rounded
-                        : Icons.store_mall_directory_outlined,
-                    color: Colors.white,
-                    size: 18,
+                  child: ClipOval(
+                    child: (photoUrl != null && photoUrl.isNotEmpty)
+                        ? CachedNetworkImage(
+                            imageUrl: photoUrl,
+                            fit: BoxFit.cover,
+                            errorWidget: (_, __, ___) => const Icon(
+                              Icons.person_rounded,
+                              color: Colors.white,
+                              size: 20,
+                            ),
+                          )
+                        : const Icon(
+                            Icons.person_rounded,
+                            color: Colors.white,
+                            size: 20,
+                          ),
                   ),
                 ),
               ),

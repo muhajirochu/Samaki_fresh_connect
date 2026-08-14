@@ -53,7 +53,9 @@ class _SellerShellScreenState extends ConsumerState<SellerShellScreen> {
     final l10n = AppLocalizations.of(context);
     final cs = Theme.of(context).colorScheme;
 
-    final sellerId = ref.watch(currentUserStreamProvider).valueOrNull?.userId;
+    final user = ref.watch(currentUserStreamProvider).valueOrNull;
+    final isApproved = user?.isApproved ?? false;
+    final sellerId = user?.userId;
     final pending = sellerId == null
         ? 0
         : ref.watch(sellerPendingOrdersProvider(sellerId)).valueOrNull?.length ??
@@ -66,7 +68,21 @@ class _SellerShellScreenState extends ConsumerState<SellerShellScreen> {
       ),
       bottomNavigationBar: NavigationBar(
         selectedIndex: _currentIndex,
-        onDestinationSelected: (i) => setState(() => _currentIndex = i),
+        onDestinationSelected: (i) {
+          if (!isApproved && (i == 1 || i == 2)) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                content: Text(
+                  'Akaunti yako inasubiri kudhibitishwa na Admin kabla ya kuitumia.',
+                ),
+                backgroundColor: Color(0xFF0284C7),
+                duration: Duration(seconds: 2),
+              ),
+            );
+            return;
+          }
+          setState(() => _currentIndex = i);
+        },
         backgroundColor: cs.surface,
         indicatorColor: cs.primary.withValues(alpha: 0.15),
         shadowColor: cs.shadow,

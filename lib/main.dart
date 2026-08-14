@@ -143,13 +143,7 @@ class SamakiFreshApp extends ConsumerWidget {
       ],
       supportedLocales: kSupportedLocales,
       locale: locale,
-      localeResolutionCallback: (deviceLocale, supported) {
-        if (deviceLocale == null) return locale;
-        for (final l in supported) {
-          if (l.languageCode == deviceLocale.languageCode) return l;
-        }
-        return locale;
-      },
+      localeResolutionCallback: (deviceLocale, supported) => locale,
       // AnimatedTheme lerps colour schemes across rebuilds.
       builder: (context, child) {
         // Physical phones ship with the OS font size cranked up far more

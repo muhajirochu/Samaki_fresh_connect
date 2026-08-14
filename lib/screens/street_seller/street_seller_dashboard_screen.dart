@@ -18,6 +18,7 @@ import '../../config/route_paths.dart';
 import '../../config/theme_extensions.dart';
 import '../../l10n/app_localizations.dart';
 import '../../models/order_model.dart';
+import '../../models/user_model.dart';
 import '../../providers/auth_provider.dart';
 import '../../providers/listing_provider.dart';
 import '../../providers/order_tracking_provider.dart';
@@ -77,6 +78,10 @@ class StreetSellerDashboardScreen extends ConsumerWidget {
           data: (user) {
             if (user == null) {
               return Center(child: Text(l10n.notLoggedIn));
+            }
+
+            if (!user.isApproved) {
+              return _buildPendingApprovalBody(context, ref, user);
             }
 
             return CustomScrollView(
@@ -193,19 +198,277 @@ class StreetSellerDashboardScreen extends ConsumerWidget {
           },
         ),
       ),
-      floatingActionButton: FloatingActionButton.extended(
-        // Unique Hero tag — the seller shell's IndexedStack mounts this
-        // Scaffold alongside other tabs that also use FABs, so the
-        // shared default tag would crash the route.
-        heroTag: 'streetSellerDashboardFab',
-        onPressed: () => context.pushNamed(AppRouteNames.listingsCreate),
-        backgroundColor: cs.primary,
-        foregroundColor: cs.onPrimary,
-        elevation: 4,
-        icon: const Icon(Icons.add_rounded),
-        label: Text(l10n.sellStock,
-            style: const TextStyle(fontWeight: FontWeight.w600)),
-      ),
+      floatingActionButton: (userAsync.valueOrNull?.isApproved ?? false)
+          ? FloatingActionButton.extended(
+              heroTag: 'streetSellerDashboardFab',
+              onPressed: () => context.pushNamed(AppRouteNames.listingsCreate),
+              backgroundColor: cs.primary,
+              foregroundColor: cs.onPrimary,
+              elevation: 4,
+              icon: const Icon(Icons.add_rounded),
+              label: Text(l10n.sellStock,
+                  style: const TextStyle(fontWeight: FontWeight.w600)),
+            )
+          : null,
+    );
+  }
+
+  Widget _buildPendingApprovalBody(
+    BuildContext context,
+    WidgetRef ref,
+    UserModel user,
+  ) {
+    final cs = Theme.of(context).colorScheme;
+    final tt = Theme.of(context).textTheme;
+
+    return CustomScrollView(
+      slivers: [
+        SliverToBoxAdapter(
+          child: _SellerGreetingHeader(
+            greeting: 'Habari, ${user.fullName}!',
+            subtitle: 'Akaunti Yako Inasubiri Uhakiki',
+          ),
+        ),
+        SliverPadding(
+          padding: const EdgeInsets.all(AppSizes.paddingLG),
+          sliver: SliverList(
+            delegate: SliverChildListDelegate([
+              // Main Pending Approval Banner Card
+              Container(
+                padding: const EdgeInsets.all(AppSizes.paddingLG),
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    colors: [
+                      const Color(0xFF0284C7).withValues(alpha: 0.12),
+                      const Color(0xFF0369A1).withValues(alpha: 0.05),
+                    ],
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                  ),
+                  borderRadius: BorderRadius.circular(AppSizes.radiusXL),
+                  border: Border.all(
+                    color: const Color(0xFF0284C7).withValues(alpha: 0.4),
+                    width: 1.5,
+                  ),
+                ),
+                child: Column(
+                  children: [
+                    Container(
+                      width: 64,
+                      height: 64,
+                      decoration: BoxDecoration(
+                        color: const Color(0xFF0284C7).withValues(alpha: 0.2),
+                        shape: BoxShape.circle,
+                      ),
+                      child: const Icon(
+                        Icons.hourglass_top_rounded,
+                        color: Color(0xFF0EA5E9),
+                        size: 36,
+                      ),
+                    ),
+                    const SizedBox(height: AppSizes.paddingMD),
+                    Text(
+                      'Akaunti Inasubiri Idhini ya Admin',
+                      style: tt.titleMedium?.copyWith(
+                        fontWeight: FontWeight.w800,
+                        color: cs.onSurface,
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                    const SizedBox(height: 8),
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 12, vertical: 4),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFF0284C7),
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: const Text(
+                        'PENDING VERIFICATION',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontWeight: FontWeight.w800,
+                          fontSize: 11,
+                          letterSpacing: 0.8,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: AppSizes.paddingMD),
+                    Text(
+                      'Usajili wako umepokelewa kikamilifu! Akaunti yako ya muuzaji ipo kwenye mchakato wa kuhakikiwa na Admin wa SamakiFresh.\n\nHutaweza kuingiza samaki wapya, kuanzisha uuzaji wa live, wala kupokea oda hadi akaunti yako ithibitishwe na Admin.',
+                      style: tt.bodyMedium?.copyWith(
+                        color: cs.onSurface.withValues(alpha: 0.75),
+                        height: 1.4,
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: AppSizes.paddingLG),
+
+              // Process Timeline
+              Container(
+                padding: const EdgeInsets.all(AppSizes.paddingLG),
+                decoration: BoxDecoration(
+                  color: cs.surface,
+                  borderRadius: BorderRadius.circular(AppSizes.radiusLG),
+                  border: Border.all(
+                    color: cs.outline.withValues(alpha: 0.2),
+                  ),
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Hatua za Usajili',
+                      style:
+                          tt.titleSmall?.copyWith(fontWeight: FontWeight.w800),
+                    ),
+                    const SizedBox(height: AppSizes.paddingMD),
+                    const _StepTile(
+                      icon: Icons.check_circle_rounded,
+                      iconColor: Color(0xFF0369A1),
+                      title: '1. Usajili Umekamilika',
+                      subtitle: 'Taarifa zako zimehifadhiwa salama',
+                      isDone: true,
+                    ),
+                    const Divider(height: 24),
+                    _StepTile(
+                      icon: Icons.hourglass_bottom_rounded,
+                      iconColor: Color(0xFF0284C7),
+                      title: '2. Uhakiki wa Admin',
+                      subtitle:
+                          'Admin anapitia taarifa zako (Kawaida chini ya masaa 24)',
+                      isDone: false,
+                      isActive: true,
+                    ),
+                    const Divider(height: 24),
+                    const _StepTile(
+                      icon: Icons.store_rounded,
+                      iconColor: Colors.grey,
+                      title: '3. Anza Kuuza Samaki',
+                      subtitle: 'Utafunguliwa milango ya kuuza samaki sokoni',
+                      isDone: false,
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: AppSizes.paddingLG),
+
+              // Refresh Status Action Button
+              SizedBox(
+                width: double.infinity,
+                height: 50,
+                child: OutlinedButton.icon(
+                  onPressed: () {
+                    ref.invalidate(currentUserStreamProvider);
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text('Inakagua hali ya akaunti yako...'),
+                        duration: Duration(seconds: 1),
+                      ),
+                    );
+                  },
+                  icon: const Icon(Icons.refresh_rounded),
+                  label: const Text('Kagua Hali ya Akaunti (Refresh)'),
+                  style: OutlinedButton.styleFrom(
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(AppSizes.radiusLG),
+                    ),
+                    side: BorderSide(color: cs.primary),
+                  ),
+                ),
+              ),
+              const SizedBox(height: AppSizes.paddingMD),
+
+              // Logout Action
+              Center(
+                child: TextButton.icon(
+                  onPressed: () async {
+                    await ref.read(authServiceProvider).signOut();
+                    if (context.mounted) {
+                      context.go('/login');
+                    }
+                  },
+                  icon: const Icon(Icons.logout_rounded, color: Color(0xFF0369A1)),
+                  label: const Text(
+                    'Ondoka (Sign Out)',
+                    style: TextStyle(
+                        color: Color(0xFF0369A1), fontWeight: FontWeight.bold),
+                  ),
+                ),
+              ),
+            ]),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _StepTile extends StatelessWidget {
+  final IconData icon;
+  final Color iconColor;
+  final String title;
+  final String subtitle;
+  final bool isDone;
+  final bool isActive;
+
+  const _StepTile({
+    required this.icon,
+    required this.iconColor,
+    required this.title,
+    required this.subtitle,
+    required this.isDone,
+    this.isActive = false,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    final tt = Theme.of(context).textTheme;
+
+    return Row(
+      children: [
+        Container(
+          width: 40,
+          height: 40,
+          decoration: BoxDecoration(
+            color: iconColor.withValues(alpha: 0.12),
+            shape: BoxShape.circle,
+          ),
+          child: Icon(icon, color: iconColor, size: 22),
+        ),
+        const SizedBox(width: AppSizes.paddingMD),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                title,
+                style: tt.bodyMedium?.copyWith(
+                  fontWeight: isActive || isDone
+                      ? FontWeight.w700
+                      : FontWeight.w500,
+                  color: isActive
+                      ? iconColor
+                      : (isDone
+                          ? cs.onSurface
+                          : cs.onSurface.withValues(alpha: 0.5)),
+                ),
+              ),
+              const SizedBox(height: 2),
+              Text(
+                subtitle,
+                style: tt.bodySmall?.copyWith(
+                  color: cs.onSurface.withValues(alpha: 0.6),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ],
     );
   }
 }

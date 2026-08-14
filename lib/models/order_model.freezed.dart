@@ -34,6 +34,9 @@ mixin _$OrderModel {
   GeoPoint? get buyerLocation => throw _privateConstructorUsedError;
   @GeoPointConverter()
   GeoPoint? get streetSellerLocation => throw _privateConstructorUsedError;
+  bool get isPaid => throw _privateConstructorUsedError;
+  String get paymentReference => throw _privateConstructorUsedError;
+  String get paymentMethod => throw _privateConstructorUsedError;
   @TimestampConverter()
   DateTime get createdAt => throw _privateConstructorUsedError;
   @TimestampConverter()
@@ -67,6 +70,9 @@ abstract class $OrderModelCopyWith<$Res> {
       @OptionalTimestampConverter() DateTime? estimatedArrival,
       @GeoPointConverter() GeoPoint? buyerLocation,
       @GeoPointConverter() GeoPoint? streetSellerLocation,
+      bool isPaid,
+      String paymentReference,
+      String paymentMethod,
       @TimestampConverter() DateTime createdAt,
       @TimestampConverter() DateTime updatedAt});
 }
@@ -97,6 +103,9 @@ class _$OrderModelCopyWithImpl<$Res, $Val extends OrderModel>
     Object? estimatedArrival = freezed,
     Object? buyerLocation = freezed,
     Object? streetSellerLocation = freezed,
+    Object? isPaid = null,
+    Object? paymentReference = null,
+    Object? paymentMethod = null,
     Object? createdAt = null,
     Object? updatedAt = null,
   }) {
@@ -145,6 +154,18 @@ class _$OrderModelCopyWithImpl<$Res, $Val extends OrderModel>
           ? _value.streetSellerLocation
           : streetSellerLocation // ignore: cast_nullable_to_non_nullable
               as GeoPoint?,
+      isPaid: null == isPaid
+          ? _value.isPaid
+          : isPaid // ignore: cast_nullable_to_non_nullable
+              as bool,
+      paymentReference: null == paymentReference
+          ? _value.paymentReference
+          : paymentReference // ignore: cast_nullable_to_non_nullable
+              as String,
+      paymentMethod: null == paymentMethod
+          ? _value.paymentMethod
+          : paymentMethod // ignore: cast_nullable_to_non_nullable
+              as String,
       createdAt: null == createdAt
           ? _value.createdAt
           : createdAt // ignore: cast_nullable_to_non_nullable
@@ -177,6 +198,9 @@ abstract class _$$OrderModelImplCopyWith<$Res>
       @OptionalTimestampConverter() DateTime? estimatedArrival,
       @GeoPointConverter() GeoPoint? buyerLocation,
       @GeoPointConverter() GeoPoint? streetSellerLocation,
+      bool isPaid,
+      String paymentReference,
+      String paymentMethod,
       @TimestampConverter() DateTime createdAt,
       @TimestampConverter() DateTime updatedAt});
 }
@@ -205,6 +229,9 @@ class __$$OrderModelImplCopyWithImpl<$Res>
     Object? estimatedArrival = freezed,
     Object? buyerLocation = freezed,
     Object? streetSellerLocation = freezed,
+    Object? isPaid = null,
+    Object? paymentReference = null,
+    Object? paymentMethod = null,
     Object? createdAt = null,
     Object? updatedAt = null,
   }) {
@@ -253,6 +280,18 @@ class __$$OrderModelImplCopyWithImpl<$Res>
           ? _value.streetSellerLocation
           : streetSellerLocation // ignore: cast_nullable_to_non_nullable
               as GeoPoint?,
+      isPaid: null == isPaid
+          ? _value.isPaid
+          : isPaid // ignore: cast_nullable_to_non_nullable
+              as bool,
+      paymentReference: null == paymentReference
+          ? _value.paymentReference
+          : paymentReference // ignore: cast_nullable_to_non_nullable
+              as String,
+      paymentMethod: null == paymentMethod
+          ? _value.paymentMethod
+          : paymentMethod // ignore: cast_nullable_to_non_nullable
+              as String,
       createdAt: null == createdAt
           ? _value.createdAt
           : createdAt // ignore: cast_nullable_to_non_nullable
@@ -280,6 +319,9 @@ class _$OrderModelImpl implements _OrderModel {
       @OptionalTimestampConverter() this.estimatedArrival,
       @GeoPointConverter() this.buyerLocation,
       @GeoPointConverter() this.streetSellerLocation,
+      this.isPaid = false,
+      this.paymentReference = '',
+      this.paymentMethod = '',
       @TimestampConverter() required this.createdAt,
       @TimestampConverter() required this.updatedAt});
 
@@ -320,6 +362,15 @@ class _$OrderModelImpl implements _OrderModel {
   @GeoPointConverter()
   final GeoPoint? streetSellerLocation;
   @override
+  @JsonKey()
+  final bool isPaid;
+  @override
+  @JsonKey()
+  final String paymentReference;
+  @override
+  @JsonKey()
+  final String paymentMethod;
+  @override
   @TimestampConverter()
   final DateTime createdAt;
   @override
@@ -328,7 +379,7 @@ class _$OrderModelImpl implements _OrderModel {
 
   @override
   String toString() {
-    return 'OrderModel(orderId: $orderId, buyerId: $buyerId, streetSellerId: $streetSellerId, fishId: $fishId, quantity: $quantity, totalPrice: $totalPrice, pickupCode: $pickupCode, status: $status, estimatedArrival: $estimatedArrival, buyerLocation: $buyerLocation, streetSellerLocation: $streetSellerLocation, createdAt: $createdAt, updatedAt: $updatedAt)';
+    return 'OrderModel(orderId: $orderId, buyerId: $buyerId, streetSellerId: $streetSellerId, fishId: $fishId, quantity: $quantity, totalPrice: $totalPrice, pickupCode: $pickupCode, status: $status, estimatedArrival: $estimatedArrival, buyerLocation: $buyerLocation, streetSellerLocation: $streetSellerLocation, isPaid: $isPaid, paymentReference: $paymentReference, paymentMethod: $paymentMethod, createdAt: $createdAt, updatedAt: $updatedAt)';
   }
 
   @override
@@ -354,6 +405,11 @@ class _$OrderModelImpl implements _OrderModel {
                 other.buyerLocation == buyerLocation) &&
             (identical(other.streetSellerLocation, streetSellerLocation) ||
                 other.streetSellerLocation == streetSellerLocation) &&
+            (identical(other.isPaid, isPaid) || other.isPaid == isPaid) &&
+            (identical(other.paymentReference, paymentReference) ||
+                other.paymentReference == paymentReference) &&
+            (identical(other.paymentMethod, paymentMethod) ||
+                other.paymentMethod == paymentMethod) &&
             (identical(other.createdAt, createdAt) ||
                 other.createdAt == createdAt) &&
             (identical(other.updatedAt, updatedAt) ||
@@ -375,6 +431,9 @@ class _$OrderModelImpl implements _OrderModel {
       estimatedArrival,
       buyerLocation,
       streetSellerLocation,
+      isPaid,
+      paymentReference,
+      paymentMethod,
       createdAt,
       updatedAt);
 
@@ -407,6 +466,9 @@ abstract class _OrderModel implements OrderModel {
           @OptionalTimestampConverter() final DateTime? estimatedArrival,
           @GeoPointConverter() final GeoPoint? buyerLocation,
           @GeoPointConverter() final GeoPoint? streetSellerLocation,
+          final bool isPaid,
+          final String paymentReference,
+          final String paymentMethod,
           @TimestampConverter() required final DateTime createdAt,
           @TimestampConverter() required final DateTime updatedAt}) =
       _$OrderModelImpl;
@@ -439,6 +501,12 @@ abstract class _OrderModel implements OrderModel {
   @override
   @GeoPointConverter()
   GeoPoint? get streetSellerLocation;
+  @override
+  bool get isPaid;
+  @override
+  String get paymentReference;
+  @override
+  String get paymentMethod;
   @override
   @TimestampConverter()
   DateTime get createdAt;

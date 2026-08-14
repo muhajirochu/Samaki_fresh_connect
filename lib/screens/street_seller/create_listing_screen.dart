@@ -241,9 +241,7 @@ class CreateListingScreen extends HookConsumerWidget {
                   content: Text(
                     label != null
                         ? 'Shop location set to $label'
-                        : 'Shop location captured '
-                            '(${loc.latitude.toStringAsFixed(4)}, '
-                            '${loc.longitude.toStringAsFixed(4)})',
+                        : 'Shop location captured',
                   ),
                   backgroundColor: Theme.of(context).colorScheme.secondary,
                 ),
@@ -277,6 +275,16 @@ class CreateListingScreen extends HookConsumerWidget {
     Future<void> submit() async {
       if (!(formKey.currentState?.validate() ?? false)) return;
       if (user == null) return;
+
+      if (!user.isApproved) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Akaunti yako inasubiri kudhibitishwa na Admin kabla ya kuweka samaki.'),
+            backgroundColor: Color(0xFF0284C7),
+          ),
+        );
+        return;
+      }
 
       isLoading.value = true;
       try {
@@ -806,9 +814,7 @@ class _ShopLocationTile extends StatelessWidget {
                     isCapturing
                         ? 'Reading GPS signal...'
                         : hasLocation
-                            ? (label ??
-                                '${location!.latitude.toStringAsFixed(4)}, '
-                                    '${location!.longitude.toStringAsFixed(4)}')
+                            ? (label ?? 'Shop location set')
                             : 'Required so buyers can find your shop on the map',
                     style: Theme.of(context).textTheme.bodySmall?.copyWith(
                           color: cs.onSurface.withValues(alpha: 0.65),

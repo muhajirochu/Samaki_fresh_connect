@@ -679,13 +679,14 @@ class _VisibleSellerRow extends StatelessWidget {
                 ),
                 const SizedBox(height: 2),
                 Text(
-                  '${seller.seller.latitude.toStringAsFixed(4)}, '
-                  '${seller.seller.longitude.toStringAsFixed(4)}'
-                  '${seller.seller.marketName != null ? ' · ${seller.seller.marketName}' : ''}',
+                  seller.seller.marketName ??
+                      seller.seller.streetName ??
+                      seller.seller.regionName ??
+                      'Zanzibar',
                   style: TextStyle(
-                    fontSize: 11,
+                    fontSize: 12,
                     color: cs.onSurface.withValues(alpha: 0.65),
-                    fontFamily: 'monospace',
+                    fontWeight: FontWeight.w500,
                   ),
                 ),
               ],

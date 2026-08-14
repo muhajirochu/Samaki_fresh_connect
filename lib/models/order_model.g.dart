@@ -22,6 +22,9 @@ _$OrderModelImpl _$$OrderModelImplFromJson(Map<String, dynamic> json) =>
       buyerLocation: const GeoPointConverter().fromJson(json['buyerLocation']),
       streetSellerLocation:
           const GeoPointConverter().fromJson(json['streetSellerLocation']),
+      isPaid: json['isPaid'] as bool? ?? false,
+      paymentReference: json['paymentReference'] as String? ?? '',
+      paymentMethod: json['paymentMethod'] as String? ?? '',
       createdAt: const TimestampConverter().fromJson(json['createdAt']),
       updatedAt: const TimestampConverter().fromJson(json['updatedAt']),
     );
@@ -41,6 +44,9 @@ Map<String, dynamic> _$$OrderModelImplToJson(_$OrderModelImpl instance) =>
       'buyerLocation': const GeoPointConverter().toJson(instance.buyerLocation),
       'streetSellerLocation':
           const GeoPointConverter().toJson(instance.streetSellerLocation),
+      'isPaid': instance.isPaid,
+      'paymentReference': instance.paymentReference,
+      'paymentMethod': instance.paymentMethod,
       'createdAt': const TimestampConverter().toJson(instance.createdAt),
       'updatedAt': const TimestampConverter().toJson(instance.updatedAt),
     };

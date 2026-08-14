@@ -137,21 +137,25 @@ class SettingsScreen extends ConsumerWidget {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               // ── App Settings ─────────────────────────────────────────────
-              const _SectionHeader(
-                title: 'App Settings',
-                subtitle: 'Manage your app preferences',
+              // ── App Settings ─────────────────────────────────────────────
+              _SectionHeader(
+                title: l10n.settings,
+                subtitle: l10n.chooseLanguageSubtitle,
                 leadingIcon: Icons.settings_applications_rounded,
               ),
               const SizedBox(height: 16),
               _SettingsCard(
                 children: [
                   _SettingsTile(
-                    title: 'Language',
+                    title: l10n.language,
                     icon: Icons.language_rounded,
                     trailing: Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        Text(activeLocale.languageCode == 'sw' ? 'Swahili' : 'English', style: tt.bodySmall),
+                        Text(
+                          activeLocale.languageCode == 'sw' ? l10n.kiswahili : l10n.english,
+                          style: tt.bodySmall,
+                        ),
                         const SizedBox(width: 8),
                         Icon(Icons.arrow_forward_ios_rounded, size: 16, color: cs.onSurface.withValues(alpha: 0.3)),
                       ],
@@ -159,7 +163,7 @@ class SettingsScreen extends ConsumerWidget {
                     onTap: () => context.pushNamed(AppRouteNames.languageSelector),
                   ),
                   _SettingsTile(
-                    title: 'Manage Favorites',
+                    title: l10n.wishlist,
                     icon: Icons.favorite_border_rounded,
                     onTap: onManageFavorites,
                   ),
@@ -168,16 +172,16 @@ class SettingsScreen extends ConsumerWidget {
               const SizedBox(height: AppSizes.paddingXL),
 
               // ── Login Security ──────────────────────────────────────────
-              const _SectionHeader(
-                title: 'Login Security', 
-                subtitle: 'Secure your account',
+              _SectionHeader(
+                title: activeLocale.languageCode == 'sw' ? 'Ulinzi wa Akaunti' : 'Login Security', 
+                subtitle: activeLocale.languageCode == 'sw' ? 'Linda akaunti yako na nenosiri' : 'Secure your account',
                 leadingIcon: Icons.security_rounded,
               ),
               const SizedBox(height: 16),
               _SettingsCard(
                 children: [
                   _SettingsTile(
-                    title: 'Change Password',
+                    title: activeLocale.languageCode == 'sw' ? 'Badili Neno la Siri' : 'Change Password',
                     icon: Icons.lock_outline_rounded,
                     onTap: onChangePassword,
                   ),
@@ -187,16 +191,16 @@ class SettingsScreen extends ConsumerWidget {
               const SizedBox(height: AppSizes.paddingXL),
 
               // ── Help ───────────────────────────────────────────────────
-              const _SectionHeader(
-                title: 'Help', 
-                subtitle: 'Get support and answers',
+              _SectionHeader(
+                title: activeLocale.languageCode == 'sw' ? 'Msaada' : 'Help', 
+                subtitle: activeLocale.languageCode == 'sw' ? 'Pata msaada na majibu ya maswali' : 'Get support and answers',
                 leadingIcon: Icons.help_outline_rounded,
               ),
               const SizedBox(height: 16),
               _SettingsCard(
                 children: [
                   _SettingsTile(
-                    title: 'Contact',
+                    title: activeLocale.languageCode == 'sw' ? 'Wasiliana Nasi' : 'Contact',
                     icon: Icons.support_agent_rounded,
                     onTap: showComingSoon,
                   ),
@@ -210,26 +214,26 @@ class SettingsScreen extends ConsumerWidget {
               const SizedBox(height: AppSizes.paddingXL),
 
               // ── About ──────────────────────────────────────────────────
-              const _SectionHeader(
-                title: 'About', 
-                subtitle: 'App info and policies',
+              _SectionHeader(
+                title: l10n.about, 
+                subtitle: l10n.appInfoAndCredits,
                 leadingIcon: Icons.info_outline_rounded,
               ),
               const SizedBox(height: 16),
               _SettingsCard(
                 children: [
                   _SettingsTile(
-                    title: 'Download App & QR Code',
+                    title: activeLocale.languageCode == 'sw' ? 'Pakua App na QR Code' : 'Download App & QR Code',
                     icon: Icons.qr_code_scanner_rounded,
                     onTap: () => context.pushNamed(AppRouteNames.appDownload),
                   ),
                   _SettingsTile(
-                    title: 'Update',
+                    title: activeLocale.languageCode == 'sw' ? 'Sasisha App (Update)' : 'Update',
                     icon: Icons.system_update_rounded,
                     onTap: () => context.pushNamed(AppRouteNames.appDownload),
                   ),
                   _SettingsTile(
-                    title: 'Privacy Terms and Condition',
+                    title: activeLocale.languageCode == 'sw' ? 'Vigezo na Masharti' : 'Privacy Terms and Condition',
                     icon: Icons.privacy_tip_outlined,
                     onTap: showComingSoon,
                   ),

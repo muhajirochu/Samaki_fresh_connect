@@ -50,7 +50,7 @@ class OrderTimeline extends StatelessWidget {
       return const Center(
         child: Text(
           'Order Cancelled',
-          style: TextStyle(color: Colors.red, fontWeight: FontWeight.bold, fontSize: 16),
+          style: TextStyle(color: Color(0xFF075985), fontWeight: FontWeight.bold, fontSize: 16),
         ),
       );
     }
