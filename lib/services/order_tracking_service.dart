@@ -117,18 +117,24 @@ class OrderTrackingService {
   Stream<List<OrderModel>> streamBuyerOrders(String buyerId) {
     return _ordersRef
         .where('buyerId', isEqualTo: buyerId)
-        .orderBy('createdAt', descending: true)
         .snapshots()
-        .map((snapshot) => snapshot.docs.map((d) => d.data()).toList());
+        .map((snapshot) {
+      final list = snapshot.docs.map((d) => d.data()).toList();
+      list.sort((a, b) => b.createdAt.compareTo(a.createdAt));
+      return list;
+    });
   }
 
   /// Stream street seller orders
   Stream<List<OrderModel>> streamSellerOrders(String sellerId) {
     return _ordersRef
         .where('streetSellerId', isEqualTo: sellerId)
-        .orderBy('createdAt', descending: true)
         .snapshots()
-        .map((snapshot) => snapshot.docs.map((d) => d.data()).toList());
+        .map((snapshot) {
+      final list = snapshot.docs.map((d) => d.data()).toList();
+      list.sort((a, b) => b.createdAt.compareTo(a.createdAt));
+      return list;
+    });
   }
 
   /// Stream pending street seller orders
@@ -146,9 +152,12 @@ class OrderTrackingService {
 
   Stream<List<OrderModel>> streamAllOrders() {
     return _ordersRef
-        .orderBy('createdAt', descending: true)
         .snapshots()
-        .map((snapshot) => snapshot.docs.map((d) => d.data()).toList());
+        .map((snapshot) {
+      final list = snapshot.docs.map((d) => d.data()).toList();
+      list.sort((a, b) => b.createdAt.compareTo(a.createdAt));
+      return list;
+    });
   }
 
   Stream<int> streamOrdersCountByStatus(String statusName) {
