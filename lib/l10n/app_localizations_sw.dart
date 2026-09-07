@@ -539,7 +539,7 @@ class AppLocalizationsSw extends AppLocalizations {
       'Futa zabuni hii? Hii haiwezi kubatilishwa.';
 
   @override
-  String get markAsSold => 'Weka alama ya kuuza';
+  String get markAsSold => 'Tia alama kuwa imeuzwa';
 
   @override
   String get soldConfirmation => 'Weka alama ya kuuza kwenye zabuni hii?';
@@ -2277,4 +2277,361 @@ class AppLocalizationsSw extends AppLocalizations {
   String forSeller(String name) {
     return 'Kwa: $name';
   }
+
+  @override
+  String get loginWelcomeBack => 'Karibu Tena';
+
+  @override
+  String get loginSignInContinue =>
+      'Ingia ili kuendelea kwenye dashibodi yako.';
+
+  @override
+  String get loginEmailAddress => 'Barua pepe';
+
+  @override
+  String get loginPasswordHint => 'Nenosiri';
+
+  @override
+  String get loginForgotPassword => 'Umesahau nenosiri?';
+
+  @override
+  String get loginOrContinueWith => 'au endelea na';
+
+  @override
+  String get loginTagline => 'Samaki Wazuri  ·  Maisha Bora';
+
+  @override
+  String get trackPaymentRefunded => '💸 Malipo Yamerudishwa Kwako';
+
+  @override
+  String get trackPaymentHeld => '🔒 Malipo Yanahifadhiwa Salama';
+
+  @override
+  String get trackPaymentReleased => '✅ Malipo Yametolewa — Muuzaji Amelipwa';
+
+  @override
+  String get trackCommentsOptional => '📝 Maoni (Hiari)';
+
+  @override
+  String get trackProofPhotoOptional => '📷 Picha ya Uthibitisho (Hiari)';
+
+  @override
+  String get trackUploadingPhoto => 'Inapakia picha...';
+
+  @override
+  String get trackReceivedFishCorrect => '✅ Nimepokea Samaki — Oda Sahihi';
+
+  @override
+  String get trackIncorrectOrderReport => '⚠️ Oda Sio Sahihi — Ripoti Tatizo';
+
+  @override
+  String get trackConfirmReceipt => 'Thibitisha Mapokezi';
+
+  @override
+  String get trackConfirmReceiptMsg =>
+      'Umepokea samaki wako na umeridhishwa na oda yako?';
+
+  @override
+  String get trackNoGoBack => 'Hapana, Rudi';
+
+  @override
+  String get trackYesIConfirm => 'Ndio, Nathibitisha';
+
+  @override
+  String get trackOrderCompletedMsg =>
+      'Asante! Oda imekamilika na malipo yametolewa kwa muuzaji.';
+
+  @override
+  String get trackErrorOccurred => 'Kuna hitilafu. Tafadhali jaribu tena.';
+
+  @override
+  String get trackProvideCommentOrPhoto =>
+      'Tafadhali andika maoni au pakia picha kuelezea tatizo.';
+
+  @override
+  String get trackReportIssueTitle => 'Ripoti Tatizo';
+
+  @override
+  String get trackSureOrderIncorrect => 'Una uhakika oda sio sahihi?';
+
+  @override
+  String get trackYesReportIssue => 'Ndio, Ripoti Tatizo';
+
+  @override
+  String get trackIssueReportedMsg =>
+      'Tatizo lako limeripotiwa. Admin atapitia na kuwasiliana nawe hivi karibuni.';
+
+  @override
+  String get trackOrderCompletedTitle => 'Oda Imekamilika! 🎉';
+
+  @override
+  String get trackThankYouUsing => 'Asante kwa kutumia SamakiFresh Connect.';
+
+  @override
+  String get trackIssueReportedTitle =>
+      '⚠️ Tatizo Limeripotiwa — Inasubiri Uhakiki wa Admin';
+
+  @override
+  String get trackFullRefundIssued => '💸 Marejesho Kamili Yametolewa';
+
+  @override
+  String get trackETA => 'Muda wa Kufika';
+
+  @override
+  String get trackContactSeller => 'Wasiliana na Muuzaji';
+
+  @override
+  String get trackReportReceivedMsg =>
+      'Ripoti yako imepokelewa. Malipo yamehifadhiwa kusubiri utatuzi wa admin.';
+
+  @override
+  String trackRefundedToAccount(String amount) {
+    return 'TZS $amount zimerudishwa kwenye akaunti yako.';
+  }
+
+  @override
+  String get buyerNoActiveOrders => 'Hakuna oda zinazoendelea za kufuatilia';
+
+  @override
+  String relativeMinutes(int count) {
+    return '$count dk';
+  }
+
+  @override
+  String relativeHours(int count) {
+    return '$count saa';
+  }
+
+  @override
+  String relativeDays(int count) {
+    return '$count siku';
+  }
+
+  @override
+  String get sellerNoActiveDeliveries =>
+      'Hakuna safari za uwasilishaji zinazoendelea';
+
+  @override
+  String get tabOverview => 'Muhtasari';
+
+  @override
+  String get tabSales => 'Mauzo';
+
+  @override
+  String get tabOrders => 'Oda';
+
+  @override
+  String get tabSellers => 'Wauzaji';
+
+  @override
+  String get tabBuyers => 'Wanunuzi';
+
+  @override
+  String get tabRevenue => 'Mapato';
+
+  @override
+  String get adminToday => 'Leo';
+
+  @override
+  String adminOrderCount(int count) {
+    return 'Oda $count';
+  }
+
+  @override
+  String get adminTotal => 'Jumla';
+
+  @override
+  String get adminNoBuyersYet => 'Hakuna wanunuzi bado';
+
+  @override
+  String get adminTabAll => 'Zote';
+
+  @override
+  String get adminTabHeld => '🔒 Zilizoshikiliwa';
+
+  @override
+  String get adminTabReleased => '✅ Zilizotolewa';
+
+  @override
+  String get adminTabPending => '⏳ Zinasubiri';
+
+  @override
+  String get adminTabDisputed => '⚠️ Migogoro';
+
+  @override
+  String get adminNoHeldPayments => 'Hakuna malipo yaliyoshikiliwa';
+
+  @override
+  String get adminNoReleasedPayouts => 'Hakuna malipo yaliyotolewa bado';
+
+  @override
+  String get adminNoPendingPayments => 'Hakuna malipo yanayosubiri';
+
+  @override
+  String get adminNoActiveDisputes => 'Hakuna migogoro inayoendelea';
+
+  @override
+  String get adminNoTransactions => 'Hakuna miamala iliyopatikana';
+
+  @override
+  String get adminStatusPending => 'INASUBIRI';
+
+  @override
+  String get adminStatusConfirmed => 'IMETHIBITISHWA';
+
+  @override
+  String get adminStatusPreparing => 'INATAYARISHWA';
+
+  @override
+  String get adminStatusReady => 'TAYARI';
+
+  @override
+  String get adminStatusOnTheWay => 'NJIANI';
+
+  @override
+  String get adminStatusCompleted => 'IMEKAMILIKA';
+
+  @override
+  String get adminStatusCancelled => 'IMEGHAIRIWA';
+
+  @override
+  String get adminStatusDisputed => 'MIGOGORO';
+
+  @override
+  String get adminRefundedBadge => '💸 IMERUDISHWA';
+
+  @override
+  String get adminPaidBadge => '💳 IMELIPWA';
+
+  @override
+  String get adminCashBadge => '💵 TASLIMU';
+
+  @override
+  String adminPayoutBadge(String status) {
+    return 'MALIPO: $status';
+  }
+
+  @override
+  String get adminBuyerConfirmedBadge => '✅ MNUNUZI AMETHIBITISHA';
+
+  @override
+  String get adminDisputeReportedBadge => '⚠️ MGOGORO UMERIPOTIWA';
+
+  @override
+  String get adminAwaitingConfirmationBadge => '⏳ INASUBIRI UTHIBITISHO';
+
+  @override
+  String get adminBuyerDisputeReview => 'Mapitio ya Mgogoro wa Mnunuzi';
+
+  @override
+  String adminComplaint(String comment) {
+    return 'Lalamiko: \"$comment\"';
+  }
+
+  @override
+  String get adminRefundBuyerBtn => '💸 Mjeshee Mnunuzi';
+
+  @override
+  String get adminApprovePayoutBtn => '✅ Idhinisha Malipo';
+
+  @override
+  String get adminOrderTotal => 'Jumla ya Oda:';
+
+  @override
+  String get adminPlatformCommission => 'Kamisheni ya Jukwaa (5%):';
+
+  @override
+  String get adminSellerEarnings => 'Mapato ya Muuzaji (95%):';
+
+  @override
+  String get adminApproveRefundTitle => 'Idhinisha Kurejesha Pesa?';
+
+  @override
+  String adminApproveRefundMsg(String amount, String orderId) {
+    return 'Una uhakika unataka kumrejeshea mnunuzi TZS $amount kwa Oda #$orderId?\n\nHii itaghairi oda na kurejesha fedha.';
+  }
+
+  @override
+  String get adminCancelBtn => 'Ghairi';
+
+  @override
+  String get adminConfirmRefundBtn => 'Thibitisha Kurejesha Pesa';
+
+  @override
+  String adminRefundApprovedMsg(String amount, String orderId) {
+    return 'Urejesho wa TZS $amount umeidhinishwa kwa Oda #$orderId.';
+  }
+
+  @override
+  String get adminApprovePayoutTitle => 'Idhinisha Malipo ya Muuzaji?';
+
+  @override
+  String adminApprovePayoutMsg(String amount) {
+    return 'Una uhakika unataka kutatua mgogoro huu kwa kumpendelea muuzaji na kutoa TZS $amount?';
+  }
+
+  @override
+  String get adminApprovePayoutConfirmBtn => 'Idhinisha Malipo';
+
+  @override
+  String adminPayoutReleasedMsg(String orderId) {
+    return 'Malipo yametolewa kwa muuzaji kwa Oda #$orderId.';
+  }
+
+  @override
+  String get adminEditCategory => 'Hariri kategoria';
+
+  @override
+  String adminCategorySlugHint(String name) {
+    return 'mfano: $name';
+  }
+
+  @override
+  String adminDeleteCategoryConfirm(String name) {
+    return 'Futa moja kwa moja \"$name\"?';
+  }
+
+  @override
+  String get settingsFeatureComingSoon =>
+      'Kipengele hiki kinakuja hivi karibuni...';
+
+  @override
+  String get settingsBuyersOnly =>
+      'Kipengele hiki ni kwa ajili ya wanunuzi pekee.';
+
+  @override
+  String get settingsChangePassword => 'Badili Nenosiri';
+
+  @override
+  String settingsResetPasswordPrompt(String email) {
+    return 'Tuma barua pepe ya kubadili nenosiri kwenda:\\n$email?';
+  }
+
+  @override
+  String get settingsEmailSent => 'Barua pepe imetumwa kikamilifu.';
+
+  @override
+  String get settingsError => 'Kuna hitilafu. Tafadhali jaribu tena.';
+
+  @override
+  String get settingsSend => 'Tuma';
+
+  @override
+  String get settingsFaceIdEnabled => 'Face ID imewashwa kwa mafanikio.';
+
+  @override
+  String get actionEditListingDesc => 'Sasisha bei, kiasi au maelezo';
+
+  @override
+  String get alreadySold => 'Imeuzwa tayari';
+
+  @override
+  String get actionDeactivateListingDesc => 'Ficha kutoka sokoni';
+
+  @override
+  String get actionDeleteListingDesc => 'Ondoa bidhaa hii kabisa';
+
+  @override
+  String get orderNotSentPaymentFailed =>
+      'Ombi halikutumwa kwa sababu malipo hayajathibitishwa.';
 }

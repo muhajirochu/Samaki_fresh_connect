@@ -34,7 +34,7 @@ String? resolveAuthRedirect({
   required String location,
 }) {
   // 1. Splash & App Download are exempt.
-  if (location == AppRoutes.splash || location == AppRoutes.appDownload) {
+  if (location == AppRoutes.splash) {
     return null;
   }
 

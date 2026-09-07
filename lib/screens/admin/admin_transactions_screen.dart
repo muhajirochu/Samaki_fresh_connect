@@ -49,12 +49,12 @@ class _AdminTransactionsScreenState extends ConsumerState<AdminTransactionsScree
           labelColor: cs.primary,
           unselectedLabelColor: cs.onSurface.withValues(alpha: 0.5),
           labelStyle: const TextStyle(fontWeight: FontWeight.w700, fontSize: 12),
-          tabs: const [
-            Tab(text: 'All'),
-            Tab(text: '🔒 Held'),
-            Tab(text: '✅ Released'),
-            Tab(text: '⏳ Pending'),
-            Tab(text: '⚠️ Disputed'),
+          tabs: [
+            Tab(text: l10n.adminTabAll),
+            Tab(text: l10n.adminTabHeld),
+            Tab(text: l10n.adminTabReleased),
+            Tab(text: l10n.adminTabPending),
+            Tab(text: l10n.adminTabDisputed),
           ],
         ),
       ),
@@ -76,21 +76,21 @@ class _AdminTransactionsScreenState extends ConsumerState<AdminTransactionsScree
                         o.paymentStatus == PaymentStatus.held ||
                         o.payoutStatus == PayoutStatus.held
                       ).toList(),
-                      emptyLabel: 'No held payments',
+                      emptyLabel: l10n.adminNoHeldPayments,
                     ),
                     _OrderList(
                       orders: orders.where((o) =>
                         o.paymentStatus == PaymentStatus.released ||
                         o.buyerConfirmed
                       ).toList(),
-                      emptyLabel: 'No released payouts yet',
+                      emptyLabel: l10n.adminNoReleasedPayouts,
                     ),
                     _OrderList(
                       orders: orders.where((o) =>
                         o.paymentStatus == PaymentStatus.pending &&
                         o.status != OrderStatus.cancelled
                       ).toList(),
-                      emptyLabel: 'No pending payments',
+                      emptyLabel: l10n.adminNoPendingPayments,
                     ),
                     _OrderList(
                       orders: orders.where((o) =>
@@ -98,7 +98,7 @@ class _AdminTransactionsScreenState extends ConsumerState<AdminTransactionsScree
                         o.status == OrderStatus.disputed ||
                         o.payoutStatus == PayoutStatus.disputed
                       ).toList(),
-                      emptyLabel: 'No active disputes',
+                      emptyLabel: l10n.adminNoActiveDisputes,
                     ),
                   ],
                 ),
@@ -179,11 +179,11 @@ class _RevenueSummaryCard extends ConsumerWidget {
           const SizedBox(height: 12),
           Row(
             children: [
-              Expanded(child: _statChip('🔒 Held', heldCount.toString(), const Color(0xFFFDE68A), const Color(0xFF92400E))),
+              Expanded(child: _statChip(l10n.adminTabHeld, heldCount.toString(), const Color(0xFFFDE68A), const Color(0xFF92400E))),
               const SizedBox(width: 6),
-              Expanded(child: _statChip('✅ Released', releasedCount.toString(), const Color(0xFFBBF7D0), const Color(0xFF14532D))),
+              Expanded(child: _statChip(l10n.adminTabReleased, releasedCount.toString(), const Color(0xFFBBF7D0), const Color(0xFF14532D))),
               const SizedBox(width: 6),
-              Expanded(child: _statChip('⚠️ Disputed', disputeCount.toString(), const Color(0xFFFECACA), const Color(0xFF991B1B))),
+              Expanded(child: _statChip(l10n.adminTabDisputed, disputeCount.toString(), const Color(0xFFFECACA), const Color(0xFF991B1B))),
             ],
           ),
         ],
@@ -217,9 +217,9 @@ class _RevenueSummaryCard extends ConsumerWidget {
 
 class _OrderList extends StatelessWidget {
   final List<OrderModel> orders;
-  final String emptyLabel;
+  final String? emptyLabel;
 
-  const _OrderList({required this.orders, this.emptyLabel = 'No transactions found'});
+  const _OrderList({required this.orders, this.emptyLabel});
 
   @override
   Widget build(BuildContext context) {
@@ -232,7 +232,7 @@ class _OrderList extends StatelessWidget {
             children: [
               Icon(Icons.payments_outlined, size: 64, color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.4)),
               const SizedBox(height: AppSizes.paddingMD),
-              Text(emptyLabel, style: Theme.of(context).textTheme.titleMedium, textAlign: TextAlign.center),
+              Text(emptyLabel ?? AppLocalizations.of(context).adminNoTransactions, style: Theme.of(context).textTheme.titleMedium, textAlign: TextAlign.center),
             ],
           ),
         ),
@@ -280,21 +280,22 @@ class _OrderRow extends ConsumerWidget {
     }
   }
 
-  String _statusLabel() {
+  String _statusLabel(AppLocalizations l10n) {
     switch (order.status) {
-      case OrderStatus.pending: return 'PENDING';
-      case OrderStatus.confirmed: return 'CONFIRMED';
-      case OrderStatus.preparing: return 'PREPARING';
-      case OrderStatus.readyForPickup: return 'READY';
-      case OrderStatus.outForDelivery: return 'ON THE WAY';
-      case OrderStatus.completed: return 'COMPLETED';
-      case OrderStatus.cancelled: return 'CANCELLED';
-      case OrderStatus.disputed: return 'DISPUTED';
+      case OrderStatus.pending: return l10n.adminStatusPending;
+      case OrderStatus.confirmed: return l10n.adminStatusConfirmed;
+      case OrderStatus.preparing: return l10n.adminStatusPreparing;
+      case OrderStatus.readyForPickup: return l10n.adminStatusReady;
+      case OrderStatus.outForDelivery: return l10n.adminStatusOnTheWay;
+      case OrderStatus.completed: return l10n.adminStatusCompleted;
+      case OrderStatus.cancelled: return l10n.adminStatusCancelled;
+      case OrderStatus.disputed: return l10n.adminStatusDisputed;
     }
   }
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = AppLocalizations.of(context);
     final cs = Theme.of(context).colorScheme;
     final tt = Theme.of(context).textTheme;
     final statusColor = _statusColor(context);
@@ -365,13 +366,13 @@ class _OrderRow extends ConsumerWidget {
             spacing: 6,
             runSpacing: 6,
             children: [
-              _chip(_statusLabel(), statusColor),
+              _chip(_statusLabel(l10n), statusColor),
               _chip(
                 order.paymentStatus == PaymentStatus.refunded
-                    ? '💸 REFUNDED'
+                    ? l10n.adminRefundedBadge
                     : order.isPaid
-                        ? '💳 PAID'
-                        : '💵 CASH',
+                        ? l10n.adminPaidBadge
+                        : l10n.adminCashBadge,
                 order.paymentStatus == PaymentStatus.refunded
                     ? Colors.blue
                     : order.isPaid
@@ -379,15 +380,15 @@ class _OrderRow extends ConsumerWidget {
                         : Colors.grey,
               ),
               _chip(
-                'PAYOUT: ${order.payoutStatus.name.toUpperCase()}',
+                l10n.adminPayoutBadge(order.payoutStatus.name.toUpperCase()),
                 payoutColor,
               ),
               if (order.buyerConfirmed)
-                _chip('✅ BUYER CONFIRMED', Colors.green)
+                _chip(l10n.adminBuyerConfirmedBadge, Colors.green)
               else if (isDisputeActive)
-                _chip('⚠️ DISPUTE REPORTED', const Color(0xFFD97706))
+                _chip(l10n.adminDisputeReportedBadge, const Color(0xFFD97706))
               else if (order.isPaid && order.status == OrderStatus.completed)
-                _chip('⏳ AWAITING BUYER CONFIRMATION', const Color(0xFFD97706)),
+                _chip(l10n.adminAwaitingConfirmationBadge, const Color(0xFFD97706)),
             ],
           ),
 
@@ -415,20 +416,20 @@ class _OrderRow extends ConsumerWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Row(
+                  Row(
                     children: [
-                      Icon(Icons.warning_amber_rounded, color: Color(0xFFD97706), size: 18),
-                      SizedBox(width: 6),
+                      const Icon(Icons.warning_amber_rounded, color: Color(0xFFD97706), size: 18),
+                      const SizedBox(width: 6),
                       Text(
-                        'Buyer Dispute Review',
-                        style: TextStyle(fontWeight: FontWeight.w800, color: Color(0xFF92400E), fontSize: 13),
+                        l10n.adminBuyerDisputeReview,
+                        style: const TextStyle(fontWeight: FontWeight.w800, color: Color(0xFF92400E), fontSize: 13),
                       ),
                     ],
                   ),
                   if (order.buyerComment.isNotEmpty) ...[
                     const SizedBox(height: 6),
                     Text(
-                      'Complaint: "${order.buyerComment}"',
+                      l10n.adminComplaint(order.buyerComment),
                       style: const TextStyle(fontSize: 12, color: Color(0xFF78350F), fontStyle: FontStyle.italic),
                     ),
                   ],
@@ -452,7 +453,7 @@ class _OrderRow extends ConsumerWidget {
                         child: ElevatedButton.icon(
                           onPressed: () => _handleAdminRefund(context, ref, order),
                           icon: const Icon(Icons.assignment_return_rounded, size: 16),
-                          label: const Text('💸 Refund Buyer', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
+                          label: Text(l10n.adminRefundBuyerBtn, style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
                           style: ElevatedButton.styleFrom(
                             backgroundColor: const Color(0xFF0284C7),
                             foregroundColor: Colors.white,
@@ -467,7 +468,7 @@ class _OrderRow extends ConsumerWidget {
                         child: ElevatedButton.icon(
                           onPressed: () => _handleAdminApprovePayout(context, ref, order),
                           icon: const Icon(Icons.check_circle_rounded, size: 16),
-                          label: const Text('✅ Approve Payout', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
+                          label: Text(l10n.adminApprovePayoutBtn, style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
                           style: ElevatedButton.styleFrom(
                             backgroundColor: const Color(0xFF15803D),
                             foregroundColor: Colors.white,
@@ -489,21 +490,21 @@ class _OrderRow extends ConsumerWidget {
             const SizedBox(height: 10),
             _breakdownRow(
               context,
-              'Order Total:',
+              l10n.adminOrderTotal,
               'TZS ${order.totalPrice.toStringAsFixed(0)}',
               cs.onSurface,
             ),
             const SizedBox(height: 4),
             _breakdownRow(
               context,
-              'Platform Commission (5%):',
+              l10n.adminPlatformCommission,
               'TZS ${order.commissionAmount.toStringAsFixed(0)}',
               cs.primary,
             ),
             const SizedBox(height: 4),
             _breakdownRow(
               context,
-              'Seller Earnings (95%):',
+              l10n.adminSellerEarnings,
               'TZS ${order.sellerEarnings.toStringAsFixed(0)}',
               Colors.green,
             ),
@@ -522,26 +523,27 @@ class _OrderRow extends ConsumerWidget {
   }
 
   Future<void> _handleAdminRefund(BuildContext context, WidgetRef ref, OrderModel order) async {
+    final l10n = AppLocalizations.of(context);
     final confirm = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        title: const Row(
+        title: Row(
           children: [
-            Icon(Icons.assignment_return_rounded, color: Color(0xFF0284C7)),
-            SizedBox(width: 8),
-            Text('Approve Full Refund?'),
+            const Icon(Icons.assignment_return_rounded, color: Color(0xFF0284C7)),
+            const SizedBox(width: 8),
+            Text(l10n.adminApproveRefundTitle),
           ],
         ),
         content: Text(
-          'Are you sure you want to refund TZS ${order.totalPrice.toStringAsFixed(0)} to the buyer for Order #${order.orderId.substring(0, 6)}?\n\nThis will cancel the order and return the funds.',
+          l10n.adminApproveRefundMsg(order.totalPrice.toStringAsFixed(0), order.orderId.substring(0, 6)),
         ),
         actions: [
-          TextButton(onPressed: () => Navigator.of(ctx).pop(false), child: const Text('Cancel')),
+          TextButton(onPressed: () => Navigator.of(ctx).pop(false), child: Text(l10n.adminCancelBtn)),
           ElevatedButton(
             onPressed: () => Navigator.of(ctx).pop(true),
             style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF0284C7), foregroundColor: Colors.white),
-            child: const Text('Confirm Refund'),
+            child: Text(l10n.adminConfirmRefundBtn),
           ),
         ],
       ),
@@ -555,7 +557,7 @@ class _OrderRow extends ConsumerWidget {
     if (context.mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('Refund of TZS ${order.totalPrice.toStringAsFixed(0)} approved for Order #${order.orderId.substring(0, 6)}.'),
+          content: Text(l10n.adminRefundApprovedMsg(order.totalPrice.toStringAsFixed(0), order.orderId.substring(0, 6))),
           backgroundColor: const Color(0xFF0284C7),
         ),
       );
@@ -563,26 +565,27 @@ class _OrderRow extends ConsumerWidget {
   }
 
   Future<void> _handleAdminApprovePayout(BuildContext context, WidgetRef ref, OrderModel order) async {
+    final l10n = AppLocalizations.of(context);
     final confirm = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        title: const Row(
+        title: Row(
           children: [
-            Icon(Icons.check_circle_rounded, color: Color(0xFF15803D)),
-            SizedBox(width: 8),
-            Text('Approve Seller Payout?'),
+            const Icon(Icons.check_circle_rounded, color: Color(0xFF15803D)),
+            const SizedBox(width: 8),
+            Text(l10n.adminApprovePayoutTitle),
           ],
         ),
         content: Text(
-          'Are you sure you want to resolve this dispute in favor of the seller and release TZS ${(order.totalPrice * 0.95).toStringAsFixed(0)}?',
+          l10n.adminApprovePayoutMsg((order.totalPrice * 0.95).toStringAsFixed(0)),
         ),
         actions: [
-          TextButton(onPressed: () => Navigator.of(ctx).pop(false), child: const Text('Cancel')),
+          TextButton(onPressed: () => Navigator.of(ctx).pop(false), child: Text(l10n.adminCancelBtn)),
           ElevatedButton(
             onPressed: () => Navigator.of(ctx).pop(true),
             style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF15803D), foregroundColor: Colors.white),
-            child: const Text('Approve Payout'),
+            child: Text(l10n.adminApprovePayoutConfirmBtn),
           ),
         ],
       ),
@@ -601,7 +604,7 @@ class _OrderRow extends ConsumerWidget {
     if (context.mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('Payout released to seller for Order #${order.orderId.substring(0, 6)}.'),
+          content: Text(l10n.adminPayoutReleasedMsg(order.orderId.substring(0, 6))),
           backgroundColor: const Color(0xFF15803D),
         ),
       );

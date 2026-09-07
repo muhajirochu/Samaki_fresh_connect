@@ -247,7 +247,7 @@
     "shareListing": "Shiriki zabuni",
     "reportListing": "Ripoti zabuni",
     "deleteListingConfirmation": "Futa zabuni hii? Hii haiwezi kubatilishwa.",
-    "markAsSold": "Weka alama ya kuuza",
+    "markAsSold": "Tia alama kuwa imeuzwa",
     "soldConfirmation": "Weka alama ya kuuza kwenye zabuni hii?",
     "filter": "Chuja",
     "sortBy": "Panga kwa",
@@ -573,7 +573,7 @@
     "updateFailed": "Kusasisha kumeshindwa",
     "markedAsSold": "Imeuzwa",
     "actionFailed": "Kitendo kimeshindwa",
-    "noFishAvailable": "Hakuna Samaki",
+    "noFishAvailable": "Hakuna samaki wanaopatikana.",
     "checkBackLater": "Rudi baadaye kwa samaki fresh!",
     "errorLoadingListing": "Hitilafu kupakia orodha",
     "errorLoadingOrder": "Hitilafu kupakia agizo",
@@ -1008,13 +1008,11 @@
         }
     },
     "selectFishLabel": "Chagua Samaki",
-    "noFishAvailable": "Hakuna samaki wanaopatikana.",
     "quantityKgLabel": "Kiasi (kg)",
     "enterQuantityHint": "Weka kiasi",
     "totalAmountLabel": "Jumla ya Malipo:",
     "additionalNotesLabel": "Maelezo mengine",
     "notesHint": "Mfano: nataka fresh sana, nitalipia ukileta...",
-    "sending": "Inatuma...",
     "forSeller": "Kwa: {name}",
     "@forSeller": {
         "placeholders": {
@@ -1022,5 +1020,215 @@
                 "type": "String"
             }
         }
-    }
+    },
+    "loginWelcomeBack": "Karibu Tena",
+    "loginSignInContinue": "Ingia ili kuendelea kwenye dashibodi yako.",
+    "loginEmailAddress": "Barua pepe",
+    "loginPasswordHint": "Nenosiri",
+    "loginForgotPassword": "Umesahau nenosiri?",
+    "loginOrContinueWith": "au endelea na",
+    "loginTagline": "Samaki Wazuri  ·  Maisha Bora",
+    "trackPaymentRefunded": "💸 Malipo Yamerudishwa Kwako",
+    "trackPaymentHeld": "🔒 Malipo Yanahifadhiwa Salama",
+    "trackPaymentReleased": "✅ Malipo Yametolewa — Muuzaji Amelipwa",
+    "trackCommentsOptional": "📝 Maoni (Hiari)",
+    "trackProofPhotoOptional": "📷 Picha ya Uthibitisho (Hiari)",
+    "trackUploadingPhoto": "Inapakia picha...",
+    "trackReceivedFishCorrect": "✅ Nimepokea Samaki — Oda Sahihi",
+    "trackIncorrectOrderReport": "⚠️ Oda Sio Sahihi — Ripoti Tatizo",
+    "trackConfirmReceipt": "Thibitisha Mapokezi",
+    "trackConfirmReceiptMsg": "Umepokea samaki wako na umeridhishwa na oda yako?",
+    "trackNoGoBack": "Hapana, Rudi",
+    "trackYesIConfirm": "Ndio, Nathibitisha",
+    "trackOrderCompletedMsg": "Asante! Oda imekamilika na malipo yametolewa kwa muuzaji.",
+    "trackErrorOccurred": "Kuna hitilafu. Tafadhali jaribu tena.",
+    "trackProvideCommentOrPhoto": "Tafadhali andika maoni au pakia picha kuelezea tatizo.",
+    "trackReportIssueTitle": "Ripoti Tatizo",
+    "trackSureOrderIncorrect": "Una uhakika oda sio sahihi?",
+    "trackYesReportIssue": "Ndio, Ripoti Tatizo",
+    "trackIssueReportedMsg": "Tatizo lako limeripotiwa. Admin atapitia na kuwasiliana nawe hivi karibuni.",
+    "trackOrderCompletedTitle": "Oda Imekamilika! 🎉",
+    "trackThankYouUsing": "Asante kwa kutumia SamakiFresh Connect.",
+    "trackIssueReportedTitle": "⚠️ Tatizo Limeripotiwa — Inasubiri Uhakiki wa Admin",
+    "trackFullRefundIssued": "💸 Marejesho Kamili Yametolewa",
+    "trackETA": "Muda wa Kufika",
+    "trackContactSeller": "Wasiliana na Muuzaji",
+    "trackReportReceivedMsg": "Ripoti yako imepokelewa. Malipo yamehifadhiwa kusubiri utatuzi wa admin.",
+    "trackRefundedToAccount": "TZS {amount} zimerudishwa kwenye akaunti yako.",
+    "@trackRefundedToAccount": {
+        "placeholders": {
+            "amount": {
+                "type": "String"
+            }
+        }
+    },
+    "buyerNoActiveOrders": "Hakuna oda zinazoendelea za kufuatilia",
+    "relativeMinutes": "{count} dk",
+    "@relativeMinutes": {
+        "placeholders": {
+            "count": {
+                "type": "int"
+            }
+        }
+    },
+    "relativeHours": "{count} saa",
+    "@relativeHours": {
+        "placeholders": {
+            "count": {
+                "type": "int"
+            }
+        }
+    },
+    "relativeDays": "{count} siku",
+    "@relativeDays": {
+        "placeholders": {
+            "count": {
+                "type": "int"
+            }
+        }
+    },
+    "sellerNoActiveDeliveries": "Hakuna safari za uwasilishaji zinazoendelea",
+    "tabOverview": "Muhtasari",
+    "tabSales": "Mauzo",
+    "tabOrders": "Oda",
+    "tabSellers": "Wauzaji",
+    "tabBuyers": "Wanunuzi",
+    "tabRevenue": "Mapato",
+    "adminToday": "Leo",
+    "adminOrderCount": "Oda {count}",
+    "@adminOrderCount": {
+        "placeholders": {
+            "count": {
+                "type": "int"
+            }
+        }
+    },
+    "adminTotal": "Jumla",
+    "adminNoBuyersYet": "Hakuna wanunuzi bado",
+    "adminTabAll": "Zote",
+    "adminTabHeld": "🔒 Zilizoshikiliwa",
+    "adminTabReleased": "✅ Zilizotolewa",
+    "adminTabPending": "⏳ Zinasubiri",
+    "adminTabDisputed": "⚠️ Migogoro",
+    "adminNoHeldPayments": "Hakuna malipo yaliyoshikiliwa",
+    "adminNoReleasedPayouts": "Hakuna malipo yaliyotolewa bado",
+    "adminNoPendingPayments": "Hakuna malipo yanayosubiri",
+    "adminNoActiveDisputes": "Hakuna migogoro inayoendelea",
+    "adminNoTransactions": "Hakuna miamala iliyopatikana",
+    "adminStatusPending": "INASUBIRI",
+    "adminStatusConfirmed": "IMETHIBITISHWA",
+    "adminStatusPreparing": "INATAYARISHWA",
+    "adminStatusReady": "TAYARI",
+    "adminStatusOnTheWay": "NJIANI",
+    "adminStatusCompleted": "IMEKAMILIKA",
+    "adminStatusCancelled": "IMEGHAIRIWA",
+    "adminStatusDisputed": "MIGOGORO",
+    "adminRefundedBadge": "💸 IMERUDISHWA",
+    "adminPaidBadge": "💳 IMELIPWA",
+    "adminCashBadge": "💵 TASLIMU",
+    "adminPayoutBadge": "MALIPO: {status}",
+    "@adminPayoutBadge": {
+        "placeholders": {
+            "status": {
+                "type": "String"
+            }
+        }
+    },
+    "adminBuyerConfirmedBadge": "✅ MNUNUZI AMETHIBITISHA",
+    "adminDisputeReportedBadge": "⚠️ MGOGORO UMERIPOTIWA",
+    "adminAwaitingConfirmationBadge": "⏳ INASUBIRI UTHIBITISHO",
+    "adminBuyerDisputeReview": "Mapitio ya Mgogoro wa Mnunuzi",
+    "adminComplaint": "Lalamiko: \"{comment}\"",
+    "@adminComplaint": {
+        "placeholders": {
+            "comment": {
+                "type": "String"
+            }
+        }
+    },
+    "adminRefundBuyerBtn": "💸 Mjeshee Mnunuzi",
+    "adminApprovePayoutBtn": "✅ Idhinisha Malipo",
+    "adminOrderTotal": "Jumla ya Oda:",
+    "adminPlatformCommission": "Kamisheni ya Jukwaa (5%):",
+    "adminSellerEarnings": "Mapato ya Muuzaji (95%):",
+    "adminApproveRefundTitle": "Idhinisha Kurejesha Pesa?",
+    "adminApproveRefundMsg": "Una uhakika unataka kumrejeshea mnunuzi TZS {amount} kwa Oda #{orderId}?\n\nHii itaghairi oda na kurejesha fedha.",
+    "@adminApproveRefundMsg": {
+        "placeholders": {
+            "amount": {
+                "type": "String"
+            },
+            "orderId": {
+                "type": "String"
+            }
+        }
+    },
+    "adminCancelBtn": "Ghairi",
+    "adminConfirmRefundBtn": "Thibitisha Kurejesha Pesa",
+    "adminRefundApprovedMsg": "Urejesho wa TZS {amount} umeidhinishwa kwa Oda #{orderId}.",
+    "@adminRefundApprovedMsg": {
+        "placeholders": {
+            "amount": {
+                "type": "String"
+            },
+            "orderId": {
+                "type": "String"
+            }
+        }
+    },
+    "adminApprovePayoutTitle": "Idhinisha Malipo ya Muuzaji?",
+    "adminApprovePayoutMsg": "Una uhakika unataka kutatua mgogoro huu kwa kumpendelea muuzaji na kutoa TZS {amount}?",
+    "@adminApprovePayoutMsg": {
+        "placeholders": {
+            "amount": {
+                "type": "String"
+            }
+        }
+    },
+    "adminApprovePayoutConfirmBtn": "Idhinisha Malipo",
+    "adminPayoutReleasedMsg": "Malipo yametolewa kwa muuzaji kwa Oda #{orderId}.",
+    "@adminPayoutReleasedMsg": {
+        "placeholders": {
+            "orderId": {
+                "type": "String"
+            }
+        }
+    },
+    "adminEditCategory": "Hariri kategoria",
+    "adminCategorySlugHint": "mfano: {name}",
+    "@adminCategorySlugHint": {
+        "placeholders": {
+            "name": {
+                "type": "String"
+            }
+        }
+    },
+    "adminDeleteCategoryConfirm": "Futa moja kwa moja \"{name}\"?",
+    "@adminDeleteCategoryConfirm": {
+        "placeholders": {
+            "name": {
+                "type": "String"
+            }
+        }
+    },
+    "settingsFeatureComingSoon": "Kipengele hiki kinakuja hivi karibuni...",
+    "settingsBuyersOnly": "Kipengele hiki ni kwa ajili ya wanunuzi pekee.",
+    "settingsChangePassword": "Badili Nenosiri",
+    "settingsResetPasswordPrompt": "Tuma barua pepe ya kubadili nenosiri kwenda:\\n{email}?",
+    "@settingsResetPasswordPrompt": {
+        "placeholders": {
+            "email": {
+                "type": "String"
+            }
+        }
+    },
+    "settingsEmailSent": "Barua pepe imetumwa kikamilifu.",
+    "settingsError": "Kuna hitilafu. Tafadhali jaribu tena.",
+    "settingsSend": "Tuma",
+    "settingsFaceIdEnabled": "Face ID imewashwa kwa mafanikio.",
+    "actionEditListingDesc": "Sasisha bei, kiasi au maelezo",
+    "alreadySold": "Imeuzwa tayari",
+    "actionDeactivateListingDesc": "Ficha kutoka sokoni",
+    "actionDeleteListingDesc": "Ondoa bidhaa hii kabisa",
+    "orderNotSentPaymentFailed": "Ombi halikutumwa kwa sababu malipo hayajathibitishwa."
 }

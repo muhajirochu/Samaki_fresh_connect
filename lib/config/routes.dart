@@ -38,7 +38,6 @@ import '../screens/common/profile_screen.dart';
 import '../screens/common/edit_profile_screen.dart';
 import '../screens/common/settings_screen.dart';
 import '../screens/common/language_selector_screen.dart';
-import '../screens/common/app_download_screen.dart';
 import 'auth_redirect.dart';
 import 'route_paths.dart';
 
@@ -272,11 +271,6 @@ final List<GoRoute> _appRoutes = [
     path: AppRoutes.languageSelector,
     name: AppRouteNames.languageSelector,
     builder: (context, state) => const LanguageSelectorScreen(),
-  ),
-  GoRoute(
-    path: AppRoutes.appDownload,
-    name: AppRouteNames.appDownload,
-    builder: (context, state) => const AppDownloadScreen(),
   ),
 
   // ── Admin management screens ─────────────────────────────────

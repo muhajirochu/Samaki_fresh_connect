@@ -263,7 +263,7 @@ class _ManageableListingCard extends ConsumerWidget {
                 title: Text(l10n.edit,
                     style: tt.bodyMedium
                         ?.copyWith(fontWeight: FontWeight.w700)),
-                subtitle: const Text('Update price, quantity or description'),
+                subtitle: Text(l10n.actionEditListingDesc),
                 onTap: expired || sold
                     ? null
                     : () {
@@ -281,10 +281,10 @@ class _ManageableListingCard extends ConsumerWidget {
                       ? cs.onSurface.withValues(alpha: 0.45)
                       : AppColors.successGreen,
                 ),
-                title: Text(sold ? 'Already sold' : 'Mark as sold',
+                title: Text(sold ? l10n.alreadySold : l10n.markAsSold,
                     style: tt.bodyMedium
                         ?.copyWith(fontWeight: FontWeight.w700)),
-                subtitle: const Text('Hide from marketplace'),
+                subtitle: Text(l10n.actionDeactivateListingDesc),
                 onTap: sold || expired
                     ? null
                     : () async {
@@ -299,7 +299,7 @@ class _ManageableListingCard extends ConsumerWidget {
                     style: const TextStyle(
                         color: AppColors.errorRed,
                         fontWeight: FontWeight.w700)),
-                subtitle: const Text('Remove this listing permanently'),
+                subtitle: Text(l10n.actionDeleteListingDesc),
                 onTap: () async {
                   Navigator.of(ctx).pop();
                   await _confirmAndDelete(context, ref);

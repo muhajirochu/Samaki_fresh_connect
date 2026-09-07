@@ -28,15 +28,15 @@ class AdminReportsScreen extends ConsumerWidget {
       child: Scaffold(
         appBar: AppBar(
           title: Text(AppLocalizations.of(context).reportsTab),
-          bottom: const TabBar(
+          bottom: TabBar(
             isScrollable: true,
             tabs: [
-              Tab(text: 'Overview'),
-              Tab(text: 'Sales'),
-              Tab(text: 'Orders'),
-              Tab(text: 'Sellers'),
-              Tab(text: 'Buyers'),
-              Tab(text: 'Revenue'),
+              Tab(text: AppLocalizations.of(context).tabOverview),
+              Tab(text: AppLocalizations.of(context).tabSales),
+              Tab(text: AppLocalizations.of(context).tabOrders),
+              Tab(text: AppLocalizations.of(context).tabSellers),
+              Tab(text: AppLocalizations.of(context).tabBuyers),
+              Tab(text: AppLocalizations.of(context).tabRevenue),
             ],
           ),
         ),
@@ -78,7 +78,7 @@ class _SalesTab extends ConsumerWidget {
       padding: const EdgeInsets.all(AppSizes.paddingLG),
       children: [
         _MetricRow(
-          title: 'Today',
+          title: l10n.adminToday,
           count: daily.length,
           revenue: _sumRevenue(daily),
         ),
@@ -143,7 +143,7 @@ class _MetricRow extends StatelessWidget {
                     style: Theme.of(context).textTheme.titleSmall?.copyWith(
                           fontWeight: FontWeight.w700,
                         )),
-                Text('$count orders',
+                Text(AppLocalizations.of(context).adminOrderCount(count),
                     style: Theme.of(context).textTheme.bodySmall?.copyWith(
                           color: cs.onSurface.withValues(alpha: 0.65),
                         )),
@@ -252,7 +252,7 @@ class _OrdersTab extends ConsumerWidget {
     return ListView(
       padding: const EdgeInsets.all(AppSizes.paddingLG),
       children: [
-        _MetricRow(title: 'Total', count: all.length, revenue: 0),
+        _MetricRow(title: l10n.adminTotal, count: all.length, revenue: 0),
         const SizedBox(height: AppSizes.paddingMD),
         ...byStatus.entries.map(
           (e) => Padding(
@@ -319,7 +319,7 @@ class _BuyersTab extends ConsumerWidget {
     final orders = ref.watch(adminAllOrdersProvider).valueOrNull ?? [];
 
     if (buyers.isEmpty) {
-      return const Center(child: Text('No buyers yet'));
+      return Center(child: Text(AppLocalizations.of(context).adminNoBuyersYet));
     }
     final byBuyer = <String, int>{};
     for (final o in orders) {
@@ -350,7 +350,7 @@ class _BuyersTab extends ConsumerWidget {
           ),
           title: Text(b.fullName),
           subtitle: Text(b.email),
-          trailing: Text('$count orders',
+          trailing: Text(AppLocalizations.of(context).adminOrderCount(count),
               style: const TextStyle(fontWeight: FontWeight.w700)),
         );
       },
@@ -375,7 +375,7 @@ class _RevenueTab extends ConsumerWidget {
       children: [
         _MetricRow(title: l10n.platformRevenue, count: 0, revenue: revenue),
         const SizedBox(height: AppSizes.paddingMD),
-        _MetricRow(title: 'Today', count: 0, revenue: daily),
+        _MetricRow(title: l10n.adminToday, count: 0, revenue: daily),
         const SizedBox(height: AppSizes.paddingMD),
         _MetricRow(title: l10n.thisWeek, count: 0, revenue: weekly),
         const SizedBox(height: AppSizes.paddingMD),

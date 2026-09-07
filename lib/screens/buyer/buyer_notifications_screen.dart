@@ -83,7 +83,7 @@ class BuyerNotificationsScreen extends ConsumerWidget {
       ),
       body: notifsAsync.when(
         loading: () => const Center(child: CircularProgressIndicator()),
-        error: (e, _) => Center(child: Text('Hitilafu: $e')),
+        error: (e, _) => Center(child: Text(AppLocalizations.of(context).errorGeneric(e.toString()))),
         data: (list) {
           if (list.isEmpty) {
             return _EmptyState();
@@ -189,7 +189,7 @@ class _NotificationTile extends StatelessWidget {
                         ),
                         const SizedBox(width: 8),
                         Text(
-                          _relativeTime(item.createdAt),
+                          _relativeTime(context, item.createdAt),
                           style: tt.labelSmall?.copyWith(
                             color: cs.onSurface.withValues(alpha: 0.55),
                           ),
@@ -224,12 +224,13 @@ class _NotificationTile extends StatelessWidget {
     );
   }
 
-  String _relativeTime(DateTime t) {
+  String _relativeTime(BuildContext context, DateTime t) {
+    final l10n = AppLocalizations.of(context);
     final d = DateTime.now().difference(t);
-    if (d.inMinutes < 1) return 'sasa hivi';
-    if (d.inMinutes < 60) return '${d.inMinutes} dk';
-    if (d.inHours < 24) return '${d.inHours} saa';
-    if (d.inDays < 7) return '${d.inDays} siku';
+    if (d.inMinutes < 1) return l10n.justNow;
+    if (d.inMinutes < 60) return l10n.relativeMinutes(d.inMinutes);
+    if (d.inHours < 24) return l10n.relativeHours(d.inHours);
+    if (d.inDays < 7) return l10n.relativeDays(d.inDays);
     return '${t.day}/${t.month}';
   }
 }

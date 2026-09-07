@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
 import '../../config/route_paths.dart';
+import '../../l10n/app_localizations.dart';
 import '../../models/enums/order_status.dart';
 import '../../providers/auth_provider.dart';
 import '../../providers/order_tracking_provider.dart';
@@ -27,11 +28,11 @@ class BuyerActiveOrderTab extends ConsumerWidget {
                 o.status != OrderStatus.cancelled)
             .toList();
         if (activeOrders.isEmpty) {
-          return const Scaffold(
+          return Scaffold(
             body: Center(
               child: Text(
-                'No active orders to track',
-                style: TextStyle(fontSize: 18, color: Colors.grey),
+                AppLocalizations.of(context).buyerNoActiveOrders,
+                style: const TextStyle(fontSize: 18, color: Colors.grey),
               ),
             ),
           );
@@ -51,7 +52,7 @@ class BuyerActiveOrderTab extends ConsumerWidget {
         );
       },
       loading: () => const Scaffold(body: Center(child: CircularProgressIndicator())),
-      error: (e, _) => Scaffold(body: Center(child: Text('Error: $e'))),
+      error: (e, _) => Scaffold(body: Center(child: Text(AppLocalizations.of(context).errorGeneric(e.toString())))),
     );
   }
 }

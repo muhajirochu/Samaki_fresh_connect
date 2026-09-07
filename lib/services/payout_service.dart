@@ -102,7 +102,9 @@ class PayoutService {
       // Guard: must be in a state where delivery was underway
       final statusStr = data['status'] as String? ?? '';
       if (statusStr != 'outForDelivery' &&
+          statusStr != 'arriving' &&
           statusStr != 'readyForPickup' &&
+          statusStr != 'pickupGenerated' &&
           statusStr != 'completed') {
         AppLogger.warning('PayoutService.confirmReceived: order $orderId in wrong state: $statusStr');
         return false;

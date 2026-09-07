@@ -57,7 +57,7 @@ class _FishCategoriesScreenState extends ConsumerState<FishCategoriesScreen> {
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 Text(
-                  isNew ? l10n.newCategory : 'Edit category',
+                  isNew ? l10n.newCategory : l10n.adminEditCategory,
                   style: Theme.of(ctx).textTheme.titleLarge?.copyWith(
                         fontWeight: FontWeight.w700,
                       ),
@@ -77,7 +77,7 @@ class _FishCategoriesScreenState extends ConsumerState<FishCategoriesScreen> {
                   decoration: InputDecoration(
                     labelText: l10n.categorySlug,
                     helperText: isNew
-                        ? 'e.g. ${FishType.tuna.name}'
+                        ? l10n.adminCategorySlugHint(FishType.tuna.name)
                         : null,
                     border: const OutlineInputBorder(),
                   ),
@@ -157,7 +157,7 @@ class _FishCategoriesScreenState extends ConsumerState<FishCategoriesScreen> {
       context: context,
       builder: (ctx) => AlertDialog(
         title: Text(l10n.deleteListing),
-        content: Text('Permanently delete "${cat.displayName}"?'),
+        content: Text(l10n.adminDeleteCategoryConfirm(cat.displayName)),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(ctx).pop(false),

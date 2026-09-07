@@ -61,6 +61,7 @@ class _HeroHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final statusBarH = MediaQuery.of(context).padding.top;
     final screenW = MediaQuery.of(context).size.width;
 
@@ -75,8 +76,8 @@ class _HeroHeader extends StatelessWidget {
               width: double.infinity,
               // The wave clipper needs extra bottom space to render the wave
               padding: EdgeInsets.only(
-                top: statusBarH + 28,
-                bottom: 80, // extra padding so content clears the wave clip
+                top: statusBarH + 12,
+                bottom: 50, // extra padding so content clears the wave clip
               ),
               decoration: const BoxDecoration(
                 gradient: LinearGradient(
@@ -156,30 +157,25 @@ class _HeroHeader extends StatelessWidget {
                       // Logo in a white rounded-square container
                       Center(
                         child: Container(
-                          width: 108,
-                          height: 108,
-                          padding: const EdgeInsets.all(10),
+                          width: 80,
+                          height: 80,
+                          padding: const EdgeInsets.all(8),
                           decoration: BoxDecoration(
                             color: Colors.white,
-                            borderRadius: BorderRadius.circular(28),
+                            borderRadius: BorderRadius.circular(20),
                             boxShadow: [
                               BoxShadow(
                                 color: Colors.black.withValues(alpha: 0.18),
-                                blurRadius: 24,
-                                offset: const Offset(0, 8),
-                              ),
-                              BoxShadow(
-                                color: const Color(0xFF0EA5E9).withValues(alpha: 0.30),
-                                blurRadius: 32,
+                                blurRadius: 16,
                                 offset: const Offset(0, 4),
                               ),
                             ],
                           ),
-                          child: const AppLogo(size: 88, withGlow: false),
+                          child: const AppLogo(size: 48, withGlow: false),
                         ),
                       ),
 
-                      const SizedBox(height: 18),
+                      const SizedBox(height: 6),
 
                       // Brand name
                       RichText(
@@ -190,7 +186,7 @@ class _HeroHeader extends StatelessWidget {
                               text: 'SamakiFresh',
                               style: TextStyle(
                                 color: Colors.white,
-                                fontSize: 26,
+                                fontSize: 22,
                                 fontWeight: FontWeight.w900,
                                 letterSpacing: -0.5,
                               ),
@@ -208,7 +204,7 @@ class _HeroHeader extends StatelessWidget {
                         ),
                       ),
 
-                      const SizedBox(height: 6),
+                      const SizedBox(height: 4),
 
                       // Decorative line separator (  — Connect —  style)
                       Row(
@@ -238,27 +234,27 @@ class _HeroHeader extends StatelessWidget {
                         ],
                       ),
 
-                      const SizedBox(height: 22),
+                      const SizedBox(height: 12),
 
                       // Welcome text
-                      const Text(
-                        'Welcome Back',
-                        style: TextStyle(
+                      Text(
+                        l10n.loginWelcomeBack,
+                        style: const TextStyle(
                           color: Colors.white,
-                          fontSize: 24,
+                          fontSize: 20,
                           fontWeight: FontWeight.w800,
                           letterSpacing: -0.4,
                         ),
                       ),
 
-                      const SizedBox(height: 6),
+                      const SizedBox(height: 4),
 
                       Text(
-                        'Sign in to continue to your dashboard.',
+                        l10n.loginSignInContinue,
                         textAlign: TextAlign.center,
                         style: TextStyle(
                           color: Colors.white.withValues(alpha: 0.82),
-                          fontSize: 14,
+                          fontSize: 12,
                           fontWeight: FontWeight.w400,
                           height: 1.4,
                         ),
@@ -278,7 +274,7 @@ class _HeroHeader extends StatelessWidget {
             child: ClipPath(
               clipper: _WaveClipper2(),
               child: Container(
-                height: 60,
+                height: 40,
                 decoration: BoxDecoration(
                   gradient: LinearGradient(
                     begin: Alignment.topLeft,
@@ -305,14 +301,14 @@ class _WaveClipper extends CustomClipper<Path> {
   @override
   Path getClip(Size size) {
     final path = Path();
-    path.lineTo(0, size.height - 60);
+    path.lineTo(0, size.height - 40);
 
     final cp1 = Offset(size.width * 0.25, size.height);
-    final ep1 = Offset(size.width * 0.5, size.height - 40);
+    final ep1 = Offset(size.width * 0.5, size.height - 30);
     path.quadraticBezierTo(cp1.dx, cp1.dy, ep1.dx, ep1.dy);
 
-    final cp2 = Offset(size.width * 0.78, size.height - 80);
-    final ep2 = Offset(size.width, size.height - 20);
+    final cp2 = Offset(size.width * 0.78, size.height - 60);
+    final ep2 = Offset(size.width, size.height - 15);
     path.quadraticBezierTo(cp2.dx, cp2.dy, ep2.dx, ep2.dy);
 
     path.lineTo(size.width, 0);
@@ -629,7 +625,7 @@ class _SignInTab extends HookConsumerWidget {
     }
 
     return Padding(
-      padding: const EdgeInsets.fromLTRB(20, 0, 20, 32),
+      padding: const EdgeInsets.fromLTRB(20, 0, 20, 16),
       child: Align(
         alignment: Alignment.topCenter,
         child: ConstrainedBox(
@@ -656,7 +652,7 @@ class _SignInTab extends HookConsumerWidget {
                   ],
                 ),
                 child: Padding(
-                  padding: const EdgeInsets.fromLTRB(24, 28, 24, 28),
+                  padding: const EdgeInsets.fromLTRB(20, 20, 20, 20),
                   child: Form(
                     key: formKey,
                     child: Column(
@@ -665,18 +661,18 @@ class _SignInTab extends HookConsumerWidget {
                         // ── Email field ─────────────────────────────────────
                         _PremiumTextField(
                           controller: emailCtrl,
-                          hint: 'Email address',
+                          hint: l10n.loginEmailAddress,
                           keyboardType: TextInputType.emailAddress,
                           textInputAction: TextInputAction.next,
                           prefixIcon: Icons.mail_outline_rounded,
                           validator: Validators.validateEmail,
                         ),
-                        const SizedBox(height: 16),
+                        const SizedBox(height: 12),
 
                         // ── Password field ──────────────────────────────────
                         _PremiumTextField(
                           controller: passwordCtrl,
-                          hint: 'Password',
+                          hint: l10n.loginPasswordHint,
                           obscureText: obscure.value,
                           textInputAction: TextInputAction.done,
                           onFieldSubmitted: (_) => handleLogin(),
@@ -711,11 +707,11 @@ class _SignInTab extends HookConsumerWidget {
                                 fontWeight: FontWeight.w600,
                               ),
                             ),
-                            child: const Text('Forgot password?'),
+                            child: Text(l10n.loginForgotPassword),
                           ),
                         ),
 
-                        const SizedBox(height: 8),
+                        const SizedBox(height: 4),
 
                         // ── Login button ────────────────────────────────────
                         _LoginButton(
@@ -724,7 +720,7 @@ class _SignInTab extends HookConsumerWidget {
                           onPressed: isLoading.value ? null : handleLogin,
                         ),
 
-                        const SizedBox(height: 20),
+                        const SizedBox(height: 12),
 
                         // ── Sign up footer ──────────────────────────────────
                         _SignupFooter(),
@@ -734,12 +730,12 @@ class _SignInTab extends HookConsumerWidget {
                 ),
               ),
 
-              const SizedBox(height: 28),
+              const SizedBox(height: 16),
 
               // ── Social sign-in section ───────────────────────────────────
               const _SocialSignIn(),
 
-              const SizedBox(height: 28),
+              const SizedBox(height: 16),
 
               // ── Bottom tagline ───────────────────────────────────────────
               Row(
@@ -751,9 +747,9 @@ class _SignInTab extends HookConsumerWidget {
                     color: const Color(0xFF0284C7).withValues(alpha: 0.35),
                   ),
                   const SizedBox(width: 10),
-                  const Text(
-                    'Fresh Fish  ·  Better Lives',
-                    style: TextStyle(
+                  Text(
+                    l10n.loginTagline,
+                    style: const TextStyle(
                       color: Color(0xFF0284C7),
                       fontSize: 12,
                       fontWeight: FontWeight.w600,
@@ -1049,6 +1045,7 @@ class _SocialSignIn extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
@@ -1071,7 +1068,7 @@ class _SocialSignIn extends StatelessWidget {
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16),
               child: Text(
-                'or continue with',
+                l10n.loginOrContinueWith,
                 style: TextStyle(
                   color: const Color(0xFF0369A1).withValues(alpha: 0.75),
                   fontSize: 13,

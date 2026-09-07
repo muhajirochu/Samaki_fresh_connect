@@ -53,7 +53,7 @@ class SettingsScreen extends ConsumerWidget {
     void showComingSoon() {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: const Text('Kipengele hiki kinakuja hivi karibuni...'),
+          content: Text(l10n.settingsFeatureComingSoon),
           behavior: SnackBarBehavior.floating,
           backgroundColor: cs.primary,
         ),
@@ -66,7 +66,7 @@ class SettingsScreen extends ConsumerWidget {
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: const Text('Kipengele hiki ni kwa ajili ya wanunuzi pekee.'),
+            content: Text(l10n.settingsBuyersOnly),
             behavior: SnackBarBehavior.floating,
             backgroundColor: cs.error,
           ),
@@ -80,32 +80,32 @@ class SettingsScreen extends ConsumerWidget {
       showDialog(
         context: context,
         builder: (ctx) => AlertDialog(
-          title: const Text('Change Password'),
-          content: Text('Tuma barua pepe ya kubadili nenosiri kwenda:\n$email?'),
+          title: Text(l10n.settingsChangePassword),
+          content: Text(l10n.settingsResetPasswordPrompt(email)),
           actions: [
             TextButton(
-              onPressed: () => Navigator.pop(ctx), 
-              child: Text('Cancel', style: TextStyle(color: cs.onSurface)),
+              onPressed: () => Navigator.of(ctx).pop(false),
+              child: Text(l10n.cancel, style: TextStyle(color: cs.onSurface)),
             ),
             TextButton(
               onPressed: () async {
                 Navigator.pop(ctx);
                 try {
                   await ref.read(authServiceProvider).sendPasswordResetEmail(email);
-                  if (context.mounted) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(content: const Text('Barua pepe imetumwa kikamilifu.'), behavior: SnackBarBehavior.floating, backgroundColor: cs.primary),
+                  if (ctx.mounted) {
+                    ScaffoldMessenger.of(ctx).showSnackBar(
+                      SnackBar(content: Text(l10n.settingsEmailSent), behavior: SnackBarBehavior.floating, backgroundColor: cs.primary),
                     );
                   }
                 } catch (e) {
-                  if (context.mounted) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(content: const Text('Kuna hitilafu. Tafadhali jaribu tena.'), behavior: SnackBarBehavior.floating, backgroundColor: cs.error),
+                  if (ctx.mounted) {
+                    ScaffoldMessenger.of(ctx).showSnackBar(
+                      SnackBar(content: Text(l10n.settingsError), behavior: SnackBarBehavior.floating, backgroundColor: cs.error),
                     );
                   }
                 }
               },
-              child: const Text('Send'),
+              child: Text(l10n.settingsSend),
             ),
           ],
         ),
@@ -222,16 +222,6 @@ class SettingsScreen extends ConsumerWidget {
               const SizedBox(height: 16),
               _SettingsCard(
                 children: [
-                  _SettingsTile(
-                    title: activeLocale.languageCode == 'sw' ? 'Pakua App na QR Code' : 'Download App & QR Code',
-                    icon: Icons.qr_code_scanner_rounded,
-                    onTap: () => context.pushNamed(AppRouteNames.appDownload),
-                  ),
-                  _SettingsTile(
-                    title: activeLocale.languageCode == 'sw' ? 'Sasisha App (Update)' : 'Update',
-                    icon: Icons.system_update_rounded,
-                    onTap: () => context.pushNamed(AppRouteNames.appDownload),
-                  ),
                   _SettingsTile(
                     title: activeLocale.languageCode == 'sw' ? 'Vigezo na Masharti' : 'Privacy Terms and Condition',
                     icon: Icons.privacy_tip_outlined,
@@ -600,7 +590,7 @@ class _FaceIdTileState extends State<_FaceIdTile> {
           if (val) {
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
-                content: const Text('Face ID imewashwa kwa mafanikio.'),
+                content: Text(AppLocalizations.of(context).settingsFaceIdEnabled),
                 behavior: SnackBarBehavior.floating,
                 backgroundColor: Theme.of(context).colorScheme.primary,
               ),

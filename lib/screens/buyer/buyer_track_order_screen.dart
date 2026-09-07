@@ -218,7 +218,7 @@ class _BuyerTrackOrderScreenState extends ConsumerState<BuyerTrackOrderScreen> {
           borderRadius: BorderRadius.circular(12),
           border: Border.all(color: const Color(0xFF38BDF8), width: 1.5),
         ),
-        child: const Row(
+        child: Row(
           children: [
             Icon(Icons.assignment_return_rounded, color: Color(0xFF0369A1), size: 20),
             SizedBox(width: 10),
@@ -226,8 +226,8 @@ class _BuyerTrackOrderScreenState extends ConsumerState<BuyerTrackOrderScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text('💸 Payment Refunded to You',
-                      style: TextStyle(color: Color(0xFF075985), fontWeight: FontWeight.w800, fontSize: 13)),
+                  Text(AppLocalizations.of(context).trackPaymentRefunded,
+                      style: const TextStyle(color: Color(0xFF075985), fontWeight: FontWeight.w800, fontSize: 13)),
                   SizedBox(height: 4),
                   Text(
                     'Your dispute was approved. Full order amount has been refunded back to your account.',
@@ -250,7 +250,7 @@ class _BuyerTrackOrderScreenState extends ConsumerState<BuyerTrackOrderScreen> {
           borderRadius: BorderRadius.circular(12),
           border: Border.all(color: const Color(0xFFFDE68A), width: 1.5),
         ),
-        child: const Row(
+        child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Icon(Icons.lock_clock, color: Color(0xFFD97706), size: 20),
@@ -259,8 +259,8 @@ class _BuyerTrackOrderScreenState extends ConsumerState<BuyerTrackOrderScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text('🔒 Payment Held Securely',
-                      style: TextStyle(color: Color(0xFF92400E), fontWeight: FontWeight.w800, fontSize: 13)),
+                  Text(AppLocalizations.of(context).trackPaymentHeld,
+                      style: const TextStyle(color: Color(0xFF92400E), fontWeight: FontWeight.w800, fontSize: 13)),
                   SizedBox(height: 4),
                   Text(
                     'Payment will be released to the seller only after you confirm receiving your fish.',
@@ -283,13 +283,13 @@ class _BuyerTrackOrderScreenState extends ConsumerState<BuyerTrackOrderScreen> {
           borderRadius: BorderRadius.circular(12),
           border: Border.all(color: const Color(0xFF86EFAC), width: 1.5),
         ),
-        child: const Row(
+        child: Row(
           children: [
             Icon(Icons.lock_open_rounded, color: Color(0xFF15803D), size: 20),
             SizedBox(width: 10),
             Expanded(
-              child: Text('✅ Payment Released — Seller Received Payout',
-                  style: TextStyle(color: Color(0xFF14532D), fontWeight: FontWeight.w700, fontSize: 13)),
+              child: Text(AppLocalizations.of(context).trackPaymentReleased,
+                  style: const TextStyle(color: Color(0xFF14532D), fontWeight: FontWeight.w700, fontSize: 13)),
             ),
           ],
         ),
@@ -344,8 +344,8 @@ class _BuyerTrackOrderScreenState extends ConsumerState<BuyerTrackOrderScreen> {
           const Divider(height: 1),
           const SizedBox(height: 18),
 
-          const Text('📝 Comments (Optional)',
-              style: TextStyle(fontWeight: FontWeight.w700, fontSize: 13, color: Color(0xFF374151))),
+          Text(AppLocalizations.of(context).trackCommentsOptional,
+              style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 13, color: Color(0xFF374151))),
           const SizedBox(height: 8),
           TextField(
             controller: _commentCtrl,
@@ -374,8 +374,8 @@ class _BuyerTrackOrderScreenState extends ConsumerState<BuyerTrackOrderScreen> {
 
           const SizedBox(height: 16),
 
-          const Text('📷 Proof Photo (Optional)',
-              style: TextStyle(fontWeight: FontWeight.w700, fontSize: 13, color: Color(0xFF374151))),
+          Text(AppLocalizations.of(context).trackProofPhotoOptional,
+              style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 13, color: Color(0xFF374151))),
           const SizedBox(height: 10),
 
           if (_selectedImage != null)
@@ -392,13 +392,13 @@ class _BuyerTrackOrderScreenState extends ConsumerState<BuyerTrackOrderScreen> {
                         color: Colors.black.withValues(alpha: 0.4),
                         borderRadius: BorderRadius.circular(12),
                       ),
-                      child: const Center(
+                      child: Center(
                         child: Column(
                           mainAxisSize: MainAxisSize.min,
                           children: [
-                            CircularProgressIndicator(color: Colors.white, strokeWidth: 2.5),
-                            SizedBox(height: 8),
-                            Text('Uploading photo...', style: TextStyle(color: Colors.white, fontSize: 12)),
+                            const CircularProgressIndicator(color: Colors.white, strokeWidth: 2.5),
+                            const SizedBox(height: 8),
+                            Text(AppLocalizations.of(context).trackUploadingPhoto, style: const TextStyle(color: Colors.white, fontSize: 12)),
                           ],
                         ),
                       ),
@@ -472,8 +472,8 @@ class _BuyerTrackOrderScreenState extends ConsumerState<BuyerTrackOrderScreen> {
               icon: _isSubmitting
                   ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2.5, color: Colors.white))
                   : const Icon(Icons.check_circle_rounded),
-              label: const Text('✅ Received Fish — Order Correct',
-                  style: TextStyle(fontWeight: FontWeight.w800, fontSize: 14)),
+              label: Text(AppLocalizations.of(context).trackReceivedFishCorrect,
+                  style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 14)),
               style: ElevatedButton.styleFrom(
                 backgroundColor: const Color(0xFF15803D),
                 foregroundColor: Colors.white,
@@ -494,8 +494,8 @@ class _BuyerTrackOrderScreenState extends ConsumerState<BuyerTrackOrderScreen> {
                   ? null
                   : () => _submitDispute(order, cs),
               icon: const Icon(Icons.report_problem_rounded, color: Color(0xFFD97706)),
-              label: const Text('⚠️ Incorrect Order — Report Issue',
-                  style: TextStyle(fontWeight: FontWeight.w800, fontSize: 14, color: Color(0xFF92400E))),
+              label: Text(AppLocalizations.of(context).trackIncorrectOrderReport,
+                  style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 14, color: Color(0xFF92400E))),
               style: OutlinedButton.styleFrom(
                 side: const BorderSide(color: Color(0xFFFDE68A), width: 2),
                 backgroundColor: const Color(0xFFFFFBEB),
@@ -544,17 +544,17 @@ class _BuyerTrackOrderScreenState extends ConsumerState<BuyerTrackOrderScreen> {
       context: context,
       builder: (ctx) => AlertDialog(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-        title: const Row(
+        title: Row(
           children: [
-            Icon(Icons.verified_rounded, color: Color(0xFF15803D)),
-            SizedBox(width: 8),
-            Text('Confirm Receipt'),
+            const Icon(Icons.verified_rounded, color: Color(0xFF15803D)),
+            const SizedBox(width: 8),
+            Text(AppLocalizations.of(context).trackConfirmReceipt),
           ],
         ),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const Text('Have you received your fish and are satisfied with your order?'),
+            Text(AppLocalizations.of(context).trackConfirmReceiptMsg),
             const SizedBox(height: 12),
             Container(
               padding: const EdgeInsets.all(12),
@@ -573,7 +573,7 @@ class _BuyerTrackOrderScreenState extends ConsumerState<BuyerTrackOrderScreen> {
         actions: [
           TextButton(
             onPressed: () => Navigator.of(ctx).pop(false),
-            child: const Text('No, Go Back'),
+            child: Text(AppLocalizations.of(context).trackNoGoBack),
           ),
           ElevatedButton(
             onPressed: () => Navigator.of(ctx).pop(true),
@@ -582,7 +582,7 @@ class _BuyerTrackOrderScreenState extends ConsumerState<BuyerTrackOrderScreen> {
               foregroundColor: Colors.white,
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
             ),
-            child: const Text('Yes, I Confirm'),
+            child: Text(AppLocalizations.of(context).trackYesIConfirm),
           ),
         ],
       ),
@@ -603,12 +603,12 @@ class _BuyerTrackOrderScreenState extends ConsumerState<BuyerTrackOrderScreen> {
 
       if (success) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
+          SnackBar(
             content: Row(
               children: [
-                Icon(Icons.check_circle, color: Colors.white),
-                SizedBox(width: 8),
-                Expanded(child: Text('Thank you! Order completed and payment released to seller.')),
+                const Icon(Icons.check_circle, color: Colors.white),
+                const SizedBox(width: 8),
+                Expanded(child: Text(AppLocalizations.of(context).trackOrderCompletedMsg)),
               ],
             ),
             backgroundColor: Color(0xFF15803D),
@@ -617,7 +617,7 @@ class _BuyerTrackOrderScreenState extends ConsumerState<BuyerTrackOrderScreen> {
         );
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('An error occurred. Please try again.'), backgroundColor: Colors.red),
+          SnackBar(content: Text(AppLocalizations.of(context).trackErrorOccurred), backgroundColor: Colors.red),
         );
       }
     } finally {
@@ -628,9 +628,9 @@ class _BuyerTrackOrderScreenState extends ConsumerState<BuyerTrackOrderScreen> {
   Future<void> _submitDispute(OrderModel order, ColorScheme cs) async {
     if (_commentCtrl.text.trim().isEmpty && _selectedImage == null) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Please write a comment or upload a photo to explain the issue.'),
-          backgroundColor: Color(0xFFD97706),
+        SnackBar(
+          content: Text(AppLocalizations.of(context).trackProvideCommentOrPhoto),
+          backgroundColor: const Color(0xFFD97706),
         ),
       );
       return;
@@ -640,17 +640,17 @@ class _BuyerTrackOrderScreenState extends ConsumerState<BuyerTrackOrderScreen> {
       context: context,
       builder: (ctx) => AlertDialog(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-        title: const Row(
+        title: Row(
           children: [
-            Icon(Icons.report_problem_rounded, color: Color(0xFFD97706)),
-            SizedBox(width: 8),
-            Text('Report Issue'),
+            const Icon(Icons.report_problem_rounded, color: Color(0xFFD97706)),
+            const SizedBox(width: 8),
+            Text(AppLocalizations.of(context).trackReportIssueTitle),
           ],
         ),
-        content: const Column(
+        content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Text('Are you sure the order is incorrect?'),
+            Text(AppLocalizations.of(context).trackSureOrderIncorrect),
             SizedBox(height: 8),
             Text(
               'Your report will be sent to the administrator. Payment will remain held until resolved.',
@@ -661,7 +661,7 @@ class _BuyerTrackOrderScreenState extends ConsumerState<BuyerTrackOrderScreen> {
         actions: [
           TextButton(
             onPressed: () => Navigator.of(ctx).pop(false),
-            child: const Text('No, Go Back'),
+            child: Text(AppLocalizations.of(context).trackNoGoBack),
           ),
           ElevatedButton(
             onPressed: () => Navigator.of(ctx).pop(true),
@@ -670,7 +670,7 @@ class _BuyerTrackOrderScreenState extends ConsumerState<BuyerTrackOrderScreen> {
               foregroundColor: Colors.white,
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
             ),
-            child: const Text('Yes, Report Issue'),
+            child: Text(AppLocalizations.of(context).trackYesReportIssue),
           ),
         ],
       ),
@@ -691,12 +691,12 @@ class _BuyerTrackOrderScreenState extends ConsumerState<BuyerTrackOrderScreen> {
 
       if (success) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
+          SnackBar(
             content: Row(
               children: [
-                Icon(Icons.report_problem_rounded, color: Colors.white),
-                SizedBox(width: 8),
-                Expanded(child: Text('Your issue has been reported. Admin will review and contact you shortly.')),
+                const Icon(Icons.report_problem_rounded, color: Colors.white),
+                const SizedBox(width: 8),
+                Expanded(child: Text(AppLocalizations.of(context).trackIssueReportedMsg)),
               ],
             ),
             backgroundColor: Color(0xFFD97706),
@@ -705,7 +705,7 @@ class _BuyerTrackOrderScreenState extends ConsumerState<BuyerTrackOrderScreen> {
         );
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('An error occurred. Please try again.'), backgroundColor: Colors.red),
+          SnackBar(content: Text(AppLocalizations.of(context).trackErrorOccurred), backgroundColor: Colors.red),
         );
       }
     } finally {
@@ -737,8 +737,8 @@ class _BuyerTrackOrderScreenState extends ConsumerState<BuyerTrackOrderScreen> {
         children: [
           const Icon(Icons.verified_rounded, color: Colors.white, size: 48),
           const SizedBox(height: 12),
-          const Text('Order Completed! 🎉',
-              style: TextStyle(color: Colors.white, fontSize: 22, fontWeight: FontWeight.w900, letterSpacing: 0.5)),
+          Text(AppLocalizations.of(context).trackOrderCompletedTitle,
+              style: const TextStyle(color: Colors.white, fontSize: 22, fontWeight: FontWeight.w900, letterSpacing: 0.5)),
           const SizedBox(height: 16),
           Container(
             padding: const EdgeInsets.all(14),
@@ -779,8 +779,8 @@ class _BuyerTrackOrderScreenState extends ConsumerState<BuyerTrackOrderScreen> {
             ),
           ],
           const SizedBox(height: 12),
-          const Text('Thank you for using SamakiFresh Connect.',
-              style: TextStyle(color: Colors.white70, fontSize: 13), textAlign: TextAlign.center),
+          Text(AppLocalizations.of(context).trackThankYouUsing,
+              style: const TextStyle(color: Colors.white70, fontSize: 13), textAlign: TextAlign.center),
         ],
       ),
     );
@@ -804,12 +804,12 @@ class _BuyerTrackOrderScreenState extends ConsumerState<BuyerTrackOrderScreen> {
         children: [
           const Icon(Icons.report_problem_rounded, color: Colors.white, size: 44),
           const SizedBox(height: 10),
-          const Text('⚠️ Issue Reported — Awaiting Admin Review',
-              style: TextStyle(color: Colors.white, fontWeight: FontWeight.w900, fontSize: 16), textAlign: TextAlign.center),
+          Text(AppLocalizations.of(context).trackIssueReportedTitle,
+              style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w900, fontSize: 16), textAlign: TextAlign.center),
           const SizedBox(height: 8),
-          const Text(
-            'Your report was received. Payment is held pending administrator resolution.',
-            style: TextStyle(color: Colors.white70, fontSize: 12, height: 1.4),
+          Text(
+            AppLocalizations.of(context).trackReportReceivedMsg,
+            style: const TextStyle(color: Colors.white70, fontSize: 12, height: 1.4),
             textAlign: TextAlign.center,
           ),
           if (order.buyerComment.isNotEmpty) ...[
@@ -860,11 +860,11 @@ class _BuyerTrackOrderScreenState extends ConsumerState<BuyerTrackOrderScreen> {
         children: [
           const Icon(Icons.assignment_return_rounded, color: Colors.white, size: 44),
           const SizedBox(height: 10),
-          const Text('💸 Full Refund Issued',
-              style: TextStyle(color: Colors.white, fontWeight: FontWeight.w900, fontSize: 18), textAlign: TextAlign.center),
+          Text(AppLocalizations.of(context).trackFullRefundIssued,
+              style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w900, fontSize: 18), textAlign: TextAlign.center),
           const SizedBox(height: 8),
           Text(
-            'TZS ${order.totalPrice.toStringAsFixed(0)} has been refunded back to your account.',
+            AppLocalizations.of(context).trackRefundedToAccount(order.totalPrice.toStringAsFixed(0)),
             style: const TextStyle(color: Colors.white70, fontSize: 13, height: 1.4),
             textAlign: TextAlign.center,
           ),
@@ -1022,7 +1022,7 @@ class _BuyerTrackOrderScreenState extends ConsumerState<BuyerTrackOrderScreen> {
             children: [
               const Icon(Icons.access_time, color: Colors.grey, size: 24),
               const SizedBox(width: 12),
-              Text('ETA', style: TextStyle(color: Colors.grey.shade700, fontSize: 16, fontWeight: FontWeight.w500)),
+              Text(AppLocalizations.of(context).trackETA, style: TextStyle(color: Colors.grey.shade700, fontSize: 16, fontWeight: FontWeight.w500)),
             ],
           ),
           Text(etaText(), style: TextStyle(color: cs.primary, fontSize: 16, fontWeight: FontWeight.bold)),
@@ -1038,7 +1038,7 @@ class _BuyerTrackOrderScreenState extends ConsumerState<BuyerTrackOrderScreen> {
       child: OutlinedButton.icon(
         onPressed: () {},
         icon: Icon(Icons.phone, color: cs.primary),
-        label: Text('Contact Seller', style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold, color: cs.primary)),
+        label: Text(AppLocalizations.of(context).trackContactSeller, style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold, color: cs.primary)),
         style: OutlinedButton.styleFrom(
           side: BorderSide(color: cs.primary, width: 2),
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),

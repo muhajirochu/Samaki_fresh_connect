@@ -4159,6 +4159,642 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'To: {name}'**
   String forSeller(String name);
+
+  /// No description provided for @loginWelcomeBack.
+  ///
+  /// In en, this message translates to:
+  /// **'Welcome Back'**
+  String get loginWelcomeBack;
+
+  /// No description provided for @loginSignInContinue.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign in to continue to your dashboard.'**
+  String get loginSignInContinue;
+
+  /// No description provided for @loginEmailAddress.
+  ///
+  /// In en, this message translates to:
+  /// **'Email address'**
+  String get loginEmailAddress;
+
+  /// No description provided for @loginPasswordHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Password'**
+  String get loginPasswordHint;
+
+  /// No description provided for @loginForgotPassword.
+  ///
+  /// In en, this message translates to:
+  /// **'Forgot password?'**
+  String get loginForgotPassword;
+
+  /// No description provided for @loginOrContinueWith.
+  ///
+  /// In en, this message translates to:
+  /// **'or continue with'**
+  String get loginOrContinueWith;
+
+  /// No description provided for @loginTagline.
+  ///
+  /// In en, this message translates to:
+  /// **'Fresh Fish  ·  Better Lives'**
+  String get loginTagline;
+
+  /// No description provided for @trackPaymentRefunded.
+  ///
+  /// In en, this message translates to:
+  /// **'💸 Payment Refunded to You'**
+  String get trackPaymentRefunded;
+
+  /// No description provided for @trackPaymentHeld.
+  ///
+  /// In en, this message translates to:
+  /// **'🔒 Payment Held Securely'**
+  String get trackPaymentHeld;
+
+  /// No description provided for @trackPaymentReleased.
+  ///
+  /// In en, this message translates to:
+  /// **'✅ Payment Released — Seller Received Payout'**
+  String get trackPaymentReleased;
+
+  /// No description provided for @trackCommentsOptional.
+  ///
+  /// In en, this message translates to:
+  /// **'📝 Comments (Optional)'**
+  String get trackCommentsOptional;
+
+  /// No description provided for @trackProofPhotoOptional.
+  ///
+  /// In en, this message translates to:
+  /// **'📷 Proof Photo (Optional)'**
+  String get trackProofPhotoOptional;
+
+  /// No description provided for @trackUploadingPhoto.
+  ///
+  /// In en, this message translates to:
+  /// **'Uploading photo...'**
+  String get trackUploadingPhoto;
+
+  /// No description provided for @trackReceivedFishCorrect.
+  ///
+  /// In en, this message translates to:
+  /// **'✅ Received Fish — Order Correct'**
+  String get trackReceivedFishCorrect;
+
+  /// No description provided for @trackIncorrectOrderReport.
+  ///
+  /// In en, this message translates to:
+  /// **'⚠️ Incorrect Order — Report Issue'**
+  String get trackIncorrectOrderReport;
+
+  /// No description provided for @trackConfirmReceipt.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirm Receipt'**
+  String get trackConfirmReceipt;
+
+  /// No description provided for @trackConfirmReceiptMsg.
+  ///
+  /// In en, this message translates to:
+  /// **'Have you received your fish and are satisfied with your order?'**
+  String get trackConfirmReceiptMsg;
+
+  /// No description provided for @trackNoGoBack.
+  ///
+  /// In en, this message translates to:
+  /// **'No, Go Back'**
+  String get trackNoGoBack;
+
+  /// No description provided for @trackYesIConfirm.
+  ///
+  /// In en, this message translates to:
+  /// **'Yes, I Confirm'**
+  String get trackYesIConfirm;
+
+  /// No description provided for @trackOrderCompletedMsg.
+  ///
+  /// In en, this message translates to:
+  /// **'Thank you! Order completed and payment released to seller.'**
+  String get trackOrderCompletedMsg;
+
+  /// No description provided for @trackErrorOccurred.
+  ///
+  /// In en, this message translates to:
+  /// **'An error occurred. Please try again.'**
+  String get trackErrorOccurred;
+
+  /// No description provided for @trackProvideCommentOrPhoto.
+  ///
+  /// In en, this message translates to:
+  /// **'Please write a comment or upload a photo to explain the issue.'**
+  String get trackProvideCommentOrPhoto;
+
+  /// No description provided for @trackReportIssueTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Report Issue'**
+  String get trackReportIssueTitle;
+
+  /// No description provided for @trackSureOrderIncorrect.
+  ///
+  /// In en, this message translates to:
+  /// **'Are you sure the order is incorrect?'**
+  String get trackSureOrderIncorrect;
+
+  /// No description provided for @trackYesReportIssue.
+  ///
+  /// In en, this message translates to:
+  /// **'Yes, Report Issue'**
+  String get trackYesReportIssue;
+
+  /// No description provided for @trackIssueReportedMsg.
+  ///
+  /// In en, this message translates to:
+  /// **'Your issue has been reported. Admin will review and contact you shortly.'**
+  String get trackIssueReportedMsg;
+
+  /// No description provided for @trackOrderCompletedTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Order Completed! 🎉'**
+  String get trackOrderCompletedTitle;
+
+  /// No description provided for @trackThankYouUsing.
+  ///
+  /// In en, this message translates to:
+  /// **'Thank you for using SamakiFresh Connect.'**
+  String get trackThankYouUsing;
+
+  /// No description provided for @trackIssueReportedTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'⚠️ Issue Reported — Awaiting Admin Review'**
+  String get trackIssueReportedTitle;
+
+  /// No description provided for @trackFullRefundIssued.
+  ///
+  /// In en, this message translates to:
+  /// **'💸 Full Refund Issued'**
+  String get trackFullRefundIssued;
+
+  /// No description provided for @trackETA.
+  ///
+  /// In en, this message translates to:
+  /// **'ETA'**
+  String get trackETA;
+
+  /// No description provided for @trackContactSeller.
+  ///
+  /// In en, this message translates to:
+  /// **'Contact Seller'**
+  String get trackContactSeller;
+
+  /// No description provided for @trackReportReceivedMsg.
+  ///
+  /// In en, this message translates to:
+  /// **'Your report was received. Payment is held pending administrator resolution.'**
+  String get trackReportReceivedMsg;
+
+  /// No description provided for @trackRefundedToAccount.
+  ///
+  /// In en, this message translates to:
+  /// **'TZS {amount} has been refunded back to your account.'**
+  String trackRefundedToAccount(String amount);
+
+  /// No description provided for @buyerNoActiveOrders.
+  ///
+  /// In en, this message translates to:
+  /// **'No active orders to track'**
+  String get buyerNoActiveOrders;
+
+  /// No description provided for @relativeMinutes.
+  ///
+  /// In en, this message translates to:
+  /// **'{count}m'**
+  String relativeMinutes(int count);
+
+  /// No description provided for @relativeHours.
+  ///
+  /// In en, this message translates to:
+  /// **'{count}h'**
+  String relativeHours(int count);
+
+  /// No description provided for @relativeDays.
+  ///
+  /// In en, this message translates to:
+  /// **'{count}d'**
+  String relativeDays(int count);
+
+  /// No description provided for @sellerNoActiveDeliveries.
+  ///
+  /// In en, this message translates to:
+  /// **'No active deliveries to track'**
+  String get sellerNoActiveDeliveries;
+
+  /// No description provided for @tabOverview.
+  ///
+  /// In en, this message translates to:
+  /// **'Overview'**
+  String get tabOverview;
+
+  /// No description provided for @tabSales.
+  ///
+  /// In en, this message translates to:
+  /// **'Sales'**
+  String get tabSales;
+
+  /// No description provided for @tabOrders.
+  ///
+  /// In en, this message translates to:
+  /// **'Orders'**
+  String get tabOrders;
+
+  /// No description provided for @tabSellers.
+  ///
+  /// In en, this message translates to:
+  /// **'Sellers'**
+  String get tabSellers;
+
+  /// No description provided for @tabBuyers.
+  ///
+  /// In en, this message translates to:
+  /// **'Buyers'**
+  String get tabBuyers;
+
+  /// No description provided for @tabRevenue.
+  ///
+  /// In en, this message translates to:
+  /// **'Revenue'**
+  String get tabRevenue;
+
+  /// No description provided for @adminToday.
+  ///
+  /// In en, this message translates to:
+  /// **'Today'**
+  String get adminToday;
+
+  /// No description provided for @adminOrderCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} orders'**
+  String adminOrderCount(int count);
+
+  /// No description provided for @adminTotal.
+  ///
+  /// In en, this message translates to:
+  /// **'Total'**
+  String get adminTotal;
+
+  /// No description provided for @adminNoBuyersYet.
+  ///
+  /// In en, this message translates to:
+  /// **'No buyers yet'**
+  String get adminNoBuyersYet;
+
+  /// No description provided for @adminTabAll.
+  ///
+  /// In en, this message translates to:
+  /// **'All'**
+  String get adminTabAll;
+
+  /// No description provided for @adminTabHeld.
+  ///
+  /// In en, this message translates to:
+  /// **'🔒 Held'**
+  String get adminTabHeld;
+
+  /// No description provided for @adminTabReleased.
+  ///
+  /// In en, this message translates to:
+  /// **'✅ Released'**
+  String get adminTabReleased;
+
+  /// No description provided for @adminTabPending.
+  ///
+  /// In en, this message translates to:
+  /// **'⏳ Pending'**
+  String get adminTabPending;
+
+  /// No description provided for @adminTabDisputed.
+  ///
+  /// In en, this message translates to:
+  /// **'⚠️ Disputed'**
+  String get adminTabDisputed;
+
+  /// No description provided for @adminNoHeldPayments.
+  ///
+  /// In en, this message translates to:
+  /// **'No held payments'**
+  String get adminNoHeldPayments;
+
+  /// No description provided for @adminNoReleasedPayouts.
+  ///
+  /// In en, this message translates to:
+  /// **'No released payouts yet'**
+  String get adminNoReleasedPayouts;
+
+  /// No description provided for @adminNoPendingPayments.
+  ///
+  /// In en, this message translates to:
+  /// **'No pending payments'**
+  String get adminNoPendingPayments;
+
+  /// No description provided for @adminNoActiveDisputes.
+  ///
+  /// In en, this message translates to:
+  /// **'No active disputes'**
+  String get adminNoActiveDisputes;
+
+  /// No description provided for @adminNoTransactions.
+  ///
+  /// In en, this message translates to:
+  /// **'No transactions found'**
+  String get adminNoTransactions;
+
+  /// No description provided for @adminStatusPending.
+  ///
+  /// In en, this message translates to:
+  /// **'PENDING'**
+  String get adminStatusPending;
+
+  /// No description provided for @adminStatusConfirmed.
+  ///
+  /// In en, this message translates to:
+  /// **'CONFIRMED'**
+  String get adminStatusConfirmed;
+
+  /// No description provided for @adminStatusPreparing.
+  ///
+  /// In en, this message translates to:
+  /// **'PREPARING'**
+  String get adminStatusPreparing;
+
+  /// No description provided for @adminStatusReady.
+  ///
+  /// In en, this message translates to:
+  /// **'READY'**
+  String get adminStatusReady;
+
+  /// No description provided for @adminStatusOnTheWay.
+  ///
+  /// In en, this message translates to:
+  /// **'ON THE WAY'**
+  String get adminStatusOnTheWay;
+
+  /// No description provided for @adminStatusCompleted.
+  ///
+  /// In en, this message translates to:
+  /// **'COMPLETED'**
+  String get adminStatusCompleted;
+
+  /// No description provided for @adminStatusCancelled.
+  ///
+  /// In en, this message translates to:
+  /// **'CANCELLED'**
+  String get adminStatusCancelled;
+
+  /// No description provided for @adminStatusDisputed.
+  ///
+  /// In en, this message translates to:
+  /// **'DISPUTED'**
+  String get adminStatusDisputed;
+
+  /// No description provided for @adminRefundedBadge.
+  ///
+  /// In en, this message translates to:
+  /// **'💸 REFUNDED'**
+  String get adminRefundedBadge;
+
+  /// No description provided for @adminPaidBadge.
+  ///
+  /// In en, this message translates to:
+  /// **'💳 PAID'**
+  String get adminPaidBadge;
+
+  /// No description provided for @adminCashBadge.
+  ///
+  /// In en, this message translates to:
+  /// **'💵 CASH'**
+  String get adminCashBadge;
+
+  /// No description provided for @adminPayoutBadge.
+  ///
+  /// In en, this message translates to:
+  /// **'PAYOUT: {status}'**
+  String adminPayoutBadge(String status);
+
+  /// No description provided for @adminBuyerConfirmedBadge.
+  ///
+  /// In en, this message translates to:
+  /// **'✅ BUYER CONFIRMED'**
+  String get adminBuyerConfirmedBadge;
+
+  /// No description provided for @adminDisputeReportedBadge.
+  ///
+  /// In en, this message translates to:
+  /// **'⚠️ DISPUTE REPORTED'**
+  String get adminDisputeReportedBadge;
+
+  /// No description provided for @adminAwaitingConfirmationBadge.
+  ///
+  /// In en, this message translates to:
+  /// **'⏳ AWAITING BUYER CONFIRMATION'**
+  String get adminAwaitingConfirmationBadge;
+
+  /// No description provided for @adminBuyerDisputeReview.
+  ///
+  /// In en, this message translates to:
+  /// **'Buyer Dispute Review'**
+  String get adminBuyerDisputeReview;
+
+  /// No description provided for @adminComplaint.
+  ///
+  /// In en, this message translates to:
+  /// **'Complaint: \"{comment}\"'**
+  String adminComplaint(String comment);
+
+  /// No description provided for @adminRefundBuyerBtn.
+  ///
+  /// In en, this message translates to:
+  /// **'💸 Refund Buyer'**
+  String get adminRefundBuyerBtn;
+
+  /// No description provided for @adminApprovePayoutBtn.
+  ///
+  /// In en, this message translates to:
+  /// **'✅ Approve Payout'**
+  String get adminApprovePayoutBtn;
+
+  /// No description provided for @adminOrderTotal.
+  ///
+  /// In en, this message translates to:
+  /// **'Order Total:'**
+  String get adminOrderTotal;
+
+  /// No description provided for @adminPlatformCommission.
+  ///
+  /// In en, this message translates to:
+  /// **'Platform Commission (5%):'**
+  String get adminPlatformCommission;
+
+  /// No description provided for @adminSellerEarnings.
+  ///
+  /// In en, this message translates to:
+  /// **'Seller Earnings (95%):'**
+  String get adminSellerEarnings;
+
+  /// No description provided for @adminApproveRefundTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Approve Full Refund?'**
+  String get adminApproveRefundTitle;
+
+  /// No description provided for @adminApproveRefundMsg.
+  ///
+  /// In en, this message translates to:
+  /// **'Are you sure you want to refund TZS {amount} to the buyer for Order #{orderId}?\n\nThis will cancel the order and return the funds.'**
+  String adminApproveRefundMsg(String amount, String orderId);
+
+  /// No description provided for @adminCancelBtn.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel'**
+  String get adminCancelBtn;
+
+  /// No description provided for @adminConfirmRefundBtn.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirm Refund'**
+  String get adminConfirmRefundBtn;
+
+  /// No description provided for @adminRefundApprovedMsg.
+  ///
+  /// In en, this message translates to:
+  /// **'Refund of TZS {amount} approved for Order #{orderId}.'**
+  String adminRefundApprovedMsg(String amount, String orderId);
+
+  /// No description provided for @adminApprovePayoutTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Approve Seller Payout?'**
+  String get adminApprovePayoutTitle;
+
+  /// No description provided for @adminApprovePayoutMsg.
+  ///
+  /// In en, this message translates to:
+  /// **'Are you sure you want to resolve this dispute in favor of the seller and release TZS {amount}?'**
+  String adminApprovePayoutMsg(String amount);
+
+  /// No description provided for @adminApprovePayoutConfirmBtn.
+  ///
+  /// In en, this message translates to:
+  /// **'Approve Payout'**
+  String get adminApprovePayoutConfirmBtn;
+
+  /// No description provided for @adminPayoutReleasedMsg.
+  ///
+  /// In en, this message translates to:
+  /// **'Payout released to seller for Order #{orderId}.'**
+  String adminPayoutReleasedMsg(String orderId);
+
+  /// No description provided for @adminEditCategory.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit category'**
+  String get adminEditCategory;
+
+  /// No description provided for @adminCategorySlugHint.
+  ///
+  /// In en, this message translates to:
+  /// **'e.g. {name}'**
+  String adminCategorySlugHint(String name);
+
+  /// No description provided for @adminDeleteCategoryConfirm.
+  ///
+  /// In en, this message translates to:
+  /// **'Permanently delete \"{name}\"?'**
+  String adminDeleteCategoryConfirm(String name);
+
+  /// No description provided for @settingsFeatureComingSoon.
+  ///
+  /// In en, this message translates to:
+  /// **'This feature is coming soon...'**
+  String get settingsFeatureComingSoon;
+
+  /// No description provided for @settingsBuyersOnly.
+  ///
+  /// In en, this message translates to:
+  /// **'This feature is for buyers only.'**
+  String get settingsBuyersOnly;
+
+  /// No description provided for @settingsChangePassword.
+  ///
+  /// In en, this message translates to:
+  /// **'Change Password'**
+  String get settingsChangePassword;
+
+  /// No description provided for @settingsResetPasswordPrompt.
+  ///
+  /// In en, this message translates to:
+  /// **'Send password reset email to:\\n{email}?'**
+  String settingsResetPasswordPrompt(String email);
+
+  /// No description provided for @settingsEmailSent.
+  ///
+  /// In en, this message translates to:
+  /// **'Email sent successfully.'**
+  String get settingsEmailSent;
+
+  /// No description provided for @settingsError.
+  ///
+  /// In en, this message translates to:
+  /// **'An error occurred. Please try again.'**
+  String get settingsError;
+
+  /// No description provided for @settingsSend.
+  ///
+  /// In en, this message translates to:
+  /// **'Send'**
+  String get settingsSend;
+
+  /// No description provided for @settingsFaceIdEnabled.
+  ///
+  /// In en, this message translates to:
+  /// **'Face ID enabled successfully.'**
+  String get settingsFaceIdEnabled;
+
+  /// No description provided for @actionEditListingDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Update price, quantity or description'**
+  String get actionEditListingDesc;
+
+  /// No description provided for @alreadySold.
+  ///
+  /// In en, this message translates to:
+  /// **'Already sold'**
+  String get alreadySold;
+
+  /// No description provided for @actionDeactivateListingDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Hide from marketplace'**
+  String get actionDeactivateListingDesc;
+
+  /// No description provided for @actionDeleteListingDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove this listing permanently'**
+  String get actionDeleteListingDesc;
+
+  /// No description provided for @orderNotSentPaymentFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Order not sent because payment is not confirmed.'**
+  String get orderNotSentPaymentFailed;
 }
 
 class _AppLocalizationsDelegate

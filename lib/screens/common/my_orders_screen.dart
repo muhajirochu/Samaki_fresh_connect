@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import '../../l10n/app_localizations.dart';
 
 import '../../config/route_paths.dart';
 import '../../models/enums/user_role.dart';
@@ -28,7 +29,7 @@ class MyOrdersScreen extends ConsumerWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('My Orders'),
+        title: Text(AppLocalizations.of(context).myOrders),
         centerTitle: true,
       ),
       body: ordersAsync.when(
@@ -40,7 +41,7 @@ class MyOrdersScreen extends ConsumerWidget {
                 children: [
                   Icon(Icons.receipt_long, size: 64, color: Colors.grey.shade400),
                   const SizedBox(height: 16),
-                  const Text('No orders yet', style: TextStyle(fontSize: 18)),
+                  Text(AppLocalizations.of(context).noOrders, style: const TextStyle(fontSize: 18)),
                 ],
               ),
             );
@@ -69,7 +70,7 @@ class MyOrdersScreen extends ConsumerWidget {
           );
         },
         loading: () => const Center(child: CircularProgressIndicator()),
-        error: (e, st) => Center(child: Text('Error loading orders: $e')),
+        error: (e, st) => Center(child: Text(AppLocalizations.of(context).loadingError(e.toString()))),
       ),
     );
   }

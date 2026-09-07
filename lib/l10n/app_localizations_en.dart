@@ -2278,4 +2278,358 @@ class AppLocalizationsEn extends AppLocalizations {
   String forSeller(String name) {
     return 'To: $name';
   }
+
+  @override
+  String get loginWelcomeBack => 'Welcome Back';
+
+  @override
+  String get loginSignInContinue => 'Sign in to continue to your dashboard.';
+
+  @override
+  String get loginEmailAddress => 'Email address';
+
+  @override
+  String get loginPasswordHint => 'Password';
+
+  @override
+  String get loginForgotPassword => 'Forgot password?';
+
+  @override
+  String get loginOrContinueWith => 'or continue with';
+
+  @override
+  String get loginTagline => 'Fresh Fish  ·  Better Lives';
+
+  @override
+  String get trackPaymentRefunded => '💸 Payment Refunded to You';
+
+  @override
+  String get trackPaymentHeld => '🔒 Payment Held Securely';
+
+  @override
+  String get trackPaymentReleased =>
+      '✅ Payment Released — Seller Received Payout';
+
+  @override
+  String get trackCommentsOptional => '📝 Comments (Optional)';
+
+  @override
+  String get trackProofPhotoOptional => '📷 Proof Photo (Optional)';
+
+  @override
+  String get trackUploadingPhoto => 'Uploading photo...';
+
+  @override
+  String get trackReceivedFishCorrect => '✅ Received Fish — Order Correct';
+
+  @override
+  String get trackIncorrectOrderReport => '⚠️ Incorrect Order — Report Issue';
+
+  @override
+  String get trackConfirmReceipt => 'Confirm Receipt';
+
+  @override
+  String get trackConfirmReceiptMsg =>
+      'Have you received your fish and are satisfied with your order?';
+
+  @override
+  String get trackNoGoBack => 'No, Go Back';
+
+  @override
+  String get trackYesIConfirm => 'Yes, I Confirm';
+
+  @override
+  String get trackOrderCompletedMsg =>
+      'Thank you! Order completed and payment released to seller.';
+
+  @override
+  String get trackErrorOccurred => 'An error occurred. Please try again.';
+
+  @override
+  String get trackProvideCommentOrPhoto =>
+      'Please write a comment or upload a photo to explain the issue.';
+
+  @override
+  String get trackReportIssueTitle => 'Report Issue';
+
+  @override
+  String get trackSureOrderIncorrect => 'Are you sure the order is incorrect?';
+
+  @override
+  String get trackYesReportIssue => 'Yes, Report Issue';
+
+  @override
+  String get trackIssueReportedMsg =>
+      'Your issue has been reported. Admin will review and contact you shortly.';
+
+  @override
+  String get trackOrderCompletedTitle => 'Order Completed! 🎉';
+
+  @override
+  String get trackThankYouUsing => 'Thank you for using SamakiFresh Connect.';
+
+  @override
+  String get trackIssueReportedTitle =>
+      '⚠️ Issue Reported — Awaiting Admin Review';
+
+  @override
+  String get trackFullRefundIssued => '💸 Full Refund Issued';
+
+  @override
+  String get trackETA => 'ETA';
+
+  @override
+  String get trackContactSeller => 'Contact Seller';
+
+  @override
+  String get trackReportReceivedMsg =>
+      'Your report was received. Payment is held pending administrator resolution.';
+
+  @override
+  String trackRefundedToAccount(String amount) {
+    return 'TZS $amount has been refunded back to your account.';
+  }
+
+  @override
+  String get buyerNoActiveOrders => 'No active orders to track';
+
+  @override
+  String relativeMinutes(int count) {
+    return '${count}m';
+  }
+
+  @override
+  String relativeHours(int count) {
+    return '${count}h';
+  }
+
+  @override
+  String relativeDays(int count) {
+    return '${count}d';
+  }
+
+  @override
+  String get sellerNoActiveDeliveries => 'No active deliveries to track';
+
+  @override
+  String get tabOverview => 'Overview';
+
+  @override
+  String get tabSales => 'Sales';
+
+  @override
+  String get tabOrders => 'Orders';
+
+  @override
+  String get tabSellers => 'Sellers';
+
+  @override
+  String get tabBuyers => 'Buyers';
+
+  @override
+  String get tabRevenue => 'Revenue';
+
+  @override
+  String get adminToday => 'Today';
+
+  @override
+  String adminOrderCount(int count) {
+    return '$count orders';
+  }
+
+  @override
+  String get adminTotal => 'Total';
+
+  @override
+  String get adminNoBuyersYet => 'No buyers yet';
+
+  @override
+  String get adminTabAll => 'All';
+
+  @override
+  String get adminTabHeld => '🔒 Held';
+
+  @override
+  String get adminTabReleased => '✅ Released';
+
+  @override
+  String get adminTabPending => '⏳ Pending';
+
+  @override
+  String get adminTabDisputed => '⚠️ Disputed';
+
+  @override
+  String get adminNoHeldPayments => 'No held payments';
+
+  @override
+  String get adminNoReleasedPayouts => 'No released payouts yet';
+
+  @override
+  String get adminNoPendingPayments => 'No pending payments';
+
+  @override
+  String get adminNoActiveDisputes => 'No active disputes';
+
+  @override
+  String get adminNoTransactions => 'No transactions found';
+
+  @override
+  String get adminStatusPending => 'PENDING';
+
+  @override
+  String get adminStatusConfirmed => 'CONFIRMED';
+
+  @override
+  String get adminStatusPreparing => 'PREPARING';
+
+  @override
+  String get adminStatusReady => 'READY';
+
+  @override
+  String get adminStatusOnTheWay => 'ON THE WAY';
+
+  @override
+  String get adminStatusCompleted => 'COMPLETED';
+
+  @override
+  String get adminStatusCancelled => 'CANCELLED';
+
+  @override
+  String get adminStatusDisputed => 'DISPUTED';
+
+  @override
+  String get adminRefundedBadge => '💸 REFUNDED';
+
+  @override
+  String get adminPaidBadge => '💳 PAID';
+
+  @override
+  String get adminCashBadge => '💵 CASH';
+
+  @override
+  String adminPayoutBadge(String status) {
+    return 'PAYOUT: $status';
+  }
+
+  @override
+  String get adminBuyerConfirmedBadge => '✅ BUYER CONFIRMED';
+
+  @override
+  String get adminDisputeReportedBadge => '⚠️ DISPUTE REPORTED';
+
+  @override
+  String get adminAwaitingConfirmationBadge => '⏳ AWAITING BUYER CONFIRMATION';
+
+  @override
+  String get adminBuyerDisputeReview => 'Buyer Dispute Review';
+
+  @override
+  String adminComplaint(String comment) {
+    return 'Complaint: \"$comment\"';
+  }
+
+  @override
+  String get adminRefundBuyerBtn => '💸 Refund Buyer';
+
+  @override
+  String get adminApprovePayoutBtn => '✅ Approve Payout';
+
+  @override
+  String get adminOrderTotal => 'Order Total:';
+
+  @override
+  String get adminPlatformCommission => 'Platform Commission (5%):';
+
+  @override
+  String get adminSellerEarnings => 'Seller Earnings (95%):';
+
+  @override
+  String get adminApproveRefundTitle => 'Approve Full Refund?';
+
+  @override
+  String adminApproveRefundMsg(String amount, String orderId) {
+    return 'Are you sure you want to refund TZS $amount to the buyer for Order #$orderId?\n\nThis will cancel the order and return the funds.';
+  }
+
+  @override
+  String get adminCancelBtn => 'Cancel';
+
+  @override
+  String get adminConfirmRefundBtn => 'Confirm Refund';
+
+  @override
+  String adminRefundApprovedMsg(String amount, String orderId) {
+    return 'Refund of TZS $amount approved for Order #$orderId.';
+  }
+
+  @override
+  String get adminApprovePayoutTitle => 'Approve Seller Payout?';
+
+  @override
+  String adminApprovePayoutMsg(String amount) {
+    return 'Are you sure you want to resolve this dispute in favor of the seller and release TZS $amount?';
+  }
+
+  @override
+  String get adminApprovePayoutConfirmBtn => 'Approve Payout';
+
+  @override
+  String adminPayoutReleasedMsg(String orderId) {
+    return 'Payout released to seller for Order #$orderId.';
+  }
+
+  @override
+  String get adminEditCategory => 'Edit category';
+
+  @override
+  String adminCategorySlugHint(String name) {
+    return 'e.g. $name';
+  }
+
+  @override
+  String adminDeleteCategoryConfirm(String name) {
+    return 'Permanently delete \"$name\"?';
+  }
+
+  @override
+  String get settingsFeatureComingSoon => 'This feature is coming soon...';
+
+  @override
+  String get settingsBuyersOnly => 'This feature is for buyers only.';
+
+  @override
+  String get settingsChangePassword => 'Change Password';
+
+  @override
+  String settingsResetPasswordPrompt(String email) {
+    return 'Send password reset email to:\\n$email?';
+  }
+
+  @override
+  String get settingsEmailSent => 'Email sent successfully.';
+
+  @override
+  String get settingsError => 'An error occurred. Please try again.';
+
+  @override
+  String get settingsSend => 'Send';
+
+  @override
+  String get settingsFaceIdEnabled => 'Face ID enabled successfully.';
+
+  @override
+  String get actionEditListingDesc => 'Update price, quantity or description';
+
+  @override
+  String get alreadySold => 'Already sold';
+
+  @override
+  String get actionDeactivateListingDesc => 'Hide from marketplace';
+
+  @override
+  String get actionDeleteListingDesc => 'Remove this listing permanently';
+
+  @override
+  String get orderNotSentPaymentFailed =>
+      'Order not sent because payment is not confirmed.';
 }

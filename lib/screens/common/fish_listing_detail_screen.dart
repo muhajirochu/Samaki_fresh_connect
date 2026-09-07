@@ -376,7 +376,7 @@ class _BuyButton extends HookConsumerWidget {
           if (context.mounted) {
             messenger.showSnackBar(
               SnackBar(
-                content: const Text('Ombi halikutumwa kwa sababu malipo hayajathibitishwa.'),
+                content: Text(l10n.orderNotSentPaymentFailed),
                 backgroundColor: cs.error,
                 behavior: SnackBarBehavior.floating,
               ),

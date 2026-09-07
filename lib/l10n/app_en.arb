@@ -574,7 +574,7 @@
     "updateFailed": "Update failed",
     "markedAsSold": "Marked as sold",
     "actionFailed": "Action failed",
-    "noFishAvailable": "No Fish Available",
+    "noFishAvailable": "No fish available.",
     "checkBackLater": "Check back later for fresh catch!",
     "errorLoadingListing": "Error loading listing",
     "errorLoadingOrder": "Error loading order",
@@ -1056,13 +1056,11 @@
         }
     },
     "selectFishLabel": "Select Fish",
-    "noFishAvailable": "No fish available.",
     "quantityKgLabel": "Quantity (kg)",
     "enterQuantityHint": "Enter quantity",
     "totalAmountLabel": "Total Amount:",
     "additionalNotesLabel": "Additional notes",
     "notesHint": "E.g., I want very fresh fish, will pay on delivery...",
-    "sending": "Sending...",
     "forSeller": "To: {name}",
     "@forSeller": {
         "placeholders": {
@@ -1070,5 +1068,215 @@
                 "type": "String"
             }
         }
-    }
+    },
+    "loginWelcomeBack": "Welcome Back",
+    "loginSignInContinue": "Sign in to continue to your dashboard.",
+    "loginEmailAddress": "Email address",
+    "loginPasswordHint": "Password",
+    "loginForgotPassword": "Forgot password?",
+    "loginOrContinueWith": "or continue with",
+    "loginTagline": "Fresh Fish  ·  Better Lives",
+    "trackPaymentRefunded": "💸 Payment Refunded to You",
+    "trackPaymentHeld": "🔒 Payment Held Securely",
+    "trackPaymentReleased": "✅ Payment Released — Seller Received Payout",
+    "trackCommentsOptional": "📝 Comments (Optional)",
+    "trackProofPhotoOptional": "📷 Proof Photo (Optional)",
+    "trackUploadingPhoto": "Uploading photo...",
+    "trackReceivedFishCorrect": "✅ Received Fish — Order Correct",
+    "trackIncorrectOrderReport": "⚠️ Incorrect Order — Report Issue",
+    "trackConfirmReceipt": "Confirm Receipt",
+    "trackConfirmReceiptMsg": "Have you received your fish and are satisfied with your order?",
+    "trackNoGoBack": "No, Go Back",
+    "trackYesIConfirm": "Yes, I Confirm",
+    "trackOrderCompletedMsg": "Thank you! Order completed and payment released to seller.",
+    "trackErrorOccurred": "An error occurred. Please try again.",
+    "trackProvideCommentOrPhoto": "Please write a comment or upload a photo to explain the issue.",
+    "trackReportIssueTitle": "Report Issue",
+    "trackSureOrderIncorrect": "Are you sure the order is incorrect?",
+    "trackYesReportIssue": "Yes, Report Issue",
+    "trackIssueReportedMsg": "Your issue has been reported. Admin will review and contact you shortly.",
+    "trackOrderCompletedTitle": "Order Completed! 🎉",
+    "trackThankYouUsing": "Thank you for using SamakiFresh Connect.",
+    "trackIssueReportedTitle": "⚠️ Issue Reported — Awaiting Admin Review",
+    "trackFullRefundIssued": "💸 Full Refund Issued",
+    "trackETA": "ETA",
+    "trackContactSeller": "Contact Seller",
+    "trackReportReceivedMsg": "Your report was received. Payment is held pending administrator resolution.",
+    "trackRefundedToAccount": "TZS {amount} has been refunded back to your account.",
+    "@trackRefundedToAccount": {
+        "placeholders": {
+            "amount": {
+                "type": "String"
+            }
+        }
+    },
+    "buyerNoActiveOrders": "No active orders to track",
+    "relativeMinutes": "{count}m",
+    "@relativeMinutes": {
+        "placeholders": {
+            "count": {
+                "type": "int"
+            }
+        }
+    },
+    "relativeHours": "{count}h",
+    "@relativeHours": {
+        "placeholders": {
+            "count": {
+                "type": "int"
+            }
+        }
+    },
+    "relativeDays": "{count}d",
+    "@relativeDays": {
+        "placeholders": {
+            "count": {
+                "type": "int"
+            }
+        }
+    },
+    "sellerNoActiveDeliveries": "No active deliveries to track",
+    "tabOverview": "Overview",
+    "tabSales": "Sales",
+    "tabOrders": "Orders",
+    "tabSellers": "Sellers",
+    "tabBuyers": "Buyers",
+    "tabRevenue": "Revenue",
+    "adminToday": "Today",
+    "adminOrderCount": "{count} orders",
+    "@adminOrderCount": {
+        "placeholders": {
+            "count": {
+                "type": "int"
+            }
+        }
+    },
+    "adminTotal": "Total",
+    "adminNoBuyersYet": "No buyers yet",
+    "adminTabAll": "All",
+    "adminTabHeld": "🔒 Held",
+    "adminTabReleased": "✅ Released",
+    "adminTabPending": "⏳ Pending",
+    "adminTabDisputed": "⚠️ Disputed",
+    "adminNoHeldPayments": "No held payments",
+    "adminNoReleasedPayouts": "No released payouts yet",
+    "adminNoPendingPayments": "No pending payments",
+    "adminNoActiveDisputes": "No active disputes",
+    "adminNoTransactions": "No transactions found",
+    "adminStatusPending": "PENDING",
+    "adminStatusConfirmed": "CONFIRMED",
+    "adminStatusPreparing": "PREPARING",
+    "adminStatusReady": "READY",
+    "adminStatusOnTheWay": "ON THE WAY",
+    "adminStatusCompleted": "COMPLETED",
+    "adminStatusCancelled": "CANCELLED",
+    "adminStatusDisputed": "DISPUTED",
+    "adminRefundedBadge": "💸 REFUNDED",
+    "adminPaidBadge": "💳 PAID",
+    "adminCashBadge": "💵 CASH",
+    "adminPayoutBadge": "PAYOUT: {status}",
+    "@adminPayoutBadge": {
+        "placeholders": {
+            "status": {
+                "type": "String"
+            }
+        }
+    },
+    "adminBuyerConfirmedBadge": "✅ BUYER CONFIRMED",
+    "adminDisputeReportedBadge": "⚠️ DISPUTE REPORTED",
+    "adminAwaitingConfirmationBadge": "⏳ AWAITING BUYER CONFIRMATION",
+    "adminBuyerDisputeReview": "Buyer Dispute Review",
+    "adminComplaint": "Complaint: \"{comment}\"",
+    "@adminComplaint": {
+        "placeholders": {
+            "comment": {
+                "type": "String"
+            }
+        }
+    },
+    "adminRefundBuyerBtn": "💸 Refund Buyer",
+    "adminApprovePayoutBtn": "✅ Approve Payout",
+    "adminOrderTotal": "Order Total:",
+    "adminPlatformCommission": "Platform Commission (5%):",
+    "adminSellerEarnings": "Seller Earnings (95%):",
+    "adminApproveRefundTitle": "Approve Full Refund?",
+    "adminApproveRefundMsg": "Are you sure you want to refund TZS {amount} to the buyer for Order #{orderId}?\n\nThis will cancel the order and return the funds.",
+    "@adminApproveRefundMsg": {
+        "placeholders": {
+            "amount": {
+                "type": "String"
+            },
+            "orderId": {
+                "type": "String"
+            }
+        }
+    },
+    "adminCancelBtn": "Cancel",
+    "adminConfirmRefundBtn": "Confirm Refund",
+    "adminRefundApprovedMsg": "Refund of TZS {amount} approved for Order #{orderId}.",
+    "@adminRefundApprovedMsg": {
+        "placeholders": {
+            "amount": {
+                "type": "String"
+            },
+            "orderId": {
+                "type": "String"
+            }
+        }
+    },
+    "adminApprovePayoutTitle": "Approve Seller Payout?",
+    "adminApprovePayoutMsg": "Are you sure you want to resolve this dispute in favor of the seller and release TZS {amount}?",
+    "@adminApprovePayoutMsg": {
+        "placeholders": {
+            "amount": {
+                "type": "String"
+            }
+        }
+    },
+    "adminApprovePayoutConfirmBtn": "Approve Payout",
+    "adminPayoutReleasedMsg": "Payout released to seller for Order #{orderId}.",
+    "@adminPayoutReleasedMsg": {
+        "placeholders": {
+            "orderId": {
+                "type": "String"
+            }
+        }
+    },
+    "adminEditCategory": "Edit category",
+    "adminCategorySlugHint": "e.g. {name}",
+    "@adminCategorySlugHint": {
+        "placeholders": {
+            "name": {
+                "type": "String"
+            }
+        }
+    },
+    "adminDeleteCategoryConfirm": "Permanently delete \"{name}\"?",
+    "@adminDeleteCategoryConfirm": {
+        "placeholders": {
+            "name": {
+                "type": "String"
+            }
+        }
+    },
+    "settingsFeatureComingSoon": "This feature is coming soon...",
+    "settingsBuyersOnly": "This feature is for buyers only.",
+    "settingsChangePassword": "Change Password",
+    "settingsResetPasswordPrompt": "Send password reset email to:\\n{email}?",
+    "@settingsResetPasswordPrompt": {
+        "placeholders": {
+            "email": {
+                "type": "String"
+            }
+        }
+    },
+    "settingsEmailSent": "Email sent successfully.",
+    "settingsError": "An error occurred. Please try again.",
+    "settingsSend": "Send",
+    "settingsFaceIdEnabled": "Face ID enabled successfully.",
+    "actionEditListingDesc": "Update price, quantity or description",
+    "alreadySold": "Already sold",
+    "actionDeactivateListingDesc": "Hide from marketplace",
+    "actionDeleteListingDesc": "Remove this listing permanently",
+    "orderNotSentPaymentFailed": "Order not sent because payment is not confirmed."
 }
