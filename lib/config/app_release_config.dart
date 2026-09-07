@@ -24,10 +24,10 @@ class AppReleaseConfig {
 
   /// Direct-download HTTPS link for the Release Android APK (arm64-v8a optimized).
   ///
-  /// Points directly to the fast CDN arm64 APK (25MB instead of 67MB fat bundle)
+  /// Points directly to the fast GitHub CDN arm64 APK (27MB)
   /// so downloads complete in seconds over mobile networks.
   static const String downloadUrl =
-      'https://samakifresh.surge.sh/app-arm64-v8a-release.apk';
+      'https://raw.githubusercontent.com/muhajirochu/Samaki_fresh_connect/cleanup/remove-applogger-info/web_release/app-arm64-release.apk';
 
   /// iOS distribution URL — TestFlight invite link or App Store URL.
   ///
