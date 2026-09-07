@@ -269,16 +269,15 @@ class AppDownloadScreen extends StatelessWidget {
                 padding: const EdgeInsets.all(AppSizes.paddingLG),
                 decoration: BoxDecoration(
                   color: Colors.white,
-                  borderRadius:
-                      BorderRadius.circular(AppSizes.radiusLG),
+                  borderRadius: BorderRadius.circular(24),
                   border: Border.all(
-                    color: cs.primary.withValues(alpha: 0.3),
+                    color: const Color(0xFFE0F2FE), // sky-100
                     width: 2,
                   ),
                   boxShadow: [
                     BoxShadow(
-                      color: cs.primary.withValues(alpha: 0.15),
-                      blurRadius: 20,
+                      color: const Color(0xFF0284C7).withValues(alpha: 0.15),
+                      blurRadius: 24,
                       offset: const Offset(0, 8),
                     ),
                   ],
@@ -307,12 +306,21 @@ class AppDownloadScreen extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: AppSizes.paddingSM),
-              SelectableText(
-                AppReleaseConfig.publicDownloadPageUrl,
-                textAlign: TextAlign.center,
-                style: tt.bodySmall?.copyWith(
-                  color: cs.primary,
-                  fontWeight: FontWeight.w700,
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                decoration: BoxDecoration(
+                  color: const Color(0xFFF0F9FF), // sky-50
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(color: const Color(0xFFBAE6FD)), // sky-200
+                ),
+                child: SelectableText(
+                  AppReleaseConfig.publicDownloadPageUrl,
+                  textAlign: TextAlign.center,
+                  style: tt.bodySmall?.copyWith(
+                    color: const Color(0xFF0369A1), // sky-700
+                    fontWeight: FontWeight.w700,
+                    letterSpacing: 0.3,
+                  ),
                 ),
               ),
             ],
@@ -329,7 +337,6 @@ class AppDownloadScreen extends StatelessWidget {
     final cs = Theme.of(context).colorScheme;
     final tt = Theme.of(context).textTheme;
     final gradients = AppGradients.of(context);
-    final isDark = Theme.of(context).brightness == Brightness.dark;
     final l10n = AppLocalizations.of(context);
 
     final platform = defaultTargetPlatform;
@@ -537,25 +544,20 @@ class AppDownloadScreen extends StatelessWidget {
                             AppSizes.radiusLG,
                           ),
                           child: Container(
-                            padding: const EdgeInsets.all(
-                              AppSizes.paddingLG,
-                            ),
+                            padding: const EdgeInsets.all(AppSizes.paddingLG),
                             decoration: BoxDecoration(
                               color: Colors.white,
-                              borderRadius: BorderRadius.circular(
-                                AppSizes.radiusLG,
-                              ),
+                              borderRadius: BorderRadius.circular(24),
                               border: Border.all(
-                                color: cs.primary.withValues(alpha: 0.25),
-                                width: 1.5,
+                                color: const Color(0xFFE0F2FE),
+                                width: 2,
                               ),
                               boxShadow: [
                                 BoxShadow(
-                                  color: cs.shadow.withValues(
-                                    alpha: isDark ? 0.4 : 0.08,
-                                  ),
-                                  blurRadius: 16,
-                                  offset: const Offset(0, 6),
+                                  color: const Color(0xFF0284C7)
+                                      .withValues(alpha: 0.12),
+                                  blurRadius: 24,
+                                  offset: const Offset(0, 8),
                                 ),
                               ],
                             ),
@@ -613,14 +615,21 @@ class AppDownloadScreen extends StatelessWidget {
                           ),
                         ),
                         const SizedBox(height: AppSizes.paddingSM),
-                        // Direct download URL — selectable so power users
-                        // can copy it without invoking the share sheet.
-                        SelectableText(
-                          AppReleaseConfig.publicDownloadPageUrl,
-                          textAlign: TextAlign.center,
-                          style: tt.bodySmall?.copyWith(
-                            color: cs.primary,
-                            fontWeight: FontWeight.w700,
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                          decoration: BoxDecoration(
+                            color: const Color(0xFFF0F9FF),
+                            borderRadius: BorderRadius.circular(12),
+                            border: Border.all(color: const Color(0xFFBAE6FD)),
+                          ),
+                          child: SelectableText(
+                            AppReleaseConfig.publicDownloadPageUrl,
+                            textAlign: TextAlign.center,
+                            style: tt.bodySmall?.copyWith(
+                              color: const Color(0xFF0369A1),
+                              fontWeight: FontWeight.w700,
+                              letterSpacing: 0.3,
+                            ),
                           ),
                         ),
                       ],
