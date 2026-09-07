@@ -269,16 +269,10 @@
 
       <div class="size-label">
         <span class="size-dot"></span>
-        <span id="sizeInfo">Simu za kisasa (ARM64) · 27 MB</span>
+        <span id="sizeInfo">APK Size · 27 MB</span>
       </div>
 
-      <!-- Older phone fallback -->
-      <a id="fallbackBtn" href="app-armeabi-release.apk" class="btn-secondary" onclick="startDownload(event, true)">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
-        </svg>
-        <span id="fallbackText">Simu ya zamani? Pakua hapa (ARM · 25 MB)</span>
-      </a>
+
 
       <div class="steps">
         <div class="steps-title" id="stepsTitle">Hatua za Kusakinisha:</div>
@@ -305,12 +299,7 @@
   </div>
 
   <script>
-    function detectArch() {
-      const ua = navigator.userAgent || '';
-      if (/arm64|aarch64|armv8/i.test(ua)) return 'arm64';
-      if (/armv7|armeabi/i.test(ua)) return 'armeabi';
-      return 'arm64';
-    }
+
 
     const translations = {
       sw: {
@@ -322,10 +311,7 @@
         step2:           'Fungua faili la APK kutoka notifications au downloads.',
         step3:           'Kama simu ikiuliza, Ruhusu <em>"Install from unknown sources"</em>.',
         step4:           'Bonyeza <strong>Install</strong> kisha fungua na uanze kutumia!',
-        fallbackText:    'Simu ya zamani? Pakua hapa (ARM &middot; 25 MB)',
         footer:          '&copy; 2026 SamakiFresh Connect &middot; Ukurasa Rasmi wa Kutoa',
-        sizeArm64:       'Simu za kisasa (ARM64) &middot; 27 MB',
-        sizeArm:         'Simu za zamani (ARM 32-bit) &middot; 25 MB',
         statusTitle:     'Inapakua APK...',
         progressLabel:   'Tafadhali subiri — usifunge kivinjari hiki',
         tip:             '💡 <strong>Kumbuka:</strong> APK inapakua kwenye <em>Downloads</em> ya simu. Baada ya kumaliza, bonyeza faili ili usakinishe.',
@@ -339,10 +325,7 @@
         step2:           'Open the downloaded APK file from notifications or downloads.',
         step3:           'If prompted, allow <em>"Install from unknown sources"</em>.',
         step4:           'Press <strong>Install</strong>, then open the app!',
-        fallbackText:    'Older phone? Download here (ARM &middot; 25 MB)',
         footer:          '&copy; 2026 SamakiFresh Connect &middot; Official Release Page',
-        sizeArm64:       'Modern phones (ARM64) &middot; 27 MB',
-        sizeArm:         'Older phones (ARM 32-bit) &middot; 25 MB',
         statusTitle:     'Downloading APK...',
         progressLabel:   'Please wait — do not close this browser tab',
         tip:             '💡 <strong>Tip:</strong> The APK downloads to your phone\'s <em>Downloads</em> folder. Tap the file when complete to install.',
@@ -350,7 +333,6 @@
     };
 
     let currentLang = 'sw';
-    const arch = detectArch();
     let downloadTimer = null;
 
     function positionSlider(lang) {
@@ -364,7 +346,7 @@
     function setLang(lang) {
       currentLang = lang;
       const t = translations[lang];
-      const ids = ['subtitle','btnText','stepsTitle','step1','step2','step3','step4','fallbackText','footer'];
+      const ids = ['subtitle','btnText','stepsTitle','step1','step2','step3','step4','footer'];
       ids.forEach(id => { const el = document.getElementById(id); if (el) el.style.opacity = '0'; });
 
       setTimeout(() => {
@@ -372,8 +354,6 @@
           const el = document.getElementById(id);
           if (el) { el.innerHTML = t[id]; el.style.opacity = '1'; }
         });
-        const sizeInfo = document.getElementById('sizeInfo');
-        if (sizeInfo) sizeInfo.innerHTML = arch === 'armeabi' ? t.sizeArm : t.sizeArm64;
         // Update live status texts if downloading
         const statusEl = document.getElementById('downloadStatus');
         if (statusEl && statusEl.classList.contains('visible')) {
@@ -392,7 +372,7 @@
       localStorage.setItem('samaki_lang', lang);
     }
 
-    function startDownload(e, isFallback) {
+    function startDownload(e) {
       const t = translations[currentLang];
       const btn = document.getElementById('downloadBtn');
       const btnText = document.getElementById('btnText');
@@ -400,7 +380,7 @@
       const progressFill = document.getElementById('progressFill');
       const btnBar = document.getElementById('btnProgressBar');
       const pctEl = document.getElementById('progressPct');
-      const sizeMB = isFallback ? 25 : 27;
+      const sizeMB = 27;
 
       // Show status card
       statusCard.classList.add('visible');
@@ -447,16 +427,6 @@
     }
 
     window.addEventListener('load', function () {
-      const btn = document.getElementById('downloadBtn');
-      const sizeBadge = document.getElementById('sizeBadge');
-      if (arch === 'armeabi') {
-        btn.href = 'app-armeabi-release.apk';
-        sizeBadge.textContent = '⚡ 25 MB';
-      } else {
-        btn.href = 'app-arm64-release.apk';
-        sizeBadge.textContent = '⚡ 27 MB';
-      }
-
       const saved = localStorage.getItem('samaki_lang') || 'sw';
       positionSlider(saved);
       setLang(saved);
