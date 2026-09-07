@@ -104,6 +104,7 @@
     }
     .badge-green { background-color: rgba(13, 148, 136, 0.15); border-color: rgba(34, 197, 94, 0.4); color: #22C55E; }
 
+    /* Download button states */
     .btn-download {
       display: flex; align-items: center; justify-content: center; gap: 12px;
       width: 100%; padding: 18px 24px;
@@ -111,9 +112,21 @@
       color: #FFFFFF; text-decoration: none; font-weight: 800; font-size: 17px;
       border-radius: 20px; box-shadow: 0 12px 24px var(--accent-glow);
       transition: all 0.25s ease; border: 1px solid rgba(255, 255, 255, 0.2); cursor: pointer;
-      margin-bottom: 10px;
+      margin-bottom: 10px; position: relative; overflow: hidden;
     }
-    .btn-download:hover { transform: translateY(-3px); box-shadow: 0 16px 32px rgba(56, 189, 248, 0.5); }
+    .btn-download:hover:not(.downloading) { transform: translateY(-3px); box-shadow: 0 16px 32px rgba(56, 189, 248, 0.5); }
+    .btn-download.downloading {
+      background: linear-gradient(135deg, #075985, #0369A1);
+      cursor: default; pointer-events: none;
+    }
+
+    /* Animated progress bar inside the button */
+    .btn-progress-bar {
+      position: absolute; left: 0; top: 0; bottom: 0;
+      background: rgba(255,255,255,0.15);
+      width: 0%; transition: width 0.4s ease;
+      border-radius: 20px;
+    }
 
     .btn-secondary {
       display: flex; align-items: center; justify-content: center; gap: 10px;
@@ -131,6 +144,62 @@
     }
     .size-dot { width: 7px; height: 7px; border-radius: 50%; background: #22C55E; display: inline-block; animation: pulse 1.5s infinite; }
     @keyframes pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:0.6;transform:scale(1.3)} }
+
+    /* Download progress card */
+    .download-status {
+      display: none;
+      background: rgba(2, 132, 199, 0.08);
+      border: 1px solid rgba(56, 189, 248, 0.25);
+      border-radius: 16px;
+      padding: 16px 18px;
+      margin-bottom: 16px;
+      text-align: left;
+    }
+    .download-status.visible { display: block; }
+    .download-status-title {
+      font-size: 13px; font-weight: 700; color: var(--accent);
+      display: flex; align-items: center; gap: 8px; margin-bottom: 10px;
+    }
+    .spinner {
+      width: 14px; height: 14px;
+      border: 2px solid rgba(56,189,248,0.3);
+      border-top-color: var(--accent);
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+      flex-shrink: 0;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .progress-track {
+      background: rgba(56, 189, 248, 0.15);
+      border-radius: 100px; height: 8px; overflow: hidden; margin-bottom: 8px;
+    }
+    .progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--primary), var(--accent));
+      border-radius: 100px;
+      width: 0%;
+      transition: width 0.4s ease;
+      box-shadow: 0 0 8px rgba(56,189,248,0.5);
+    }
+    .progress-fill.indeterminate {
+      width: 40%;
+      animation: indeterminate 1.5s ease-in-out infinite;
+    }
+    @keyframes indeterminate {
+      0% { transform: translateX(-100%); }
+      100% { transform: translateX(350%); }
+    }
+    .progress-text {
+      font-size: 11px; color: var(--text-muted); font-weight: 600;
+      display: flex; justify-content: space-between;
+    }
+    .tip-box {
+      margin-top: 10px; padding: 10px 12px;
+      background: rgba(2, 132, 199, 0.10);
+      border-radius: 10px; font-size: 11px;
+      color: var(--text-muted); line-height: 1.5;
+    }
+    .tip-box strong { color: var(--accent); }
 
     .steps { margin-top: 24px; text-align: left; border-top: 1px solid rgba(56, 189, 248, 0.15); padding-top: 22px; }
     .steps-title { font-size: 13px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.8px; color: var(--accent); margin-bottom: 16px; }
@@ -169,8 +238,27 @@
         <span class="badge badge-green" id="sizeBadge">⚡ 27 MB</span>
       </div>
 
+      <!-- Download status / progress card -->
+      <div class="download-status" id="downloadStatus">
+        <div class="download-status-title">
+          <span class="spinner"></span>
+          <span id="statusTitle">Inaanza kupakua...</span>
+        </div>
+        <div class="progress-track">
+          <div class="progress-fill indeterminate" id="progressFill"></div>
+        </div>
+        <div class="progress-text">
+          <span id="progressLabel">Tafadhali subiri — usifunge kivinjari hiki</span>
+          <span id="progressPct"></span>
+        </div>
+        <div class="tip-box" id="tipBox">
+          💡 <strong>Kumbuka:</strong> APK inapakua kwenye <em>Downloads</em> ya simu. Baada ya kumaliza, bonyeza faili ili usakinishe.
+        </div>
+      </div>
+
       <!-- Main download button -->
-      <a id="downloadBtn" href="app-arm64-release.apk" class="btn-download">
+      <a id="downloadBtn" href="app-arm64-release.apk" class="btn-download" onclick="startDownload(event)">
+        <div class="btn-progress-bar" id="btnProgressBar"></div>
         <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
           <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
           <polyline points="7 10 12 15 17 10"/>
@@ -185,21 +273,11 @@
       </div>
 
       <!-- Older phone fallback -->
-      <a id="fallbackBtn" href="app-armeabi-release.apk" class="btn-secondary">
+      <a id="fallbackBtn" href="app-armeabi-release.apk" class="btn-secondary" onclick="startDownload(event, true)">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
           <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
         </svg>
         <span id="fallbackText">Simu ya zamani? Pakua hapa (ARM · 25 MB)</span>
-      </a>
-
-      <!-- Universal APK -->
-      <a href="app-release.apk" class="btn-secondary">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
-          <polyline points="7 10 12 15 17 10"/>
-          <line x1="12" y1="15" x2="12" y2="3"/>
-        </svg>
-        <span id="universalText">Tatizo? Jaribu APK Universal (69 MB)</span>
       </a>
 
       <div class="steps">
@@ -231,42 +309,49 @@
       const ua = navigator.userAgent || '';
       if (/arm64|aarch64|armv8/i.test(ua)) return 'arm64';
       if (/armv7|armeabi/i.test(ua)) return 'armeabi';
-      return 'arm64'; // default: modern phones
+      return 'arm64';
     }
 
     const translations = {
       sw: {
-        subtitle:     'Bei Nzuri. Samaki Safi. Utoaji wa Haraka.',
-        btnText:      'Pakua APK Sasa',
-        stepsTitle:   'Hatua za Kusakinisha:',
-        step1:        'Gusa <strong>Pakua APK Sasa</strong> kuanza kupakua.',
-        step2:        'Fungua faili la APK kutoka notifications au downloads.',
-        step3:        'Kama simu ikiuliza, Ruhusu <em>"Install from unknown sources"</em>.',
-        step4:        'Bonyeza <strong>Install</strong> kisha fungua na uanze kutumia!',
-        fallbackText: 'Simu ya zamani? Pakua hapa (ARM &middot; 25 MB)',
-        universalText:'Tatizo? Jaribu APK Universal (69 MB)',
-        footer:       '&copy; 2026 SamakiFresh Connect &middot; Ukurasa Rasmi wa Kutoa',
-        sizeArm64:    'Simu za kisasa (ARM64) &middot; 27 MB',
-        sizeArm:      'Simu za zamani (ARM 32-bit) &middot; 25 MB',
+        subtitle:        'Bei Nzuri. Samaki Safi. Utoaji wa Haraka.',
+        btnText:         'Pakua APK Sasa',
+        btnDownloading:  'Inapakua...',
+        stepsTitle:      'Hatua za Kusakinisha:',
+        step1:           'Gusa <strong>Pakua APK Sasa</strong> kuanza kupakua.',
+        step2:           'Fungua faili la APK kutoka notifications au downloads.',
+        step3:           'Kama simu ikiuliza, Ruhusu <em>"Install from unknown sources"</em>.',
+        step4:           'Bonyeza <strong>Install</strong> kisha fungua na uanze kutumia!',
+        fallbackText:    'Simu ya zamani? Pakua hapa (ARM &middot; 25 MB)',
+        footer:          '&copy; 2026 SamakiFresh Connect &middot; Ukurasa Rasmi wa Kutoa',
+        sizeArm64:       'Simu za kisasa (ARM64) &middot; 27 MB',
+        sizeArm:         'Simu za zamani (ARM 32-bit) &middot; 25 MB',
+        statusTitle:     'Inapakua APK...',
+        progressLabel:   'Tafadhali subiri — usifunge kivinjari hiki',
+        tip:             '💡 <strong>Kumbuka:</strong> APK inapakua kwenye <em>Downloads</em> ya simu. Baada ya kumaliza, bonyeza faili ili usakinishe.',
       },
       en: {
-        subtitle:     'Fair Price. Fresh Fish. Quick Delivery.',
-        btnText:      'Download APK Now',
-        stepsTitle:   'Installation Steps:',
-        step1:        'Tap <strong>Download APK Now</strong> to begin.',
-        step2:        'Open the downloaded APK file from notifications or downloads.',
-        step3:        'If prompted, allow <em>"Install from unknown sources"</em>.',
-        step4:        'Press <strong>Install</strong>, then open the app!',
-        fallbackText: 'Older phone? Download here (ARM &middot; 25 MB)',
-        universalText:'Issues? Try Universal APK (69 MB)',
-        footer:       '&copy; 2026 SamakiFresh Connect &middot; Official Release Page',
-        sizeArm64:    'Modern phones (ARM64) &middot; 27 MB',
-        sizeArm:      'Older phones (ARM 32-bit) &middot; 25 MB',
+        subtitle:        'Fair Price. Fresh Fish. Quick Delivery.',
+        btnText:         'Download APK Now',
+        btnDownloading:  'Downloading...',
+        stepsTitle:      'Installation Steps:',
+        step1:           'Tap <strong>Download APK Now</strong> to begin.',
+        step2:           'Open the downloaded APK file from notifications or downloads.',
+        step3:           'If prompted, allow <em>"Install from unknown sources"</em>.',
+        step4:           'Press <strong>Install</strong>, then open the app!',
+        fallbackText:    'Older phone? Download here (ARM &middot; 25 MB)',
+        footer:          '&copy; 2026 SamakiFresh Connect &middot; Official Release Page',
+        sizeArm64:       'Modern phones (ARM64) &middot; 27 MB',
+        sizeArm:         'Older phones (ARM 32-bit) &middot; 25 MB',
+        statusTitle:     'Downloading APK...',
+        progressLabel:   'Please wait — do not close this browser tab',
+        tip:             '💡 <strong>Tip:</strong> The APK downloads to your phone\'s <em>Downloads</em> folder. Tap the file when complete to install.',
       }
     };
 
     let currentLang = 'sw';
     const arch = detectArch();
+    let downloadTimer = null;
 
     function positionSlider(lang) {
       const slider = document.getElementById('langSlider');
@@ -279,7 +364,7 @@
     function setLang(lang) {
       currentLang = lang;
       const t = translations[lang];
-      const ids = ['subtitle','btnText','stepsTitle','step1','step2','step3','step4','fallbackText','universalText','footer'];
+      const ids = ['subtitle','btnText','stepsTitle','step1','step2','step3','step4','fallbackText','footer'];
       ids.forEach(id => { const el = document.getElementById(id); if (el) el.style.opacity = '0'; });
 
       setTimeout(() => {
@@ -289,6 +374,13 @@
         });
         const sizeInfo = document.getElementById('sizeInfo');
         if (sizeInfo) sizeInfo.innerHTML = arch === 'armeabi' ? t.sizeArm : t.sizeArm64;
+        // Update live status texts if downloading
+        const statusEl = document.getElementById('downloadStatus');
+        if (statusEl && statusEl.classList.contains('visible')) {
+          document.getElementById('statusTitle').textContent = t.statusTitle;
+          document.getElementById('progressLabel').textContent = t.progressLabel;
+          document.getElementById('tipBox').innerHTML = t.tip;
+        }
       }, 180);
 
       document.getElementById('btnSw').classList.toggle('active', lang === 'sw');
@@ -300,8 +392,61 @@
       localStorage.setItem('samaki_lang', lang);
     }
 
+    function startDownload(e, isFallback) {
+      const t = translations[currentLang];
+      const btn = document.getElementById('downloadBtn');
+      const btnText = document.getElementById('btnText');
+      const statusCard = document.getElementById('downloadStatus');
+      const progressFill = document.getElementById('progressFill');
+      const btnBar = document.getElementById('btnProgressBar');
+      const pctEl = document.getElementById('progressPct');
+      const sizeMB = isFallback ? 25 : 27;
+
+      // Show status card
+      statusCard.classList.add('visible');
+      document.getElementById('statusTitle').textContent = t.statusTitle;
+      document.getElementById('progressLabel').textContent = t.progressLabel;
+      document.getElementById('tipBox').innerHTML = t.tip;
+
+      // Button state
+      btn.classList.add('downloading');
+      btnText.textContent = t.btnDownloading;
+
+      // Simulate progress over estimated time (30s for 27MB on ~7 Mbps)
+      const totalMs = sizeMB * 1200; // ~1.2s per MB estimate
+      const startTime = Date.now();
+
+      if (downloadTimer) clearInterval(downloadTimer);
+
+      progressFill.classList.remove('indeterminate');
+      progressFill.style.width = '0%';
+      pctEl.textContent = '0%';
+
+      downloadTimer = setInterval(() => {
+        const elapsed = Date.now() - startTime;
+        const raw = Math.min(elapsed / totalMs, 0.95); // cap at 95% until done
+        const pct = Math.round(raw * 100);
+        progressFill.style.width = pct + '%';
+        btnBar.style.width = pct + '%';
+        pctEl.textContent = pct + '%';
+
+        if (pct >= 95) {
+          clearInterval(downloadTimer);
+          // After a few more seconds show "Done"
+          setTimeout(() => {
+            progressFill.style.width = '100%';
+            btnBar.style.width = '100%';
+            pctEl.textContent = '100%';
+            document.getElementById('statusTitle').textContent = currentLang === 'sw' ? '✅ Imepakua! Fungua faili usakinishe.' : '✅ Done! Open the file to install.';
+            btn.classList.remove('downloading');
+            btnText.innerHTML = t.btnText;
+            btnBar.style.width = '0%';
+          }, 3000);
+        }
+      }, 400);
+    }
+
     window.addEventListener('load', function () {
-      // Set correct APK link based on device
       const btn = document.getElementById('downloadBtn');
       const sizeBadge = document.getElementById('sizeBadge');
       if (arch === 'armeabi') {
