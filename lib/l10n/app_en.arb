@@ -144,7 +144,7 @@
             }
         }
     },
-    "hello": "Hello,\n{name}",
+    "hello": "Hello, {name}!",
     "yourStreetSellingHub": "Your street selling hub",
     "buyerGreeting": "Hello,\n{name}",
     "quickActions": "Quick Actions",
@@ -463,7 +463,6 @@
     "allListingsSubtitle": "Review and moderate marketplace",
     "transactions": "Transactions",
     "transactionsSubtitle": "View payment history",
-    "hello": "Hello, {name}!",
     "@hello": {
         "placeholders": {
             "name": {
@@ -774,7 +773,6 @@
     "contactsNoPhone": "No phone number on file",
     "contactsCallFailed": "Could not start the call",
     "contactsSmsFailed": "Could not open messages",
-    "buyerGreeting": "Hello,\n{name}",
     "@buyerGreeting": {
         "placeholders": {
             "name": {
@@ -833,7 +831,6 @@
     "estimatedTimeLabel": "Estimated time",
     "trackDeliveryTitle": "Track Delivery",
     "locationNotAvailable": "Location not available",
-
     "appDownloadTitle": "Download App",
     "appDownloadScanHeader": "Scan to Install",
     "appDownloadScanHint": "Point your camera at the code or tap to enlarge.",
@@ -888,12 +885,190 @@
     "appDownloadShareBody": "Install SamakiFresh Connect — {appName} {version}. Scan the QR code or open this link: {url}",
     "@appDownloadShareBody": {
         "placeholders": {
-            "appName": {"type": "String"},
-            "version": {"type": "String"},
-            "url": {"type": "String"}
+            "appName": {
+                "type": "String"
+            },
+            "version": {
+                "type": "String"
+            },
+            "url": {
+                "type": "String"
+            }
         }
     },
     "appDownloadAndroidStepsTitle": "Android",
     "appDownloadIosStepsTitle": "iPhone",
-    "appDownloadIosComingSoonSteps": "TestFlight invite will be provided at release. Scan the QR or check back soon."
+    "appDownloadIosComingSoonSteps": "TestFlight invite will be provided at release. Scan the QR or check back soon.",
+    "confirmPickupCode": "Confirm Number (Pickup Code)",
+    "yourCode": "Your Code: {code}",
+    "@yourCode": {
+        "placeholders": {
+            "code": {
+                "type": "String"
+            }
+        }
+    },
+    "enterPickupCode": "Enter confirmation number (Code)",
+    "preConfirmationChecklistTitle": "Confirm Receipt & Add Comment:",
+    "checkFishArrivedWell": "Did the fish arrive well?",
+    "checkQuantityQualityRight": "Is the quantity and quality correct?",
+    "submitProofPhoto": "Add Proof Photo (Optional):",
+    "takePhoto": "Take Photo",
+    "chooseGallery": "Choose Gallery",
+    "yourComment": "Your Comment",
+    "yourCommentHint": "Write your comment or description here...",
+    "sending": "Sending...",
+    "confirmAndSubmit": "Confirm and Submit to Admin",
+    "submitToAdmin": "Submit to Admin",
+    "adminWillReview": "Admin will review your comment and photo before releasing payment to the seller.",
+    "pleaseEnterCode": "Please enter the confirmation number (code).",
+    "pleaseEnterComment": "Please write your comment before confirming.",
+    "incorrectCodeTryAgain": "Incorrect code. Please try again.",
+    "proofAndCommentSubmitted": "✅ Comment and proof submitted! Admin will review and release payment.",
+    "errorSubmittingProof": "There was a problem submitting your proof.",
+    "buyerProofAndComment": "Buyer's Proof and Comment:",
+    "sellerPendingApprovalMessage": "Your registration has been received successfully! Your seller account is currently being reviewed by a SamakiFresh Admin.\n\nYou will not be able to add new fish, start live selling, or receive orders until your account is verified by an Admin.",
+    "awaitingAdminApprovalStatus": "⏳ AWAITING ADMIN APPROVAL",
+    "awaitingAdminApprovalStatusMsg": "You have submitted your proof and comment. The Admin is reviewing your details to release the payment to the seller.",
+    "yourCommentQuoted": "Your Comment: \"{comment}\"",
+    "@yourCommentQuoted": {
+        "placeholders": {
+            "comment": {
+                "type": "String"
+            }
+        }
+    },
+    "sellerAwaitingAdminApprovalMsg": "Buyer has confirmed and submitted proof. Payment will be released to you once Admin approves.",
+    "startPreparingFish": "Start Preparing Fish",
+    "generatePickupCode": "Generate Pickup Code & Ready",
+    "startDelivery": "Start Delivery",
+    "verifyAndComplete": "Verify & Complete",
+    "orderVerifiedSuccessfully": "Order verified successfully! Payment released.",
+    "invalidCodeTryAgain": "Invalid code. Please try again.",
+    "shareCodeWithSeller": "Share this code with the seller...",
+    "platformCommission": "Platform Commission (5%):",
+    "sellerEarnings": "Seller Earnings (95%):",
+    "earningsTitle": "Earnings",
+    "pendingPayout": "Pending Payout",
+    "checkingAccountStatus": "Checking account status...",
+    "refreshAccountStatus": "Refresh Account Status",
+    "statusPaid": "🔒 Paid",
+    "statusConfirmed": "Confirmed",
+    "statusPreparing": "Preparing",
+    "statusOnTheWay": "On the Way",
+    "statusDisputed": "Disputed",
+    "orderNotSentPaymentUnverified": "Order not sent because payment was not verified.",
+    "wishlistTitle": "Wishlist",
+    "errorPrefix": "Error: {error}",
+    "@errorPrefix": {
+        "placeholders": {
+            "error": {
+                "type": "String"
+            }
+        }
+    },
+    "confirmReceived": "Confirm Received",
+    "confirmReceivedTitle": "Confirm Fish Received",
+    "confirmReceivedBody": "Have you received your fish and are satisfied with the order?",
+    "confirmReceivedWarning": "⚠️ After confirming, payment will be released to the seller and cannot be reversed.",
+    "confirmYes": "Yes, I Confirm",
+    "confirmNo": "No, Go Back",
+    "paymentHeld": "🔒 Payment Held for Safety",
+    "paymentHeldSubtitle": "Payment will be released to the seller only after you confirm receipt.",
+    "paymentReleased": "✅ Payment Released",
+    "paymentReleasedSubtitle": "Seller has received their payment.",
+    "orderCompletedTitle": "Order Completed! 🎉",
+    "orderTotalLabel": "Order Total:",
+    "platformCommissionLabel": "Platform Commission (5%):",
+    "sellerEarningsLabel": "Seller Received (95%):",
+    "confirmingPayment": "Processing...",
+    "paymentConfirmedSuccess": "Thank you! Order completed and payment released to seller.",
+    "paymentConfirmError": "An error occurred. Please try again.",
+    "waitingBuyerConfirmation": "Waiting for Buyer Confirmation",
+    "waitingBuyerSubtitle": "The buyer will confirm receipt, then your payout will be released.",
+    "yourPendingPayout": "Your Pending Payout:",
+    "payoutReleasedTitle": "✅ Order Complete — Payment Sent!",
+    "adminHeldTab": "🔒 Held",
+    "adminReleasedTab": "✅ Released",
+    "adminPendingTab": "⏳ Pending",
+    "buyerConfirmed": "Buyer Confirmed",
+    "buyerNotYetConfirmed": "Buyer Not Yet Confirmed",
+    "paymentReference": "Reference:",
+    "allOrders": "All",
+    "cancelOrderDialogTitle": "Cancel Order?",
+    "cancelOrderDialogBody": "Are you sure you want to cancel this order?",
+    "cancelOrderBtn": "Cancel Order",
+    "orderCancelledSnackbar": "Order cancelled",
+    "orderNewPrefix": "NEW",
+    "testPaymentTitle": "Test Payment Sandbox",
+    "testPaymentSubtitle": "Test the payment system without any real money deduction",
+    "selectPaymentMethod": "Select Payment Method:",
+    "mobileNumberLabel": "Test Phone Number",
+    "testPinLabel": "Test PIN (e.g. 1234)",
+    "testCardLabel": "Test Card Number (4242...)",
+    "cashOnDelivery": "Cash on Delivery",
+    "cashOnDeliverySubtitle": "Pay the seller upon receiving your fish",
+    "confirmTestPayment": "Confirm Test Payment (TZS {amount})",
+    "@confirmTestPayment": {
+        "placeholders": {
+            "amount": {
+                "type": "String"
+            }
+        }
+    },
+    "placeOrderCash": "Place Order (Cash on Delivery)",
+    "paymentHeldMessage": "Payment Held! Confirm fish receipt to release funds. Ref: {ref}",
+    "@paymentHeldMessage": {
+        "placeholders": {
+            "ref": {
+                "type": "String"
+            }
+        }
+    },
+    "orderReceivedCashMessage": "Order Received! Pay the seller upon receiving your fish.",
+    "bankCardTest": "Bank Card / Visa / Mastercard (Test)",
+    "paymentErrorPrefix": "Payment error: {error}",
+    "@paymentErrorPrefix": {
+        "placeholders": {
+            "error": {
+                "type": "String"
+            }
+        }
+    },
+    "cartOrdersName": "Cart Orders ({count})",
+    "@cartOrdersName": {
+        "placeholders": {
+            "count": {
+                "type": "int"
+            }
+        }
+    },
+    "heldUntilConfirmation": " — Payment held until buyer confirms receipt.",
+    "wishlistEmptyText": "Your wishlist is empty",
+    "wishlistEmptyTextSubtitle": "When you add fish you're looking for, we'll notify you when available near you.",
+    "notifyWhenFound": "Notify when found",
+    "upToPrice": "Up to TZS {price}/kg",
+    "@upToPrice": {
+        "placeholders": {
+            "price": {
+                "type": "String"
+            }
+        }
+    },
+    "selectFishLabel": "Select Fish",
+    "noFishAvailable": "No fish available.",
+    "quantityKgLabel": "Quantity (kg)",
+    "enterQuantityHint": "Enter quantity",
+    "totalAmountLabel": "Total Amount:",
+    "additionalNotesLabel": "Additional notes",
+    "notesHint": "E.g., I want very fresh fish, will pay on delivery...",
+    "sending": "Sending...",
+    "forSeller": "To: {name}",
+    "@forSeller": {
+        "placeholders": {
+            "name": {
+                "type": "String"
+            }
+        }
+    }
 }

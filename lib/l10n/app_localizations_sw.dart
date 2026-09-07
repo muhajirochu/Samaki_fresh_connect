@@ -1279,7 +1279,7 @@ class AppLocalizationsSw extends AppLocalizations {
   String get actionFailed => 'Kitendo kimeshindwa';
 
   @override
-  String get noFishAvailable => 'Hakuna Samaki';
+  String get noFishAvailable => 'Hakuna samaki wanaopatikana.';
 
   @override
   String get checkBackLater => 'Rudi baadaye kwa samaki fresh!';
@@ -1919,4 +1919,362 @@ class AppLocalizationsSw extends AppLocalizations {
   @override
   String get appDownloadIosComingSoonSteps =>
       'Mwaliko wa TestFlight utatolewa wakati wa uzinduzi. Skani QR au rudi tena hivi karibuni.';
+
+  @override
+  String get confirmPickupCode => 'Thibitisha Namba (Pickup Code)';
+
+  @override
+  String yourCode(String code) {
+    return 'Namba Yako: $code';
+  }
+
+  @override
+  String get enterPickupCode => 'Ingiza namba ya uthibitisho (Code)';
+
+  @override
+  String get preConfirmationChecklistTitle =>
+      'Thibitisha Upokeaji na Weka Maoni:';
+
+  @override
+  String get checkFishArrivedWell => 'Samaki wamefika vizuri?';
+
+  @override
+  String get checkQuantityQualityRight => 'Kiasi na ubora ni sahihi?';
+
+  @override
+  String get submitProofPhoto => 'Weka Picha ya Ushahidi (Hiari):';
+
+  @override
+  String get takePhoto => 'Piga Picha';
+
+  @override
+  String get chooseGallery => 'Chagua Galari';
+
+  @override
+  String get yourComment => 'Maoni Yako';
+
+  @override
+  String get yourCommentHint => 'Andika maoni au maelezo ya samaki hapa...';
+
+  @override
+  String get sending => 'Inatuma...';
+
+  @override
+  String get confirmAndSubmit => 'Thibitisha na Tuma kwa Admin';
+
+  @override
+  String get submitToAdmin => 'Tuma kwa Admin';
+
+  @override
+  String get adminWillReview =>
+      'Admin atapitia maoni na picha kabla ya kuachilia malipo kwa muuzaji.';
+
+  @override
+  String get pleaseEnterCode => 'Tafadhali ingiza namba ya uthibitisho (code).';
+
+  @override
+  String get pleaseEnterComment =>
+      'Tafadhali andika maoni yako kabla ya kuthibitisha.';
+
+  @override
+  String get incorrectCodeTryAgain =>
+      'Namba sio sahihi. Tafadhali jaribu tena.';
+
+  @override
+  String get proofAndCommentSubmitted =>
+      '✅ Maoni na ushahidi vimewasilishwa! Admin atapitia na kuachilia malipo.';
+
+  @override
+  String get errorSubmittingProof => 'Kuna tatizo wakati wa kutuma ushahidi.';
+
+  @override
+  String get buyerProofAndComment => 'Ushahidi na Maoni ya Mnunuzi:';
+
+  @override
+  String get sellerPendingApprovalMessage =>
+      'Usajili wako umepokelewa kikamilifu! Akaunti yako ya muuzaji ipo kwenye mchakato wa kuhakikiwa na Admin wa SamakiFresh.\n\nHutaweza kuingiza samaki wapya, kuanzisha uuzaji wa live, wala kupokea oda hadi akaunti yako ithibitishwe na Admin.';
+
+  @override
+  String get awaitingAdminApprovalStatus => '⏳ INASUBIRI IDHINI YA ADMIN';
+
+  @override
+  String get awaitingAdminApprovalStatusMsg =>
+      'Umewasilisha ushahidi na maoni yako. Admin anapitia taarifa zako ili kuachilia malipo kwa muuzaji.';
+
+  @override
+  String yourCommentQuoted(String comment) {
+    return 'Maoni Yako: \"$comment\"';
+  }
+
+  @override
+  String get sellerAwaitingAdminApprovalMsg =>
+      'Mnunuzi amethibitisha na kutuma ushahidi. Pesa zitafunguliwa kwako mara tu Admin atakapoidhinisha.';
+
+  @override
+  String get startPreparingFish => 'Anza Kuandaa Samaki';
+
+  @override
+  String get generatePickupCode => 'Tengeneza Kodi & Tayari';
+
+  @override
+  String get startDelivery => 'Anza Kupeleka';
+
+  @override
+  String get verifyAndComplete => 'Thibitisha & Kamilisha';
+
+  @override
+  String get orderVerifiedSuccessfully => 'Oda imethibitishwa! Pesa zimetumwa.';
+
+  @override
+  String get invalidCodeTryAgain => 'Kodi si sahihi. Jaribu tena.';
+
+  @override
+  String get shareCodeWithSeller => 'Mpe muuzaji kodi hii...';
+
+  @override
+  String get platformCommission => 'Kamisheni ya Mtandao (5%):';
+
+  @override
+  String get sellerEarnings => 'Mapato ya Muuzaji (95%):';
+
+  @override
+  String get earningsTitle => 'Mapato';
+
+  @override
+  String get pendingPayout => 'Malipo Yanasubiri';
+
+  @override
+  String get checkingAccountStatus => 'Inakagua hali ya akaunti yako...';
+
+  @override
+  String get refreshAccountStatus => 'Kagua Hali ya Akaunti (Refresh)';
+
+  @override
+  String get statusPaid => '🔒 Imelipwa';
+
+  @override
+  String get statusConfirmed => 'Imekubaliwa';
+
+  @override
+  String get statusPreparing => 'Inaandaliwa';
+
+  @override
+  String get statusOnTheWay => 'Inakuja';
+
+  @override
+  String get statusDisputed => 'Kuna Mgogoro';
+
+  @override
+  String get orderNotSentPaymentUnverified =>
+      'Maagizo hayakutumwa kwa sababu malipo hayajathibitishwa.';
+
+  @override
+  String get wishlistTitle => 'Orodha ya Matakwa';
+
+  @override
+  String errorPrefix(String error) {
+    return 'Hitilafu: $error';
+  }
+
+  @override
+  String get confirmReceived => 'Thibitisha Kupokea';
+
+  @override
+  String get confirmReceivedTitle => 'Thibitisha Kupokea Samaki';
+
+  @override
+  String get confirmReceivedBody =>
+      'Je, umepokea samaki wako na unafurahia oda yako?';
+
+  @override
+  String get confirmReceivedWarning =>
+      '⚠️ Baada ya kuthibitisha, pesa zitatolewa kwa muuzaji na haiwezekani kubatilishwa.';
+
+  @override
+  String get confirmYes => 'Ndio, Nimethibitisha';
+
+  @override
+  String get confirmNo => 'Hapana, Rudi';
+
+  @override
+  String get paymentHeld => '🔒 Malipo Yameshikiliwa kwa Usalama';
+
+  @override
+  String get paymentHeldSubtitle =>
+      'Pesa zitatolewa kwa muuzaji tu baada ya wewe kuthibitisha kupokea samaki.';
+
+  @override
+  String get paymentReleased => '✅ Malipo Yametolewa';
+
+  @override
+  String get paymentReleasedSubtitle => 'Muuzaji amepata pesa zake.';
+
+  @override
+  String get orderCompletedTitle => 'Oda Imekamilika! 🎉';
+
+  @override
+  String get orderTotalLabel => 'Jumla ya Oda:';
+
+  @override
+  String get platformCommissionLabel => 'Kamisheni ya Mfumo (5%):';
+
+  @override
+  String get sellerEarningsLabel => 'Muuzaji Amepata (95%):';
+
+  @override
+  String get confirmingPayment => 'Inashughulikia...';
+
+  @override
+  String get paymentConfirmedSuccess =>
+      'Asante! Oda imekamilika na pesa zimetumwa kwa muuzaji.';
+
+  @override
+  String get paymentConfirmError => 'Kuna hitilafu. Tafadhali jaribu tena.';
+
+  @override
+  String get waitingBuyerConfirmation => 'Inasubiri Uthibitisho wa Mnunuzi';
+
+  @override
+  String get waitingBuyerSubtitle =>
+      'Mnunuzi atathibitisha kupokea samaki, na ndipo pesa zako zitatumwa.';
+
+  @override
+  String get yourPendingPayout => 'Mapato yako ya Kusubiri:';
+
+  @override
+  String get payoutReleasedTitle => '✅ Oda Imekamilika — Pesa Zimetumwa!';
+
+  @override
+  String get adminHeldTab => '🔒 Zimeshikiliwa';
+
+  @override
+  String get adminReleasedTab => '✅ Zimetolewa';
+
+  @override
+  String get adminPendingTab => '⏳ Zinasubiri';
+
+  @override
+  String get buyerConfirmed => 'Mnunuzi Amethibitisha';
+
+  @override
+  String get buyerNotYetConfirmed => 'Mnunuzi Hajathibitisha';
+
+  @override
+  String get paymentReference => 'Kumbukumbu:';
+
+  @override
+  String get allOrders => 'Zote';
+
+  @override
+  String get cancelOrderDialogTitle => 'Ghairi Oda?';
+
+  @override
+  String get cancelOrderDialogBody =>
+      'Je, una uhakika unataka kughairi oda hii?';
+
+  @override
+  String get cancelOrderBtn => 'Ghairi Oda';
+
+  @override
+  String get orderCancelledSnackbar => 'Oda imeghairiwa';
+
+  @override
+  String get orderNewPrefix => 'MPYA';
+
+  @override
+  String get testPaymentTitle => 'Malipo ya Majaribio';
+
+  @override
+  String get testPaymentSubtitle =>
+      'Jaribu mfumo wa malipo bila kukatwa pesa yoyote';
+
+  @override
+  String get selectPaymentMethod => 'Chagua Njia ya Malipo:';
+
+  @override
+  String get mobileNumberLabel => 'Namba ya Simu ya Majaribio';
+
+  @override
+  String get testPinLabel => 'PIN ya Majaribio (k.m. 1234)';
+
+  @override
+  String get testCardLabel => 'Namba ya Kadi ya Majaribio (4242...)';
+
+  @override
+  String get cashOnDelivery => 'Pesa Taslimu (Cash on Delivery)';
+
+  @override
+  String get cashOnDeliverySubtitle => 'Lipa muuzaji ukipokea samaki';
+
+  @override
+  String confirmTestPayment(String amount) {
+    return 'Thibitisha Malipo ya Majaribio (TZS $amount)';
+  }
+
+  @override
+  String get placeOrderCash => 'Weka Agizo (Pesa Taslimu)';
+
+  @override
+  String paymentHeldMessage(String ref) {
+    return 'Malipo Yameshikiliwa! Thibitisha Kupokea Samaki. Ref: $ref';
+  }
+
+  @override
+  String get orderReceivedCashMessage =>
+      'Agizo Limepokelewa! Lipa muuzaji ukipokea samaki.';
+
+  @override
+  String get bankCardTest => 'Kadi ya Benki / Visa / Mastercard (Majaribio)';
+
+  @override
+  String paymentErrorPrefix(String error) {
+    return 'Hitilafu ya malipo: $error';
+  }
+
+  @override
+  String cartOrdersName(int count) {
+    return 'Oda za Kikapu ($count)';
+  }
+
+  @override
+  String get heldUntilConfirmation =>
+      ' — Malipo yameshikiliwa hadi mnunuzi athibitishe kupokea.';
+
+  @override
+  String get wishlistEmptyText => 'Orodha yako ni tupu';
+
+  @override
+  String get wishlistEmptyTextSubtitle =>
+      'Ukiongeza samaki unayotafuta, tutakuarifu mara itakapopatikana karibu nawe.';
+
+  @override
+  String get notifyWhenFound => 'Arifu utakapopata';
+
+  @override
+  String upToPrice(String price) {
+    return 'Hadi TZS $price/kg';
+  }
+
+  @override
+  String get selectFishLabel => 'Chagua Samaki';
+
+  @override
+  String get quantityKgLabel => 'Kiasi (kg)';
+
+  @override
+  String get enterQuantityHint => 'Weka kiasi';
+
+  @override
+  String get totalAmountLabel => 'Jumla ya Malipo:';
+
+  @override
+  String get additionalNotesLabel => 'Maelezo mengine';
+
+  @override
+  String get notesHint => 'Mfano: nataka fresh sana, nitalipia ukileta...';
+
+  @override
+  String forSeller(String name) {
+    return 'Kwa: $name';
+  }
 }

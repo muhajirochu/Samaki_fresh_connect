@@ -1281,7 +1281,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get actionFailed => 'Action failed';
 
   @override
-  String get noFishAvailable => 'No Fish Available';
+  String get noFishAvailable => 'No fish available.';
 
   @override
   String get checkBackLater => 'Check back later for fresh catch!';
@@ -1917,4 +1917,365 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get appDownloadIosComingSoonSteps =>
       'TestFlight invite will be provided at release. Scan the QR or check back soon.';
+
+  @override
+  String get confirmPickupCode => 'Confirm Number (Pickup Code)';
+
+  @override
+  String yourCode(String code) {
+    return 'Your Code: $code';
+  }
+
+  @override
+  String get enterPickupCode => 'Enter confirmation number (Code)';
+
+  @override
+  String get preConfirmationChecklistTitle => 'Confirm Receipt & Add Comment:';
+
+  @override
+  String get checkFishArrivedWell => 'Did the fish arrive well?';
+
+  @override
+  String get checkQuantityQualityRight =>
+      'Is the quantity and quality correct?';
+
+  @override
+  String get submitProofPhoto => 'Add Proof Photo (Optional):';
+
+  @override
+  String get takePhoto => 'Take Photo';
+
+  @override
+  String get chooseGallery => 'Choose Gallery';
+
+  @override
+  String get yourComment => 'Your Comment';
+
+  @override
+  String get yourCommentHint => 'Write your comment or description here...';
+
+  @override
+  String get sending => 'Sending...';
+
+  @override
+  String get confirmAndSubmit => 'Confirm and Submit to Admin';
+
+  @override
+  String get submitToAdmin => 'Submit to Admin';
+
+  @override
+  String get adminWillReview =>
+      'Admin will review your comment and photo before releasing payment to the seller.';
+
+  @override
+  String get pleaseEnterCode => 'Please enter the confirmation number (code).';
+
+  @override
+  String get pleaseEnterComment =>
+      'Please write your comment before confirming.';
+
+  @override
+  String get incorrectCodeTryAgain => 'Incorrect code. Please try again.';
+
+  @override
+  String get proofAndCommentSubmitted =>
+      '✅ Comment and proof submitted! Admin will review and release payment.';
+
+  @override
+  String get errorSubmittingProof =>
+      'There was a problem submitting your proof.';
+
+  @override
+  String get buyerProofAndComment => 'Buyer\'s Proof and Comment:';
+
+  @override
+  String get sellerPendingApprovalMessage =>
+      'Your registration has been received successfully! Your seller account is currently being reviewed by a SamakiFresh Admin.\n\nYou will not be able to add new fish, start live selling, or receive orders until your account is verified by an Admin.';
+
+  @override
+  String get awaitingAdminApprovalStatus => '⏳ AWAITING ADMIN APPROVAL';
+
+  @override
+  String get awaitingAdminApprovalStatusMsg =>
+      'You have submitted your proof and comment. The Admin is reviewing your details to release the payment to the seller.';
+
+  @override
+  String yourCommentQuoted(String comment) {
+    return 'Your Comment: \"$comment\"';
+  }
+
+  @override
+  String get sellerAwaitingAdminApprovalMsg =>
+      'Buyer has confirmed and submitted proof. Payment will be released to you once Admin approves.';
+
+  @override
+  String get startPreparingFish => 'Start Preparing Fish';
+
+  @override
+  String get generatePickupCode => 'Generate Pickup Code & Ready';
+
+  @override
+  String get startDelivery => 'Start Delivery';
+
+  @override
+  String get verifyAndComplete => 'Verify & Complete';
+
+  @override
+  String get orderVerifiedSuccessfully =>
+      'Order verified successfully! Payment released.';
+
+  @override
+  String get invalidCodeTryAgain => 'Invalid code. Please try again.';
+
+  @override
+  String get shareCodeWithSeller => 'Share this code with the seller...';
+
+  @override
+  String get platformCommission => 'Platform Commission (5%):';
+
+  @override
+  String get sellerEarnings => 'Seller Earnings (95%):';
+
+  @override
+  String get earningsTitle => 'Earnings';
+
+  @override
+  String get pendingPayout => 'Pending Payout';
+
+  @override
+  String get checkingAccountStatus => 'Checking account status...';
+
+  @override
+  String get refreshAccountStatus => 'Refresh Account Status';
+
+  @override
+  String get statusPaid => '🔒 Paid';
+
+  @override
+  String get statusConfirmed => 'Confirmed';
+
+  @override
+  String get statusPreparing => 'Preparing';
+
+  @override
+  String get statusOnTheWay => 'On the Way';
+
+  @override
+  String get statusDisputed => 'Disputed';
+
+  @override
+  String get orderNotSentPaymentUnverified =>
+      'Order not sent because payment was not verified.';
+
+  @override
+  String get wishlistTitle => 'Wishlist';
+
+  @override
+  String errorPrefix(String error) {
+    return 'Error: $error';
+  }
+
+  @override
+  String get confirmReceived => 'Confirm Received';
+
+  @override
+  String get confirmReceivedTitle => 'Confirm Fish Received';
+
+  @override
+  String get confirmReceivedBody =>
+      'Have you received your fish and are satisfied with the order?';
+
+  @override
+  String get confirmReceivedWarning =>
+      '⚠️ After confirming, payment will be released to the seller and cannot be reversed.';
+
+  @override
+  String get confirmYes => 'Yes, I Confirm';
+
+  @override
+  String get confirmNo => 'No, Go Back';
+
+  @override
+  String get paymentHeld => '🔒 Payment Held for Safety';
+
+  @override
+  String get paymentHeldSubtitle =>
+      'Payment will be released to the seller only after you confirm receipt.';
+
+  @override
+  String get paymentReleased => '✅ Payment Released';
+
+  @override
+  String get paymentReleasedSubtitle => 'Seller has received their payment.';
+
+  @override
+  String get orderCompletedTitle => 'Order Completed! 🎉';
+
+  @override
+  String get orderTotalLabel => 'Order Total:';
+
+  @override
+  String get platformCommissionLabel => 'Platform Commission (5%):';
+
+  @override
+  String get sellerEarningsLabel => 'Seller Received (95%):';
+
+  @override
+  String get confirmingPayment => 'Processing...';
+
+  @override
+  String get paymentConfirmedSuccess =>
+      'Thank you! Order completed and payment released to seller.';
+
+  @override
+  String get paymentConfirmError => 'An error occurred. Please try again.';
+
+  @override
+  String get waitingBuyerConfirmation => 'Waiting for Buyer Confirmation';
+
+  @override
+  String get waitingBuyerSubtitle =>
+      'The buyer will confirm receipt, then your payout will be released.';
+
+  @override
+  String get yourPendingPayout => 'Your Pending Payout:';
+
+  @override
+  String get payoutReleasedTitle => '✅ Order Complete — Payment Sent!';
+
+  @override
+  String get adminHeldTab => '🔒 Held';
+
+  @override
+  String get adminReleasedTab => '✅ Released';
+
+  @override
+  String get adminPendingTab => '⏳ Pending';
+
+  @override
+  String get buyerConfirmed => 'Buyer Confirmed';
+
+  @override
+  String get buyerNotYetConfirmed => 'Buyer Not Yet Confirmed';
+
+  @override
+  String get paymentReference => 'Reference:';
+
+  @override
+  String get allOrders => 'All';
+
+  @override
+  String get cancelOrderDialogTitle => 'Cancel Order?';
+
+  @override
+  String get cancelOrderDialogBody =>
+      'Are you sure you want to cancel this order?';
+
+  @override
+  String get cancelOrderBtn => 'Cancel Order';
+
+  @override
+  String get orderCancelledSnackbar => 'Order cancelled';
+
+  @override
+  String get orderNewPrefix => 'NEW';
+
+  @override
+  String get testPaymentTitle => 'Test Payment Sandbox';
+
+  @override
+  String get testPaymentSubtitle =>
+      'Test the payment system without any real money deduction';
+
+  @override
+  String get selectPaymentMethod => 'Select Payment Method:';
+
+  @override
+  String get mobileNumberLabel => 'Test Phone Number';
+
+  @override
+  String get testPinLabel => 'Test PIN (e.g. 1234)';
+
+  @override
+  String get testCardLabel => 'Test Card Number (4242...)';
+
+  @override
+  String get cashOnDelivery => 'Cash on Delivery';
+
+  @override
+  String get cashOnDeliverySubtitle =>
+      'Pay the seller upon receiving your fish';
+
+  @override
+  String confirmTestPayment(String amount) {
+    return 'Confirm Test Payment (TZS $amount)';
+  }
+
+  @override
+  String get placeOrderCash => 'Place Order (Cash on Delivery)';
+
+  @override
+  String paymentHeldMessage(String ref) {
+    return 'Payment Held! Confirm fish receipt to release funds. Ref: $ref';
+  }
+
+  @override
+  String get orderReceivedCashMessage =>
+      'Order Received! Pay the seller upon receiving your fish.';
+
+  @override
+  String get bankCardTest => 'Bank Card / Visa / Mastercard (Test)';
+
+  @override
+  String paymentErrorPrefix(String error) {
+    return 'Payment error: $error';
+  }
+
+  @override
+  String cartOrdersName(int count) {
+    return 'Cart Orders ($count)';
+  }
+
+  @override
+  String get heldUntilConfirmation =>
+      ' — Payment held until buyer confirms receipt.';
+
+  @override
+  String get wishlistEmptyText => 'Your wishlist is empty';
+
+  @override
+  String get wishlistEmptyTextSubtitle =>
+      'When you add fish you\'re looking for, we\'ll notify you when available near you.';
+
+  @override
+  String get notifyWhenFound => 'Notify when found';
+
+  @override
+  String upToPrice(String price) {
+    return 'Up to TZS $price/kg';
+  }
+
+  @override
+  String get selectFishLabel => 'Select Fish';
+
+  @override
+  String get quantityKgLabel => 'Quantity (kg)';
+
+  @override
+  String get enterQuantityHint => 'Enter quantity';
+
+  @override
+  String get totalAmountLabel => 'Total Amount:';
+
+  @override
+  String get additionalNotesLabel => 'Additional notes';
+
+  @override
+  String get notesHint =>
+      'E.g., I want very fresh fish, will pay on delivery...';
+
+  @override
+  String forSeller(String name) {
+    return 'To: $name';
+  }
 }

@@ -6,7 +6,6 @@ import 'package:latlong2/latlong.dart' as ll;
 import '../../l10n/app_localizations.dart';
 import '../../models/enums/order_status.dart';
 import '../../models/order_model.dart';
-import '../../providers/buyer_provider.dart';
 import '../../providers/order_tracking_provider.dart';
 import '../../providers/seller_location_provider.dart';
 import '../../providers/tracking_provider.dart';
@@ -25,13 +24,11 @@ class SellerTrackDeliveryScreen extends ConsumerStatefulWidget {
 }
 
 class _SellerTrackDeliveryScreenState extends ConsumerState<SellerTrackDeliveryScreen> {
-  final TextEditingController _codeController = TextEditingController();
 
   @override
   void dispose() {
     // Make sure the live mirror stops when the screen is left mid-delivery.
     ref.read(orderTrackingProvider).stopSharingLocation();
-    _codeController.dispose();
     super.dispose();
   }
 
@@ -41,34 +38,10 @@ class _SellerTrackDeliveryScreenState extends ConsumerState<SellerTrackDeliveryS
     final cs = Theme.of(context).colorScheme;
     final l10n = AppLocalizations.of(context);
 
-    // Start/stop the live seller-position mirror based on order status.
-    // The seller side mirrors its own GPS into orders/{orderId}.streetSellerLocation
-    // while the delivery is in flight; the buyer's existing orderStreamProvider
-    // then re-emits and our `trackingRouteProvider` redraws the polyline.
-    ref.listen<AsyncValue<OrderModel?>>(
-      orderStreamProvider(widget.orderId),
-      (prev, next) {
-        final order = next.valueOrNull;
-        if (order == null) return;
-        final notifier = ref.read(orderTrackingProvider);
-        if (order.status == OrderStatus.accepted ||
-            order.status == OrderStatus.pickupGenerated ||
-            order.status == OrderStatus.arriving) {
-          notifier.startSharingLocation(
-            orderId: widget.orderId,
-            tracker: ref.read(sellerLocationTrackerProvider),
-          );
-        } else if (order.status == OrderStatus.completed ||
-            order.status == OrderStatus.cancelled) {
-          notifier.stopSharingLocation();
-        }
-      },
-    );
-
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
-        title: Text(l10n.trackDeliveryTitle, style: const TextStyle(fontWeight: FontWeight.bold, color: Color(0xFF001E45))),
+        title: Text(l10n.trackOrder, style: const TextStyle(fontWeight: FontWeight.bold, color: Color(0xFF001E45))),
         centerTitle: true,
         backgroundColor: Colors.white,
         elevation: 0,
@@ -79,52 +52,96 @@ class _SellerTrackDeliveryScreenState extends ConsumerState<SellerTrackDeliveryS
           if (order == null) {
             return Center(child: Text(l10n.orderNotFound));
           }
+
           return SingleChildScrollView(
             padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 16.0),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
                 _buildStatusHeader(order, cs),
-                const SizedBox(height: 24),
+                const SizedBox(height: 16),
                 _buildMapCard(order, cs),
                 const SizedBox(height: 32),
                 HorizontalOrderTimeline(currentStatus: order.status),
-                const SizedBox(height: 24),
-                _buildPaymentBanner(order, cs),
-                const SizedBox(height: 24),
+                const SizedBox(height: 32),
                 _buildETASection(order, cs),
                 const SizedBox(height: 24),
+                _buildContactButton(cs),
+                const SizedBox(height: 24),
                 _buildActionButtons(order, cs),
+                const SizedBox(height: 24),
               ],
             ),
           );
         },
         loading: () => const Center(child: CircularProgressIndicator()),
-        error: (e, st) => Center(child: Text('Error loading order: $e')),
+        error: (e, st) => Center(child: Text("${AppLocalizations.of(context).errorLoadingOrder}: ${e.toString()}")),
       ),
     );
   }
 
   Widget _buildStatusHeader(OrderModel order, ColorScheme cs) {
+    String statusText;
+    Color iconBg;
+    IconData icon;
+
+    if (order.isDisputed) {
+      statusText = '⚠️ Order Disputed — Pending Admin Review';
+      iconBg = const Color(0xFFD97706);
+      icon = Icons.report_problem_rounded;
+    } else if (order.buyerConfirmed) {
+      statusText = 'Order Completed ✅';
+      iconBg = Colors.green;
+      icon = Icons.verified_rounded;
+    } else if (order.status == OrderStatus.completed) {
+      statusText = 'Delivered — Awaiting Buyer Confirmation';
+      iconBg = const Color(0xFF0369A1);
+      icon = Icons.schedule_rounded;
+    } else if (order.status == OrderStatus.outForDelivery) {
+      statusText = 'Out for Delivery 🚴';
+      iconBg = cs.primary;
+      icon = Icons.directions_bike;
+    } else if (order.status == OrderStatus.preparing) {
+      statusText = 'Preparing Fish 🐟';
+      iconBg = cs.primary;
+      icon = Icons.restaurant_menu;
+    } else if (order.status == OrderStatus.confirmed) {
+      statusText = 'Order Accepted 🔒';
+      iconBg = const Color(0xFF0369A1);
+      icon = Icons.check_circle_outline;
+    } else if (order.status == OrderStatus.cancelled) {
+      statusText = 'Order Cancelled';
+      iconBg = Colors.red;
+      icon = Icons.cancel_rounded;
+    } else {
+      statusText = 'New Order Request';
+      iconBg = Colors.grey;
+      icon = Icons.notifications_active_rounded;
+    }
+
     return Column(
       children: [
         Container(
-          padding: const EdgeInsets.all(12),
+          padding: const EdgeInsets.all(14),
           decoration: BoxDecoration(
-            color: cs.primary,
+            color: iconBg,
             shape: BoxShape.circle,
+            boxShadow: [
+              BoxShadow(color: iconBg.withValues(alpha: 0.3), blurRadius: 12, offset: const Offset(0, 4)),
+            ],
           ),
-          child: const Icon(Icons.directions_bike, color: Colors.white, size: 36),
+          child: Icon(icon, color: Colors.white, size: 36),
         ),
         const SizedBox(height: 16),
         Text(
-          'Delivery ${order.status.name[0].toUpperCase()}${order.status.name.substring(1)}',
-          style: const TextStyle(fontSize: 26, fontWeight: FontWeight.bold, color: Color(0xFF001E45)),
+          statusText,
+          style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Color(0xFF001E45)),
+          textAlign: TextAlign.center,
         ),
         const SizedBox(height: 6),
         Text(
-          'Order #${order.orderId.substring(0, 8).toUpperCase()}',
-          style: TextStyle(fontSize: 15, color: Colors.grey.shade600, fontWeight: FontWeight.w500),
+          'Order #${order.orderId.substring(0, order.orderId.length > 8 ? 8 : order.orderId.length).toUpperCase()}',
+          style: TextStyle(fontSize: 14, color: Colors.grey.shade600, fontWeight: FontWeight.w500),
         ),
       ],
     );
@@ -132,7 +149,7 @@ class _SellerTrackDeliveryScreenState extends ConsumerState<SellerTrackDeliveryS
 
   Widget _buildMapCard(OrderModel order, ColorScheme cs) {
     return Container(
-      height: 300,
+      height: 260,
       width: double.infinity,
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(20),
@@ -153,7 +170,16 @@ class _SellerTrackDeliveryScreenState extends ConsumerState<SellerTrackDeliveryS
   }
 
   Widget _buildMapContent(OrderModel order, ColorScheme cs) {
-    // Resolve buyer location with fallback
+    ll.LatLng sellerLatLng;
+    final liveSellerLoc = ref.watch(sellerLocationTrackerProvider).lastPosition;
+    if (liveSellerLoc != null) {
+      sellerLatLng = ll.LatLng(liveSellerLoc.latitude, liveSellerLoc.longitude);
+    } else if (order.streetSellerLocation != null) {
+      sellerLatLng = ll.LatLng(order.streetSellerLocation!.latitude, order.streetSellerLocation!.longitude);
+    } else {
+      sellerLatLng = const ll.LatLng(-6.1645, 39.2040);
+    }
+
     ll.LatLng buyerLatLng;
     if (order.buyerLocation != null) {
       buyerLatLng = ll.LatLng(order.buyerLocation!.latitude, order.buyerLocation!.longitude);
@@ -164,38 +190,7 @@ class _SellerTrackDeliveryScreenState extends ConsumerState<SellerTrackDeliveryS
           : const ll.LatLng(-6.1629, 39.2026);
     }
 
-    // Resolve seller location with fallback
-    ll.LatLng sellerLatLng;
-    if (order.streetSellerLocation != null) {
-      sellerLatLng = ll.LatLng(order.streetSellerLocation!.latitude, order.streetSellerLocation!.longitude);
-    } else {
-      final sellers = ref.watch(activeStreetSellersProvider).valueOrNull ?? const [];
-      final match = sellers.where((s) => s.sellerId == order.streetSellerId).firstOrNull;
-      if (match != null && (match.latitude != 0 || match.longitude != 0)) {
-        sellerLatLng = ll.LatLng(match.latitude, match.longitude);
-      } else {
-        final pos = ref.read(sellerLocationTrackerProvider).lastPosition;
-        sellerLatLng = pos != null
-            ? ll.LatLng(pos.latitude, pos.longitude)
-            : const ll.LatLng(-6.1645, 39.2040);
-      }
-    }
-
     final markers = <Marker>[
-      Marker(
-        point: buyerLatLng,
-        width: 44,
-        height: 44,
-        child: Container(
-          decoration: BoxDecoration(
-            color: const Color(0xFF075985),
-            shape: BoxShape.circle,
-            border: Border.all(color: Colors.white, width: 2),
-            boxShadow: const [BoxShadow(color: Colors.black26, blurRadius: 4)],
-          ),
-          child: const Icon(Icons.person, color: Colors.white, size: 22),
-        ),
-      ),
       Marker(
         point: sellerLatLng,
         width: 44,
@@ -210,6 +205,20 @@ class _SellerTrackDeliveryScreenState extends ConsumerState<SellerTrackDeliveryS
           child: const Icon(Icons.directions_bike, color: Colors.white, size: 22),
         ),
       ),
+      Marker(
+        point: buyerLatLng,
+        width: 44,
+        height: 44,
+        child: Container(
+          decoration: BoxDecoration(
+            color: const Color(0xFF075985),
+            shape: BoxShape.circle,
+            border: Border.all(color: Colors.white, width: 2),
+            boxShadow: const [BoxShadow(color: Colors.black26, blurRadius: 4)],
+          ),
+          child: const Icon(Icons.person, color: Colors.white, size: 22),
+        ),
+      ),
     ];
 
     final routeAsync = ref.watch(trackingRouteProvider(widget.orderId));
@@ -220,24 +229,23 @@ class _SellerTrackDeliveryScreenState extends ConsumerState<SellerTrackDeliveryS
     final polylinePoints = isOsrm
         ? routeResult.points
         : <ll.LatLng>[sellerLatLng, buyerLatLng];
-    final isFallback = !isOsrm;
 
     final polylines = <Polyline>[
       Polyline(
         points: polylinePoints,
         strokeWidth: 5,
         color: const Color(0xFF0284C7),
-        pattern: isFallback
-            ? const StrokePattern.dotted()
-            : const StrokePattern.solid(),
+        pattern: isOsrm
+            ? const StrokePattern.solid()
+            : const StrokePattern.dotted(),
         borderColor: Colors.white,
         borderStrokeWidth: 2,
       ),
     ];
 
     final center = ll.LatLng(
-      (buyerLatLng.latitude + sellerLatLng.latitude) / 2, 
-      (buyerLatLng.longitude + sellerLatLng.longitude) / 2
+      (buyerLatLng.latitude + sellerLatLng.latitude) / 2,
+      (buyerLatLng.longitude + sellerLatLng.longitude) / 2,
     );
 
     return FlutterMap(
@@ -262,128 +270,12 @@ class _SellerTrackDeliveryScreenState extends ConsumerState<SellerTrackDeliveryS
     );
   }
 
-  Widget _buildPaymentBanner(OrderModel order, ColorScheme cs) {
-    if (order.isPaid) {
-      return Container(
-        width: double.infinity,
-        padding: const EdgeInsets.all(16),
-        decoration: BoxDecoration(
-          color: const Color(0xFFE0F2FE),
-          borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: const Color(0xFF0284C7), width: 1.5),
-        ),
-        child: Row(
-          children: [
-            Container(
-              padding: const EdgeInsets.all(8),
-              decoration: const BoxDecoration(
-                color: Color(0xFF0284C7),
-                shape: BoxShape.circle,
-              ),
-              child: const Icon(Icons.check_rounded, color: Colors.white, size: 20),
-            ),
-            const SizedBox(width: 14),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const Text(
-                    '✅ AMELIPA (ORDER PAID)',
-                    style: TextStyle(
-                      color: Color(0xFF075985),
-                      fontWeight: FontWeight.w900,
-                      fontSize: 14,
-                      letterSpacing: 0.5,
-                    ),
-                  ),
-                  const SizedBox(height: 2),
-                  Text(
-                    order.paymentMethod.isNotEmpty
-                        ? 'Njia: ${order.paymentMethod}'
-                        : 'Mnunuzi amelipia mtandaoni kikamilifu',
-                    style: TextStyle(
-                      fontSize: 12,
-                      fontWeight: FontWeight.w600,
-                      color: cs.onSurface.withValues(alpha: 0.8),
-                    ),
-                  ),
-                  if (order.paymentReference.isNotEmpty) ...[
-                    const SizedBox(height: 4),
-                    Text(
-                      'Ref: ${order.paymentReference}',
-                      style: TextStyle(
-                        fontSize: 11,
-                        fontFamily: 'monospace',
-                        fontWeight: FontWeight.bold,
-                        color: cs.primary,
-                      ),
-                    ),
-                  ],
-                ],
-              ),
-            ),
-          ],
-        ),
-      );
-    }
-
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.all(14),
-      decoration: BoxDecoration(
-        color: const Color(0xFFBAE6FD),
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: const Color(0xFF0284C7), width: 1.5),
-      ),
-      child: Row(
-        children: [
-          Container(
-            padding: const EdgeInsets.all(8),
-            decoration: const BoxDecoration(
-              color: Color(0xFF0284C7),
-              shape: BoxShape.circle,
-            ),
-            child: const Icon(Icons.payments_outlined, color: Colors.white, size: 20),
-          ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const Text(
-                  '💵 PESA TASLIMU (CASH ON DELIVERY)',
-                  style: TextStyle(
-                    color: Color(0xFF075985),
-                    fontWeight: FontWeight.w900,
-                    fontSize: 13,
-                  ),
-                ),
-                const SizedBox(height: 2),
-                Text(
-                  'Chukua TZS ${order.totalPrice.toStringAsFixed(0)} wakati wa kumkabidhi samaki.',
-                  style: TextStyle(
-                    fontSize: 12,
-                    color: cs.onSurface.withValues(alpha: 0.8),
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
   Widget _buildETASection(OrderModel order, ColorScheme cs) {
     final routeAsync = ref.watch(trackingRouteProvider(widget.orderId));
     final route = routeAsync.valueOrNull;
     final isFallback = route == null || route.source == RouteSource.fallback;
 
-    Widget row({
-      required IconData icon,
-      required String label,
-      required String value,
-    }) {
+    Widget row({required IconData icon, required String label, required String value}) {
       return Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
@@ -391,38 +283,21 @@ class _SellerTrackDeliveryScreenState extends ConsumerState<SellerTrackDeliveryS
             children: [
               Icon(icon, color: Colors.grey, size: 24),
               const SizedBox(width: 12),
-              Text(
-                label,
-                style: TextStyle(
-                  color: Colors.grey.shade700,
-                  fontSize: 16,
-                  fontWeight: FontWeight.w500,
-                ),
-              ),
+              Text(label, style: TextStyle(color: Colors.grey.shade700, fontSize: 16, fontWeight: FontWeight.w500)),
             ],
           ),
-          Text(
-            value,
-            style: TextStyle(
-              color: cs.primary,
-              fontSize: 18,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
+          Text(value, style: TextStyle(color: cs.primary, fontSize: 18, fontWeight: FontWeight.bold)),
         ],
       );
     }
 
     String etaText() {
-      if (order.status == OrderStatus.completed) return 'Delivered';
+      if (order.buyerConfirmed) return 'Delivered ✅';
+      if (order.isDisputed) return 'Disputed ⚠️';
+      if (order.status == OrderStatus.completed) return 'Arrived — Awaiting Buyer';
       if (order.status == OrderStatus.cancelled) return 'Cancelled';
       if (route != null) return formatRouteEta(route.durationMinutes);
       return 'Calculating...';
-    }
-
-    String distanceText() {
-      if (route == null) return '—';
-      return formatRouteDistance(route.distanceKm);
     }
 
     return Container(
@@ -435,8 +310,8 @@ class _SellerTrackDeliveryScreenState extends ConsumerState<SellerTrackDeliveryS
         children: [
           row(icon: Icons.access_time, label: 'ETA', value: etaText()),
           const Divider(height: 24),
-          row(icon: Icons.straighten, label: 'Distance', value: distanceText()),
-          if (isFallback) ...[
+          row(icon: Icons.straighten, label: 'Distance', value: route != null ? formatRouteDistance(route.distanceKm) : '—'),
+          if (isFallback && !order.buyerConfirmed) ...[
             const SizedBox(height: 12),
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
@@ -447,19 +322,10 @@ class _SellerTrackDeliveryScreenState extends ConsumerState<SellerTrackDeliveryS
               child: const Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Icon(
-                    Icons.info_outline,
-                    size: 14,
-                    color: Color(0xFF0369A1),
-                  ),
-                  const SizedBox(width: 6),
-                  const Text(
-                    'Estimate — live routing unavailable',
-                    style: TextStyle(
-                      color: Color(0xFF075985),
-                      fontSize: 12,
-                    ),
-                  ),
+                  Icon(Icons.info_outline, size: 14, color: Color(0xFF0369A1)),
+                  SizedBox(width: 6),
+                  Text('Estimate — live routing unavailable',
+                      style: TextStyle(color: Color(0xFF075985), fontSize: 12)),
                 ],
               ),
             ),
@@ -469,8 +335,28 @@ class _SellerTrackDeliveryScreenState extends ConsumerState<SellerTrackDeliveryS
     );
   }
 
+  Widget _buildContactButton(ColorScheme cs) {
+    return SizedBox(
+      width: double.infinity,
+      height: 52,
+      child: OutlinedButton.icon(
+        onPressed: () {},
+        icon: Icon(Icons.phone, color: cs.primary),
+        label: Text(
+          'Contact Buyer',
+          style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: cs.primary),
+        ),
+        style: OutlinedButton.styleFrom(
+          side: BorderSide(color: cs.primary, width: 2),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        ),
+      ),
+    );
+  }
+
   Widget _buildActionButtons(OrderModel order, ColorScheme cs) {
     final notifier = ref.read(orderTrackingProvider);
+    final l10n = AppLocalizations.of(context);
 
     if (order.status == OrderStatus.pending) {
       return Row(
@@ -479,24 +365,24 @@ class _SellerTrackDeliveryScreenState extends ConsumerState<SellerTrackDeliveryS
             child: OutlinedButton(
               onPressed: () => notifier.updateOrderStatus(order, OrderStatus.cancelled),
               style: OutlinedButton.styleFrom(padding: const EdgeInsets.symmetric(vertical: 16)),
-              child: const Text('Reject', style: TextStyle(fontSize: 16)),
+              child: Text(l10n.rejectOrder, style: const TextStyle(fontSize: 16)),
             ),
           ),
           const SizedBox(width: 16),
           Expanded(
             child: ElevatedButton(
-              onPressed: () => notifier.updateOrderStatus(order, OrderStatus.accepted),
+              onPressed: () => notifier.updateOrderStatus(order, OrderStatus.confirmed),
               style: ElevatedButton.styleFrom(
                 backgroundColor: cs.primary,
                 foregroundColor: Colors.white,
-                padding: const EdgeInsets.symmetric(vertical: 16)
+                padding: const EdgeInsets.symmetric(vertical: 16),
               ),
-              child: const Text('Accept Order', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+              child: Text(l10n.acceptOrder, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
             ),
           ),
         ],
       );
-    } else if (order.status == OrderStatus.accepted) {
+    } else if (order.status == OrderStatus.confirmed) {
       return SizedBox(
         width: double.infinity,
         child: ElevatedButton(
@@ -504,78 +390,183 @@ class _SellerTrackDeliveryScreenState extends ConsumerState<SellerTrackDeliveryS
           style: ElevatedButton.styleFrom(
             backgroundColor: cs.primary,
             foregroundColor: Colors.white,
-            padding: const EdgeInsets.symmetric(vertical: 16)
+            padding: const EdgeInsets.symmetric(vertical: 16),
           ),
-          child: const Text('Start Preparing Fish', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+          child: Text(l10n.startPreparingFish, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
         ),
       );
     } else if (order.status == OrderStatus.preparing) {
       return SizedBox(
         width: double.infinity,
         child: ElevatedButton(
-          onPressed: () => notifier.generateAndSetPickupCode(order),
+          onPressed: () => notifier.updateOrderStatus(order, OrderStatus.outForDelivery),
           style: ElevatedButton.styleFrom(
             backgroundColor: cs.primary,
             foregroundColor: Colors.white,
-            padding: const EdgeInsets.symmetric(vertical: 16)
+            padding: const EdgeInsets.symmetric(vertical: 16),
           ),
-          child: const Text('Generate Pickup Code & Ready', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+          child: const Text('🚴 Start Delivery — Proceed to Buyer', style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold)),
         ),
       );
-    } else if (order.status == OrderStatus.pickupGenerated) {
+    } else if (order.status == OrderStatus.readyForPickup) {
       return SizedBox(
         width: double.infinity,
         child: ElevatedButton(
-          onPressed: () => notifier.updateOrderStatus(order, OrderStatus.arriving),
+          onPressed: () => notifier.updateOrderStatus(order, OrderStatus.outForDelivery),
           style: ElevatedButton.styleFrom(
             backgroundColor: cs.primary,
             foregroundColor: Colors.white,
-            padding: const EdgeInsets.symmetric(vertical: 16)
+            padding: const EdgeInsets.symmetric(vertical: 16),
           ),
-          child: const Text('Start Delivery', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+          child: const Text('🚴 Start Delivery', style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold)),
         ),
       );
-    } else if (order.status == OrderStatus.arriving) {
+    } else if (order.status == OrderStatus.outForDelivery) {
       return Container(
         width: double.infinity,
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.all(20),
         decoration: BoxDecoration(
           color: const Color(0xFFE0F2FE),
-          border: Border.all(color: const Color(0xFF0284C7), width: 2),
-          borderRadius: BorderRadius.circular(16),
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(color: const Color(0xFF0284C7), width: 1.5),
         ),
         child: Column(
           children: [
+            const Icon(Icons.directions_bike_rounded, color: Color(0xFF0369A1), size: 40),
+            const SizedBox(height: 10),
             const Text(
-              'Waiting for Buyer to verify pickup code...',
-              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: Color(0xFF0284C7)),
+              '🚴 On Your Way to Buyer',
+              style: TextStyle(fontWeight: FontWeight.w900, fontSize: 16, color: Color(0xFF0369A1)),
               textAlign: TextAlign.center,
             ),
-            const SizedBox(height: 12),
-            Text(
-              'Code: ${order.pickupCode}', 
-              style: const TextStyle(fontSize: 24, letterSpacing: 4, fontWeight: FontWeight.bold, color: Color(0xFF0284C7)),
+            const SizedBox(height: 8),
+            const Text(
+              'Delivery in progress. After delivering the fish, the buyer will confirm receipt via their app.',
+              style: TextStyle(fontSize: 12, color: Color(0xFF075985), height: 1.5),
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 14),
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(10),
+                border: Border.all(color: const Color(0xFF0284C7).withValues(alpha: 0.3)),
+              ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const Icon(Icons.lock_clock, color: Color(0xFF0369A1), size: 16),
+                  const SizedBox(width: 6),
+                  Text(
+                    'Pending Earnings: TZS ${(order.totalPrice * 0.95).toStringAsFixed(0)}',
+                    style: const TextStyle(color: Color(0xFF0369A1), fontWeight: FontWeight.bold, fontSize: 13),
+                  ),
+                ],
+              ),
             ),
           ],
         ),
       );
     } else if (order.status == OrderStatus.completed) {
+      final isReleased = order.buyerConfirmed;
       return Container(
         width: double.infinity,
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.all(20),
         decoration: BoxDecoration(
-          color: const Color(0xFF0369A1),
-          border: Border.all(color: const Color(0xFF0284C7), width: 2),
-          borderRadius: BorderRadius.circular(16),
-        ),
-        child: const Center(
-          child: Text(
-            'Delivery Completed!',
-            style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 18),
+          gradient: LinearGradient(
+            colors: isReleased
+                ? [const Color(0xFF15803D), const Color(0xFF16A34A)]
+                : [const Color(0xFF1D4ED8), const Color(0xFF0369A1)],
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
           ),
+          borderRadius: BorderRadius.circular(20),
+          boxShadow: [
+            BoxShadow(
+              color: (isReleased ? const Color(0xFF15803D) : const Color(0xFF1D4ED8)).withValues(alpha: 0.35),
+              blurRadius: 16,
+              offset: const Offset(0, 6),
+            ),
+          ],
         ),
+        child: isReleased
+            ? Column(
+                children: [
+                  const Icon(Icons.verified_rounded, color: Colors.white, size: 44),
+                  const SizedBox(height: 10),
+                  const Text(
+                    '✅ Order Completed — Payout Sent!',
+                    style: TextStyle(color: Colors.white, fontWeight: FontWeight.w900, fontSize: 16),
+                    textAlign: TextAlign.center,
+                  ),
+                  const SizedBox(height: 14),
+                  Container(
+                    padding: const EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                      color: Colors.white.withValues(alpha: 0.15),
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Column(
+                      children: [
+                        _payoutRow('Order Total:', 'TZS ${order.totalPrice.toStringAsFixed(0)}', Colors.white),
+                        const SizedBox(height: 6),
+                        _payoutRow('Commission (5%):', '- TZS ${order.commissionAmount.toStringAsFixed(0)}', Colors.white70),
+                        const Divider(color: Colors.white30, height: 14),
+                        _payoutRow('Your Earnings (95%):', 'TZS ${order.sellerEarnings.toStringAsFixed(0)}', const Color(0xFF86EFAC)),
+                      ],
+                    ),
+                  ),
+                ],
+              )
+            : Column(
+                children: [
+                  const Icon(Icons.schedule_rounded, color: Colors.white, size: 44),
+                  const SizedBox(height: 10),
+                  const Text(
+                    '🕐 Awaiting Buyer Confirmation',
+                    style: TextStyle(color: Colors.white, fontWeight: FontWeight.w900, fontSize: 16),
+                    textAlign: TextAlign.center,
+                  ),
+                  const SizedBox(height: 8),
+                  const Text(
+                    'Order delivered. The buyer will confirm receipt of the fish, releasing your payout.',
+                    style: TextStyle(color: Colors.white70, fontSize: 12, height: 1.4),
+                    textAlign: TextAlign.center,
+                  ),
+                  const SizedBox(height: 14),
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                    decoration: BoxDecoration(
+                      color: Colors.white.withValues(alpha: 0.15),
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        const Icon(Icons.lock_clock, color: Colors.white70, size: 16),
+                        const SizedBox(width: 6),
+                        Text(
+                          'Your Pending Earnings: TZS ${order.totalPrice > 0 ? (order.totalPrice * 0.95).toStringAsFixed(0) : "0"}',
+                          style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 13),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
       );
     }
     return const SizedBox.shrink();
+  }
+
+  Widget _payoutRow(String label, String value, Color valueColor) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Text(label, style: const TextStyle(color: Colors.white70, fontSize: 12)),
+        Text(value, style: TextStyle(color: valueColor, fontWeight: FontWeight.bold, fontSize: 13)),
+      ],
+    );
   }
 }

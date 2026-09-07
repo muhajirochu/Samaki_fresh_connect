@@ -255,6 +255,8 @@ class _ResultsBody extends StatelessWidget {
   }
 }
 
+
+
 class _SearchResultCard extends StatelessWidget {
   final FishSearchResult result;
   final void Function(FishListingWithSeller) onTapListing;
@@ -268,6 +270,7 @@ class _SearchResultCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final cs = theme.colorScheme;
+
     return Container(
       decoration: BoxDecoration(
         color: cs.surface,
@@ -278,8 +281,8 @@ class _SearchResultCard extends StatelessWidget {
         ),
         boxShadow: [
           BoxShadow(
-            color: cs.shadow.withValues(alpha: 0.06),
-            blurRadius: 8,
+            color: cs.shadow.withValues(alpha: 0.04),
+            blurRadius: 6,
             offset: const Offset(0, 2),
           ),
         ],
@@ -287,116 +290,40 @@ class _SearchResultCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          // Header: fish name + total kg + price range.
+          // Sleek compact header: Fish Name & seller count
           Padding(
             padding: const EdgeInsets.fromLTRB(
               AppSizes.paddingMD,
-              AppSizes.paddingMD,
+              AppSizes.paddingSM + 2,
               AppSizes.paddingMD,
               AppSizes.paddingSM,
             ),
             child: Row(
               children: [
-                Container(
-                  width: 40,
-                  height: 40,
-                  decoration: BoxDecoration(
-                    color: cs.primary.withValues(alpha: 0.10),
-                    borderRadius: BorderRadius.circular(AppSizes.radiusMD),
-                  ),
-                  child:
-                      Icon(Icons.set_meal_rounded, color: cs.primary, size: 22),
-                ),
-                const SizedBox(width: AppSizes.paddingMD),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        result.displayName,
-                        style: theme.textTheme.titleMedium?.copyWith(
-                          fontWeight: FontWeight.w700,
-                        ),
-                      ),
-                      const SizedBox(height: 2),
-                      Text(
-                        '${result.listingCount} seller'
-                        '${result.listingCount == 1 ? "" : "s"} · '
-                        '${result.totalKgAvailable.toStringAsFixed(0)} kg in stock',
-                        style: theme.textTheme.bodySmall?.copyWith(
-                          color: cs.onSurface.withValues(alpha: 0.65),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                if (result.anyOnline)
-                  Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: AppSizes.paddingXS,
-                      vertical: 2,
-                    ),
-                    decoration: BoxDecoration(
-                      color: AppColors.primaryTeal.withValues(alpha: 0.12),
-                      borderRadius: BorderRadius.circular(AppSizes.radiusXS),
-                    ),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Container(
-                          width: 6,
-                          height: 6,
-                          decoration: const BoxDecoration(
-                            color: AppColors.primaryTeal,
-                            shape: BoxShape.circle,
-                          ),
-                        ),
-                        const SizedBox(width: 4),
-                        Text(
-                          'Live',
-                          style: theme.textTheme.labelSmall?.copyWith(
-                            color: AppColors.primaryTeal,
-                            fontWeight: FontWeight.w700,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-              ],
-            ),
-          ),
-
-          // Price range.
-          Padding(
-            padding: const EdgeInsets.symmetric(
-              horizontal: AppSizes.paddingMD,
-            ),
-            child: Row(
-              children: [
                 Expanded(
                   child: Text(
-                    'TZS ${result.minPricePerKg.toStringAsFixed(0)} – '
-                    '${result.maxPricePerKg.toStringAsFixed(0)} / kg',
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: theme.textTheme.bodySmall?.copyWith(
-                      color: cs.onSurface.withValues(alpha: 0.65),
-                      fontWeight: FontWeight.w600,
+                    result.displayName,
+                    style: theme.textTheme.titleMedium?.copyWith(
+                      fontWeight: FontWeight.w800,
                     ),
+                  ),
+                ),
+                Text(
+                  '${result.listingCount} seller${result.listingCount == 1 ? "" : "s"}',
+                  style: theme.textTheme.bodySmall?.copyWith(
+                    color: cs.primary,
+                    fontWeight: FontWeight.w700,
                   ),
                 ),
               ],
             ),
           ),
-          const SizedBox(height: AppSizes.paddingSM),
           Divider(
-            color: cs.outline.withValues(alpha: 0.15),
+            color: cs.outline.withValues(alpha: 0.12),
             height: 1,
-            indent: AppSizes.paddingMD,
-            endIndent: AppSizes.paddingMD,
           ),
 
-          // Sellers list (capped at 3 to keep cards scannable).
+          // Sellers list
           for (final pair in result.listings.take(3))
             _SellerRow(pair: pair, onTap: () => onTapListing(pair)),
           if (result.listings.length > 3)
@@ -431,6 +358,7 @@ class _SellerRow extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final cs = theme.colorScheme;
+
     return InkWell(
       onTap: onTap,
       child: Padding(
@@ -442,18 +370,23 @@ class _SellerRow extends StatelessWidget {
         ),
         child: Row(
           children: [
+            // Seller Profile Picture Avatar
             CircleAvatar(
-              radius: 18,
+              radius: 20,
               backgroundColor: cs.surfaceContainerHighest,
-              backgroundImage: pair.seller.profilePictureUrl != null
+              backgroundImage: pair.seller.profilePictureUrl != null &&
+                      pair.seller.profilePictureUrl!.isNotEmpty
                   ? NetworkImage(pair.seller.profilePictureUrl!)
                   : null,
-              child: pair.seller.profilePictureUrl == null
+              child: pair.seller.profilePictureUrl == null ||
+                      pair.seller.profilePictureUrl!.isEmpty
                   ? Icon(Icons.person_rounded,
-                      size: 18, color: cs.onSurface.withValues(alpha: 0.55))
+                      size: 20, color: cs.onSurface.withValues(alpha: 0.55))
                   : null,
             ),
             const SizedBox(width: AppSizes.paddingMD),
+
+            // Seller name & listing details
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -489,6 +422,7 @@ class _SellerRow extends StatelessWidget {
                     'TZS ${pair.listing.pricePerKg.toStringAsFixed(0)} / kg',
                     style: theme.textTheme.bodySmall?.copyWith(
                       color: cs.onSurface.withValues(alpha: 0.65),
+                      fontWeight: FontWeight.w600,
                     ),
                   ),
                 ],

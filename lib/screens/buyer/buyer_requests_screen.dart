@@ -1,12 +1,8 @@
-// Buyer requests screen — lists every FishRequest owned by the current
-// buyer and provides a Cancel action. Streams from
-// `buyerActiveRequestsProvider` (active) plus a fresh-stream for all
-// statuses so the user can see history too.
-
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
 import '../../constants/app_sizes.dart';
+import '../../l10n/app_localizations.dart';
 import '../../models/order_model.dart';
 import '../../models/enums/order_status.dart';
 import '../../providers/buyer_provider.dart';
@@ -39,15 +35,13 @@ class _BuyerRequestsScreenState extends ConsumerState<BuyerRequestsScreen>
 
   @override
   Widget build(BuildContext context) {
-    // We watch ALL requests here, then filter by tab in the body. Using
-    // the active-only provider would have hidden the recently-cancelled
-    // items that the user wants to confirm.
     final session = ref.watch(currentBuyerSessionProvider);
     final cs = Theme.of(context).colorScheme;
+    final l10n = AppLocalizations.of(context);
     if (session == null) {
       return Scaffold(
-        appBar: AppBar(title: const Text('Maombi Yangu')),
-        body: const Center(child: Text('Please sign in as a buyer')),
+        appBar: AppBar(title: Text(l10n.myRequestsTitle)),
+        body: Center(child: Text(l10n.notLoggedIn)),
       );
     }
     final allAsync = ref.watch(buyerAllRequestsProvider);
@@ -55,8 +49,8 @@ class _BuyerRequestsScreenState extends ConsumerState<BuyerRequestsScreen>
     return Scaffold(
       backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       appBar: AppBar(
-        title: const Text('Maombi Yangu',
-            style: TextStyle(fontWeight: FontWeight.w600)),
+        title: Text(l10n.myRequestsTitle,
+            style: const TextStyle(fontWeight: FontWeight.w600)),
         backgroundColor: cs.primary,
         foregroundColor: cs.onPrimary,
         elevation: 0,
@@ -65,22 +59,22 @@ class _BuyerRequestsScreenState extends ConsumerState<BuyerRequestsScreen>
           indicatorColor: cs.onPrimary,
           labelColor: cs.onPrimary,
           unselectedLabelColor: cs.onPrimary.withValues(alpha: 0.70),
-          tabs: const [
-            Tab(text: 'Active'),
-            Tab(text: 'History'),
+          tabs: [
+            Tab(text: l10n.filterActive),
+            Tab(text: l10n.logsTitle),
           ],
         ),
       ),
       body: allAsync.when(
         loading: () => const Center(child: CircularProgressIndicator()),
-        error: (e, _) => Center(child: Text('Error: $e')),
+        error: (e, _) => Center(child: Text(l10n.loadingError(e.toString()))),
         data: (all) {
           final active = all
               .where((r) =>
                   r.status == OrderStatus.pending ||
-                  r.status == OrderStatus.accepted ||
-                  r.status == OrderStatus.pickupGenerated ||
-                  r.status == OrderStatus.arriving)
+                  r.status == OrderStatus.confirmed ||
+                  r.status == OrderStatus.readyForPickup ||
+                  r.status == OrderStatus.outForDelivery)
               .toList();
           final history = all
               .where((r) =>
@@ -107,26 +101,25 @@ class _RequestsList extends ConsumerWidget {
 
   Future<void> _cancel(BuildContext context, WidgetRef ref, OrderModel order) async {
     final cs = Theme.of(context).colorScheme;
+    final l10n = AppLocalizations.of(context);
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
         shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(AppSizes.radiusLG)),
-        title: const Text('Ghairi Oda?'),
-        content: const Text(
-          'Je, una uhakika unataka kughairi oda hii?',
-        ),
+        title: Text(l10n.cancelOrderDialogTitle),
+        content: Text(l10n.cancelOrderDialogBody),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(ctx).pop(false),
-            child: const Text('Hapana'),
+            child: Text(l10n.no),
           ),
           FilledButton(
             onPressed: () => Navigator.of(ctx).pop(true),
             style: FilledButton.styleFrom(
               backgroundColor: cs.primary,
             ),
-            child: const Text('Ghairi Oda'),
+            child: Text(l10n.cancelOrderBtn),
           ),
         ],
       ),
@@ -139,7 +132,7 @@ class _RequestsList extends ConsumerWidget {
     
     messenger.showSnackBar(
       SnackBar(
-        content: const Text('Oda imeghairiwa'),
+        content: Text(l10n.orderCancelledSnackbar),
         backgroundColor: cs.secondary,
         behavior: SnackBarBehavior.floating,
       ),
@@ -149,6 +142,7 @@ class _RequestsList extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final cs = Theme.of(context).colorScheme;
+    final l10n = AppLocalizations.of(context);
     if (requests.isEmpty) {
       return Center(
         child: Padding(
@@ -174,7 +168,7 @@ class _RequestsList extends ConsumerWidget {
               ),
               const SizedBox(height: AppSizes.paddingMD),
               Text(
-                isActive ? 'No active requests' : 'No history yet',
+                isActive ? l10n.noActiveRequests : l10n.noOrdersYetTitle,
                 style: Theme.of(context).textTheme.titleMedium?.copyWith(
                       fontWeight: FontWeight.w700,
                       color: cs.onSurface.withValues(alpha: 0.85),
@@ -183,8 +177,8 @@ class _RequestsList extends ConsumerWidget {
               const SizedBox(height: AppSizes.paddingSM),
               Text(
                 isActive
-                    ? 'Send a request from the map and sellers will see it.'
-                    : 'Past accepted, cancelled and completed requests will appear here.',
+                    ? l10n.noActiveRequestsSubtitle
+                    : l10n.noOrdersSubtitle,
                 textAlign: TextAlign.center,
                 style: TextStyle(
                     color: cs.onSurface.withValues(alpha: 0.65),
@@ -214,7 +208,8 @@ class _RequestTile extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final cs = Theme.of(context).colorScheme;
-    final (statusColor, statusLabel) = _statusVisuals(request.status, cs);
+    final l10n = AppLocalizations.of(context);
+    final (statusColor, statusLabel) = _statusVisuals(request.status, cs, l10n);
     final cancellable = request.status == OrderStatus.pending;
     
     return InkWell(
@@ -246,7 +241,9 @@ class _RequestTile extends ConsumerWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          'Oda #${request.orderId.isNotEmpty ? request.orderId.substring(0, 5).toUpperCase() : "MPYA"}',
+                          request.orderId.isNotEmpty
+                              ? l10n.orderId(request.orderId.substring(0, request.orderId.length > 5 ? 5 : request.orderId.length).toUpperCase())
+                              : l10n.orderNewPrefix,
                           style: const TextStyle(
                               fontWeight: FontWeight.w700, fontSize: 15),
                         ),
@@ -288,7 +285,7 @@ class _RequestTile extends ConsumerWidget {
                     icon: Icon(Icons.cancel_outlined,
                         color: cs.primary, size: 18),
                     label: Text(
-                      'Ghairi oda',
+                      l10n.cancelOrderBtn,
                       style: TextStyle(color: cs.primary),
                     ),
                   ),
@@ -301,21 +298,23 @@ class _RequestTile extends ConsumerWidget {
     );
   }
 
-  (Color, String) _statusVisuals(OrderStatus s, ColorScheme cs) {
+  (Color, String) _statusVisuals(OrderStatus s, ColorScheme cs, AppLocalizations l10n) {
     switch (s) {
       case OrderStatus.pending:
-        return (cs.primary, 'Inasubiri');
-      case OrderStatus.accepted:
-        return (cs.primary, 'Imekubaliwa');
+        return (cs.primary, l10n.statusPending);
+      case OrderStatus.confirmed:
+        return (const Color(0xFF0369A1), l10n.statusPaid);
       case OrderStatus.preparing:
-        return (cs.primary, 'Inaandaliwa');
-      case OrderStatus.pickupGenerated:
-      case OrderStatus.arriving:
-        return (cs.primary, 'Inakuja');
+        return (cs.primary, l10n.statusPreparing);
+      case OrderStatus.readyForPickup:
+      case OrderStatus.outForDelivery:
+        return (cs.primary, l10n.statusOnTheWay);
       case OrderStatus.completed:
-        return (cs.primary, 'Imekamilika');
+        return (cs.primary, l10n.statusCompleted);
       case OrderStatus.cancelled:
-        return (const Color(0xFF1E3A55), 'Imeghairiwa');
+        return (const Color(0xFF1E3A55), l10n.statusCancelled);
+      case OrderStatus.disputed:
+        return (Colors.red, l10n.statusDisputed);
     }
   }
 

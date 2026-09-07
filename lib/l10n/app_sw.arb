@@ -810,7 +810,6 @@
     "estimatedTimeLabel": "Muda unaotarajiwa",
     "trackDeliveryTitle": "Fuatilia Uwasilishaji",
     "locationNotAvailable": "Hakuna taarifa za eneo",
-
     "appDownloadTitle": "Pakua Programu",
     "appDownloadScanHeader": "Skani ili Usakinishe",
     "appDownloadScanHint": "Elekeza kamera kwenye msimbo au gusa ili kuukuza.",
@@ -851,5 +850,177 @@
     "appDownloadShareBody": "Sakinisha SamakiFresh Connect — {appName} {version}. Skani msimbo wa QR au fungua kiungo hiki: {url}",
     "appDownloadAndroidStepsTitle": "Android",
     "appDownloadIosStepsTitle": "iPhone",
-    "appDownloadIosComingSoonSteps": "Mwaliko wa TestFlight utatolewa wakati wa uzinduzi. Skani QR au rudi tena hivi karibuni."
+    "appDownloadIosComingSoonSteps": "Mwaliko wa TestFlight utatolewa wakati wa uzinduzi. Skani QR au rudi tena hivi karibuni.",
+    "confirmPickupCode": "Thibitisha Namba (Pickup Code)",
+    "yourCode": "Namba Yako: {code}",
+    "@yourCode": {
+        "placeholders": {
+            "code": {
+                "type": "String"
+            }
+        }
+    },
+    "enterPickupCode": "Ingiza namba ya uthibitisho (Code)",
+    "preConfirmationChecklistTitle": "Thibitisha Upokeaji na Weka Maoni:",
+    "checkFishArrivedWell": "Samaki wamefika vizuri?",
+    "checkQuantityQualityRight": "Kiasi na ubora ni sahihi?",
+    "submitProofPhoto": "Weka Picha ya Ushahidi (Hiari):",
+    "takePhoto": "Piga Picha",
+    "chooseGallery": "Chagua Galari",
+    "yourComment": "Maoni Yako",
+    "yourCommentHint": "Andika maoni au maelezo ya samaki hapa...",
+    "sending": "Inatuma...",
+    "confirmAndSubmit": "Thibitisha na Tuma kwa Admin",
+    "submitToAdmin": "Tuma kwa Admin",
+    "adminWillReview": "Admin atapitia maoni na picha kabla ya kuachilia malipo kwa muuzaji.",
+    "pleaseEnterCode": "Tafadhali ingiza namba ya uthibitisho (code).",
+    "pleaseEnterComment": "Tafadhali andika maoni yako kabla ya kuthibitisha.",
+    "incorrectCodeTryAgain": "Namba sio sahihi. Tafadhali jaribu tena.",
+    "proofAndCommentSubmitted": "✅ Maoni na ushahidi vimewasilishwa! Admin atapitia na kuachilia malipo.",
+    "errorSubmittingProof": "Kuna tatizo wakati wa kutuma ushahidi.",
+    "buyerProofAndComment": "Ushahidi na Maoni ya Mnunuzi:",
+    "sellerPendingApprovalMessage": "Usajili wako umepokelewa kikamilifu! Akaunti yako ya muuzaji ipo kwenye mchakato wa kuhakikiwa na Admin wa SamakiFresh.\n\nHutaweza kuingiza samaki wapya, kuanzisha uuzaji wa live, wala kupokea oda hadi akaunti yako ithibitishwe na Admin.",
+    "awaitingAdminApprovalStatus": "⏳ INASUBIRI IDHINI YA ADMIN",
+    "awaitingAdminApprovalStatusMsg": "Umewasilisha ushahidi na maoni yako. Admin anapitia taarifa zako ili kuachilia malipo kwa muuzaji.",
+    "yourCommentQuoted": "Maoni Yako: \"{comment}\"",
+    "@yourCommentQuoted": {
+        "placeholders": {
+            "comment": {
+                "type": "String"
+            }
+        }
+    },
+    "sellerAwaitingAdminApprovalMsg": "Mnunuzi amethibitisha na kutuma ushahidi. Pesa zitafunguliwa kwako mara tu Admin atakapoidhinisha.",
+    "startPreparingFish": "Anza Kuandaa Samaki",
+    "generatePickupCode": "Tengeneza Kodi & Tayari",
+    "startDelivery": "Anza Kupeleka",
+    "verifyAndComplete": "Thibitisha & Kamilisha",
+    "orderVerifiedSuccessfully": "Oda imethibitishwa! Pesa zimetumwa.",
+    "invalidCodeTryAgain": "Kodi si sahihi. Jaribu tena.",
+    "shareCodeWithSeller": "Mpe muuzaji kodi hii...",
+    "platformCommission": "Kamisheni ya Mtandao (5%):",
+    "sellerEarnings": "Mapato ya Muuzaji (95%):",
+    "earningsTitle": "Mapato",
+    "pendingPayout": "Malipo Yanasubiri",
+    "checkingAccountStatus": "Inakagua hali ya akaunti yako...",
+    "refreshAccountStatus": "Kagua Hali ya Akaunti (Refresh)",
+    "statusPaid": "🔒 Imelipwa",
+    "statusConfirmed": "Imekubaliwa",
+    "statusPreparing": "Inaandaliwa",
+    "statusOnTheWay": "Inakuja",
+    "statusDisputed": "Kuna Mgogoro",
+    "orderNotSentPaymentUnverified": "Maagizo hayakutumwa kwa sababu malipo hayajathibitishwa.",
+    "wishlistTitle": "Orodha ya Matakwa",
+    "errorPrefix": "Hitilafu: {error}",
+    "@errorPrefix": {
+        "placeholders": {
+            "error": {
+                "type": "String"
+            }
+        }
+    },
+    "confirmReceived": "Thibitisha Kupokea",
+    "confirmReceivedTitle": "Thibitisha Kupokea Samaki",
+    "confirmReceivedBody": "Je, umepokea samaki wako na unafurahia oda yako?",
+    "confirmReceivedWarning": "⚠️ Baada ya kuthibitisha, pesa zitatolewa kwa muuzaji na haiwezekani kubatilishwa.",
+    "confirmYes": "Ndio, Nimethibitisha",
+    "confirmNo": "Hapana, Rudi",
+    "paymentHeld": "🔒 Malipo Yameshikiliwa kwa Usalama",
+    "paymentHeldSubtitle": "Pesa zitatolewa kwa muuzaji tu baada ya wewe kuthibitisha kupokea samaki.",
+    "paymentReleased": "✅ Malipo Yametolewa",
+    "paymentReleasedSubtitle": "Muuzaji amepata pesa zake.",
+    "orderCompletedTitle": "Oda Imekamilika! 🎉",
+    "orderTotalLabel": "Jumla ya Oda:",
+    "platformCommissionLabel": "Kamisheni ya Mfumo (5%):",
+    "sellerEarningsLabel": "Muuzaji Amepata (95%):",
+    "confirmingPayment": "Inashughulikia...",
+    "paymentConfirmedSuccess": "Asante! Oda imekamilika na pesa zimetumwa kwa muuzaji.",
+    "paymentConfirmError": "Kuna hitilafu. Tafadhali jaribu tena.",
+    "waitingBuyerConfirmation": "Inasubiri Uthibitisho wa Mnunuzi",
+    "waitingBuyerSubtitle": "Mnunuzi atathibitisha kupokea samaki, na ndipo pesa zako zitatumwa.",
+    "yourPendingPayout": "Mapato yako ya Kusubiri:",
+    "payoutReleasedTitle": "✅ Oda Imekamilika — Pesa Zimetumwa!",
+    "adminHeldTab": "🔒 Zimeshikiliwa",
+    "adminReleasedTab": "✅ Zimetolewa",
+    "adminPendingTab": "⏳ Zinasubiri",
+    "buyerConfirmed": "Mnunuzi Amethibitisha",
+    "buyerNotYetConfirmed": "Mnunuzi Hajathibitisha",
+    "paymentReference": "Kumbukumbu:",
+    "allOrders": "Zote",
+    "cancelOrderDialogTitle": "Ghairi Oda?",
+    "cancelOrderDialogBody": "Je, una uhakika unataka kughairi oda hii?",
+    "cancelOrderBtn": "Ghairi Oda",
+    "orderCancelledSnackbar": "Oda imeghairiwa",
+    "orderNewPrefix": "MPYA",
+    "testPaymentTitle": "Malipo ya Majaribio",
+    "testPaymentSubtitle": "Jaribu mfumo wa malipo bila kukatwa pesa yoyote",
+    "selectPaymentMethod": "Chagua Njia ya Malipo:",
+    "mobileNumberLabel": "Namba ya Simu ya Majaribio",
+    "testPinLabel": "PIN ya Majaribio (k.m. 1234)",
+    "testCardLabel": "Namba ya Kadi ya Majaribio (4242...)",
+    "cashOnDelivery": "Pesa Taslimu (Cash on Delivery)",
+    "cashOnDeliverySubtitle": "Lipa muuzaji ukipokea samaki",
+    "confirmTestPayment": "Thibitisha Malipo ya Majaribio (TZS {amount})",
+    "@confirmTestPayment": {
+        "placeholders": {
+            "amount": {
+                "type": "String"
+            }
+        }
+    },
+    "placeOrderCash": "Weka Agizo (Pesa Taslimu)",
+    "paymentHeldMessage": "Malipo Yameshikiliwa! Thibitisha Kupokea Samaki. Ref: {ref}",
+    "@paymentHeldMessage": {
+        "placeholders": {
+            "ref": {
+                "type": "String"
+            }
+        }
+    },
+    "orderReceivedCashMessage": "Agizo Limepokelewa! Lipa muuzaji ukipokea samaki.",
+    "bankCardTest": "Kadi ya Benki / Visa / Mastercard (Majaribio)",
+    "paymentErrorPrefix": "Hitilafu ya malipo: {error}",
+    "@paymentErrorPrefix": {
+        "placeholders": {
+            "error": {
+                "type": "String"
+            }
+        }
+    },
+    "cartOrdersName": "Oda za Kikapu ({count})",
+    "@cartOrdersName": {
+        "placeholders": {
+            "count": {
+                "type": "int"
+            }
+        }
+    },
+    "heldUntilConfirmation": " — Malipo yameshikiliwa hadi mnunuzi athibitishe kupokea.",
+    "wishlistEmptyText": "Orodha yako ni tupu",
+    "wishlistEmptyTextSubtitle": "Ukiongeza samaki unayotafuta, tutakuarifu mara itakapopatikana karibu nawe.",
+    "notifyWhenFound": "Arifu utakapopata",
+    "upToPrice": "Hadi TZS {price}/kg",
+    "@upToPrice": {
+        "placeholders": {
+            "price": {
+                "type": "String"
+            }
+        }
+    },
+    "selectFishLabel": "Chagua Samaki",
+    "noFishAvailable": "Hakuna samaki wanaopatikana.",
+    "quantityKgLabel": "Kiasi (kg)",
+    "enterQuantityHint": "Weka kiasi",
+    "totalAmountLabel": "Jumla ya Malipo:",
+    "additionalNotesLabel": "Maelezo mengine",
+    "notesHint": "Mfano: nataka fresh sana, nitalipia ukileta...",
+    "sending": "Inatuma...",
+    "forSeller": "Kwa: {name}",
+    "@forSeller": {
+        "placeholders": {
+            "name": {
+                "type": "String"
+            }
+        }
+    }
 }

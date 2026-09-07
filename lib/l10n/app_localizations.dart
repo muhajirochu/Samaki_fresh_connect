@@ -2423,7 +2423,7 @@ abstract class AppLocalizations {
   /// No description provided for @noFishAvailable.
   ///
   /// In en, this message translates to:
-  /// **'No Fish Available'**
+  /// **'No fish available.'**
   String get noFishAvailable;
 
   /// No description provided for @checkBackLater.
@@ -3517,6 +3517,648 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'TestFlight invite will be provided at release. Scan the QR or check back soon.'**
   String get appDownloadIosComingSoonSteps;
+
+  /// No description provided for @confirmPickupCode.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirm Number (Pickup Code)'**
+  String get confirmPickupCode;
+
+  /// No description provided for @yourCode.
+  ///
+  /// In en, this message translates to:
+  /// **'Your Code: {code}'**
+  String yourCode(String code);
+
+  /// No description provided for @enterPickupCode.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter confirmation number (Code)'**
+  String get enterPickupCode;
+
+  /// No description provided for @preConfirmationChecklistTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirm Receipt & Add Comment:'**
+  String get preConfirmationChecklistTitle;
+
+  /// No description provided for @checkFishArrivedWell.
+  ///
+  /// In en, this message translates to:
+  /// **'Did the fish arrive well?'**
+  String get checkFishArrivedWell;
+
+  /// No description provided for @checkQuantityQualityRight.
+  ///
+  /// In en, this message translates to:
+  /// **'Is the quantity and quality correct?'**
+  String get checkQuantityQualityRight;
+
+  /// No description provided for @submitProofPhoto.
+  ///
+  /// In en, this message translates to:
+  /// **'Add Proof Photo (Optional):'**
+  String get submitProofPhoto;
+
+  /// No description provided for @takePhoto.
+  ///
+  /// In en, this message translates to:
+  /// **'Take Photo'**
+  String get takePhoto;
+
+  /// No description provided for @chooseGallery.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose Gallery'**
+  String get chooseGallery;
+
+  /// No description provided for @yourComment.
+  ///
+  /// In en, this message translates to:
+  /// **'Your Comment'**
+  String get yourComment;
+
+  /// No description provided for @yourCommentHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Write your comment or description here...'**
+  String get yourCommentHint;
+
+  /// No description provided for @sending.
+  ///
+  /// In en, this message translates to:
+  /// **'Sending...'**
+  String get sending;
+
+  /// No description provided for @confirmAndSubmit.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirm and Submit to Admin'**
+  String get confirmAndSubmit;
+
+  /// No description provided for @submitToAdmin.
+  ///
+  /// In en, this message translates to:
+  /// **'Submit to Admin'**
+  String get submitToAdmin;
+
+  /// No description provided for @adminWillReview.
+  ///
+  /// In en, this message translates to:
+  /// **'Admin will review your comment and photo before releasing payment to the seller.'**
+  String get adminWillReview;
+
+  /// No description provided for @pleaseEnterCode.
+  ///
+  /// In en, this message translates to:
+  /// **'Please enter the confirmation number (code).'**
+  String get pleaseEnterCode;
+
+  /// No description provided for @pleaseEnterComment.
+  ///
+  /// In en, this message translates to:
+  /// **'Please write your comment before confirming.'**
+  String get pleaseEnterComment;
+
+  /// No description provided for @incorrectCodeTryAgain.
+  ///
+  /// In en, this message translates to:
+  /// **'Incorrect code. Please try again.'**
+  String get incorrectCodeTryAgain;
+
+  /// No description provided for @proofAndCommentSubmitted.
+  ///
+  /// In en, this message translates to:
+  /// **'✅ Comment and proof submitted! Admin will review and release payment.'**
+  String get proofAndCommentSubmitted;
+
+  /// No description provided for @errorSubmittingProof.
+  ///
+  /// In en, this message translates to:
+  /// **'There was a problem submitting your proof.'**
+  String get errorSubmittingProof;
+
+  /// No description provided for @buyerProofAndComment.
+  ///
+  /// In en, this message translates to:
+  /// **'Buyer\'s Proof and Comment:'**
+  String get buyerProofAndComment;
+
+  /// No description provided for @sellerPendingApprovalMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Your registration has been received successfully! Your seller account is currently being reviewed by a SamakiFresh Admin.\n\nYou will not be able to add new fish, start live selling, or receive orders until your account is verified by an Admin.'**
+  String get sellerPendingApprovalMessage;
+
+  /// No description provided for @awaitingAdminApprovalStatus.
+  ///
+  /// In en, this message translates to:
+  /// **'⏳ AWAITING ADMIN APPROVAL'**
+  String get awaitingAdminApprovalStatus;
+
+  /// No description provided for @awaitingAdminApprovalStatusMsg.
+  ///
+  /// In en, this message translates to:
+  /// **'You have submitted your proof and comment. The Admin is reviewing your details to release the payment to the seller.'**
+  String get awaitingAdminApprovalStatusMsg;
+
+  /// No description provided for @yourCommentQuoted.
+  ///
+  /// In en, this message translates to:
+  /// **'Your Comment: \"{comment}\"'**
+  String yourCommentQuoted(String comment);
+
+  /// No description provided for @sellerAwaitingAdminApprovalMsg.
+  ///
+  /// In en, this message translates to:
+  /// **'Buyer has confirmed and submitted proof. Payment will be released to you once Admin approves.'**
+  String get sellerAwaitingAdminApprovalMsg;
+
+  /// No description provided for @startPreparingFish.
+  ///
+  /// In en, this message translates to:
+  /// **'Start Preparing Fish'**
+  String get startPreparingFish;
+
+  /// No description provided for @generatePickupCode.
+  ///
+  /// In en, this message translates to:
+  /// **'Generate Pickup Code & Ready'**
+  String get generatePickupCode;
+
+  /// No description provided for @startDelivery.
+  ///
+  /// In en, this message translates to:
+  /// **'Start Delivery'**
+  String get startDelivery;
+
+  /// No description provided for @verifyAndComplete.
+  ///
+  /// In en, this message translates to:
+  /// **'Verify & Complete'**
+  String get verifyAndComplete;
+
+  /// No description provided for @orderVerifiedSuccessfully.
+  ///
+  /// In en, this message translates to:
+  /// **'Order verified successfully! Payment released.'**
+  String get orderVerifiedSuccessfully;
+
+  /// No description provided for @invalidCodeTryAgain.
+  ///
+  /// In en, this message translates to:
+  /// **'Invalid code. Please try again.'**
+  String get invalidCodeTryAgain;
+
+  /// No description provided for @shareCodeWithSeller.
+  ///
+  /// In en, this message translates to:
+  /// **'Share this code with the seller...'**
+  String get shareCodeWithSeller;
+
+  /// No description provided for @platformCommission.
+  ///
+  /// In en, this message translates to:
+  /// **'Platform Commission (5%):'**
+  String get platformCommission;
+
+  /// No description provided for @sellerEarnings.
+  ///
+  /// In en, this message translates to:
+  /// **'Seller Earnings (95%):'**
+  String get sellerEarnings;
+
+  /// No description provided for @earningsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Earnings'**
+  String get earningsTitle;
+
+  /// No description provided for @pendingPayout.
+  ///
+  /// In en, this message translates to:
+  /// **'Pending Payout'**
+  String get pendingPayout;
+
+  /// No description provided for @checkingAccountStatus.
+  ///
+  /// In en, this message translates to:
+  /// **'Checking account status...'**
+  String get checkingAccountStatus;
+
+  /// No description provided for @refreshAccountStatus.
+  ///
+  /// In en, this message translates to:
+  /// **'Refresh Account Status'**
+  String get refreshAccountStatus;
+
+  /// No description provided for @statusPaid.
+  ///
+  /// In en, this message translates to:
+  /// **'🔒 Paid'**
+  String get statusPaid;
+
+  /// No description provided for @statusConfirmed.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirmed'**
+  String get statusConfirmed;
+
+  /// No description provided for @statusPreparing.
+  ///
+  /// In en, this message translates to:
+  /// **'Preparing'**
+  String get statusPreparing;
+
+  /// No description provided for @statusOnTheWay.
+  ///
+  /// In en, this message translates to:
+  /// **'On the Way'**
+  String get statusOnTheWay;
+
+  /// No description provided for @statusDisputed.
+  ///
+  /// In en, this message translates to:
+  /// **'Disputed'**
+  String get statusDisputed;
+
+  /// No description provided for @orderNotSentPaymentUnverified.
+  ///
+  /// In en, this message translates to:
+  /// **'Order not sent because payment was not verified.'**
+  String get orderNotSentPaymentUnverified;
+
+  /// No description provided for @wishlistTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Wishlist'**
+  String get wishlistTitle;
+
+  /// No description provided for @errorPrefix.
+  ///
+  /// In en, this message translates to:
+  /// **'Error: {error}'**
+  String errorPrefix(String error);
+
+  /// No description provided for @confirmReceived.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirm Received'**
+  String get confirmReceived;
+
+  /// No description provided for @confirmReceivedTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirm Fish Received'**
+  String get confirmReceivedTitle;
+
+  /// No description provided for @confirmReceivedBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Have you received your fish and are satisfied with the order?'**
+  String get confirmReceivedBody;
+
+  /// No description provided for @confirmReceivedWarning.
+  ///
+  /// In en, this message translates to:
+  /// **'⚠️ After confirming, payment will be released to the seller and cannot be reversed.'**
+  String get confirmReceivedWarning;
+
+  /// No description provided for @confirmYes.
+  ///
+  /// In en, this message translates to:
+  /// **'Yes, I Confirm'**
+  String get confirmYes;
+
+  /// No description provided for @confirmNo.
+  ///
+  /// In en, this message translates to:
+  /// **'No, Go Back'**
+  String get confirmNo;
+
+  /// No description provided for @paymentHeld.
+  ///
+  /// In en, this message translates to:
+  /// **'🔒 Payment Held for Safety'**
+  String get paymentHeld;
+
+  /// No description provided for @paymentHeldSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Payment will be released to the seller only after you confirm receipt.'**
+  String get paymentHeldSubtitle;
+
+  /// No description provided for @paymentReleased.
+  ///
+  /// In en, this message translates to:
+  /// **'✅ Payment Released'**
+  String get paymentReleased;
+
+  /// No description provided for @paymentReleasedSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Seller has received their payment.'**
+  String get paymentReleasedSubtitle;
+
+  /// No description provided for @orderCompletedTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Order Completed! 🎉'**
+  String get orderCompletedTitle;
+
+  /// No description provided for @orderTotalLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Order Total:'**
+  String get orderTotalLabel;
+
+  /// No description provided for @platformCommissionLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Platform Commission (5%):'**
+  String get platformCommissionLabel;
+
+  /// No description provided for @sellerEarningsLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Seller Received (95%):'**
+  String get sellerEarningsLabel;
+
+  /// No description provided for @confirmingPayment.
+  ///
+  /// In en, this message translates to:
+  /// **'Processing...'**
+  String get confirmingPayment;
+
+  /// No description provided for @paymentConfirmedSuccess.
+  ///
+  /// In en, this message translates to:
+  /// **'Thank you! Order completed and payment released to seller.'**
+  String get paymentConfirmedSuccess;
+
+  /// No description provided for @paymentConfirmError.
+  ///
+  /// In en, this message translates to:
+  /// **'An error occurred. Please try again.'**
+  String get paymentConfirmError;
+
+  /// No description provided for @waitingBuyerConfirmation.
+  ///
+  /// In en, this message translates to:
+  /// **'Waiting for Buyer Confirmation'**
+  String get waitingBuyerConfirmation;
+
+  /// No description provided for @waitingBuyerSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'The buyer will confirm receipt, then your payout will be released.'**
+  String get waitingBuyerSubtitle;
+
+  /// No description provided for @yourPendingPayout.
+  ///
+  /// In en, this message translates to:
+  /// **'Your Pending Payout:'**
+  String get yourPendingPayout;
+
+  /// No description provided for @payoutReleasedTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'✅ Order Complete — Payment Sent!'**
+  String get payoutReleasedTitle;
+
+  /// No description provided for @adminHeldTab.
+  ///
+  /// In en, this message translates to:
+  /// **'🔒 Held'**
+  String get adminHeldTab;
+
+  /// No description provided for @adminReleasedTab.
+  ///
+  /// In en, this message translates to:
+  /// **'✅ Released'**
+  String get adminReleasedTab;
+
+  /// No description provided for @adminPendingTab.
+  ///
+  /// In en, this message translates to:
+  /// **'⏳ Pending'**
+  String get adminPendingTab;
+
+  /// No description provided for @buyerConfirmed.
+  ///
+  /// In en, this message translates to:
+  /// **'Buyer Confirmed'**
+  String get buyerConfirmed;
+
+  /// No description provided for @buyerNotYetConfirmed.
+  ///
+  /// In en, this message translates to:
+  /// **'Buyer Not Yet Confirmed'**
+  String get buyerNotYetConfirmed;
+
+  /// No description provided for @paymentReference.
+  ///
+  /// In en, this message translates to:
+  /// **'Reference:'**
+  String get paymentReference;
+
+  /// No description provided for @allOrders.
+  ///
+  /// In en, this message translates to:
+  /// **'All'**
+  String get allOrders;
+
+  /// No description provided for @cancelOrderDialogTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel Order?'**
+  String get cancelOrderDialogTitle;
+
+  /// No description provided for @cancelOrderDialogBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Are you sure you want to cancel this order?'**
+  String get cancelOrderDialogBody;
+
+  /// No description provided for @cancelOrderBtn.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel Order'**
+  String get cancelOrderBtn;
+
+  /// No description provided for @orderCancelledSnackbar.
+  ///
+  /// In en, this message translates to:
+  /// **'Order cancelled'**
+  String get orderCancelledSnackbar;
+
+  /// No description provided for @orderNewPrefix.
+  ///
+  /// In en, this message translates to:
+  /// **'NEW'**
+  String get orderNewPrefix;
+
+  /// No description provided for @testPaymentTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Test Payment Sandbox'**
+  String get testPaymentTitle;
+
+  /// No description provided for @testPaymentSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Test the payment system without any real money deduction'**
+  String get testPaymentSubtitle;
+
+  /// No description provided for @selectPaymentMethod.
+  ///
+  /// In en, this message translates to:
+  /// **'Select Payment Method:'**
+  String get selectPaymentMethod;
+
+  /// No description provided for @mobileNumberLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Test Phone Number'**
+  String get mobileNumberLabel;
+
+  /// No description provided for @testPinLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Test PIN (e.g. 1234)'**
+  String get testPinLabel;
+
+  /// No description provided for @testCardLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Test Card Number (4242...)'**
+  String get testCardLabel;
+
+  /// No description provided for @cashOnDelivery.
+  ///
+  /// In en, this message translates to:
+  /// **'Cash on Delivery'**
+  String get cashOnDelivery;
+
+  /// No description provided for @cashOnDeliverySubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Pay the seller upon receiving your fish'**
+  String get cashOnDeliverySubtitle;
+
+  /// No description provided for @confirmTestPayment.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirm Test Payment (TZS {amount})'**
+  String confirmTestPayment(String amount);
+
+  /// No description provided for @placeOrderCash.
+  ///
+  /// In en, this message translates to:
+  /// **'Place Order (Cash on Delivery)'**
+  String get placeOrderCash;
+
+  /// No description provided for @paymentHeldMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Payment Held! Confirm fish receipt to release funds. Ref: {ref}'**
+  String paymentHeldMessage(String ref);
+
+  /// No description provided for @orderReceivedCashMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Order Received! Pay the seller upon receiving your fish.'**
+  String get orderReceivedCashMessage;
+
+  /// No description provided for @bankCardTest.
+  ///
+  /// In en, this message translates to:
+  /// **'Bank Card / Visa / Mastercard (Test)'**
+  String get bankCardTest;
+
+  /// No description provided for @paymentErrorPrefix.
+  ///
+  /// In en, this message translates to:
+  /// **'Payment error: {error}'**
+  String paymentErrorPrefix(String error);
+
+  /// No description provided for @cartOrdersName.
+  ///
+  /// In en, this message translates to:
+  /// **'Cart Orders ({count})'**
+  String cartOrdersName(int count);
+
+  /// No description provided for @heldUntilConfirmation.
+  ///
+  /// In en, this message translates to:
+  /// **' — Payment held until buyer confirms receipt.'**
+  String get heldUntilConfirmation;
+
+  /// No description provided for @wishlistEmptyText.
+  ///
+  /// In en, this message translates to:
+  /// **'Your wishlist is empty'**
+  String get wishlistEmptyText;
+
+  /// No description provided for @wishlistEmptyTextSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'When you add fish you\'re looking for, we\'ll notify you when available near you.'**
+  String get wishlistEmptyTextSubtitle;
+
+  /// No description provided for @notifyWhenFound.
+  ///
+  /// In en, this message translates to:
+  /// **'Notify when found'**
+  String get notifyWhenFound;
+
+  /// No description provided for @upToPrice.
+  ///
+  /// In en, this message translates to:
+  /// **'Up to TZS {price}/kg'**
+  String upToPrice(String price);
+
+  /// No description provided for @selectFishLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Select Fish'**
+  String get selectFishLabel;
+
+  /// No description provided for @quantityKgLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Quantity (kg)'**
+  String get quantityKgLabel;
+
+  /// No description provided for @enterQuantityHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter quantity'**
+  String get enterQuantityHint;
+
+  /// No description provided for @totalAmountLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Total Amount:'**
+  String get totalAmountLabel;
+
+  /// No description provided for @additionalNotesLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Additional notes'**
+  String get additionalNotesLabel;
+
+  /// No description provided for @notesHint.
+  ///
+  /// In en, this message translates to:
+  /// **'E.g., I want very fresh fish, will pay on delivery...'**
+  String get notesHint;
+
+  /// No description provided for @forSeller.
+  ///
+  /// In en, this message translates to:
+  /// **'To: {name}'**
+  String forSeller(String name);
 }
 
 class _AppLocalizationsDelegate

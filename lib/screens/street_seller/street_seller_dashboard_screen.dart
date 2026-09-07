@@ -18,6 +18,7 @@ import '../../config/route_paths.dart';
 import '../../config/theme_extensions.dart';
 import '../../l10n/app_localizations.dart';
 import '../../models/order_model.dart';
+import '../../models/enums/payout_status.dart';
 import '../../models/user_model.dart';
 import '../../providers/auth_provider.dart';
 import '../../providers/listing_provider.dart';
@@ -56,6 +57,23 @@ class StreetSellerDashboardScreen extends ConsumerWidget {
       orElse: () => const AsyncValue.data(<OrderModel>[]),
     );
     final pendingOrders = pendingOrdersAsync.valueOrNull?.length ?? 0;
+
+    final allOrdersAsync = userAsync.maybeWhen(
+      data: (user) => user == null
+          ? const AsyncValue.data(<OrderModel>[])
+          : ref.watch(sellerOrdersProvider(user.userId)),
+      orElse: () => const AsyncValue.data(<OrderModel>[]),
+    );
+    final allOrders = allOrdersAsync.valueOrNull ?? const [];
+
+    final lifetimeEarnings = allOrders
+        .where((o) => o.status.name == 'completed')
+        .fold<double>(0, (acc, o) => acc + o.sellerEarnings);
+
+    final expectedPayouts = allOrders
+        .where((o) => o.status.name == 'completed' && (o.payoutStatus == PayoutStatus.pending || o.payoutStatus == PayoutStatus.held))
+        .fold<double>(0, (acc, o) => acc + o.sellerEarnings);
+
 
     final activeListings = listingsAsync.valueOrNull ?? const [];
     final totalStockKg = activeListings
@@ -103,25 +121,51 @@ class StreetSellerDashboardScreen extends ConsumerWidget {
                       AppSizes.paddingLG,
                       0,
                     ),
-                    child: Row(
+                    child: Column(
                       children: [
-                        Expanded(
-                          child: _StatCard(
-                            title: l10n.activeListings,
-                            value:
-                                '${activeListings.where((l) => l.status == 'active').length}',
-                            icon: Icons.inventory_2_rounded,
-                            accent: cs.primary,
-                          ),
+                        Row(
+                          children: [
+                            Expanded(
+                              child: _StatCard(
+                                title: l10n.activeListings,
+                                value:
+                                    '${activeListings.where((l) => l.status == 'active').length}',
+                                icon: Icons.inventory_2_rounded,
+                                accent: cs.primary,
+                              ),
+                            ),
+                            const SizedBox(width: AppSizes.paddingMD),
+                            Expanded(
+                              child: _StatCard(
+                                title: l10n.totalStock,
+                                value: Formatters.formatQuantity(totalStockKg),
+                                icon: Icons.scale_rounded,
+                                accent: cs.secondary,
+                              ),
+                            ),
+                          ],
                         ),
-                        const SizedBox(width: AppSizes.paddingMD),
-                        Expanded(
-                          child: _StatCard(
-                            title: l10n.totalStock,
-                            value: Formatters.formatQuantity(totalStockKg),
-                            icon: Icons.scale_rounded,
-                            accent: cs.secondary,
-                          ),
+                        const SizedBox(height: AppSizes.paddingMD),
+                        Row(
+                          children: [
+                            Expanded(
+                              child: _StatCard(
+                                title: 'Earnings',
+                                value: 'TZS ${lifetimeEarnings.toStringAsFixed(0)}',
+                                icon: Icons.account_balance_wallet_rounded,
+                                accent: Colors.green,
+                              ),
+                            ),
+                            const SizedBox(width: AppSizes.paddingMD),
+                            Expanded(
+                              child: _StatCard(
+                                title: 'Pending Payout',
+                                value: 'TZS ${expectedPayouts.toStringAsFixed(0)}',
+                                icon: Icons.hourglass_top_rounded,
+                                accent: Colors.orange,
+                              ),
+                            ),
+                          ],
                         ),
                       ],
                     ),
@@ -218,6 +262,7 @@ class StreetSellerDashboardScreen extends ConsumerWidget {
     WidgetRef ref,
     UserModel user,
   ) {
+    final l10n = AppLocalizations.of(context);
     final cs = Theme.of(context).colorScheme;
     final tt = Theme.of(context).textTheme;
 
@@ -295,7 +340,7 @@ class StreetSellerDashboardScreen extends ConsumerWidget {
                     ),
                     const SizedBox(height: AppSizes.paddingMD),
                     Text(
-                      'Usajili wako umepokelewa kikamilifu! Akaunti yako ya muuzaji ipo kwenye mchakato wa kuhakikiwa na Admin wa SamakiFresh.\n\nHutaweza kuingiza samaki wapya, kuanzisha uuzaji wa live, wala kupokea oda hadi akaunti yako ithibitishwe na Admin.',
+                      l10n.sellerPendingApprovalMessage,
                       style: tt.bodyMedium?.copyWith(
                         color: cs.onSurface.withValues(alpha: 0.75),
                         height: 1.4,
@@ -334,7 +379,7 @@ class StreetSellerDashboardScreen extends ConsumerWidget {
                       isDone: true,
                     ),
                     const Divider(height: 24),
-                    _StepTile(
+                    const _StepTile(
                       icon: Icons.hourglass_bottom_rounded,
                       iconColor: Color(0xFF0284C7),
                       title: '2. Uhakiki wa Admin',
@@ -364,14 +409,14 @@ class StreetSellerDashboardScreen extends ConsumerWidget {
                   onPressed: () {
                     ref.invalidate(currentUserStreamProvider);
                     ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                        content: Text('Inakagua hali ya akaunti yako...'),
-                        duration: Duration(seconds: 1),
+                      SnackBar(
+                        content: Text(AppLocalizations.of(context).checkingAccountStatus),
+                        duration: const Duration(seconds: 1),
                       ),
                     );
                   },
                   icon: const Icon(Icons.refresh_rounded),
-                  label: const Text('Kagua Hali ya Akaunti (Refresh)'),
+                  label: Text(AppLocalizations.of(context).refreshAccountStatus),
                   style: OutlinedButton.styleFrom(
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(AppSizes.radiusLG),

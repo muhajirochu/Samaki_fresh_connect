@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:samakifresh_connect/l10n/app_localizations.dart';
 import '../../models/enums/order_status.dart';
 import '../../models/order_model.dart';
 
@@ -38,11 +39,16 @@ class OrderCard extends StatelessWidget {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text(
-                    'Order #${order.orderId.substring(0, order.orderId.length > 8 ? 8 : order.orderId.length).toUpperCase()}',
-                    style: textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
+                  Expanded(
+                    child: Text(
+                      'Order #${order.orderId.substring(0, order.orderId.length > 8 ? 8 : order.orderId.length).toUpperCase()}',
+                      style: textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
+                      overflow: TextOverflow.ellipsis,
+                    ),
                   ),
+                  const SizedBox(width: 8),
                   Row(
+                    mainAxisSize: MainAxisSize.min,
                     children: [
                       _PaymentChip(isPaid: order.isPaid, paymentMethod: order.paymentMethod),
                       const SizedBox(width: 6),
@@ -128,14 +134,18 @@ class _StatusChip extends StatelessWidget {
         textColor = const Color(0xFF0369A1);  // sky-700
         label = 'Pending';
         break;
-      case OrderStatus.accepted:
+      case OrderStatus.confirmed:
+        bgColor = const Color(0xFFDBEAFE);   // blue-100
+        textColor = const Color(0xFF1D4ED8);  // blue-700
+        label = '🔒 Paid (Held)';
+        break;
       case OrderStatus.preparing:
         bgColor = const Color(0xFFBAE6FD);   // sky-200
         textColor = const Color(0xFF0284C7);  // sky-600
         label = 'Preparing';
         break;
-      case OrderStatus.pickupGenerated:
-      case OrderStatus.arriving:
+      case OrderStatus.readyForPickup:
+      case OrderStatus.outForDelivery:
         bgColor = const Color(0xFF7DD3FC);   // sky-300
         textColor = const Color(0xFF075985);  // sky-800
         label = 'On the Way';
@@ -149,6 +159,11 @@ class _StatusChip extends StatelessWidget {
         bgColor = const Color(0xFF1E3A55);   // dark navy
         textColor = const Color(0xFFBAE6FD);  // sky-200
         label = 'Cancelled';
+        break;
+      case OrderStatus.disputed:
+        bgColor = Colors.red.shade100;
+        textColor = Colors.red.shade900;
+        label = AppLocalizations.of(context).statusDisputed;
         break;
     }
 

@@ -16,8 +16,8 @@ class OrderTimeline extends StatelessWidget {
       ),
       _TimelineStep(
         title: 'Accepted',
-        isActive: currentStatus.index >= OrderStatus.accepted.index,
-        isCompleted: currentStatus.index >= OrderStatus.accepted.index,
+        isActive: currentStatus.index >= OrderStatus.confirmed.index,
+        isCompleted: currentStatus.index >= OrderStatus.confirmed.index,
       ),
       _TimelineStep(
         title: 'Preparing Fish',
@@ -26,18 +26,18 @@ class OrderTimeline extends StatelessWidget {
       ),
       _TimelineStep(
         title: 'Pickup Generated',
-        isActive: currentStatus.index >= OrderStatus.pickupGenerated.index,
-        isCompleted: currentStatus.index >= OrderStatus.pickupGenerated.index,
+        isActive: currentStatus.index >= OrderStatus.readyForPickup.index,
+        isCompleted: currentStatus.index >= OrderStatus.readyForPickup.index,
       ),
       _TimelineStep(
         title: 'On the Way',
-        isActive: currentStatus.index >= OrderStatus.arriving.index,
-        isCompleted: currentStatus.index >= OrderStatus.arriving.index,
+        isActive: currentStatus.index >= OrderStatus.outForDelivery.index,
+        isCompleted: currentStatus.index >= OrderStatus.outForDelivery.index,
       ),
       _TimelineStep(
         title: 'Arriving Soon',
-        isActive: currentStatus.index >= OrderStatus.arriving.index,
-        isCompleted: currentStatus.index >= OrderStatus.arriving.index,
+        isActive: currentStatus.index >= OrderStatus.outForDelivery.index,
+        isCompleted: currentStatus.index >= OrderStatus.outForDelivery.index,
       ),
       _TimelineStep(
         title: 'Completed',

@@ -91,7 +91,7 @@ class OrderTrackingService {
   Future<void> setPickupCode(String orderId, String code) async {
     await _ordersRef.doc(orderId).update({
       'pickupCode': code,
-      'status': OrderStatus.pickupGenerated.name,
+      'status': OrderStatus.readyForPickup.name,
       'updatedAt': FieldValue.serverTimestamp(),
     });
   }
@@ -100,6 +100,7 @@ class OrderTrackingService {
   Future<void> completeOrder(String orderId) async {
     await _ordersRef.doc(orderId).update({
       'status': OrderStatus.completed.name,
+      'completedAt': FieldValue.serverTimestamp(),
       'updatedAt': FieldValue.serverTimestamp(),
     });
   }

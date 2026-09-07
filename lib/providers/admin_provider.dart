@@ -162,7 +162,7 @@ final adminDailyRevenueProvider = StreamProvider<double>((ref) {
           return Stream.value(
             completed.fold<double>(
               0,
-              (acc, o) => acc + o.totalPrice,
+              (acc, o) => acc + o.commissionAmount,
             ),
           );
         },
@@ -179,7 +179,7 @@ final adminWeeklyRevenueProvider = StreamProvider<double>((ref) {
           return Stream.value(
             completed.fold<double>(
               0,
-              (acc, o) => acc + o.totalPrice,
+              (acc, o) => acc + o.commissionAmount,
             ),
           );
         },
@@ -196,7 +196,7 @@ final adminMonthlyRevenueProvider = StreamProvider<double>((ref) {
           return Stream.value(
             completed.fold<double>(
               0,
-              (acc, o) => acc + o.totalPrice,
+              (acc, o) => acc + o.commissionAmount,
             ),
           );
         },
@@ -291,7 +291,7 @@ final adminPlatformRevenueProvider = StreamProvider<double>((ref) {
           return Stream.value(
             completed.fold<double>(
               0,
-              (acc, o) => acc + o.totalPrice,
+              (acc, o) => acc + o.commissionAmount,
             ),
           );
         },

@@ -30,6 +30,7 @@ import '../../providers/listing_provider.dart';
 import '../../providers/notification_provider.dart';
 import '../../providers/order_tracking_provider.dart';
 import '../../services/order_tracking_service.dart';
+import '../../services/payout_service.dart';
 import '../../utils/formatters.dart';
 import '../../widgets/common/common_widgets.dart';
 import '../../widgets/common/top_app_bar.dart';
@@ -146,14 +147,14 @@ class CartScreen extends HookConsumerWidget {
         context: context,
         orderId: 'CART-${DateTime.now().millisecondsSinceEpoch}',
         amount: totalAmount > 0 ? totalAmount : 15000.0,
-        fishName: 'Oda za Kikapu (${items.length})',
+        fishName: l10n.cartOrdersName(items.length),
         onPaymentSuccess: () {},
       );
 
       if (paymentResult == null || !paymentResult.isSuccess) {
         if (context.mounted) {
           messenger.showSnackBar(SnackBar(
-            content: const Text('Maagizo hayakutumwa kwa sababu malipo hayajathibitishwa.'),
+            content: Text(l10n.orderNotSentPaymentUnverified),
             backgroundColor: cs.error,
             behavior: SnackBarBehavior.floating,
           ));
@@ -179,6 +180,12 @@ class CartScreen extends HookConsumerWidget {
         if (qty <= 0) continue;
 
         final originalPrice = listing.pricePerKg * qty;
+        // For electronic payments, create the order in the 'paid' (held) state.
+        // For cash on delivery, create as 'pending' so the seller accepts first.
+        final initialStatus = paymentResult.isPaid
+            ? OrderStatus.confirmed
+            : OrderStatus.pending;
+
         final order = OrderModel(
           orderId: '',
           buyerId: buyer.userId,
@@ -186,7 +193,7 @@ class CartScreen extends HookConsumerWidget {
           fishId: listing.listingId,
           totalPrice: originalPrice * 1.07,
           quantity: qty.toInt(),
-          status: OrderStatus.pending,
+          status: initialStatus,
           isPaid: paymentResult.isPaid,
           paymentMethod: paymentResult.paymentMethod,
           paymentReference: paymentResult.paymentReference,
@@ -195,13 +202,28 @@ class CartScreen extends HookConsumerWidget {
         );
 
         final orderId = await orderService.createOrder(order);
+
+        // For electronic payments, write the held payout fields.
+        // Commission is NOT calculated here — that happens in PayoutService.confirmReceived.
+        if (paymentResult.isPaid && orderId.isNotEmpty) {
+          final payoutSvc = ref.read(payoutServiceProvider);
+          await payoutSvc.holdPayment(
+            orderId: orderId,
+            totalAmount: originalPrice * 1.07,
+            paymentMethod: paymentResult.paymentMethod,
+            paymentReference: paymentResult.paymentReference,
+          );
+        }
+
         placed.add(item.listingId);
         touchedSellers.add(listing.sellerId);
 
         await notifSvc.writeNotification(
           userId: listing.sellerId,
           title: l10n.orderPlacedSellerTitle,
-          body: l10n.orderPlacedSellerBody(buyer.fullName.split(' ').first),
+          body: paymentResult.isPaid
+              ? '${l10n.orderPlacedSellerBody(buyer.fullName.split(" ").first)}${l10n.heldUntilConfirmation}'
+              : l10n.orderPlacedSellerBody(buyer.fullName.split(" ").first),
           type: NotificationType.orderStatusChanged,
           relatedId: orderId,
         );

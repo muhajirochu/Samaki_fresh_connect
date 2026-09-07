@@ -1,13 +1,10 @@
-// Buyer wishlist screen. Lists fish types the buyer is hunting for.
-// Tapping the trash icon removes the entry. Tapping the row jumps to
-// the map filtered by that fish type.
-
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
 import '../../constants/app_colors.dart';
 import '../../constants/app_sizes.dart';
+import '../../l10n/app_localizations.dart';
 import '../../models/enums/fish_type.dart';
 import '../../models/wishlist_model.dart';
 import '../../providers/notification_provider.dart';
@@ -19,18 +16,19 @@ class BuyerWishlistScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final wishlistAsync = ref.watch(wishlistProvider);
     final cs = Theme.of(context).colorScheme;
+    final l10n = AppLocalizations.of(context);
 
     return Scaffold(
       backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       appBar: AppBar(
-        title: const Text('Orodha ya Matakwa'),
+        title: Text(l10n.wishlistTitle),
         backgroundColor: cs.primary,
         foregroundColor: cs.onPrimary,
         elevation: 0,
       ),
       body: wishlistAsync.when(
         loading: () => const Center(child: CircularProgressIndicator()),
-        error: (e, _) => Center(child: Text('Hitilafu: $e')),
+        error: (e, _) => Center(child: Text(l10n.loadingError(e.toString()))),
         data: (list) {
           if (list.isEmpty) {
             return Center(
@@ -54,7 +52,7 @@ class BuyerWishlistScreen extends ConsumerWidget {
                     ),
                     const SizedBox(height: AppSizes.paddingMD),
                     Text(
-                      'Orodha yako ni tupu',
+                      l10n.wishlistEmptyText,
                       style: Theme.of(context).textTheme.titleMedium?.copyWith(
                             fontWeight: FontWeight.w700,
                             color: cs.onSurface,
@@ -62,8 +60,7 @@ class BuyerWishlistScreen extends ConsumerWidget {
                     ),
                     const SizedBox(height: AppSizes.paddingSM),
                     Text(
-                      'Ukiongeza samaki unayotafuta, tutakuarifu mara '
-                      'itakapopatikana karibu nawe.',
+                      l10n.wishlistEmptyTextSubtitle,
                       textAlign: TextAlign.center,
                       style: TextStyle(
                           color: cs.onSurface.withValues(alpha: 0.65),
@@ -114,6 +111,7 @@ class _WishlistTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
+    final l10n = AppLocalizations.of(context);
     return Material(
       color: cs.surface,
       child: ListTile(
@@ -135,8 +133,8 @@ class _WishlistTile extends StatelessWidget {
         ),
         subtitle: Text(
           entry.maxPricePerKg == null
-              ? 'Arifu utakapopata'
-              : 'Hadi ${entry.maxPricePerKg!.toStringAsFixed(0)} TZS/kg',
+              ? l10n.notifyWhenFound
+              : l10n.upToPrice(entry.maxPricePerKg!.toStringAsFixed(0)),
           style: TextStyle(
             color: cs.onSurface.withValues(alpha: 0.65),
             fontSize: 12,

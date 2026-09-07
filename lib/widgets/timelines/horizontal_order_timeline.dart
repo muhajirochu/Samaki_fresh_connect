@@ -13,20 +13,20 @@ class HorizontalOrderTimeline extends StatelessWidget {
       _HStep(
         title: 'Accepted',
         icon: Icons.check,
-        isActive: currentStatus.index >= OrderStatus.accepted.index,
-        isCompleted: currentStatus.index > OrderStatus.accepted.index,
+        isActive: currentStatus.index >= OrderStatus.confirmed.index,
+        isCompleted: currentStatus.index > OrderStatus.confirmed.index,
       ),
       _HStep(
         title: 'On the Way',
         icon: Icons.directions_bike,
-        isActive: currentStatus.index >= OrderStatus.arriving.index,
-        isCompleted: currentStatus.index > OrderStatus.arriving.index,
+        isActive: currentStatus.index >= OrderStatus.outForDelivery.index,
+        isCompleted: currentStatus.index > OrderStatus.outForDelivery.index,
       ),
       _HStep(
         title: 'Arriving Soon',
         // Use a call/phone icon as shown in the mockup
         icon: Icons.phone_callback_rounded,
-        isActive: currentStatus.index >= OrderStatus.arriving.index,
+        isActive: currentStatus.index >= OrderStatus.outForDelivery.index,
         isCompleted: currentStatus == OrderStatus.completed,
       ),
       _HStep(

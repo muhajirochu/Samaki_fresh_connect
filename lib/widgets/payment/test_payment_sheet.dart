@@ -5,8 +5,11 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 
 import '../../constants/app_colors.dart';
 import '../../constants/app_sizes.dart';
+import '../../l10n/app_localizations.dart';
+import '../../models/enums/order_status.dart';
 import '../../models/transaction_model.dart';
 import '../../providers/auth_provider.dart';
+import '../../services/payout_service.dart';
 
 enum PaymentMethodType {
   mpesa,
@@ -103,7 +106,7 @@ class _TestPaymentSheetState extends ConsumerState<TestPaymentSheet> {
     super.dispose();
   }
 
-  String _getMethodName(PaymentMethodType method) {
+  String _getMethodName(PaymentMethodType method, AppLocalizations l10n) {
     switch (method) {
       case PaymentMethodType.mpesa:
         return 'Vodacom M-Pesa (Test Sandbox)';
@@ -112,13 +115,14 @@ class _TestPaymentSheetState extends ConsumerState<TestPaymentSheet> {
       case PaymentMethodType.airtelmoney:
         return 'Airtel Money (Test Sandbox)';
       case PaymentMethodType.card:
-        return 'Kadi ya Benki / Visa / Mastercard';
+        return l10n.bankCardTest;
       case PaymentMethodType.cash:
-        return 'Pesa Taslimu (Cash on Delivery)';
+        return l10n.cashOnDelivery;
     }
   }
 
   Future<void> _processPayment() async {
+    final l10n = AppLocalizations.of(context);
     if (_selectedMethod == PaymentMethodType.cash) {
       await _recordTransaction(
         paymentMethodName: 'Cash on Delivery',
@@ -140,7 +144,7 @@ class _TestPaymentSheetState extends ConsumerState<TestPaymentSheet> {
     final txnRef = '${_selectedMethod.name.toUpperCase()}-${DateTime.now().millisecondsSinceEpoch.toString().substring(5)}';
 
     await _recordTransaction(
-      paymentMethodName: _getMethodName(_selectedMethod),
+      paymentMethodName: _getMethodName(_selectedMethod, l10n),
       refNumber: txnRef,
     );
   }
@@ -153,23 +157,23 @@ class _TestPaymentSheetState extends ConsumerState<TestPaymentSheet> {
       final now = DateTime.now();
       final txnId = 'TXN-${now.millisecondsSinceEpoch}';
 
-      // 95% goes to Seller, 5% Platform Fee
-      final sellerAmt = widget.amount * 0.95;
-      final platformAmt = widget.amount * 0.05;
-
+      // Create an initial HELD transaction record.
+      // Commission amounts are NOT calculated here — they are calculated
+      // server-side in PayoutService.confirmReceived() when the buyer
+      // confirms receipt. We store zeros as placeholders.
       final txn = TransactionModel(
         transactionId: txnId,
         orderId: widget.orderId,
         finalAmount: widget.amount,
-        sellerAmount: sellerAmt,
-        platformAmount: platformAmt,
+        sellerAmount: 0.0,   // set on buyer confirmation
+        platformAmount: 0.0, // set on buyer confirmation
         paymentMethod: paymentMethodName,
         transactionReference: refNumber,
-        status: 'completed',
+        status: 'held',      // HELD — not yet released to seller
         createdAt: now,
       );
 
-      // Write transaction record to Firestore
+      // Write the initial transaction record to Firestore.
       await FirebaseFirestore.instance
           .collection('transactions')
           .doc(txnId)
@@ -177,27 +181,44 @@ class _TestPaymentSheetState extends ConsumerState<TestPaymentSheet> {
 
       final isPaid = _selectedMethod != PaymentMethodType.cash;
 
-      // Update Order in Firestore with paid status if real order ID
-      if (widget.orderId.isNotEmpty && !widget.orderId.startsWith('TEMP-') && !widget.orderId.startsWith('CART-')) {
-        await FirebaseFirestore.instance
-            .collection('orders')
-            .doc(widget.orderId)
-            .set({
-          'isPaid': isPaid,
-          'paymentReference': refNumber,
-          'paymentMethod': paymentMethodName,
-          'updatedAt': FieldValue.serverTimestamp(),
-        }, SetOptions(merge: true));
+      // Update the order: mark as PAID (held state) if this is a real order.
+      if (widget.orderId.isNotEmpty &&
+          !widget.orderId.startsWith('TEMP-') &&
+          !widget.orderId.startsWith('CART-')) {
+        // Set the typed status to 'confirmed' (new held status) and payment info
+        // via PayoutService if it's an electronic payment.
+        if (isPaid) {
+          final payoutSvc = PayoutService(FirebaseFirestore.instance);
+          await payoutSvc.holdPayment(
+            orderId: widget.orderId,
+            totalAmount: widget.amount,
+            paymentMethod: paymentMethodName,
+            paymentReference: refNumber,
+          );
+        } else {
+          await FirebaseFirestore.instance
+              .collection('orders')
+              .doc(widget.orderId)
+              .set({
+            'isPaid': false,
+            'status': OrderStatus.confirmed.name,
+            'paymentReference': refNumber,
+            'paymentMethod': paymentMethodName,
+            'updatedAt': FieldValue.serverTimestamp(),
+          }, SetOptions(merge: true));
+        }
       }
 
+
       if (!mounted) return;
+      final l10n = AppLocalizations.of(context);
 
       setState(() {
         _isProcessing = false;
         _showUssdSim = false;
       });
 
-      // Notify caller
+      // Notify caller.
       widget.onPaymentSuccess();
 
       final result = PaymentResult(
@@ -213,29 +234,33 @@ class _TestPaymentSheetState extends ConsumerState<TestPaymentSheet> {
         SnackBar(
           content: Row(
             children: [
-              const Icon(Icons.check_circle_rounded, color: Colors.white),
+              const Icon(Icons.lock_clock_rounded, color: Colors.white),
               const SizedBox(width: 10),
               Expanded(
                 child: Text(
-                  'Malipo ya Majaribio Yamefanikiwa! Ref: $refNumber',
+                  isPaid
+                      ? l10n.paymentHeldMessage(refNumber)
+                      : l10n.orderReceivedCashMessage,
                   style: const TextStyle(fontWeight: FontWeight.bold),
                 ),
               ),
             ],
           ),
-          backgroundColor: AppColors.primaryTeal,
+          backgroundColor: isPaid ? const Color(0xFF0369A1) : AppColors.primaryTeal,
           behavior: SnackBarBehavior.floating,
+          duration: const Duration(seconds: 5),
         ),
       );
     } catch (e) {
       if (!mounted) return;
+      final l10n = AppLocalizations.of(context);
       setState(() {
         _isProcessing = false;
         _showUssdSim = false;
       });
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('Hitilafu ya malipo: $e'),
+          content: Text(l10n.paymentErrorPrefix(e.toString())),
           backgroundColor: const Color(0xFF075985),
         ),
       );
@@ -244,6 +269,7 @@ class _TestPaymentSheetState extends ConsumerState<TestPaymentSheet> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     final cs = Theme.of(context).colorScheme;
     final tt = Theme.of(context).textTheme;
 
@@ -293,7 +319,7 @@ class _TestPaymentSheetState extends ConsumerState<TestPaymentSheet> {
                           Row(
                             children: [
                               Text(
-                                'Malipo ya Majaribio',
+                                l10n.testPaymentTitle,
                                 style: tt.titleMedium?.copyWith(
                                   fontWeight: FontWeight.w800,
                                 ),
@@ -318,7 +344,7 @@ class _TestPaymentSheetState extends ConsumerState<TestPaymentSheet> {
                           ),
                           const SizedBox(height: 2),
                           Text(
-                            'Jaribu mfumo wa malipo bila kukatwa pesa yoyote',
+                            l10n.testPaymentSubtitle,
                             style: tt.bodySmall?.copyWith(
                               color: cs.onSurface.withValues(alpha: 0.65),
                             ),
@@ -350,7 +376,7 @@ class _TestPaymentSheetState extends ConsumerState<TestPaymentSheet> {
                           ),
                           const SizedBox(height: 4),
                           Text(
-                            'Agizo #${widget.orderId.substring(0, widget.orderId.length > 8 ? 8 : widget.orderId.length)}',
+                            l10n.orderId(widget.orderId.substring(0, widget.orderId.length > 8 ? 8 : widget.orderId.length)),
                             style: tt.bodySmall?.copyWith(color: cs.onSurface.withValues(alpha: 0.6)),
                           ),
                         ],
@@ -369,7 +395,7 @@ class _TestPaymentSheetState extends ConsumerState<TestPaymentSheet> {
 
                 // Payment Method Selector
                 Text(
-                  'Chagua Njia ya Malipo:',
+                  l10n.selectPaymentMethod,
                   style: tt.titleSmall?.copyWith(fontWeight: FontWeight.w700),
                 ),
                 const SizedBox(height: 10),
@@ -405,7 +431,7 @@ class _TestPaymentSheetState extends ConsumerState<TestPaymentSheet> {
                 const SizedBox(height: 8),
 
                 _PaymentTile(
-                  title: 'Kadi ya Benki (Visa / Mastercard Test)',
+                  title: l10n.bankCardTest,
                   subtitle: 'Simulate Card Payment Gateway',
                   icon: Icons.credit_card_rounded,
                   iconColor: const Color(0xFF0369A1),
@@ -415,8 +441,8 @@ class _TestPaymentSheetState extends ConsumerState<TestPaymentSheet> {
                 const SizedBox(height: 8),
 
                 _PaymentTile(
-                  title: 'Pesa Taslimu (Cash on Delivery)',
-                  subtitle: 'Lipa muuzaji ukipokea samaki',
+                  title: l10n.cashOnDelivery,
+                  subtitle: l10n.cashOnDeliverySubtitle,
                   icon: Icons.money_rounded,
                   iconColor: const Color(0xFF0D9488),
                   isSelected: _selectedMethod == PaymentMethodType.cash,
@@ -430,7 +456,7 @@ class _TestPaymentSheetState extends ConsumerState<TestPaymentSheet> {
                     controller: _phoneCtrl,
                     keyboardType: TextInputType.phone,
                     decoration: InputDecoration(
-                      labelText: 'Namba ya Simu ya Majaribio',
+                      labelText: l10n.mobileNumberLabel,
                       prefixIcon: const Icon(Icons.phone),
                       border: OutlineInputBorder(borderRadius: BorderRadius.circular(14)),
                     ),
@@ -442,7 +468,7 @@ class _TestPaymentSheetState extends ConsumerState<TestPaymentSheet> {
                     obscureText: true,
                     maxLength: 4,
                     decoration: InputDecoration(
-                      labelText: 'PIN ya Majaribio (k.m. 1234)',
+                      labelText: l10n.testPinLabel,
                       prefixIcon: const Icon(Icons.lock_outline),
                       border: OutlineInputBorder(borderRadius: BorderRadius.circular(14)),
                       counterText: '',
@@ -456,7 +482,7 @@ class _TestPaymentSheetState extends ConsumerState<TestPaymentSheet> {
                     controller: _cardCtrl,
                     keyboardType: TextInputType.number,
                     decoration: InputDecoration(
-                      labelText: 'Namba ya Kadi ya Majaribio (4242...)',
+                      labelText: l10n.testCardLabel,
                       prefixIcon: const Icon(Icons.credit_card),
                       border: OutlineInputBorder(borderRadius: BorderRadius.circular(14)),
                     ),
@@ -522,8 +548,8 @@ class _TestPaymentSheetState extends ConsumerState<TestPaymentSheet> {
                         : const Icon(Icons.lock_clock_rounded, color: Colors.white),
                     label: Text(
                       _selectedMethod == PaymentMethodType.cash
-                          ? 'Weka Agizo (Cash on Delivery)'
-                          : 'Thibitisha Malipo ya Majaribio (TZS ${widget.amount.toStringAsFixed(0)})',
+                          ? l10n.placeOrderCash
+                          : l10n.confirmTestPayment(widget.amount.toStringAsFixed(0)),
                       style: const TextStyle(
                         fontWeight: FontWeight.bold,
                         fontSize: 15,

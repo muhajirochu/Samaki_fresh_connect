@@ -223,6 +223,7 @@ class _SendRequestSheetState extends ConsumerState<SendRequestSheet> {
     final seller = widget.selectedSeller;
     final theme = Theme.of(context);
     final cs = Theme.of(context).colorScheme;
+    final l10n = AppLocalizations.of(context);
 
     return Material(
       color: cs.surface,
@@ -274,14 +275,14 @@ class _SendRequestSheetState extends ConsumerState<SendRequestSheet> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            'Tuma Ombi la Samaki',
+                            l10n.sendFishRequest,
                             style: theme.textTheme.titleMedium?.copyWith(
                               fontWeight: FontWeight.w700,
                             ),
                           ),
                           if (seller != null)
                             Text(
-                              'Kwa: ${seller.seller.fullName}',
+                              l10n.forSeller(seller.seller.fullName),
                               style: theme.textTheme.bodySmall?.copyWith(
                                 color: cs.onSurface.withValues(alpha: 0.70),
                               ),
@@ -295,7 +296,7 @@ class _SendRequestSheetState extends ConsumerState<SendRequestSheet> {
 
                 // ── Fish Selection ─────────────────────────────────────────
                 Text(
-                  'Chagua Samaki',
+                  l10n.selectFishLabel,
                   style: theme.textTheme.bodyMedium?.copyWith(
                     fontWeight: FontWeight.w600,
                     color: cs.onSurface.withValues(alpha: 0.80),
@@ -376,7 +377,7 @@ class _SendRequestSheetState extends ConsumerState<SendRequestSheet> {
                   )
                 else
                   Text(
-                    'Hakuna samaki wanaopatikana.',
+                    l10n.noFishAvailable,
                     style: TextStyle(color: cs.error),
                   ),
 
@@ -387,7 +388,7 @@ class _SendRequestSheetState extends ConsumerState<SendRequestSheet> {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Text(
-                      'Kiasi (kg)',
+                      l10n.quantityKgLabel,
                       style: theme.textTheme.bodyMedium?.copyWith(
                         fontWeight: FontWeight.w600,
                         color: cs.onSurface.withValues(alpha: 0.80),
@@ -435,7 +436,7 @@ class _SendRequestSheetState extends ConsumerState<SendRequestSheet> {
                           ),
                         ],
                         decoration: InputDecoration(
-                          hintText: 'Weka kiasi',
+                          hintText: l10n.enterQuantityHint,
                           filled: true,
                           fillColor: cs.surfaceContainerHighest,
                           border: OutlineInputBorder(
@@ -476,7 +477,7 @@ class _SendRequestSheetState extends ConsumerState<SendRequestSheet> {
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Text(
-                          'Jumla ya Malipo:',
+                          l10n.totalAmountLabel,
                           style: theme.textTheme.titleMedium?.copyWith(
                             fontWeight: FontWeight.w700,
                             color: cs.onSurface,
@@ -497,7 +498,7 @@ class _SendRequestSheetState extends ConsumerState<SendRequestSheet> {
 
                 // ── Notes ───────────────────────────────────────────────────
                 Text(
-                  'Maelezo mengine',
+                  l10n.additionalNotesLabel,
                   style: theme.textTheme.bodyMedium?.copyWith(
                     fontWeight: FontWeight.w600,
                     color: cs.onSurface.withValues(alpha: 0.80),
@@ -508,8 +509,7 @@ class _SendRequestSheetState extends ConsumerState<SendRequestSheet> {
                   controller: _notesCtrl,
                   maxLines: 3,
                   decoration: InputDecoration(
-                    hintText:
-                        'Mfano: nataka fresh sana, nitalipia kesho asubuhi...',
+                    hintText: l10n.notesHint,
                     filled: true,
                     fillColor: cs.surfaceContainerHighest,
                     border: OutlineInputBorder(
@@ -539,8 +539,8 @@ class _SendRequestSheetState extends ConsumerState<SendRequestSheet> {
                           )
                         : const Icon(Icons.send_rounded),
                     label: Text(_submitting
-                        ? 'Inatuma...'
-                        : 'Tuma Ombi'),
+                        ? l10n.sending
+                        : l10n.sendRequest),
                     style: FilledButton.styleFrom(
                       backgroundColor: cs.primary,
                       shape: RoundedRectangleBorder(

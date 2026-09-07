@@ -980,10 +980,11 @@ class _ActionRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final canRequest = onSendRequest != null;
+    final l10n = AppLocalizations.of(context);
     return SizedBox(
       width: double.infinity,
       child: GradientButton(
-        label: 'Tuma Ombi la Samaki',
+        label: l10n.sendFishRequest,
         onPressed: canRequest ? onSendRequest : null,
         prefixIcon: Icons.send_rounded,
       ),

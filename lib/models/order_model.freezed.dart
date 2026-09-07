@@ -27,6 +27,7 @@ mixin _$OrderModel {
   int get quantity => throw _privateConstructorUsedError;
   double get totalPrice => throw _privateConstructorUsedError;
   String get pickupCode => throw _privateConstructorUsedError;
+  @OrderStatusConverter()
   OrderStatus get status => throw _privateConstructorUsedError;
   @OptionalTimestampConverter()
   DateTime? get estimatedArrival => throw _privateConstructorUsedError;
@@ -35,8 +36,27 @@ mixin _$OrderModel {
   @GeoPointConverter()
   GeoPoint? get streetSellerLocation => throw _privateConstructorUsedError;
   bool get isPaid => throw _privateConstructorUsedError;
+  @PaymentStatusConverter()
+  PaymentStatus get paymentStatus => throw _privateConstructorUsedError;
+  @PayoutStatusConverter()
+  PayoutStatus get payoutStatus => throw _privateConstructorUsedError;
+  double get commissionRate => throw _privateConstructorUsedError;
+  double get commissionAmount => throw _privateConstructorUsedError;
+  double get sellerEarnings => throw _privateConstructorUsedError;
+  @OptionalTimestampConverter()
+  DateTime? get paidAt => throw _privateConstructorUsedError;
+  @OptionalTimestampConverter()
+  DateTime? get releasedAt => throw _privateConstructorUsedError;
+  @OptionalTimestampConverter()
+  DateTime? get completedAt => throw _privateConstructorUsedError;
   String get paymentReference => throw _privateConstructorUsedError;
   String get paymentMethod => throw _privateConstructorUsedError;
+  bool get buyerConfirmed => throw _privateConstructorUsedError;
+  @OptionalTimestampConverter()
+  DateTime? get buyerConfirmedAt => throw _privateConstructorUsedError;
+  String get buyerComment => throw _privateConstructorUsedError;
+  String get buyerFeedbackImageUrl => throw _privateConstructorUsedError;
+  bool get isDisputed => throw _privateConstructorUsedError;
   @TimestampConverter()
   DateTime get createdAt => throw _privateConstructorUsedError;
   @TimestampConverter()
@@ -66,13 +86,26 @@ abstract class $OrderModelCopyWith<$Res> {
       int quantity,
       double totalPrice,
       String pickupCode,
-      OrderStatus status,
+      @OrderStatusConverter() OrderStatus status,
       @OptionalTimestampConverter() DateTime? estimatedArrival,
       @GeoPointConverter() GeoPoint? buyerLocation,
       @GeoPointConverter() GeoPoint? streetSellerLocation,
       bool isPaid,
+      @PaymentStatusConverter() PaymentStatus paymentStatus,
+      @PayoutStatusConverter() PayoutStatus payoutStatus,
+      double commissionRate,
+      double commissionAmount,
+      double sellerEarnings,
+      @OptionalTimestampConverter() DateTime? paidAt,
+      @OptionalTimestampConverter() DateTime? releasedAt,
+      @OptionalTimestampConverter() DateTime? completedAt,
       String paymentReference,
       String paymentMethod,
+      bool buyerConfirmed,
+      @OptionalTimestampConverter() DateTime? buyerConfirmedAt,
+      String buyerComment,
+      String buyerFeedbackImageUrl,
+      bool isDisputed,
       @TimestampConverter() DateTime createdAt,
       @TimestampConverter() DateTime updatedAt});
 }
@@ -104,8 +137,21 @@ class _$OrderModelCopyWithImpl<$Res, $Val extends OrderModel>
     Object? buyerLocation = freezed,
     Object? streetSellerLocation = freezed,
     Object? isPaid = null,
+    Object? paymentStatus = null,
+    Object? payoutStatus = null,
+    Object? commissionRate = null,
+    Object? commissionAmount = null,
+    Object? sellerEarnings = null,
+    Object? paidAt = freezed,
+    Object? releasedAt = freezed,
+    Object? completedAt = freezed,
     Object? paymentReference = null,
     Object? paymentMethod = null,
+    Object? buyerConfirmed = null,
+    Object? buyerConfirmedAt = freezed,
+    Object? buyerComment = null,
+    Object? buyerFeedbackImageUrl = null,
+    Object? isDisputed = null,
     Object? createdAt = null,
     Object? updatedAt = null,
   }) {
@@ -158,6 +204,38 @@ class _$OrderModelCopyWithImpl<$Res, $Val extends OrderModel>
           ? _value.isPaid
           : isPaid // ignore: cast_nullable_to_non_nullable
               as bool,
+      paymentStatus: null == paymentStatus
+          ? _value.paymentStatus
+          : paymentStatus // ignore: cast_nullable_to_non_nullable
+              as PaymentStatus,
+      payoutStatus: null == payoutStatus
+          ? _value.payoutStatus
+          : payoutStatus // ignore: cast_nullable_to_non_nullable
+              as PayoutStatus,
+      commissionRate: null == commissionRate
+          ? _value.commissionRate
+          : commissionRate // ignore: cast_nullable_to_non_nullable
+              as double,
+      commissionAmount: null == commissionAmount
+          ? _value.commissionAmount
+          : commissionAmount // ignore: cast_nullable_to_non_nullable
+              as double,
+      sellerEarnings: null == sellerEarnings
+          ? _value.sellerEarnings
+          : sellerEarnings // ignore: cast_nullable_to_non_nullable
+              as double,
+      paidAt: freezed == paidAt
+          ? _value.paidAt
+          : paidAt // ignore: cast_nullable_to_non_nullable
+              as DateTime?,
+      releasedAt: freezed == releasedAt
+          ? _value.releasedAt
+          : releasedAt // ignore: cast_nullable_to_non_nullable
+              as DateTime?,
+      completedAt: freezed == completedAt
+          ? _value.completedAt
+          : completedAt // ignore: cast_nullable_to_non_nullable
+              as DateTime?,
       paymentReference: null == paymentReference
           ? _value.paymentReference
           : paymentReference // ignore: cast_nullable_to_non_nullable
@@ -166,6 +244,26 @@ class _$OrderModelCopyWithImpl<$Res, $Val extends OrderModel>
           ? _value.paymentMethod
           : paymentMethod // ignore: cast_nullable_to_non_nullable
               as String,
+      buyerConfirmed: null == buyerConfirmed
+          ? _value.buyerConfirmed
+          : buyerConfirmed // ignore: cast_nullable_to_non_nullable
+              as bool,
+      buyerConfirmedAt: freezed == buyerConfirmedAt
+          ? _value.buyerConfirmedAt
+          : buyerConfirmedAt // ignore: cast_nullable_to_non_nullable
+              as DateTime?,
+      buyerComment: null == buyerComment
+          ? _value.buyerComment
+          : buyerComment // ignore: cast_nullable_to_non_nullable
+              as String,
+      buyerFeedbackImageUrl: null == buyerFeedbackImageUrl
+          ? _value.buyerFeedbackImageUrl
+          : buyerFeedbackImageUrl // ignore: cast_nullable_to_non_nullable
+              as String,
+      isDisputed: null == isDisputed
+          ? _value.isDisputed
+          : isDisputed // ignore: cast_nullable_to_non_nullable
+              as bool,
       createdAt: null == createdAt
           ? _value.createdAt
           : createdAt // ignore: cast_nullable_to_non_nullable
@@ -194,13 +292,26 @@ abstract class _$$OrderModelImplCopyWith<$Res>
       int quantity,
       double totalPrice,
       String pickupCode,
-      OrderStatus status,
+      @OrderStatusConverter() OrderStatus status,
       @OptionalTimestampConverter() DateTime? estimatedArrival,
       @GeoPointConverter() GeoPoint? buyerLocation,
       @GeoPointConverter() GeoPoint? streetSellerLocation,
       bool isPaid,
+      @PaymentStatusConverter() PaymentStatus paymentStatus,
+      @PayoutStatusConverter() PayoutStatus payoutStatus,
+      double commissionRate,
+      double commissionAmount,
+      double sellerEarnings,
+      @OptionalTimestampConverter() DateTime? paidAt,
+      @OptionalTimestampConverter() DateTime? releasedAt,
+      @OptionalTimestampConverter() DateTime? completedAt,
       String paymentReference,
       String paymentMethod,
+      bool buyerConfirmed,
+      @OptionalTimestampConverter() DateTime? buyerConfirmedAt,
+      String buyerComment,
+      String buyerFeedbackImageUrl,
+      bool isDisputed,
       @TimestampConverter() DateTime createdAt,
       @TimestampConverter() DateTime updatedAt});
 }
@@ -230,8 +341,21 @@ class __$$OrderModelImplCopyWithImpl<$Res>
     Object? buyerLocation = freezed,
     Object? streetSellerLocation = freezed,
     Object? isPaid = null,
+    Object? paymentStatus = null,
+    Object? payoutStatus = null,
+    Object? commissionRate = null,
+    Object? commissionAmount = null,
+    Object? sellerEarnings = null,
+    Object? paidAt = freezed,
+    Object? releasedAt = freezed,
+    Object? completedAt = freezed,
     Object? paymentReference = null,
     Object? paymentMethod = null,
+    Object? buyerConfirmed = null,
+    Object? buyerConfirmedAt = freezed,
+    Object? buyerComment = null,
+    Object? buyerFeedbackImageUrl = null,
+    Object? isDisputed = null,
     Object? createdAt = null,
     Object? updatedAt = null,
   }) {
@@ -284,6 +408,38 @@ class __$$OrderModelImplCopyWithImpl<$Res>
           ? _value.isPaid
           : isPaid // ignore: cast_nullable_to_non_nullable
               as bool,
+      paymentStatus: null == paymentStatus
+          ? _value.paymentStatus
+          : paymentStatus // ignore: cast_nullable_to_non_nullable
+              as PaymentStatus,
+      payoutStatus: null == payoutStatus
+          ? _value.payoutStatus
+          : payoutStatus // ignore: cast_nullable_to_non_nullable
+              as PayoutStatus,
+      commissionRate: null == commissionRate
+          ? _value.commissionRate
+          : commissionRate // ignore: cast_nullable_to_non_nullable
+              as double,
+      commissionAmount: null == commissionAmount
+          ? _value.commissionAmount
+          : commissionAmount // ignore: cast_nullable_to_non_nullable
+              as double,
+      sellerEarnings: null == sellerEarnings
+          ? _value.sellerEarnings
+          : sellerEarnings // ignore: cast_nullable_to_non_nullable
+              as double,
+      paidAt: freezed == paidAt
+          ? _value.paidAt
+          : paidAt // ignore: cast_nullable_to_non_nullable
+              as DateTime?,
+      releasedAt: freezed == releasedAt
+          ? _value.releasedAt
+          : releasedAt // ignore: cast_nullable_to_non_nullable
+              as DateTime?,
+      completedAt: freezed == completedAt
+          ? _value.completedAt
+          : completedAt // ignore: cast_nullable_to_non_nullable
+              as DateTime?,
       paymentReference: null == paymentReference
           ? _value.paymentReference
           : paymentReference // ignore: cast_nullable_to_non_nullable
@@ -292,6 +448,26 @@ class __$$OrderModelImplCopyWithImpl<$Res>
           ? _value.paymentMethod
           : paymentMethod // ignore: cast_nullable_to_non_nullable
               as String,
+      buyerConfirmed: null == buyerConfirmed
+          ? _value.buyerConfirmed
+          : buyerConfirmed // ignore: cast_nullable_to_non_nullable
+              as bool,
+      buyerConfirmedAt: freezed == buyerConfirmedAt
+          ? _value.buyerConfirmedAt
+          : buyerConfirmedAt // ignore: cast_nullable_to_non_nullable
+              as DateTime?,
+      buyerComment: null == buyerComment
+          ? _value.buyerComment
+          : buyerComment // ignore: cast_nullable_to_non_nullable
+              as String,
+      buyerFeedbackImageUrl: null == buyerFeedbackImageUrl
+          ? _value.buyerFeedbackImageUrl
+          : buyerFeedbackImageUrl // ignore: cast_nullable_to_non_nullable
+              as String,
+      isDisputed: null == isDisputed
+          ? _value.isDisputed
+          : isDisputed // ignore: cast_nullable_to_non_nullable
+              as bool,
       createdAt: null == createdAt
           ? _value.createdAt
           : createdAt // ignore: cast_nullable_to_non_nullable
@@ -315,13 +491,26 @@ class _$OrderModelImpl implements _OrderModel {
       this.quantity = 1,
       this.totalPrice = 0.0,
       this.pickupCode = '',
-      this.status = OrderStatus.pending,
+      @OrderStatusConverter() this.status = OrderStatus.pending,
       @OptionalTimestampConverter() this.estimatedArrival,
       @GeoPointConverter() this.buyerLocation,
       @GeoPointConverter() this.streetSellerLocation,
       this.isPaid = false,
+      @PaymentStatusConverter() this.paymentStatus = PaymentStatus.pending,
+      @PayoutStatusConverter() this.payoutStatus = PayoutStatus.pending,
+      this.commissionRate = 0.0,
+      this.commissionAmount = 0.0,
+      this.sellerEarnings = 0.0,
+      @OptionalTimestampConverter() this.paidAt,
+      @OptionalTimestampConverter() this.releasedAt,
+      @OptionalTimestampConverter() this.completedAt,
       this.paymentReference = '',
       this.paymentMethod = '',
+      this.buyerConfirmed = false,
+      @OptionalTimestampConverter() this.buyerConfirmedAt,
+      this.buyerComment = '',
+      this.buyerFeedbackImageUrl = '',
+      this.isDisputed = false,
       @TimestampConverter() required this.createdAt,
       @TimestampConverter() required this.updatedAt});
 
@@ -351,6 +540,7 @@ class _$OrderModelImpl implements _OrderModel {
   final String pickupCode;
   @override
   @JsonKey()
+  @OrderStatusConverter()
   final OrderStatus status;
   @override
   @OptionalTimestampConverter()
@@ -366,10 +556,51 @@ class _$OrderModelImpl implements _OrderModel {
   final bool isPaid;
   @override
   @JsonKey()
+  @PaymentStatusConverter()
+  final PaymentStatus paymentStatus;
+  @override
+  @JsonKey()
+  @PayoutStatusConverter()
+  final PayoutStatus payoutStatus;
+  @override
+  @JsonKey()
+  final double commissionRate;
+  @override
+  @JsonKey()
+  final double commissionAmount;
+  @override
+  @JsonKey()
+  final double sellerEarnings;
+  @override
+  @OptionalTimestampConverter()
+  final DateTime? paidAt;
+  @override
+  @OptionalTimestampConverter()
+  final DateTime? releasedAt;
+  @override
+  @OptionalTimestampConverter()
+  final DateTime? completedAt;
+  @override
+  @JsonKey()
   final String paymentReference;
   @override
   @JsonKey()
   final String paymentMethod;
+  @override
+  @JsonKey()
+  final bool buyerConfirmed;
+  @override
+  @OptionalTimestampConverter()
+  final DateTime? buyerConfirmedAt;
+  @override
+  @JsonKey()
+  final String buyerComment;
+  @override
+  @JsonKey()
+  final String buyerFeedbackImageUrl;
+  @override
+  @JsonKey()
+  final bool isDisputed;
   @override
   @TimestampConverter()
   final DateTime createdAt;
@@ -379,7 +610,7 @@ class _$OrderModelImpl implements _OrderModel {
 
   @override
   String toString() {
-    return 'OrderModel(orderId: $orderId, buyerId: $buyerId, streetSellerId: $streetSellerId, fishId: $fishId, quantity: $quantity, totalPrice: $totalPrice, pickupCode: $pickupCode, status: $status, estimatedArrival: $estimatedArrival, buyerLocation: $buyerLocation, streetSellerLocation: $streetSellerLocation, isPaid: $isPaid, paymentReference: $paymentReference, paymentMethod: $paymentMethod, createdAt: $createdAt, updatedAt: $updatedAt)';
+    return 'OrderModel(orderId: $orderId, buyerId: $buyerId, streetSellerId: $streetSellerId, fishId: $fishId, quantity: $quantity, totalPrice: $totalPrice, pickupCode: $pickupCode, status: $status, estimatedArrival: $estimatedArrival, buyerLocation: $buyerLocation, streetSellerLocation: $streetSellerLocation, isPaid: $isPaid, paymentStatus: $paymentStatus, payoutStatus: $payoutStatus, commissionRate: $commissionRate, commissionAmount: $commissionAmount, sellerEarnings: $sellerEarnings, paidAt: $paidAt, releasedAt: $releasedAt, completedAt: $completedAt, paymentReference: $paymentReference, paymentMethod: $paymentMethod, buyerConfirmed: $buyerConfirmed, buyerConfirmedAt: $buyerConfirmedAt, buyerComment: $buyerComment, buyerFeedbackImageUrl: $buyerFeedbackImageUrl, isDisputed: $isDisputed, createdAt: $createdAt, updatedAt: $updatedAt)';
   }
 
   @override
@@ -406,10 +637,35 @@ class _$OrderModelImpl implements _OrderModel {
             (identical(other.streetSellerLocation, streetSellerLocation) ||
                 other.streetSellerLocation == streetSellerLocation) &&
             (identical(other.isPaid, isPaid) || other.isPaid == isPaid) &&
+            (identical(other.paymentStatus, paymentStatus) ||
+                other.paymentStatus == paymentStatus) &&
+            (identical(other.payoutStatus, payoutStatus) ||
+                other.payoutStatus == payoutStatus) &&
+            (identical(other.commissionRate, commissionRate) ||
+                other.commissionRate == commissionRate) &&
+            (identical(other.commissionAmount, commissionAmount) ||
+                other.commissionAmount == commissionAmount) &&
+            (identical(other.sellerEarnings, sellerEarnings) ||
+                other.sellerEarnings == sellerEarnings) &&
+            (identical(other.paidAt, paidAt) || other.paidAt == paidAt) &&
+            (identical(other.releasedAt, releasedAt) ||
+                other.releasedAt == releasedAt) &&
+            (identical(other.completedAt, completedAt) ||
+                other.completedAt == completedAt) &&
             (identical(other.paymentReference, paymentReference) ||
                 other.paymentReference == paymentReference) &&
             (identical(other.paymentMethod, paymentMethod) ||
                 other.paymentMethod == paymentMethod) &&
+            (identical(other.buyerConfirmed, buyerConfirmed) ||
+                other.buyerConfirmed == buyerConfirmed) &&
+            (identical(other.buyerConfirmedAt, buyerConfirmedAt) ||
+                other.buyerConfirmedAt == buyerConfirmedAt) &&
+            (identical(other.buyerComment, buyerComment) ||
+                other.buyerComment == buyerComment) &&
+            (identical(other.buyerFeedbackImageUrl, buyerFeedbackImageUrl) ||
+                other.buyerFeedbackImageUrl == buyerFeedbackImageUrl) &&
+            (identical(other.isDisputed, isDisputed) ||
+                other.isDisputed == isDisputed) &&
             (identical(other.createdAt, createdAt) ||
                 other.createdAt == createdAt) &&
             (identical(other.updatedAt, updatedAt) ||
@@ -418,24 +674,38 @@ class _$OrderModelImpl implements _OrderModel {
 
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
-  int get hashCode => Object.hash(
-      runtimeType,
-      orderId,
-      buyerId,
-      streetSellerId,
-      fishId,
-      quantity,
-      totalPrice,
-      pickupCode,
-      status,
-      estimatedArrival,
-      buyerLocation,
-      streetSellerLocation,
-      isPaid,
-      paymentReference,
-      paymentMethod,
-      createdAt,
-      updatedAt);
+  int get hashCode => Object.hashAll([
+        runtimeType,
+        orderId,
+        buyerId,
+        streetSellerId,
+        fishId,
+        quantity,
+        totalPrice,
+        pickupCode,
+        status,
+        estimatedArrival,
+        buyerLocation,
+        streetSellerLocation,
+        isPaid,
+        paymentStatus,
+        payoutStatus,
+        commissionRate,
+        commissionAmount,
+        sellerEarnings,
+        paidAt,
+        releasedAt,
+        completedAt,
+        paymentReference,
+        paymentMethod,
+        buyerConfirmed,
+        buyerConfirmedAt,
+        buyerComment,
+        buyerFeedbackImageUrl,
+        isDisputed,
+        createdAt,
+        updatedAt
+      ]);
 
   /// Create a copy of OrderModel
   /// with the given fields replaced by the non-null parameter values.
@@ -462,13 +732,26 @@ abstract class _OrderModel implements OrderModel {
           final int quantity,
           final double totalPrice,
           final String pickupCode,
-          final OrderStatus status,
+          @OrderStatusConverter() final OrderStatus status,
           @OptionalTimestampConverter() final DateTime? estimatedArrival,
           @GeoPointConverter() final GeoPoint? buyerLocation,
           @GeoPointConverter() final GeoPoint? streetSellerLocation,
           final bool isPaid,
+          @PaymentStatusConverter() final PaymentStatus paymentStatus,
+          @PayoutStatusConverter() final PayoutStatus payoutStatus,
+          final double commissionRate,
+          final double commissionAmount,
+          final double sellerEarnings,
+          @OptionalTimestampConverter() final DateTime? paidAt,
+          @OptionalTimestampConverter() final DateTime? releasedAt,
+          @OptionalTimestampConverter() final DateTime? completedAt,
           final String paymentReference,
           final String paymentMethod,
+          final bool buyerConfirmed,
+          @OptionalTimestampConverter() final DateTime? buyerConfirmedAt,
+          final String buyerComment,
+          final String buyerFeedbackImageUrl,
+          final bool isDisputed,
           @TimestampConverter() required final DateTime createdAt,
           @TimestampConverter() required final DateTime updatedAt}) =
       _$OrderModelImpl;
@@ -491,6 +774,7 @@ abstract class _OrderModel implements OrderModel {
   @override
   String get pickupCode;
   @override
+  @OrderStatusConverter()
   OrderStatus get status;
   @override
   @OptionalTimestampConverter()
@@ -504,9 +788,41 @@ abstract class _OrderModel implements OrderModel {
   @override
   bool get isPaid;
   @override
+  @PaymentStatusConverter()
+  PaymentStatus get paymentStatus;
+  @override
+  @PayoutStatusConverter()
+  PayoutStatus get payoutStatus;
+  @override
+  double get commissionRate;
+  @override
+  double get commissionAmount;
+  @override
+  double get sellerEarnings;
+  @override
+  @OptionalTimestampConverter()
+  DateTime? get paidAt;
+  @override
+  @OptionalTimestampConverter()
+  DateTime? get releasedAt;
+  @override
+  @OptionalTimestampConverter()
+  DateTime? get completedAt;
+  @override
   String get paymentReference;
   @override
   String get paymentMethod;
+  @override
+  bool get buyerConfirmed;
+  @override
+  @OptionalTimestampConverter()
+  DateTime? get buyerConfirmedAt;
+  @override
+  String get buyerComment;
+  @override
+  String get buyerFeedbackImageUrl;
+  @override
+  bool get isDisputed;
   @override
   @TimestampConverter()
   DateTime get createdAt;

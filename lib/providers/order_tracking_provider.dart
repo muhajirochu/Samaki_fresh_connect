@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:math';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
@@ -9,6 +8,7 @@ import '../models/enums/order_status.dart';
 import '../models/order_model.dart';
 import '../services/delivery_service.dart';
 import '../services/notification_service.dart';
+import '../services/payout_service.dart';
 import '../services/order_tracking_service.dart';
 import '../services/seller_location_tracker.dart';
 import '../utils/logger.dart';
@@ -18,50 +18,79 @@ final orderTrackingProvider = Provider<OrderTrackingStateNotifier>((ref) {
   final service = ref.watch(orderTrackingServiceProvider);
   final notifSvc = ref.watch(notificationServiceProvider);
   final deliverySvc = ref.watch(deliveryServiceProvider);
-  return OrderTrackingStateNotifier(service, notifSvc, deliverySvc);
+  final payoutSvc = ref.watch(payoutServiceProvider);
+  return OrderTrackingStateNotifier(service, notifSvc, deliverySvc, payoutSvc);
 });
 
 class OrderTrackingStateNotifier {
   final OrderTrackingService _service;
   final NotificationService _notifSvc;
   final DeliveryService _deliverySvc;
+  final PayoutService _payoutSvc;
 
-  OrderTrackingStateNotifier(this._service, this._notifSvc, this._deliverySvc);
+  OrderTrackingStateNotifier(this._service, this._notifSvc, this._deliverySvc, this._payoutSvc);
 
   Timer? _shareTimer;
   String? _sharingForOrderId;
 
-  /// Generates a random 4 digit pickup code
-  String generatePickupCode() {
-    final rng = Random();
-    return (1000 + rng.nextInt(9000)).toString();
-  }
 
-  /// Sets the pickup code for an order and notifies buyer
-  Future<void> generateAndSetPickupCode(OrderModel order) async {
-    final code = generatePickupCode();
-    await _service.setPickupCode(order.orderId, code);
-    await _notifyBuyer(
-      order.buyerId,
-      order.orderId,
-      'Order Ready for Pickup',
-      'Your order is ready. Use code $code to pick it up.',
+  // ── NOTE: Pickup code flow has been removed. ──────────────────────────────
+  // The new flow is: seller marks order as outForDelivery, then the BUYER
+  // confirms receipt (with optional comment + photo) to release payout.
+
+
+  /// Called when the BUYER confirms they received the fish.
+  /// This is the ONLY trigger that releases payout to the StreetSeller.
+  Future<bool> confirmBuyerReceived(OrderModel order, {
+    String buyerComment = '',
+    String buyerFeedbackImageUrl = '',
+  }) async {
+    // Guard: already confirmed
+    if (order.buyerConfirmed) return false;
+    
+    final success = await _payoutSvc.confirmReceived(
+      orderId: order.orderId,
+      totalAmount: order.totalPrice,
+      paymentMethod: order.paymentMethod,
+      paymentReference: order.paymentReference,
+      buyerComment: buyerComment,
+      buyerFeedbackImageUrl: buyerFeedbackImageUrl,
     );
-  }
-
-  /// Verifies pickup code and completes order if correct
-  Future<bool> verifyPickupCode(OrderModel order, String inputCode) async {
-    if (inputCode == order.pickupCode) {
-      await _service.completeOrder(order.orderId);
+    
+    if (success) {
       await _notifyBuyer(
         order.buyerId,
         order.orderId,
-        'Order Completed',
-        'Your order has been completed successfully!',
+        'Order Complete!',
+        'Thank you! Your payment has been released to the seller.',
       );
-      return true;
     }
-    return false;
+    return success;
+  }
+
+  /// Called when the BUYER reports the order was wrong.
+  /// Flags the order as DISPUTED for admin review. Payment stays HELD.
+  Future<bool> flagDispute(OrderModel order, {
+    String buyerComment = '',
+    String buyerFeedbackImageUrl = '',
+  }) async {
+    if (order.isDisputed || order.buyerConfirmed) return false;
+
+    final success = await _payoutSvc.flagDispute(
+      orderId: order.orderId,
+      buyerComment: buyerComment,
+      buyerFeedbackImageUrl: buyerFeedbackImageUrl,
+    );
+
+    if (success) {
+      await _notifyBuyer(
+        order.buyerId,
+        order.orderId,
+        'Dispute Raised',
+        'Your complaint has been recorded. Admin will review and contact you.',
+      );
+    }
+    return success;
   }
 
   /// Updates status and notifies buyer
@@ -69,7 +98,7 @@ class OrderTrackingStateNotifier {
     await _service.updateOrderStatus(order.orderId, newStatus);
     String title = 'Order Status Updated';
     String body = 'Your order is now ${newStatus.name}.';
-    if (newStatus == OrderStatus.arriving) {
+    if (newStatus == OrderStatus.outForDelivery) {
       title = 'Order Arriving Soon';
       body = 'The seller is on the way with your order!';
     } else if (newStatus == OrderStatus.cancelled) {

@@ -86,9 +86,9 @@ class BuyerDashboardState {
   int get activeRequestCount =>
       activeRequests.where((r) => 
         r.status == OrderStatus.pending || 
-        r.status == OrderStatus.accepted || 
-        r.status == OrderStatus.pickupGenerated || 
-        r.status == OrderStatus.arriving
+        r.status == OrderStatus.confirmed || 
+        r.status == OrderStatus.readyForPickup || 
+        r.status == OrderStatus.outForDelivery
       ).length;
 
   BuyerDashboardState copyWith({
