@@ -39,30 +39,7 @@
         radial-gradient(circle at 80% 85%, rgba(14, 165, 233, 0.20) 0%, transparent 45%);
     }
 
-    .lang-switcher {
-      display: flex; align-items: center; gap: 0;
-      background: var(--surface-light);
-      border: 1px solid rgba(56, 189, 248, 0.25);
-      border-radius: 100px; padding: 4px; margin-bottom: 20px;
-      position: relative; box-shadow: 0 4px 16px rgba(0,0,0,0.3);
-    }
-    .lang-btn {
-      position: relative; z-index: 1; padding: 8px 20px;
-      border: none; background: transparent; color: var(--text-muted);
-      font-family: 'Plus Jakarta Sans', sans-serif; font-size: 13px;
-      font-weight: 700; border-radius: 100px; cursor: pointer;
-      transition: color 0.25s ease; display: flex; align-items: center;
-      gap: 6px; letter-spacing: 0.3px; white-space: nowrap;
-    }
-    .lang-btn.active { color: #FFFFFF; }
-    .lang-slider {
-      position: absolute; top: 4px; left: 4px;
-      height: calc(100% - 8px);
-      background: linear-gradient(135deg, var(--primary), var(--primary-light));
-      border-radius: 100px; box-shadow: 0 4px 12px rgba(2, 132, 199, 0.5);
-      transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-      pointer-events: none;
-    }
+
 
     .container { max-width: 480px; width: 100%; display: flex; flex-direction: column; align-items: center; }
 
@@ -219,11 +196,6 @@
 <body>
 
   <div class="container">
-    <div class="lang-switcher" id="langSwitcher" role="group" aria-label="Select language">
-      <div class="lang-slider" id="langSlider"></div>
-      <button class="lang-btn active" id="btnSw" onclick="setLang('sw')" aria-pressed="true">🇹🇿 Kiswahili</button>
-      <button class="lang-btn" id="btnEn" onclick="setLang('en')" aria-pressed="false">🇬🇧 English</button>
-    </div>
 
     <div class="card">
       <div class="logo-container">
@@ -302,78 +274,31 @@
 
 
     const translations = {
-      sw: {
-        subtitle:        'Bei Nzuri. Samaki Safi. Utoaji wa Haraka.',
-        btnText:         'Pakua APK Sasa',
-        btnDownloading:  'Inapakua...',
-        stepsTitle:      'Hatua za Kusakinisha:',
-        step1:           'Gusa <strong>Pakua APK Sasa</strong> kuanza kupakua.',
-        step2:           'Fungua faili la APK kutoka notifications au downloads.',
-        step3:           'Kama simu ikiuliza, Ruhusu <em>"Install from unknown sources"</em>.',
-        step4:           'Bonyeza <strong>Install</strong> kisha fungua na uanze kutumia!',
-        footer:          '&copy; 2026 SamakiFresh Connect &middot; Ukurasa Rasmi wa Kutoa',
-        statusTitle:     'Inapakua APK...',
-        progressLabel:   'Tafadhali subiri — usifunge kivinjari hiki',
-        tip:             '💡 <strong>Kumbuka:</strong> APK inapakua kwenye <em>Downloads</em> ya simu. Baada ya kumaliza, bonyeza faili ili usakinishe.',
-      },
-      en: {
-        subtitle:        'Fair Price. Fresh Fish. Quick Delivery.',
-        btnText:         'Download APK Now',
-        btnDownloading:  'Downloading...',
-        stepsTitle:      'Installation Steps:',
-        step1:           'Tap <strong>Download APK Now</strong> to begin.',
-        step2:           'Open the downloaded APK file from notifications or downloads.',
-        step3:           'If prompted, allow <em>"Install from unknown sources"</em>.',
-        step4:           'Press <strong>Install</strong>, then open the app!',
-        footer:          '&copy; 2026 SamakiFresh Connect &middot; Official Release Page',
-        statusTitle:     'Downloading APK...',
-        progressLabel:   'Please wait — do not close this browser tab',
-        tip:             '💡 <strong>Tip:</strong> The APK downloads to your phone\'s <em>Downloads</em> folder. Tap the file when complete to install.',
-      }
+      subtitle:        'Bei Nzuri. Samaki Safi. Utoaji wa Haraka.',
+      btnText:         'Pakua APK Sasa',
+      btnDownloading:  'Inapakua...',
+      stepsTitle:      'Hatua za Kusakinisha:',
+      step1:           'Gusa <strong>Pakua APK Sasa</strong> kuanza kupakua.',
+      step2:           'Fungua faili la APK kutoka notifications au downloads.',
+      step3:           'Kama simu ikiuliza, Ruhusu <em>"Install from unknown sources"</em>.',
+      step4:           'Bonyeza <strong>Install</strong> kisha fungua na uanze kutumia!',
+      footer:          '&copy; 2026 SamakiFresh Connect &middot; Ukurasa Rasmi wa Kutoa',
+      statusTitle:     'Inapakua APK...',
+      progressLabel:   'Tafadhali subiri — usifunge kivinjari hiki',
+      tip:             '💡 <strong>Kumbuka:</strong> APK inapakua kwenye <em>Downloads</em> ya simu. Baada ya kumaliza, bonyeza faili ili usakinishe.',
     };
 
-    let currentLang = 'sw';
     let downloadTimer = null;
 
-    function positionSlider(lang) {
-      const slider = document.getElementById('langSlider');
-      const btnSw  = document.getElementById('btnSw');
-      const btnEn  = document.getElementById('btnEn');
-      slider.style.width     = (lang === 'sw' ? btnSw : btnEn).offsetWidth + 'px';
-      slider.style.transform = lang === 'sw' ? 'translateX(0)' : `translateX(${btnSw.offsetWidth}px)`;
-    }
-
-    function setLang(lang) {
-      currentLang = lang;
-      const t = translations[lang];
+    window.addEventListener('load', function () {
       const ids = ['subtitle','btnText','stepsTitle','step1','step2','step3','step4','footer'];
-      ids.forEach(id => { const el = document.getElementById(id); if (el) el.style.opacity = '0'; });
-
-      setTimeout(() => {
-        ids.forEach(id => {
-          const el = document.getElementById(id);
-          if (el) { el.innerHTML = t[id]; el.style.opacity = '1'; }
-        });
-        // Update live status texts if downloading
-        const statusEl = document.getElementById('downloadStatus');
-        if (statusEl && statusEl.classList.contains('visible')) {
-          document.getElementById('statusTitle').textContent = t.statusTitle;
-          document.getElementById('progressLabel').textContent = t.progressLabel;
-          document.getElementById('tipBox').innerHTML = t.tip;
-        }
-      }, 180);
-
-      document.getElementById('btnSw').classList.toggle('active', lang === 'sw');
-      document.getElementById('btnEn').classList.toggle('active', lang === 'en');
-      document.getElementById('btnSw').setAttribute('aria-pressed', lang === 'sw');
-      document.getElementById('btnEn').setAttribute('aria-pressed', lang === 'en');
-      positionSlider(lang);
-      document.documentElement.lang = lang;
-      localStorage.setItem('samaki_lang', lang);
-    }
+      ids.forEach(id => {
+        const el = document.getElementById(id);
+        if (el) { el.innerHTML = translations[id]; el.style.opacity = '1'; }
+      });
+    });
 
     function startDownload(e) {
-      const t = translations[currentLang];
       const btn = document.getElementById('downloadBtn');
       const btnText = document.getElementById('btnText');
       const statusCard = document.getElementById('downloadStatus');
@@ -384,13 +309,13 @@
 
       // Show status card
       statusCard.classList.add('visible');
-      document.getElementById('statusTitle').textContent = t.statusTitle;
-      document.getElementById('progressLabel').textContent = t.progressLabel;
-      document.getElementById('tipBox').innerHTML = t.tip;
+      document.getElementById('statusTitle').textContent = translations.statusTitle;
+      document.getElementById('progressLabel').textContent = translations.progressLabel;
+      document.getElementById('tipBox').innerHTML = translations.tip;
 
       // Button state
       btn.classList.add('downloading');
-      btnText.textContent = t.btnDownloading;
+      btnText.textContent = translations.btnDownloading;
 
       // Simulate progress over estimated time (30s for 27MB on ~7 Mbps)
       const totalMs = sizeMB * 1200; // ~1.2s per MB estimate
@@ -417,20 +342,14 @@
             progressFill.style.width = '100%';
             btnBar.style.width = '100%';
             pctEl.textContent = '100%';
-            document.getElementById('statusTitle').textContent = currentLang === 'sw' ? '✅ Imepakua! Fungua faili usakinishe.' : '✅ Done! Open the file to install.';
+            document.getElementById('statusTitle').textContent = '✅ Imepakua! Fungua faili usakinishe.';
             btn.classList.remove('downloading');
-            btnText.innerHTML = t.btnText;
+            btnText.innerHTML = translations.btnText;
             btnBar.style.width = '0%';
           }, 3000);
         }
       }, 400);
     }
-
-    window.addEventListener('load', function () {
-      const saved = localStorage.getItem('samaki_lang') || 'sw';
-      positionSlider(saved);
-      setLang(saved);
-    });
   </script>
 
 </body>
